@@ -1,1 +1,51 @@
-:root{--yellow:#fffe15;--black:#090909;--graphite:#171717;--panel:#202020;--line:#303030;--white:#fff;--muted:#9b9b9b;--light:#f5f5f2}*{box-sizing:border-box}html{background:#0d0d0d}[hidden]{display:none!important}body{margin:0;font-family:Inter,Arial,sans-serif;background:#0d0d0d;color:var(--white);min-height:100vh;overflow-x:hidden}button,input{font:inherit}.login-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top right,#292900 0,transparent 32%),#090909}.login-card{width:min(460px,100%);background:#171717;border:1px solid #303030;border-radius:26px;padding:34px;display:grid;gap:16px;box-shadow:0 24px 80px rgba(0,0,0,.45)}.login-mark{width:58px;height:58px;border-radius:17px;background:var(--yellow);color:#000;display:grid;place-items:center;font-weight:900;font-size:1.2rem}.login-card small{color:var(--yellow);font-weight:900;letter-spacing:.16em}.login-card h1{font-size:2.5rem;line-height:1;margin:0}.login-card p{color:#aaa;margin:0 0 8px}.login-card label{display:grid;gap:8px;font-weight:800}.login-card input{width:100%;padding:14px;border-radius:12px;border:1px solid #3a3a3a;background:#0e0e0e;color:#fff}.login-card button,.section-actions button{background:var(--yellow);color:#000;border:0;padding:14px 18px;border-radius:999px;font-weight:900;cursor:pointer}.login-card a{color:#aaa;text-align:center}.form-message{min-height:20px;color:#ff8f8f;font-size:.9rem}.app-shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh;width:100%}.sidebar{position:sticky;top:0;height:100vh;background:#080808;border-right:1px solid #222;padding:28px 20px;display:flex;flex-direction:column}.brand{display:flex;gap:12px;align-items:center;margin-bottom:40px}.brand>span{width:46px;height:46px;border-radius:14px;background:var(--yellow);color:#000;display:grid;place-items:center;font-weight:900}.brand div{display:grid}.brand small,.sidebar-footer small{color:var(--muted);margin-top:3px;word-break:break-all}.sidebar nav{display:grid;gap:8px}.nav-item{border:0;background:transparent;color:#aaa;text-align:left;padding:14px 16px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer}.nav-item:hover,.nav-item.active{background:#202020;color:#fff}.nav-item.active{box-shadow:inset 3px 0 var(--yellow)}.sidebar-footer{margin-top:auto;display:grid;gap:10px}.sidebar-footer button{border:1px solid #333;background:transparent;color:#fff;border-radius:999px;padding:10px;cursor:pointer}.back-link{color:#aaa;font-weight:700;padding:10px;text-align:center}.content{padding:42px;max-width:1500px;width:100%;min-width:0;margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}.topbar small{letter-spacing:.16em;color:var(--yellow);font-weight:900}.topbar h1{font-size:clamp(2.3rem,5vw,4.7rem);margin:8px 0 0;letter-spacing:-.06em}.status{border:1px solid #333;border-radius:999px;padding:10px 15px;color:#bbb}.view{display:none}.view.active{display:block}.notice{background:var(--yellow);color:#111;padding:20px 24px;border-radius:18px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap}.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.stats-grid article,.panel,.empty-state,.table-wrap{background:var(--graphite);border:1px solid var(--line);border-radius:20px;padding:24px}.stats-grid small{color:#aaa;font-weight:800}.stats-grid strong{display:block;font-size:3.2rem;margin:18px 0 4px}.stats-grid span{color:#888}.panel-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}.panel h2{margin:0;font-size:1.4rem}.panel-head{padding-bottom:18px;border-bottom:1px solid var(--line)}.steps{display:grid;grid-template-columns:36px 1fr;gap:18px 12px;margin-top:22px}.steps span{width:34px;height:34px;border-radius:50%;background:var(--yellow);color:#000;display:grid;place-items:center;font-weight:900}.steps p{margin:0;color:#aaa;display:grid;gap:5px}.steps strong{color:#fff}.metrics{margin:20px 0 0;padding-left:20px;color:#bbb;display:grid;gap:14px}.section-actions{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.section-actions p{color:#aaa}.table-wrap{overflow:auto;padding:0}.table-wrap table{width:100%;border-collapse:collapse;min-width:760px}.table-wrap th,.table-wrap td{padding:16px 18px;text-align:left;border-bottom:1px solid #2b2b2b;vertical-align:top}.table-wrap th{color:#aaa;font-size:.78rem;letter-spacing:.08em}.table-wrap td{color:#ddd}.badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#292929;font-size:.82rem}.badge.yes{background:var(--yellow);color:#000;font-weight:800}.empty-state{border:0;min-height:300px;display:grid;place-content:center;text-align:center}.empty-state h2{font-size:2rem;margin:0 0 10px}.empty-state p{color:#999;max-width:600px;line-height:1.7}@media(max-width:1000px){.app-shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto;padding:20px 16px}.brand{margin-bottom:16px}.sidebar nav{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:8px}.nav-item{text-align:center;padding:12px 8px;font-size:.9rem}.sidebar-footer{margin-top:16px;grid-template-columns:1fr auto auto;align-items:center}.sidebar-footer button,.back-link{white-space:nowrap}.content{padding:28px}.stats-grid{grid-template-columns:1fr 1fr}.panel-grid{grid-template-columns:1fr}}@media(max-width:640px){.login-screen{padding:16px}.login-card{padding:24px;border-radius:22px}.login-card h1{font-size:2.2rem}.sidebar nav{grid-template-columns:1fr 1fr}.sidebar-footer{grid-template-columns:1fr}.sidebar-footer small{text-align:center}.content{padding:24px 14px}.topbar{align-items:flex-start;margin-bottom:24px}.status{display:none}.stats-grid{grid-template-columns:1fr}.notice{display:grid}.section-actions{align-items:flex-start;gap:14px}.section-actions button{flex:0 0 auto}.topbar h1{font-size:2.6rem}.table-wrap{border-radius:16px}.empty-state{min-height:240px;padding:22px}.empty-state h2{font-size:1.7rem}}
+/* ============================================================
+   Casa Forte Erechim — ajustes exclusivos do painel
+   Depende de casaforte.css
+   ============================================================ */
+
+.cf-record {
+  background: var(--cf-surface);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  padding: 15px;
+  margin-bottom: 11px;
+}
+
+.cf-record-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.cf-record-title { font-weight: 700; font-size: 15px; }
+.cf-record-date { color: var(--cf-text-dim); font-size: 12.5px; white-space: nowrap; }
+.cf-record-body { color: var(--cf-text-dim); font-size: 13.5px; margin-top: 7px; line-height: 1.55; }
+
+.cf-urgent {
+  background: #3a1414;
+  color: #ff9a9a;
+  border-color: #5c1f1f;
+  font-weight: 700;
+}
+
+.cf-mini-track {
+  height: 5px;
+  background: var(--cf-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 9px;
+  max-width: 190px;
+}
+.cf-mini-fill { height: 100%; background: var(--cf-yellow); border-radius: 999px; }
+
+.cf-count {
+  color: var(--cf-text-dim);
+  font-size: 13px;
+  margin-bottom: 13px;
+}
+
+@media (max-width: 560px) {
+  .cf-member-actions .cf-btn-sm { flex: 1; text-align: center; }
+}
