@@ -8,7 +8,7 @@ const loginForm=document.getElementById('loginForm');
 const loginMessage=document.getElementById('loginMessage');
 const userEmail=document.getElementById('userEmail');
 const connectionStatus=document.getElementById('connectionStatus');
-const titles={dashboard:'Visão geral',visitantes:'Visitantes',eventos:'Eventos',intercessao:'Intercessão'};
+const titles={dashboard:'Visão geral',visitantes:'Visitantes',eventos:'Eventos',intercessao:'Intercessão e Cuidado'};
 
 function escapeHtml(value=''){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));}
 function formatDate(value){if(!value)return '—';return new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(value));}
