@@ -131,3 +131,17 @@ if(footerBar && !document.getElementById('adminAccessButton')){
   adminButton.setAttribute('aria-label','Acessar o painel administrativo da Casa Forte');
   footerBar.appendChild(adminButton);
 }
+
+const memberHeroButton=[...document.querySelectorAll('.hero-buttons a')].find(link=>link.textContent.trim()==='Sou da Casa');
+if(memberHeroButton){
+  memberHeroButton.href='familia.html';
+  memberHeroButton.textContent='Família Casa Forte';
+}
+
+const memberGrid=document.querySelector('.member-grid');
+if(memberGrid && !memberGrid.querySelector('[href="familia.html"]')){
+  const familyLink=document.createElement('a');
+  familyLink.href='familia.html';
+  familyLink.textContent='Entrar na Família Casa Forte';
+  memberGrid.prepend(familyLink);
+}
