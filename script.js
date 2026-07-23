@@ -8,6 +8,22 @@ const year=document.getElementById('year'); if(year) year.textContent=new Date()
 document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',async()=>{const text=document.getElementById(btn.dataset.copy).textContent.trim();try{await navigator.clipboard.writeText(text);const old=btn.textContent;btn.textContent='Chave copiada!';setTimeout(()=>btn.textContent=old,1800)}catch{prompt('Copie a chave Pix:',text)}}));
 const openWhatsApp=(message)=>window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`,'_blank');
 
+async function notifyWhatsApp(type,data){
+  try{
+    const response=await fetch('/api/whatsapp-notify',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type,data})
+    });
+    if(!response.ok){
+      const result=await response.json().catch(()=>({}));
+      console.warn('Cadastro salvo, mas a notificação do WhatsApp falhou.',result);
+    }
+  }catch(error){
+    console.warn('Cadastro salvo, mas não foi possível chamar a notificação do WhatsApp.',error);
+  }
+}
+
 const visitor=document.getElementById('visitorForm');
 visitor?.addEventListener('submit',async event=>{
   event.preventDefault();
@@ -50,6 +66,7 @@ visitor?.addEventListener('submit',async event=>{
     return;
   }
 
+  notifyWhatsApp('visitante',payload);
   visitor.reset();
   visitor.hidden=true;
   success.hidden=false;
@@ -73,6 +90,7 @@ prayer?.addEventListener('submit',async event=>{
   submit.textContent='Enviando pedido...';
   status.textContent='';
 
+  const desejaContato=String(data.get('desejaContato')||'');
   const payload={
     nome:String(data.get('nome')||'').trim(),
     telefone:String(data.get('telefone')||'').trim(),
@@ -81,7 +99,7 @@ prayer?.addEventListener('submit',async event=>{
     urgente:false,
     status:'novo',
     responsavel:null,
-    observacoes:`Deseja contato da equipe: ${data.get('desejaContato')}`
+    observacoes:`Deseja contato da equipe: ${desejaContato}`
   };
 
   const {error}=await supabaseClient.from('pedidos_oracao').insert(payload);
@@ -93,6 +111,10 @@ prayer?.addEventListener('submit',async event=>{
     return;
   }
 
+  notifyWhatsApp('pedido_oracao',{
+    ...payload,
+    deseja_contato:desejaContato
+  });
   prayer.reset();
   prayer.hidden=true;
   success.hidden=false;
