@@ -1,96 +1,19 @@
 const SUPABASE_URL='https://mfqlmsisrceyajspeeav.supabase.co';
 const SUPABASE_KEY='sb_publishable_0UsdpSSgbF0pADTG-Viazw_vIphuNnE';
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-const authArea=document.getElementById('authArea');
-const dashboard=document.getElementById('dashboard');
-const form=document.getElementById('authForm');
-const status=document.getElementById('authStatus');
-const submit=document.getElementById('authSubmit');
-const nameLabel=document.getElementById('nameLabel');
-const nameInput=document.getElementById('name');
-const emailInput=document.getElementById('email');
-const passwordInput=document.getElementById('password');
-let mode='login';
-
-function showDashboard(user){
-  authArea.classList.add('hidden');
-  dashboard.classList.add('active');
-  const name=user.user_metadata?.full_name || user.email?.split('@')[0] || 'Família Casa Forte';
-  document.getElementById('welcomeName').textContent=`Olá, ${name}!`;
-  document.getElementById('welcomeEmail').textContent=user.email || '';
-}
-
-function showAuth(){
-  dashboard.classList.remove('active');
-  authArea.classList.remove('hidden');
-}
-
-document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{
-  mode=tab.dataset.mode;
-  document.querySelectorAll('.tab').forEach(item=>item.classList.toggle('active',item===tab));
-  nameLabel.classList.toggle('hidden',mode!=='signup');
-  nameInput.required=mode==='signup';
-  passwordInput.autocomplete=mode==='signup'?'new-password':'current-password';
-  submit.textContent=mode==='signup'?'Criar meu acesso':'Entrar na Família Casa Forte';
-  status.textContent='';
-}));
-
-form.addEventListener('submit',async event=>{
-  event.preventDefault();
-  submit.disabled=true;
-  status.textContent=mode==='signup'?'Criando seu acesso...':'Entrando...';
-
-  if(mode==='signup'){
-    const {data,error}=await client.auth.signUp({
-      email:emailInput.value.trim(),
-      password:passwordInput.value,
-      options:{data:{full_name:nameInput.value.trim()}}
-    });
-    if(error){
-      status.textContent=error.message;
-    }else if(data.session){
-      showDashboard(data.user);
-    }else{
-      status.textContent='Cadastro criado. Confira seu e-mail para confirmar o acesso.';
-    }
-  }else{
-    const {data,error}=await client.auth.signInWithPassword({
-      email:emailInput.value.trim(),
-      password:passwordInput.value
-    });
-    if(error){
-      status.textContent='E-mail ou senha inválidos.';
-    }else{
-      showDashboard(data.user);
-    }
-  }
-
-  submit.disabled=false;
-});
-
-document.getElementById('logout').addEventListener('click',async()=>{
-  await client.auth.signOut();
-  form.reset();
-  showAuth();
-});
-
-document.querySelectorAll('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{
-  const value=document.getElementById(button.dataset.copy).textContent.trim();
-  try{
-    await navigator.clipboard.writeText(value);
-    const original=button.textContent;
-    button.textContent='Pix copiado!';
-    setTimeout(()=>button.textContent=original,1800);
-  }catch{
-    prompt('Copie a chave Pix:',value);
-  }
-}));
-
-client.auth.getSession().then(({data})=>{
-  if(data.session?.user) showDashboard(data.session.user);
-});
-
-client.auth.onAuthStateChange((_event,session)=>{
-  if(session?.user) showDashboard(session.user);
-});
+const $=id=>document.getElementById(id);
+const authArea=$('authArea'),dashboard=$('dashboard'),form=$('authForm'),status=$('authStatus'),submit=$('authSubmit'),nameLabel=$('nameLabel'),nameInput=$('name'),emailInput=$('email'),passwordInput=$('password');
+let mode='login',currentUser=null,currentPhoto='';
+const requiredProfile=['full_name','phone','birth_date','jesus_year','previous_ministry','baptized','photo_url'];
+function profilePercent(meta={}){return Math.round(requiredProfile.filter(k=>String(meta[k]??'').trim()).length/requiredProfile.length*100)}
+function renderProfile(user){currentUser=user;const m=user.user_metadata||{};const name=m.full_name||user.email?.split('@')[0]||'Família Casa Forte';$('welcomeName').textContent=`Olá, ${name}!`;$('welcomeEmail').textContent=user.email||'';const pct=profilePercent(m);$('profileProgress').innerHTML=pct===100?'<span class="star">★</span> Perfil completo!':`Perfil ${pct}% completo`;$('profileName').value=m.full_name||'';$('profilePhone').value=m.phone||'';$('profileInstagram').value=m.instagram||'';$('profileBirth').value=m.birth_date||'';$('profileJesusYear').value=m.jesus_year||'';$('profilePreviousMinistry').value=m.previous_ministry||'';$('profileBaptized').value=m.baptized||'';currentPhoto=m.photo_url||'';$('photoPreview').src=currentPhoto||'logo.png';$('avatarBox').outerHTML=currentPhoto?`<img id="avatarBox" class="avatar" src="${currentPhoto}" alt="Foto de perfil">`:'<div id="avatarBox" class="avatar-placeholder">CF</div>'}
+function showDashboard(user){authArea.classList.add('hidden');dashboard.classList.add('active');renderProfile(user)}
+function showAuth(){dashboard.classList.remove('active');authArea.classList.remove('hidden')}
+document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{mode=tab.dataset.mode;document.querySelectorAll('.tab').forEach(i=>i.classList.toggle('active',i===tab));nameLabel.classList.toggle('hidden',mode!=='signup');nameInput.required=mode==='signup';passwordInput.autocomplete=mode==='signup'?'new-password':'current-password';submit.textContent=mode==='signup'?'Criar meu acesso':'Entrar na Família Casa Forte';status.textContent=''}));
+form.addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;status.textContent=mode==='signup'?'Criando seu acesso...':'Entrando...';if(mode==='signup'){const {data,error}=await client.auth.signUp({email:emailInput.value.trim(),password:passwordInput.value,options:{data:{full_name:nameInput.value.trim(),status_igreja:'visitante',ministerios:[]}}});if(error)status.textContent=error.message;else if(data.session)showDashboard(data.user);else status.textContent='Cadastro criado. Confira seu e-mail para confirmar o acesso.'}else{const {data,error}=await client.auth.signInWithPassword({email:emailInput.value.trim(),password:passwordInput.value});if(error)status.textContent='E-mail ou senha inválidos.';else showDashboard(data.user)}submit.disabled=false});
+$('editProfile').addEventListener('click',()=>{$('profilePanel').hidden=!$('profilePanel').hidden;if(!$('profilePanel').hidden)$('profilePanel').scrollIntoView({behavior:'smooth'})});
+$('profilePhoto').addEventListener('change',e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>900000){$('profileStatus').textContent='Escolha uma foto com até 900 KB.';return}const reader=new FileReader();reader.onload=()=>{currentPhoto=reader.result;$('photoPreview').src=currentPhoto};reader.readAsDataURL(file)});
+$('profileForm').addEventListener('submit',async e=>{e.preventDefault();$('saveProfile').disabled=true;$('profileStatus').textContent='Salvando perfil...';const metadata={full_name:$('profileName').value.trim(),phone:$('profilePhone').value.trim(),instagram:$('profileInstagram').value.trim(),birth_date:$('profileBirth').value,jesus_year:$('profileJesusYear').value,previous_ministry:$('profilePreviousMinistry').value,baptized:$('profileBaptized').value,photo_url:currentPhoto,status_igreja:currentUser?.user_metadata?.status_igreja||'visitante',ministerios:currentUser?.user_metadata?.ministerios||[]};const {data,error}=await client.auth.updateUser({data:metadata});if(error){$('profileStatus').textContent='Não foi possível salvar o perfil.'}else{currentUser=data.user;renderProfile(data.user);$('profileStatus').textContent='Perfil salvo com sucesso.';await client.from('membros').upsert({user_id:data.user.id,email:data.user.email,...metadata},{onConflict:'user_id'})}$('saveProfile').disabled=false});
+$('logout').addEventListener('click',async()=>{await client.auth.signOut();form.reset();showAuth()});
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{const v=$(b.dataset.copy).textContent.trim();try{await navigator.clipboard.writeText(v);const o=b.textContent;b.textContent='Pix copiado!';setTimeout(()=>b.textContent=o,1800)}catch{prompt('Copie a chave Pix:',v)}}));
+client.auth.getSession().then(({data})=>{if(data.session?.user)showDashboard(data.session.user)});client.auth.onAuthStateChange((_e,s)=>{if(s?.user)showDashboard(s.user)});
