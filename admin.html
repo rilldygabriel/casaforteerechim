@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Casa Forte Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span>CF</span><div><strong>Casa Forte</strong><small>Admin 1.0</small></div></div>
+    <nav>
+      <button class="nav-item active" data-view="dashboard">Visão geral</button>
+      <button class="nav-item" data-view="visitantes">Visitantes</button>
+      <button class="nav-item" data-view="eventos">Eventos</button>
+      <button class="nav-item" data-view="intercessao">Intercessão</button>
+    </nav>
+    <a class="back-link" href="index.html">Voltar ao site</a>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div><small>PAINEL MINISTERIAL</small><h1 id="pageTitle">Visão geral</h1></div>
+      <div class="status">Estrutura inicial</div>
+    </header>
+
+    <section class="view active" id="dashboard">
+      <div class="notice"><strong>Primeira etapa concluída.</strong><span>O painel visual está pronto. A próxima etapa será conectar um banco de dados e login seguro para receber informações reais do site.</span></div>
+      <div class="stats-grid">
+        <article><small>NOVOS VISITANTES</small><strong id="statVisitors">0</strong><span>no período</span></article>
+        <article><small>QUEREM ACOMPANHAMENTO</small><strong id="statSupport">0</strong><span>aguardando líder</span></article>
+        <article><small>INSCRIÇÕES EM EVENTOS</small><strong id="statEvents">0</strong><span>ativas</span></article>
+        <article><small>PEDIDOS DE ORAÇÃO</small><strong id="statPrayer">0</strong><span>pendentes</span></article>
+      </div>
+      <div class="panel-grid">
+        <article class="panel"><div class="panel-head"><h2>Próximos passos</h2></div><div class="steps"><span>1</span><p><strong>Banco de dados</strong>Guardar visitantes, inscrições e pedidos.</p><span>2</span><p><strong>Login seguro</strong>Acesso apenas para liderança autorizada.</p><span>3</span><p><strong>Formulários integrados</strong>Enviar dados do site direto ao painel.</p></div></article>
+        <article class="panel"><div class="panel-head"><h2>Indicadores previstos</h2></div><ul class="metrics"><li>Visitantes por semana e mês</li><li>Bairros com mais visitantes</li><li>Origem dos convites</li><li>Retorno ao próximo culto</li><li>Inscritos e vagas por evento</li></ul></article>
+      </div>
+    </section>
+
+    <section class="view" id="visitantes">
+      <div class="section-actions"><div><p>Cadastro e acompanhamento pastoral.</p></div><button disabled>Novo visitante</button></div>
+      <div class="empty-state"><h2>Nenhum visitante registrado ainda</h2><p>Quando conectarmos o formulário do site ao banco de dados, os visitantes aparecerão aqui automaticamente.</p></div>
+    </section>
+
+    <section class="view" id="eventos">
+      <div class="section-actions"><div><p>Criação de eventos, vagas e inscrições.</p></div><button disabled>Criar evento</button></div>
+      <div class="empty-state"><h2>Nenhum evento cadastrado</h2><p>O próximo módulo permitirá criar eventos, definir vagas e acompanhar inscrições e check-in.</p></div>
+    </section>
+
+    <section class="view" id="intercessao">
+      <div class="section-actions"><div><p>Pedidos de oração e responsáveis pelo atendimento.</p></div><button disabled>Novo pedido</button></div>
+      <div class="empty-state"><h2>Nenhum pedido registrado</h2><p>Os pedidos enviados pelo site aparecerão aqui depois da conexão com o banco de dados.</p></div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
