@@ -16,7 +16,7 @@
     <div class="hero-shade"></div>
     <div class="topbar wrap">
       <img class="logo" src="logo.png" alt="Igreja Casa Forte">
-      <a class="top-contact" href="https://wa.me/5554993217227" target="_blank" rel="noopener">Fale com a Casa</a>
+      <a class="top-contact" href="https://wa.me/5554992640253" target="_blank" rel="noopener">Fale com a Casa</a>
     </div>
     <div class="hero-copy wrap">
       <span class="kicker">IGREJA CASA FORTE • ERECHIM</span>
@@ -76,9 +76,40 @@
 
     <section class="section gallery-section"><div class="wrap"><div class="heading"><span class="kicker">O QUE DEUS TEM FEITO NA CASA</span><h2>Uma comunidade viva.</h2></div><div class="gallery"><img src="adoracao-jovem.jpg" alt="Adoração"><img src="recepcao.jpg" alt="Recepção"><img src="familia.jpg" alt="Família chegando"><img src="celebracao.jpg" alt="Celebração"><img src="oracao.jpg" alt="Momento de oração"><img src="7H0A8738.jpeg" alt="Momento de oração e cuidado na Igreja Casa Forte"></div><a class="button primary gallery-button" href="https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_" target="_blank">Ver todas as fotos</a></div></section>
 
-    <section class="section yellow" id="oracao"><div class="wrap split"><div><span class="kicker dark">PRECISO DE ORAÇÃO</span><h2>Você não precisa carregar isso sozinho.</h2><p>Escreva seu pedido. Ao enviar, o WhatsApp abrirá com a mensagem pronta.</p></div><form class="card form" id="prayerForm"><label>Nome (opcional)<input name="nome"></label><label>Pedido de oração<textarea name="pedido" rows="6" required></textarea></label><button class="button black" type="submit">Enviar pedido</button></form></div></section>
+    <section class="section yellow" id="oracao">
+      <div class="wrap split">
+        <div><span class="kicker dark">INTERCESSÃO E CUIDADO</span><h2>Você não precisa carregar isso sozinho.</h2><p>Seu pedido será encaminhado para nossa equipe de intercessão, que estará orando por você.</p></div>
+        <div>
+          <form class="card form" id="prayerForm">
+            <label>Nome completo<input name="nome" required></label>
+            <label>Número de WhatsApp<input name="telefone" type="tel" required></label>
+            <label>Motivo do pedido de oração
+              <select name="categoria" required>
+                <option value="">Selecione</option>
+                <option value="saúde">Saúde</option>
+                <option value="família">Família</option>
+                <option value="vida_espiritual">Vida espiritual</option>
+                <option value="casamento">Casamento</option>
+                <option value="financeiro">Financeiro</option>
+                <option value="ansiedade_emocional">Ansiedade e emocional</option>
+                <option value="outro">Outro</option>
+              </select>
+            </label>
+            <label>Escreva seu pedido de oração<textarea name="pedido" rows="6" required></textarea></label>
+            <fieldset><legend>Gostaria que alguém da nossa equipe entrasse em contato com você?</legend><label class="choice"><input type="radio" name="desejaContato" value="Sim" required> Sim</label><label class="choice"><input type="radio" name="desejaContato" value="Não"> Não</label></fieldset>
+            <button class="button black" id="prayerSubmit" type="submit">Enviar pedido</button>
+            <p class="form-status" id="prayerStatus" aria-live="polite"></p>
+          </form>
+          <div class="visitor-success" id="prayerSuccess" hidden>
+            <span class="success-icon">✓</span>
+            <h3>Pedido enviado com sucesso!</h3>
+            <p>Nossa equipe recebeu sua mensagem e estará orando por você.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <section class="section charcoal footer-area"><div class="wrap footer-grid"><div><img class="footer-logo" src="logo.png" alt="Casa Forte"><h2>Você tem um lugar aqui.</h2><p class="soft">Rua José Reinaldo Angonezze, 319 — José Bonifácio, Erechim/RS.</p></div><div class="footer-links"><a href="https://wa.me/5554993217227" target="_blank">WhatsApp oficial</a><a href="https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic" target="_blank">Google Maps</a><a href="https://www.instagram.com/casaforteerechim" target="_blank">Instagram</a><a href="https://youtube.com/@igrejacasaforte-erechim5031" target="_blank">YouTube</a></div></div></section>
+    <section class="section charcoal footer-area"><div class="wrap footer-grid"><div><img class="footer-logo" src="logo.png" alt="Casa Forte"><h2>Você tem um lugar aqui.</h2><p class="soft">Rua José Reinaldo Angonezze, 319 — José Bonifácio, Erechim/RS.</p></div><div class="footer-links"><a href="https://wa.me/5554992640253" target="_blank">WhatsApp oficial</a><a href="https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic" target="_blank">Google Maps</a><a href="https://www.instagram.com/casaforteerechim" target="_blank">Instagram</a><a href="https://youtube.com/@igrejacasaforte-erechim5031" target="_blank">YouTube</a></div></div></section>
   </main>
   <footer class="bottom"><div class="wrap"><span>© <span id="year"></span> Igreja Casa Forte Erechim</span><span>Não ande sozinho.</span></div></footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
