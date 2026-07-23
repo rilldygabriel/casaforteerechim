@@ -32,7 +32,7 @@
         <button class="nav-item active" data-view="dashboard">Visão geral</button>
         <button class="nav-item" data-view="visitantes">Visitantes</button>
         <button class="nav-item" data-view="eventos">Eventos</button>
-        <button class="nav-item" data-view="intercessao">Intercessão</button>
+        <button class="nav-item" data-view="intercessao">Intercessão e Cuidado</button>
       </nav>
       <div class="sidebar-footer">
         <small id="userEmail"></small>
@@ -56,7 +56,7 @@
           <article><small>PEDIDOS DE ORAÇÃO</small><strong id="statPrayer">0</strong><span>novos pedidos</span></article>
         </div>
         <div class="panel-grid">
-          <article class="panel"><div class="panel-head"><h2>Prioridades pastorais</h2></div><div class="steps"><span>1</span><p><strong>Novos visitantes</strong>Veja quem precisa de contato e acompanhamento.</p><span>2</span><p><strong>Intercessão</strong>Acompanhe os pedidos ainda não atendidos.</p><span>3</span><p><strong>Eventos</strong>Monitore inscrições e presença.</p></div></article>
+          <article class="panel"><div class="panel-head"><h2>Prioridades pastorais</h2></div><div class="steps"><span>1</span><p><strong>Novos visitantes</strong>Veja quem precisa de contato e acompanhamento.</p><span>2</span><p><strong>Intercessão e Cuidado</strong>Acompanhe os pedidos ainda não atendidos.</p><span>3</span><p><strong>Eventos</strong>Monitore inscrições e presença.</p></div></article>
           <article class="panel"><div class="panel-head"><h2>Atualização</h2></div><ul class="metrics"><li id="metricMonth">0 visitantes nos últimos 30 dias</li><li id="metricPastor">0 querem mensagem do pastor</li><li id="metricActiveEvents">0 eventos ativos</li></ul></article>
         </div>
       </section>
@@ -72,7 +72,7 @@
       </section>
 
       <section class="view" id="intercessao">
-        <div class="section-actions"><div><p>Pedidos de oração e responsáveis.</p></div><button id="refreshPrayer">Atualizar</button></div>
+        <div class="section-actions"><div><p>Pedidos de oração, contato e responsáveis pelo cuidado.</p></div><button id="refreshPrayer">Atualizar</button></div>
         <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Categoria</th><th>Pedido</th><th>Urgente</th><th>Status</th></tr></thead><tbody id="prayerBody"></tbody></table><div class="empty-state" id="prayerEmpty"><h2>Nenhum pedido registrado</h2><p>Os pedidos enviados pelo site aparecerão aqui.</p></div></div>
       </section>
     </main>
