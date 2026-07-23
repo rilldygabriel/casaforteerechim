@@ -1,4 +1,6 @@
 const GRAPH_API_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || 'v23.0';
+const DEFAULT_NOTIFICATION_TO = '5554993217227';
+const DEFAULT_TEMPLATE_NAME = 'notificacao_site_casa_forte';
 
 function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -57,16 +59,22 @@ export default async function handler(req, res) {
 
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const destination = process.env.WHATSAPP_NOTIFICATION_TO;
-  const templateName = process.env.WHATSAPP_TEMPLATE_NAME;
+  const destination = process.env.WHATSAPP_NOTIFICATION_TO || DEFAULT_NOTIFICATION_TO;
+  const templateName = process.env.WHATSAPP_TEMPLATE_NAME || DEFAULT_TEMPLATE_NAME;
   const templateLanguage = process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'pt_BR';
 
-  if (!accessToken || !phoneNumberId || !destination || !templateName) {
-    console.error('WhatsApp não configurado: faltam variáveis de ambiente.');
+  if (!accessToken || !phoneNumberId) {
+    console.error('WhatsApp não configurado: faltam token ou Phone Number ID.');
     return json(res, 503, { ok: false, error: 'Notificação ainda não configurada.' });
   }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  let body;
+  try {
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  } catch {
+    return json(res, 400, { ok: false, error: 'Dados inválidos.' });
+  }
+
   const type = body?.type;
   const data = body?.data || {};
 
@@ -112,7 +120,11 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error('Erro da WhatsApp Cloud API:', result);
-      return json(res, 502, { ok: false, error: 'A Meta recusou a notificação.' });
+      return json(res, 502, {
+        ok: false,
+        error: 'A Meta recusou a notificação.',
+        code: result?.error?.code || null
+      });
     }
 
     return json(res, 200, { ok: true, messageId: result.messages?.[0]?.id || null });
