@@ -6,3 +6,14 @@ const visitor=document.getElementById('visitorForm');
 visitor?.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(visitor);openWhatsApp(`NOVO VISITANTE — CASA FORTE\n\nNome: ${d.get('nome')}\nTelefone: ${d.get('telefone')}\nCidade: ${d.get('cidade')}\nBairro: ${d.get('bairro')}\n\nConvidado por: ${d.get('convidadoPor')||'Não informado'}\nIgreja anterior: ${d.get('igrejaAnterior')||'Não informado'}\n\nSuporte de um líder: ${d.get('suporteLider')}\nPasso de fé: ${d.get('passoFe')}\nMensagem do Pastor: ${d.get('mensagemPastor')}\nExperiência no culto: ${d.get('experienciaCulto')}\nVontade de voltar: ${d.get('voltarCasa')}\n\nEnviado pelo site da Igreja Casa Forte.`)});
 const prayer=document.getElementById('prayerForm');
 prayer?.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(prayer);openWhatsApp(`Olá! Gostaria de enviar um pedido de oração.\n\nNome: ${d.get('nome')||'Anônimo'}\nPedido: ${d.get('pedido')}`)});
+
+const footerBar=document.querySelector('.bottom .wrap');
+if(footerBar && !document.getElementById('adminAccessButton')){
+  const adminButton=document.createElement('a');
+  adminButton.id='adminAccessButton';
+  adminButton.href='admin.html';
+  adminButton.className='button primary';
+  adminButton.textContent='Painel Administrativo';
+  adminButton.setAttribute('aria-label','Acessar o painel administrativo da Casa Forte');
+  footerBar.appendChild(adminButton);
+}
