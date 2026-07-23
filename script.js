@@ -1,4 +1,4 @@
-const phone='5554993217227';
+const phone='5554992640253';
 const groupUrl='https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t';
 const SUPABASE_URL='https://mfqlmsisrceyajspeeav.supabase.co';
 const SUPABASE_KEY='sb_publishable_0UsdpSSgbF0pADTG-Viazw_vIphuNnE';
@@ -57,7 +57,47 @@ visitor?.addEventListener('submit',async event=>{
 });
 
 const prayer=document.getElementById('prayerForm');
-prayer?.addEventListener('submit',event=>{event.preventDefault();const data=new FormData(prayer);openWhatsApp(`Olá! Gostaria de enviar um pedido de oração.\n\nNome: ${data.get('nome')||'Anônimo'}\nPedido: ${data.get('pedido')}`)});
+prayer?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const submit=document.getElementById('prayerSubmit');
+  const status=document.getElementById('prayerStatus');
+  const success=document.getElementById('prayerSuccess');
+  const data=new FormData(prayer);
+
+  if(!supabaseClient){
+    status.textContent='Não foi possível conectar agora. Tente novamente em instantes.';
+    return;
+  }
+
+  submit.disabled=true;
+  submit.textContent='Enviando pedido...';
+  status.textContent='';
+
+  const payload={
+    nome:String(data.get('nome')||'').trim(),
+    telefone:String(data.get('telefone')||'').trim(),
+    categoria:data.get('categoria'),
+    pedido:String(data.get('pedido')||'').trim(),
+    urgente:false,
+    status:'novo',
+    responsavel:null,
+    observacoes:`Deseja contato da equipe: ${data.get('desejaContato')}`
+  };
+
+  const {error}=await supabaseClient.from('pedidos_oracao').insert(payload);
+  if(error){
+    console.error(error);
+    status.textContent='Não foi possível enviar agora. Confira sua conexão e tente novamente.';
+    submit.disabled=false;
+    submit.textContent='Enviar pedido';
+    return;
+  }
+
+  prayer.reset();
+  prayer.hidden=true;
+  success.hidden=false;
+  success.scrollIntoView({behavior:'smooth',block:'center'});
+});
 
 const footerBar=document.querySelector('.bottom .wrap');
 if(footerBar && !document.getElementById('adminAccessButton')){
