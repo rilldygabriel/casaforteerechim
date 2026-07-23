@@ -23,7 +23,7 @@
       <h1>Você tem<br>um lugar aqui.</h1>
       <p>Escolha o seu próximo passo.</p>
       <div class="hero-buttons">
-        <a class="button primary" href="#novo-visitante">Novo Visitante</a>
+        <a class="button primary" href="visitante.html">Novo Visitante</a>
         <a class="button ghost" href="#sou-da-casa">Sou da Casa</a>
         <a class="button ghost" href="#conhecer-a-casa">Quero conhecer a Casa</a>
       </div>
@@ -59,40 +59,6 @@
     <section class="photo-message">
       <img src="abraco.jpg" alt="Pessoas se abraçando na Casa Forte">
       <div><span class="kicker">PERTENCIMENTO</span><h2>Aqui você não é só mais um.</h2><p>Você é família.</p></div>
-    </section>
-
-    <section class="section yellow" id="novo-visitante">
-      <div class="wrap split visitor-layout">
-        <div><span class="kicker dark">NOVO VISITANTE</span><h2>Queremos conhecer você.</h2><p>Preencha esta ficha de acolhimento. Depois da confirmação, você poderá entrar no grupo oficial da Casa.</p></div>
-        <div>
-          <form class="card form" id="visitorForm">
-            <label>Nome completo<input name="nome" required></label>
-            <label>Telefone<input name="telefone" type="tel" required></label>
-            <label>Cidade<input name="cidade" required></label>
-            <label>Em qual bairro você mora?<input name="bairro" required></label>
-            <label>Se alguém te convidou, qual o nome dessa pessoa?<input name="convidadoPor"></label>
-            <label>Se já frequentou outra igreja, qual?<input name="igrejaAnterior"></label>
-            <fieldset><legend>Gostaria de ser acompanhado e receber suporte de um líder?</legend><label class="choice"><input type="radio" name="suporteLider" value="Sim" required> Sim</label><label class="choice"><input type="radio" name="suporteLider" value="Não"> Não</label></fieldset>
-            <fieldset><legend>Onde está o seu passo de fé?</legend><label class="choice"><input type="radio" name="passoFe" value="aceitei_jesus" required> Aceitei Jesus</label><label class="choice"><input type="radio" name="passoFe" value="batizado"> Sou batizado</label><label class="choice"><input type="radio" name="passoFe" value="caminhada_longa"> Já tenho uma caminhada longa na fé</label><label class="choice"><input type="radio" name="passoFe" value="conhecendo"> Sou novo, conhecendo ainda</label></fieldset>
-            <fieldset><legend>Gostaria de receber uma mensagem do Pastor?</legend><label class="choice"><input type="radio" name="mensagemPastor" value="Sim" required> Sim</label><label class="choice"><input type="radio" name="mensagemPastor" value="Não"> Não</label></fieldset>
-            <fieldset><legend>Como foi sua experiência no culto?</legend><label class="choice"><input type="radio" name="experienciaCulto" value="ruim" required> Ruim</label><label class="choice"><input type="radio" name="experienciaCulto" value="boa"> Boa</label><label class="choice"><input type="radio" name="experienciaCulto" value="ótima"> Ótima</label></fieldset>
-            <fieldset><legend>Você sentiu vontade de voltar à Casa?</legend><label class="choice"><input type="radio" name="voltarCasa" value="Sim, estarei no próximo culto" required> Sim, estarei no próximo culto</label><label class="choice"><input type="radio" name="voltarCasa" value="Não, fui só visitar"> Não, fui só visitar</label></fieldset>
-            <button class="button black" id="visitorSubmit" type="submit">Enviar ficha de visitante</button>
-            <p class="form-status" id="visitorStatus" aria-live="polite"></p>
-          </form>
-          <div class="visitor-success" id="visitorSuccess" hidden>
-            <span class="success-badge">CADASTRO CONCLUÍDO</span>
-            <span class="success-icon" aria-hidden="true">✓</span>
-            <h3>Você já faz parte da Casa!</h3>
-            <p>Seja muito bem-vindo. Entre agora no grupo oficial da Casa Forte para receber avisos, conhecer pessoas e caminhar conosco.</p>
-            <a class="group-cta" href="https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t" target="_blank" rel="noopener">
-              <span class="group-cta-small">CLIQUE AQUI</span>
-              <strong>ENTRAR NO GRUPO DA CASA</strong>
-            </a>
-            <small class="success-note">Seu próximo passo começa aqui.</small>
-          </div>
-        </div>
-      </div>
     </section>
 
     <section class="section light" id="sou-da-casa">
