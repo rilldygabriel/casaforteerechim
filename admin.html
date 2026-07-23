@@ -11,53 +11,74 @@
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="brand"><span>CF</span><div><strong>Casa Forte</strong><small>Admin 1.0</small></div></div>
-    <nav>
-      <button class="nav-item active" data-view="dashboard">Visão geral</button>
-      <button class="nav-item" data-view="visitantes">Visitantes</button>
-      <button class="nav-item" data-view="eventos">Eventos</button>
-      <button class="nav-item" data-view="intercessao">Intercessão</button>
-    </nav>
-    <a class="back-link" href="index.html">Voltar ao site</a>
-  </aside>
+  <section class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <span class="login-mark">CF</span>
+      <small>ÁREA RESTRITA</small>
+      <h1>Casa Forte Admin</h1>
+      <p>Entre com o e-mail autorizado da liderança.</p>
+      <label>E-mail<input id="loginEmail" type="email" autocomplete="email" required value="ragrilldy@gmail.com"></label>
+      <label>Senha<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Entrar no painel</button>
+      <span class="form-message" id="loginMessage"></span>
+      <a href="index.html">Voltar ao site</a>
+    </form>
+  </section>
 
-  <main class="content">
-    <header class="topbar">
-      <div><small>PAINEL MINISTERIAL</small><h1 id="pageTitle">Visão geral</h1></div>
-      <div class="status">Estrutura inicial</div>
-    </header>
-
-    <section class="view active" id="dashboard">
-      <div class="notice"><strong>Primeira etapa concluída.</strong><span>O painel visual está pronto. A próxima etapa será conectar um banco de dados e login seguro para receber informações reais do site.</span></div>
-      <div class="stats-grid">
-        <article><small>NOVOS VISITANTES</small><strong id="statVisitors">0</strong><span>no período</span></article>
-        <article><small>QUEREM ACOMPANHAMENTO</small><strong id="statSupport">0</strong><span>aguardando líder</span></article>
-        <article><small>INSCRIÇÕES EM EVENTOS</small><strong id="statEvents">0</strong><span>ativas</span></article>
-        <article><small>PEDIDOS DE ORAÇÃO</small><strong id="statPrayer">0</strong><span>pendentes</span></article>
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar">
+      <div class="brand"><span>CF</span><div><strong>Casa Forte</strong><small>Admin 1.0</small></div></div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard">Visão geral</button>
+        <button class="nav-item" data-view="visitantes">Visitantes</button>
+        <button class="nav-item" data-view="eventos">Eventos</button>
+        <button class="nav-item" data-view="intercessao">Intercessão</button>
+      </nav>
+      <div class="sidebar-footer">
+        <small id="userEmail"></small>
+        <button id="logoutButton">Sair</button>
+        <a class="back-link" href="index.html">Voltar ao site</a>
       </div>
-      <div class="panel-grid">
-        <article class="panel"><div class="panel-head"><h2>Próximos passos</h2></div><div class="steps"><span>1</span><p><strong>Banco de dados</strong>Guardar visitantes, inscrições e pedidos.</p><span>2</span><p><strong>Login seguro</strong>Acesso apenas para liderança autorizada.</p><span>3</span><p><strong>Formulários integrados</strong>Enviar dados do site direto ao painel.</p></div></article>
-        <article class="panel"><div class="panel-head"><h2>Indicadores previstos</h2></div><ul class="metrics"><li>Visitantes por semana e mês</li><li>Bairros com mais visitantes</li><li>Origem dos convites</li><li>Retorno ao próximo culto</li><li>Inscritos e vagas por evento</li></ul></article>
-      </div>
-    </section>
+    </aside>
 
-    <section class="view" id="visitantes">
-      <div class="section-actions"><div><p>Cadastro e acompanhamento pastoral.</p></div><button disabled>Novo visitante</button></div>
-      <div class="empty-state"><h2>Nenhum visitante registrado ainda</h2><p>Quando conectarmos o formulário do site ao banco de dados, os visitantes aparecerão aqui automaticamente.</p></div>
-    </section>
+    <main class="content">
+      <header class="topbar">
+        <div><small>PAINEL MINISTERIAL</small><h1 id="pageTitle">Visão geral</h1></div>
+        <div class="status" id="connectionStatus">Conectando...</div>
+      </header>
 
-    <section class="view" id="eventos">
-      <div class="section-actions"><div><p>Criação de eventos, vagas e inscrições.</p></div><button disabled>Criar evento</button></div>
-      <div class="empty-state"><h2>Nenhum evento cadastrado</h2><p>O próximo módulo permitirá criar eventos, definir vagas e acompanhar inscrições e check-in.</p></div>
-    </section>
+      <section class="view active" id="dashboard">
+        <div class="notice"><strong>Dados reais conectados.</strong><span>O painel agora lê informações protegidas diretamente do Supabase.</span></div>
+        <div class="stats-grid">
+          <article><small>NOVOS VISITANTES</small><strong id="statVisitors">0</strong><span>total cadastrado</span></article>
+          <article><small>QUEREM ACOMPANHAMENTO</small><strong id="statSupport">0</strong><span>aguardando cuidado</span></article>
+          <article><small>INSCRIÇÕES EM EVENTOS</small><strong id="statEvents">0</strong><span>total de inscrições</span></article>
+          <article><small>PEDIDOS DE ORAÇÃO</small><strong id="statPrayer">0</strong><span>novos pedidos</span></article>
+        </div>
+        <div class="panel-grid">
+          <article class="panel"><div class="panel-head"><h2>Prioridades pastorais</h2></div><div class="steps"><span>1</span><p><strong>Novos visitantes</strong>Veja quem precisa de contato e acompanhamento.</p><span>2</span><p><strong>Intercessão</strong>Acompanhe os pedidos ainda não atendidos.</p><span>3</span><p><strong>Eventos</strong>Monitore inscrições e presença.</p></div></article>
+          <article class="panel"><div class="panel-head"><h2>Atualização</h2></div><ul class="metrics"><li id="metricMonth">0 visitantes nos últimos 30 dias</li><li id="metricPastor">0 querem mensagem do pastor</li><li id="metricActiveEvents">0 eventos ativos</li></ul></article>
+        </div>
+      </section>
 
-    <section class="view" id="intercessao">
-      <div class="section-actions"><div><p>Pedidos de oração e responsáveis pelo atendimento.</p></div><button disabled>Novo pedido</button></div>
-      <div class="empty-state"><h2>Nenhum pedido registrado</h2><p>Os pedidos enviados pelo site aparecerão aqui depois da conexão com o banco de dados.</p></div>
-    </section>
-  </main>
+      <section class="view" id="visitantes">
+        <div class="section-actions"><div><p>Cadastro e acompanhamento pastoral.</p></div><button id="refreshVisitors">Atualizar</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Telefone</th><th>Bairro</th><th>Passo de fé</th><th>Acompanhamento</th><th>Status</th></tr></thead><tbody id="visitorsBody"></tbody></table><div class="empty-state" id="visitorsEmpty"><h2>Nenhum visitante registrado</h2><p>Os próximos formulários enviados pelo site aparecerão aqui.</p></div></div>
+      </section>
 
+      <section class="view" id="eventos">
+        <div class="section-actions"><div><p>Eventos, vagas e inscrições.</p></div><button id="refreshEvents">Atualizar</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Evento</th><th>Data</th><th>Local</th><th>Vagas</th><th>Status</th></tr></thead><tbody id="eventsBody"></tbody></table><div class="empty-state" id="eventsEmpty"><h2>Nenhum evento cadastrado</h2><p>Os eventos criados no banco aparecerão aqui.</p></div></div>
+      </section>
+
+      <section class="view" id="intercessao">
+        <div class="section-actions"><div><p>Pedidos de oração e responsáveis.</p></div><button id="refreshPrayer">Atualizar</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Categoria</th><th>Pedido</th><th>Urgente</th><th>Status</th></tr></thead><tbody id="prayerBody"></tbody></table><div class="empty-state" id="prayerEmpty"><h2>Nenhum pedido registrado</h2><p>Os pedidos enviados pelo site aparecerão aqui.</p></div></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin.js"></script>
 </body>
 </html>
