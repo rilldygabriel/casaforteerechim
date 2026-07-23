@@ -21,18 +21,19 @@
     <div class="hero-copy wrap">
       <span class="kicker">IGREJA CASA FORTE • ERECHIM</span>
       <h1>Você tem<br>um lugar aqui.</h1>
-      <p>Não ande sozinho.</p>
+      <p>Escolha o seu próximo passo.</p>
       <div class="hero-buttons">
-        <a class="button primary" href="#sou-novo">Sou visitante</a>
+        <a class="button primary" href="#novo-visitante">Novo Visitante</a>
         <a class="button ghost" href="#sou-da-casa">Sou da Casa</a>
+        <a class="button ghost" href="#conhecer-a-casa">Quero conhecer a Casa</a>
       </div>
     </div>
   </header>
 
   <main>
-    <section class="section light">
+    <section class="section light" id="conhecer-a-casa">
       <div class="wrap">
-        <div class="heading"><span class="kicker dark">LINKS DA CASA</span><h2>Conecte-se de verdade.</h2></div>
+        <div class="heading"><span class="kicker dark">QUERO CONHECER A CASA</span><h2>Conecte-se de verdade.</h2></div>
         <div class="link-grid">
           <a href="https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t" target="_blank"><b>Grupo da Casa</b><span>WhatsApp oficial</span></a>
           <a href="https://www.instagram.com/casaforteerechim" target="_blank"><b>Instagram</b><span>Vida da Casa</span></a>
@@ -60,20 +61,22 @@
       <div><span class="kicker">PERTENCIMENTO</span><h2>Aqui você não é só mais um.</h2><p>Você é família.</p></div>
     </section>
 
-    <section class="section yellow" id="sou-novo">
-      <div class="wrap split">
-        <div><span class="kicker dark">SOU VISITANTE</span><h2>Planeje sua primeira visita.</h2><p>Preencha os dados. Ao enviar, o WhatsApp abrirá com sua mensagem pronta.</p></div>
+    <section class="section yellow" id="novo-visitante">
+      <div class="wrap split visitor-layout">
+        <div><span class="kicker dark">NOVO VISITANTE</span><h2>Queremos conhecer você.</h2><p>Preencha esta ficha de acolhimento. Ao enviar, o WhatsApp abrirá com as informações organizadas para nossa equipe de consolidação.</p></div>
         <form class="card form" id="visitorForm">
           <label>Nome completo<input name="nome" required></label>
           <label>Telefone<input name="telefone" type="tel" required></label>
           <label>Cidade<input name="cidade" required></label>
-          <label>Já frequentou ou frequenta outra igreja?
-            <select name="igreja" required><option value="">Selecione</option><option>Sim</option><option>Não</option></select>
-          </label>
-          <label>Como conheceu a Casa Forte?
-            <select name="origem" required><option value="">Selecione</option><option>Instagram</option><option>Indicação de um amigo</option><option>Convite no culto</option><option>YouTube</option><option>Passando em frente</option><option>Outro</option></select>
-          </label>
-          <button class="button black" type="submit">Enviar cadastro</button>
+          <label>Em qual bairro você mora?<input name="bairro" required></label>
+          <label>Se alguém te convidou, qual o nome dessa pessoa?<input name="convidadoPor"></label>
+          <label>Se já frequentou outra igreja, qual?<input name="igrejaAnterior"></label>
+          <fieldset><legend>Gostaria de ser acompanhado e receber suporte de um líder?</legend><label class="choice"><input type="radio" name="suporteLider" value="Sim" required> Sim</label><label class="choice"><input type="radio" name="suporteLider" value="Não"> Não</label></fieldset>
+          <fieldset><legend>Onde está o seu passo de fé?</legend><label class="choice"><input type="radio" name="passoFe" value="Aceitei Jesus" required> Aceitei Jesus</label><label class="choice"><input type="radio" name="passoFe" value="Sou batizado"> Sou batizado</label><label class="choice"><input type="radio" name="passoFe" value="Já tenho uma caminhada longa na fé"> Já tenho uma caminhada longa na fé</label><label class="choice"><input type="radio" name="passoFe" value="Sou novo, conhecendo ainda"> Sou novo, conhecendo ainda</label></fieldset>
+          <fieldset><legend>Gostaria de receber uma mensagem do Pastor?</legend><label class="choice"><input type="radio" name="mensagemPastor" value="Sim" required> Sim</label><label class="choice"><input type="radio" name="mensagemPastor" value="Não"> Não</label></fieldset>
+          <fieldset><legend>Como foi sua experiência no culto?</legend><label class="choice"><input type="radio" name="experienciaCulto" value="Ruim" required> Ruim</label><label class="choice"><input type="radio" name="experienciaCulto" value="Boa"> Boa</label><label class="choice"><input type="radio" name="experienciaCulto" value="Ótima"> Ótima</label></fieldset>
+          <fieldset><legend>Você sentiu vontade de voltar à Casa?</legend><label class="choice"><input type="radio" name="voltarCasa" value="Sim, estarei no próximo culto" required> Sim, estarei no próximo culto</label><label class="choice"><input type="radio" name="voltarCasa" value="Não, fui só visitar"> Não, fui só visitar</label></fieldset>
+          <button class="button black" type="submit">Enviar ficha de visitante</button>
         </form>
       </div>
     </section>
@@ -82,71 +85,21 @@
       <div class="wrap">
         <div class="heading"><span class="kicker dark">SOU DA CASA</span><h2>Seu ponto de conexão durante a semana.</h2></div>
         <div class="member-grid">
-          <a href="#programacao">Agenda da semana</a>
-          <a href="#generosidade">Generosidade</a>
-          <a href="https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t" target="_blank">Grupo da igreja</a>
-          <a href="https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_" target="_blank">Fotos dos cultos</a>
-          <a href="https://youtube.com/@casafortemusic" target="_blank">Casa Music</a>
-          <a href="#oracao">Pedido de oração</a>
+          <a href="#programacao">Agenda da semana</a><a href="#generosidade">Generosidade</a><a href="https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t" target="_blank">Grupo da igreja</a><a href="https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_" target="_blank">Fotos dos cultos</a><a href="https://youtube.com/@casafortemusic" target="_blank">Casa Music</a><a href="#oracao">Pedido de oração</a>
         </div>
       </div>
     </section>
 
-    <section class="section charcoal" id="generosidade">
-      <div class="wrap">
-        <div class="heading"><span class="kicker">GENEROSIDADE</span><h2>Juntos construímos o que Deus está fazendo.</h2></div>
-        <div class="pix-grid">
-          <article class="pix"><small>OFERTA DE PRIMÍCIA</small><b id="pixPrimicia">54993217227</b><button data-copy="pixPrimicia">Copiar chave Pix</button></article>
-          <article class="pix"><small>DÍZIMOS E OFERTAS</small><b id="pixDizimos">46534858000137</b><button data-copy="pixDizimos">Copiar chave Pix</button></article>
-        </div>
-      </div>
-    </section>
+    <section class="section charcoal" id="generosidade"><div class="wrap"><div class="heading"><span class="kicker">GENEROSIDADE</span><h2>Juntos construímos o que Deus está fazendo.</h2></div><div class="pix-grid"><article class="pix"><small>OFERTA DE PRIMÍCIA</small><b id="pixPrimicia">54993217227</b><button data-copy="pixPrimicia">Copiar chave Pix</button></article><article class="pix"><small>DÍZIMOS E OFERTAS</small><b id="pixDizimos">46534858000137</b><button data-copy="pixDizimos">Copiar chave Pix</button></article></div></div></section>
 
-    <section class="section light" id="pastores">
-      <div class="wrap">
-        <div class="heading"><span class="kicker dark">PASTORES DA CASA</span><h2>Uma família servindo famílias.</h2></div>
-        <div class="pastor-grid">
-          <article class="pastor"><img src="pastor-rilldy.jpg" alt="Pastor Rilldy Gabriel"><div><h3>Rilldy Gabriel</h3><p>Pastor presidente</p><a href="https://www.instagram.com/rilldygabriel" target="_blank">Instagram</a></div></article>
-          <article class="pastor"><img src="pastora-lisy.jpg" alt="Pastora Elisiane Gabriel"><div><h3>Elisiane Gabriel</h3><p>Pastora presidente</p><a href="https://www.instagram.com/lisigabriel" target="_blank">Instagram</a></div></article>
-        </div>
-        <p class="assistants"><b>Pastores auxiliares:</b> Elilucia Morona, Airton Morona, Herrison Ribeiro e Pamela Ribeiro.</p>
-      </div>
-    </section>
+    <section class="section light" id="pastores"><div class="wrap"><div class="heading"><span class="kicker dark">PASTORES DA CASA</span><h2>Uma família servindo famílias.</h2></div><div class="pastor-grid"><article class="pastor"><img src="pastor-rilldy.jpg" alt="Pastor Rilldy Gabriel"><div><h3>Rilldy Gabriel</h3><p>Pastor presidente</p><a href="https://www.instagram.com/rilldygabriel" target="_blank">Instagram</a></div></article><article class="pastor"><img src="pastora-lisy.jpg" alt="Pastora Elisiane Gabriel"><div><h3>Elisiane Gabriel</h3><p>Pastora presidente</p><a href="https://www.instagram.com/lisigabriel" target="_blank">Instagram</a></div></article></div><p class="assistants"><b>Pastores auxiliares:</b> Elilucia Morona, Airton Morona, Herrison Ribeiro e Pamela Ribeiro.</p></div></section>
 
-    <section class="section gallery-section">
-      <div class="wrap">
-        <div class="heading"><span class="kicker">O QUE DEUS TEM FEITO NA CASA</span><h2>Uma comunidade viva.</h2></div>
-        <div class="gallery">
-          <img src="adoracao-jovem.jpg" alt="Adoração">
-          <img src="recepcao.jpg" alt="Recepção">
-          <img src="familia.jpg" alt="Família chegando">
-          <img src="celebracao.jpg" alt="Celebração">
-          <img src="oracao.jpg" alt="Momento de oração">
-          <img src="7H0A8738.jpeg" alt="Momento de oração e cuidado na Igreja Casa Forte">
-        </div>
-        <a class="button primary gallery-button" href="https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_" target="_blank">Ver todas as fotos</a>
-      </div>
-    </section>
+    <section class="section gallery-section"><div class="wrap"><div class="heading"><span class="kicker">O QUE DEUS TEM FEITO NA CASA</span><h2>Uma comunidade viva.</h2></div><div class="gallery"><img src="adoracao-jovem.jpg" alt="Adoração"><img src="recepcao.jpg" alt="Recepção"><img src="familia.jpg" alt="Família chegando"><img src="celebracao.jpg" alt="Celebração"><img src="oracao.jpg" alt="Momento de oração"><img src="7H0A8738.jpeg" alt="Momento de oração e cuidado na Igreja Casa Forte"></div><a class="button primary gallery-button" href="https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_" target="_blank">Ver todas as fotos</a></div></section>
 
-    <section class="section yellow" id="oracao">
-      <div class="wrap split">
-        <div><span class="kicker dark">PRECISO DE ORAÇÃO</span><h2>Você não precisa carregar isso sozinho.</h2><p>Escreva seu pedido. Ao enviar, o WhatsApp abrirá com a mensagem pronta.</p></div>
-        <form class="card form" id="prayerForm">
-          <label>Nome (opcional)<input name="nome"></label>
-          <label>Pedido de oração<textarea name="pedido" rows="6" required></textarea></label>
-          <button class="button black" type="submit">Enviar pedido</button>
-        </form>
-      </div>
-    </section>
+    <section class="section yellow" id="oracao"><div class="wrap split"><div><span class="kicker dark">PRECISO DE ORAÇÃO</span><h2>Você não precisa carregar isso sozinho.</h2><p>Escreva seu pedido. Ao enviar, o WhatsApp abrirá com a mensagem pronta.</p></div><form class="card form" id="prayerForm"><label>Nome (opcional)<input name="nome"></label><label>Pedido de oração<textarea name="pedido" rows="6" required></textarea></label><button class="button black" type="submit">Enviar pedido</button></form></div></section>
 
-    <section class="section charcoal footer-area">
-      <div class="wrap footer-grid">
-        <div><img class="footer-logo" src="logo.png" alt="Casa Forte"><h2>Você tem um lugar aqui.</h2><p class="soft">Rua José Reinaldo Angonezze, 319 — José Bonifácio, Erechim/RS.</p></div>
-        <div class="footer-links"><a href="https://wa.me/5554993217227" target="_blank">WhatsApp oficial</a><a href="https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic" target="_blank">Google Maps</a><a href="https://www.instagram.com/casaforteerechim" target="_blank">Instagram</a><a href="https://youtube.com/@igrejacasaforte-erechim5031" target="_blank">YouTube</a></div>
-      </div>
-    </section>
+    <section class="section charcoal footer-area"><div class="wrap footer-grid"><div><img class="footer-logo" src="logo.png" alt="Casa Forte"><h2>Você tem um lugar aqui.</h2><p class="soft">Rua José Reinaldo Angonezze, 319 — José Bonifácio, Erechim/RS.</p></div><div class="footer-links"><a href="https://wa.me/5554993217227" target="_blank">WhatsApp oficial</a><a href="https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic" target="_blank">Google Maps</a><a href="https://www.instagram.com/casaforteerechim" target="_blank">Instagram</a><a href="https://youtube.com/@igrejacasaforte-erechim5031" target="_blank">YouTube</a></div></div></section>
   </main>
-
   <footer class="bottom"><div class="wrap"><span>© <span id="year"></span> Igreja Casa Forte Erechim</span><span>Não ande sozinho.</span></div></footer>
   <script src="script.js"></script>
 </body>
