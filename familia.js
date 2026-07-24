@@ -10,20 +10,33 @@ function message(text,error=false){const el=$('message');el.textContent=text||''
 function profileMessage(text,error=false){const el=$('profileMessage');el.textContent=text||'';el.className='msg'+(error?' error':'');}
 function setMode(next){mode=next;$('loginTab').classList.toggle('active',next==='login');$('signupTab').classList.toggle('active',next==='signup');$('nameField').classList.toggle('hidden',next!=='signup');$('submit').textContent=next==='signup'?'Criar minha conta':'Entrar';$('password').autocomplete=next==='signup'?'new-password':'current-password';message('');}
 function initials(name){return (name||'CF').trim().split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase()||'CF';}
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
 async function openMember(session){
+  if(!session?.user?.id){show('auth');return;}
   show('loading');
   profileMessage('');
 
-  const {data,error}=await db.rpc('get_my_profile');
-  if(error){
+  const userCheck=await db.auth.getUser();
+  if(userCheck.error||!userCheck.data.user){
     await db.auth.signOut();
+    show('auth');
+    return message('Sua sessão expirou. Entre novamente.',true);
+  }
+
+  let result=await db.rpc('get_my_profile');
+  if(result.error){
+    await wait(200);
+    result=await db.rpc('get_my_profile');
+  }
+
+  if(result.error){
     show('auth');
     return message('Não foi possível carregar seu perfil. Entre novamente.',true);
   }
 
+  const data=result.data;
   if(!data){
-    await db.auth.signOut();
     show('auth');
     return message('Perfil não encontrado para esta conta.',true);
   }
@@ -73,6 +86,7 @@ $('submit').onclick=async()=>{
     await openMember(result.data.session);
   }catch(error){
     message(error.message||'Não foi possível continuar.',true);
+    show('auth');
   }finally{
     $('submit').disabled=false;
     $('submit').textContent=mode==='signup'?'Criar minha conta':'Entrar';
@@ -88,9 +102,8 @@ $('forgot').onclick=async()=>{
 
 $('logout').onclick=async()=>{await db.auth.signOut();message('');show('auth');};
 
-db.auth.onAuthStateChange((event,session)=>{
+db.auth.onAuthStateChange(event=>{
   if(event==='SIGNED_OUT')show('auth');
-  if(event==='SIGNED_IN'&&session)openMember(session);
 });
 
 (async()=>{
