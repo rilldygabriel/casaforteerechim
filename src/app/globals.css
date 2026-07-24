@@ -1034,6 +1034,53 @@ h1 strong {
   align-items: start;
 }
 
+.home-pix-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.home-pix-option {
+  display: grid;
+  gap: 8px;
+}
+
+.home-pix-option > span {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-pix-button {
+  min-height: 54px;
+  padding-inline: 16px;
+  border: 1px solid var(--yellow);
+  border-radius: 3px;
+  background: var(--yellow);
+  color: #080908;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.home-pix-button:hover {
+  background: #ffff62;
+  transform: translateY(-2px);
+}
+
+.home-pix-button.is-copied {
+  border-color: white;
+  background: white;
+}
+
 .path-link {
   display: inline-flex;
   min-height: 54px;
