@@ -1,1 +1,76 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080808"><title>Área da Família · Casa Forte</title><link rel="stylesheet" href="familia.css?v=1"></head><body><div id="loading" class="center"><p class="sub">Carregando…</p></div><section id="auth" class="center hidden"><div class="card"><div class="logo">CF</div><p class="eyebrow">Área da Família</p><h1>Casa Forte</h1><p class="sub">Não ande sozinho. Vem pra casa.</p><div class="tabs"><button id="loginTab" class="tab active" type="button">Entrar</button><button id="signupTab" class="tab" type="button">Criar conta</button></div><div id="nameField" class="field hidden"><label for="name">Nome completo</label><input id="name" class="input" autocomplete="name"></div><div class="field"><label for="email">E-mail</label><input id="email" class="input" type="email" autocomplete="email" autocapitalize="none" spellcheck="false"></div><div class="field"><label for="password">Senha</label><input id="password" class="input" type="password" autocomplete="current-password"></div><button id="submit" class="btn full" type="button">Entrar</button><button id="forgot" class="link" type="button">Esqueci minha senha</button><p id="message" class="msg"></p></div></section><section id="member" class="center hidden"><div class="card welcome"><div class="logo">CF</div><p class="eyebrow">Área da Família</p><h2>Login realizado</h2><p class="sub">A primeira etapa está funcionando.</p><p id="memberEmail" class="email"></p><button id="logout" class="btn ghost full" type="button">Sair</button></div></section><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script><script src="familia.js?v=1"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <title>Área da Família · Casa Forte</title>
+  <link rel="stylesheet" href="familia.css?v=2">
+</head>
+<body>
+  <div id="loading" class="center"><p class="sub">Carregando…</p></div>
+
+  <section id="auth" class="center hidden">
+    <div class="card">
+      <div class="logo">CF</div>
+      <p class="eyebrow">Área da Família</p>
+      <h1>Casa Forte</h1>
+      <p class="sub">Não ande sozinho. Vem pra casa.</p>
+
+      <div class="tabs">
+        <button id="loginTab" class="tab active" type="button">Entrar</button>
+        <button id="signupTab" class="tab" type="button">Criar conta</button>
+      </div>
+
+      <div id="nameField" class="field hidden">
+        <label for="name">Nome completo</label>
+        <input id="name" class="input" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" class="input" type="email" autocomplete="email" autocapitalize="none" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" class="input" type="password" autocomplete="current-password">
+      </div>
+
+      <button id="submit" class="btn full" type="button">Entrar</button>
+      <button id="forgot" class="link" type="button">Esqueci minha senha</button>
+      <p id="message" class="msg"></p>
+    </div>
+  </section>
+
+  <section id="member" class="center hidden">
+    <div class="card profile-card">
+      <div class="profile-top">
+        <div id="avatar" class="avatar">CF</div>
+        <div class="profile-heading">
+          <p class="eyebrow">Área da Família</p>
+          <h2 id="memberName">Bem-vindo</h2>
+          <p id="memberEmail" class="email"></p>
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="info-item">
+          <span>Status na igreja</span>
+          <strong id="memberStatus" class="status-chip">Visitante</strong>
+        </div>
+        <div class="info-item">
+          <span>Perfil</span>
+          <strong id="profileState">Em construção</strong>
+        </div>
+      </div>
+
+      <p id="profileMessage" class="msg"></p>
+      <button id="logout" class="btn ghost full" type="button">Sair</button>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+  <script src="familia.js?v=2"></script>
+</body>
+</html>
