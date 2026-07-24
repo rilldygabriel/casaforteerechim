@@ -208,6 +208,15 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
 5. Criar Área da Família em etapas pequenas.
 6. Criar Painel Administrativo somente depois.
 
+## Estado atual da reconstrução
+
+- Site público publicado na Vercel.
+- Formulário de visitantes integrado ao novo Supabase e validado em produção.
+- Módulo de pedidos de oração implementado em `/oracao`.
+- API interna de oração implementada em `/api/oracao`, usando `Prefer: return=minimal`.
+- Acesso ao formulário de oração incluído na área “Sou da Casa”.
+- Próxima validação obrigatória: confirmar deployment `READY`, envio real e resposta HTTP `204` em produção.
+
 ## Estado deste repositório
 
 O código antigo foi removido intencionalmente. Este arquivo deve permanecer como fonte de contexto para a reconstrução.
