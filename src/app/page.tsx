@@ -35,6 +35,21 @@ function PinIcon() {
   );
 }
 
+function CalendarIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="schedule-calendar-icon"
+      viewBox="0 0 32 32"
+      fill="none"
+    >
+      <rect x="4.5" y="7.5" width="23" height="20" rx="4" />
+      <path d="M10 4.5v6M22 4.5v6M4.5 13.5h23" />
+      <path d="M10 18h3M19 18h3M10 23h3M19 23h3" />
+    </svg>
+  );
+}
+
 function ConnectionIcon() {
   return (
     <svg
@@ -171,16 +186,25 @@ export default function Home() {
         <div className="hero-footer">
           <div className="schedule" aria-label="Programação semanal">
             <div className="schedule-item">
-              <span>Domingo na Casa</span>
-              <strong>19h</strong>
+              <CalendarIcon />
+              <div className="schedule-copy">
+                <span>Culto Domingo na Casa</span>
+                <strong>19h</strong>
+              </div>
             </div>
             <div className="schedule-item">
-              <span>Quarta na Casa</span>
-              <strong>19h30</strong>
+              <CalendarIcon />
+              <div className="schedule-copy">
+                <span>Culto Quarta de Ensino</span>
+                <strong>19h30</strong>
+              </div>
             </div>
-            <div className="schedule-item schedule-item-last">
-              <span>1 Hora de Intercessão</span>
-              <strong>Sexta • 19h30</strong>
+            <div className="schedule-item">
+              <CalendarIcon />
+              <div className="schedule-copy">
+                <span>Sexta de Oração</span>
+                <strong>19h30</strong>
+              </div>
             </div>
           </div>
 
