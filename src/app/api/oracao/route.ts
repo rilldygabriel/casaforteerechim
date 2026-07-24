@@ -121,6 +121,7 @@ async function notifyWhatsApp(payload: {
         response.status,
         result?.error?.code,
         result?.error?.message,
+        result?.error?.error_data?.details,
       );
       return;
     }
