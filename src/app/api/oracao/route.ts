@@ -52,14 +52,12 @@ function prayerNotification(payload: {
 }) {
   return [
     "NOVO PEDIDO DE ORAÇÃO — CASA FORTE",
-    "",
     `Nome: ${clean(payload.nome, 120)}`,
     `WhatsApp: ${clean(payload.telefone, 40)}`,
     `Categoria: ${clean(payload.categoria, 80)}`,
     `Deseja contato: ${payload.deseja_contato ? "Sim" : "Não"}`,
-    "",
     `Pedido: ${clean(payload.pedido, 900)}`,
-  ].join("\n");
+  ].join(" | ");
 }
 
 async function notifyWhatsApp(payload: {
