@@ -15,7 +15,8 @@ export default function Visitante() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setState("sending");
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       nome: String(form.get("nome") || "").trim(),
       telefone: String(form.get("telefone") || "").trim(),
@@ -42,7 +43,7 @@ export default function Visitante() {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error("Falha ao salvar");
-      event.currentTarget.reset();
+      formElement.reset();
       setState("success");
     } catch {
       setState("error");
