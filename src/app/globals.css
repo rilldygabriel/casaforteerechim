@@ -145,11 +145,18 @@ a {
   gap: 28px;
 }
 
+.header-contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .first-visit-pill {
   display: inline-flex;
-  min-height: 34px;
+  min-height: 46px;
   align-items: center;
-  padding-inline: 15px;
+  justify-content: center;
+  padding-inline: 20px;
   border: 1px solid var(--yellow);
   border-radius: 999px;
   background: var(--yellow-soft);
@@ -792,12 +799,6 @@ h1 strong {
 }
 
 @media (max-width: 780px) {
-  .first-visit-pill {
-    position: absolute;
-    top: 102px;
-    left: 24px;
-  }
-
   .hero-entry-actions,
   .form-row,
   .family-menu,
@@ -1242,21 +1243,27 @@ a:focus-visible {
   }
 
   .brand img {
-    width: 144px;
+    width: 118px;
   }
 
   .header-actions {
     gap: 0;
   }
 
+  .header-contact-actions {
+    gap: 6px;
+  }
+
   .header-link {
     display: none;
   }
 
+  .first-visit-pill,
   .header-cta {
     min-height: 40px;
-    padding-inline: 16px;
-    font-size: 0.64rem;
+    padding-inline: 10px;
+    font-size: 0.56rem;
+    letter-spacing: 0.045em;
   }
 
   .header-cta .button-icon {
@@ -1387,12 +1394,13 @@ a:focus-visible {
 
 @media (max-width: 380px) {
   .brand img {
-    width: 128px;
+    width: 96px;
   }
 
+  .first-visit-pill,
   .header-cta {
-    padding-inline: 12px;
-    font-size: 0.59rem;
+    padding-inline: 7px;
+    font-size: 0.5rem;
   }
 
   h1 {

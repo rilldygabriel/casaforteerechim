@@ -104,14 +104,6 @@ export default function Home() {
 
           <nav className="header-actions" aria-label="Acesso rápido">
             <a
-              className="first-visit-pill"
-              href={FIRST_VISIT_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Primeira vez na Casa?
-            </a>
-            <a
               className="header-link"
               href={MAPS_URL}
               target="_blank"
@@ -120,15 +112,25 @@ export default function Home() {
               <PinIcon />
               <span>Como chegar</span>
             </a>
-            <a
-              className="header-cta"
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Fale com a gente
-              <ArrowIcon />
-            </a>
+            <div className="header-contact-actions">
+              <a
+                className="first-visit-pill"
+                href={FIRST_VISIT_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Quero visitar a Casa
+              </a>
+              <a
+                className="header-cta"
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Fale com a gente
+                <ArrowIcon />
+              </a>
+            </div>
           </nav>
         </header>
 
@@ -158,9 +160,9 @@ export default function Home() {
                 Sou visitante
                 <ArrowIcon />
               </Link>
-              <Link className="button button-secondary entry-button" href="/familia">
-                <HomeIcon />
+              <Link className="button button-primary entry-button" href="/familia">
                 Sou da Casa
+                <ArrowIcon />
               </Link>
             </div>
           </div>
