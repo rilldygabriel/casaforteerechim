@@ -1198,3 +1198,43 @@ a:focus-visible {
   }
 
   .path-actions {
+    max-width: none;
+  }
+
+  .path-link {
+    width: 100%;
+    font-size: 0.64rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand img {
+    width: 128px;
+  }
+
+  .header-cta {
+    padding-inline: 12px;
+    font-size: 0.59rem;
+  }
+
+  h1 {
+    font-size: 3.45rem;
+  }
+
+  .hero-description {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
