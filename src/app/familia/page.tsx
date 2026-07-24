@@ -80,13 +80,7 @@ export default function Familia() {
           <span>05</span>
           <h2>Pedidos de Oração</h2>
           <p>Envie seu pedido e permita que nossa equipe caminhe com você.</p>
-          <a
-            href={`${PASTOR_URL}?text=Ol%C3%A1%21%20Quero%20enviar%20um%20pedido%20de%20ora%C3%A7%C3%A3o.`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Enviar pedido
-          </a>
+          <Link href="/oracao">Enviar pedido</Link>
         </article>
         <article className="family-menu-card">
           <span>06</span>
