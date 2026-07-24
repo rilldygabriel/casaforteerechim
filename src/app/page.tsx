@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import PixCopyButton from "@/components/pix-copy-button";
 
 const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
@@ -286,18 +287,30 @@ export default function Home() {
                   Contribua com primícias, dízimos e ofertas.
                 </p>
                 <p className="path-description">
-                  Acesse as chaves PIX oficiais da Casa Forte e copie com
-                  apenas um toque.
+                  Escolha a finalidade e copie a chave PIX oficial com um
+                  toque, sem sair desta página.
                 </p>
               </div>
-              <div className="path-actions">
-                <Link
-                  className="path-link path-link-primary"
-                  href="/generosidade"
-                >
-                  Ver formas de contribuir
-                  <ArrowIcon />
-                </Link>
+              <div
+                className="home-pix-actions"
+                aria-label="Copiar chaves PIX da Casa Forte"
+              >
+                <div className="home-pix-option">
+                  <span>Oferta de Primícias</span>
+                  <PixCopyButton
+                    pixKey="54993217227"
+                    label="Copiar PIX de Primícias"
+                    className="home-pix-button"
+                  />
+                </div>
+                <div className="home-pix-option">
+                  <span>Dízimos e Ofertas</span>
+                  <PixCopyButton
+                    pixKey="46534858000137"
+                    label="Copiar PIX de Dízimos e Ofertas"
+                    className="home-pix-button"
+                  />
+                </div>
               </div>
             </article>
           </div>
