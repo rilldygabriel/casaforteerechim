@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
-const SUPABASE_URL = "https://mfqlmsisrceyajspeeav.supabase.co";
-const SUPABASE_KEY = "sb_publishable_0UsdpSSgbF0pADTG-Viazw_vIphuNnE";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 
@@ -36,12 +34,10 @@ export default function Visitante() {
     };
 
     try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/visitantes`, {
+      const response = await fetch("/api/visitantes", {
         method: "POST",
         headers: {
-          apikey: SUPABASE_KEY,
           "Content-Type": "application/json",
-          Prefer: "return=minimal",
         },
         body: JSON.stringify(payload),
       });
