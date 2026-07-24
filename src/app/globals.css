@@ -1052,6 +1052,15 @@ h1 strong {
   text-transform: uppercase;
 }
 
+.home-pix-key {
+  margin-bottom: 2px;
+  color: var(--yellow);
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
 .home-pix-button {
   min-height: 54px;
   padding-inline: 16px;
