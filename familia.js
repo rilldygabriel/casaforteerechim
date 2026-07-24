@@ -7,8 +7,41 @@ let mode='login';
 
 function show(id){['loading','auth','member'].forEach(v=>$(v).classList.add('hidden'));$(id).classList.remove('hidden');}
 function message(text,error=false){const el=$('message');el.textContent=text||'';el.className='msg'+(error?' error':text?' ok':'');}
+function profileMessage(text,error=false){const el=$('profileMessage');el.textContent=text||'';el.className='msg'+(error?' error':'');}
 function setMode(next){mode=next;$('loginTab').classList.toggle('active',next==='login');$('signupTab').classList.toggle('active',next==='signup');$('nameField').classList.toggle('hidden',next!=='signup');$('submit').textContent=next==='signup'?'Criar minha conta':'Entrar';$('password').autocomplete=next==='signup'?'new-password':'current-password';message('');}
-function openMember(session){$('memberEmail').textContent=session.user.email||'';show('member');}
+function initials(name){return (name||'CF').trim().split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase()||'CF';}
+
+async function openMember(session){
+  show('loading');
+  profileMessage('');
+
+  const {data,error}=await db.rpc('get_my_profile');
+  if(error){
+    await db.auth.signOut();
+    show('auth');
+    return message('Não foi possível carregar seu perfil. Entre novamente.',true);
+  }
+
+  if(!data){
+    await db.auth.signOut();
+    show('auth');
+    return message('Perfil não encontrado para esta conta.',true);
+  }
+
+  const name=data.full_name||'Bem-vindo';
+  $('memberName').textContent=name;
+  $('memberEmail').textContent=data.email||session.user.email||'';
+  $('memberStatus').textContent=data.church_status||'visitante';
+  $('profileState').textContent=data.profile_completed?'Completo':'Ainda não preenchido';
+
+  if(data.photo_url){
+    $('avatar').innerHTML=`<img src="${data.photo_url}" alt="Foto de perfil">`;
+  }else{
+    $('avatar').textContent=initials(name);
+  }
+
+  show('member');
+}
 
 $('loginTab').onclick=()=>setMode('login');
 $('signupTab').onclick=()=>setMode('signup');
@@ -24,19 +57,26 @@ $('submit').onclick=async()=>{
   $('submit').disabled=true;
   $('submit').textContent='Aguarde…';
   message('');
+
   try{
+    let result;
     if(mode==='signup'){
-      const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:fullName}}});
-      if(error)throw error;
-      if(data.session){openMember(data.session);}else{setMode('login');message('Conta criada. Confirme seu e-mail e depois entre.');}
+      result=await db.auth.signUp({email,password,options:{data:{full_name:fullName}}});
+      if(result.error)throw result.error;
+      if(!result.data.session){setMode('login');message('Conta criada. Confirme seu e-mail e depois entre.');return;}
     }else{
-      const {data,error}=await db.auth.signInWithPassword({email,password});
-      if(error)throw error;
-      if(!data.session)throw new Error('O login não criou uma sessão.');
-      openMember(data.session);
+      result=await db.auth.signInWithPassword({email,password});
+      if(result.error)throw result.error;
     }
-  }catch(error){message(error.message||'Não foi possível continuar.',true);}
-  finally{$('submit').disabled=false;$('submit').textContent=mode==='signup'?'Criar minha conta':'Entrar';}
+
+    if(!result.data.session)throw new Error('O login não criou uma sessão.');
+    await openMember(result.data.session);
+  }catch(error){
+    message(error.message||'Não foi possível continuar.',true);
+  }finally{
+    $('submit').disabled=false;
+    $('submit').textContent=mode==='signup'?'Criar minha conta':'Entrar';
+  }
 };
 
 $('forgot').onclick=async()=>{
@@ -49,11 +89,12 @@ $('forgot').onclick=async()=>{
 $('logout').onclick=async()=>{await db.auth.signOut();message('');show('auth');};
 
 db.auth.onAuthStateChange((event,session)=>{
-  if(event==='SIGNED_IN'&&session)openMember(session);
   if(event==='SIGNED_OUT')show('auth');
+  if(event==='SIGNED_IN'&&session)openMember(session);
 });
 
 (async()=>{
-  const {data}=await db.auth.getSession();
-  if(data.session)openMember(data.session);else show('auth');
+  const {data,error}=await db.auth.getSession();
+  if(error||!data.session){show('auth');return;}
+  await openMember(data.session);
 })();
