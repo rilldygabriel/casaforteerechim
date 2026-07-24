@@ -1394,12 +1394,13 @@ a:focus-visible {
 
 @media (max-width: 380px) {
   .brand img {
-    width: 128px;
+    width: 96px;
   }
 
+  .first-visit-pill,
   .header-cta {
-    padding-inline: 12px;
-    font-size: 0.59rem;
+    padding-inline: 7px;
+    font-size: 0.5rem;
   }
 
   h1 {
