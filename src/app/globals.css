@@ -679,6 +679,117 @@ h1 strong {
   color: #272727;
 }
 
+.family-menu-featured a {
+  color: #090a09;
+}
+
+.generosity-hero,
+.pix-grid,
+.pix-security-note {
+  width: min(100% - 48px, 1120px);
+  margin-inline: auto;
+}
+
+.generosity-hero {
+  padding-block: clamp(70px, 10vw, 130px) 55px;
+}
+
+.generosity-hero h1 {
+  max-width: 930px;
+  font-size: clamp(3.5rem, 7vw, 6.4rem);
+}
+
+.generosity-hero > p:last-child {
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.pix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pix-card {
+  display: grid;
+  min-height: 390px;
+  padding: clamp(26px, 4vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #121412;
+}
+
+.pix-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.pix-card-top span {
+  color: var(--yellow);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.pix-card-top small {
+  color: #f4f4ef;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.pix-card p {
+  max-width: 420px;
+  margin-top: 42px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.pix-card > strong {
+  align-self: end;
+  margin-block: 38px 18px;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.pix-card button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--yellow);
+  color: #090a09;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.pix-card button:hover {
+  transform: translateY(-2px);
+}
+
+.pix-card button.is-copied {
+  background: #f4f4ef;
+}
+
+.pix-security-note {
+  padding-block: 24px 90px;
+  color: #8f938f;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 780px) {
   .first-visit-pill {
     position: absolute;
@@ -688,7 +799,8 @@ h1 strong {
 
   .hero-entry-actions,
   .form-row,
-  .family-menu {
+  .family-menu,
+  .pix-grid {
     grid-template-columns: 1fr;
   }
 
