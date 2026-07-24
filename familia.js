@@ -44,21 +44,37 @@ function sleep(ms) {
 }
 
 async function waitForSession(expectedSession = null) {
-  if (expectedSession?.access_token) {
-    await db.auth.setSession({
+  if (expectedSession?.access_token && expectedSession?.refresh_token) {
+    const { error } = await db.auth.setSession({
       access_token: expectedSession.access_token,
       refresh_token: expectedSession.refresh_token
     });
+    if (error) throw error;
   }
 
-  for (let attempt = 0; attempt < 12; attempt += 1) {
+  for (let attempt = 0; attempt < 15; attempt += 1) {
     const { data, error } = await db.auth.getSession();
     if (error) throw error;
-    if (data.session?.access_token) return data.session;
+    if (data.session?.user?.id && data.session?.access_token) return data.session;
     await sleep(150);
   }
 
   return null;
+}
+
+function completion(profileData) {
+  const fields = [
+    profileData.photo_url,
+    profileData.full_name,
+    profileData.phone,
+    profileData.instagram,
+    profileData.birth_date,
+    profileData.accepted_jesus_year,
+    profileData.came_from_other_ministry,
+    profileData.baptized
+  ];
+  const filled = fields.filter(value => value !== null && value !== undefined && value !== '').length;
+  return Math.round((filled / fields.length) * 100);
 }
 
 function setMode(next) {
@@ -73,21 +89,23 @@ function setMode(next) {
 
 async function loadProfile(session) {
   const activeSession = session || await waitForSession();
-  if (!activeSession) throw new Error('Sessão não encontrada. Entre novamente.');
+  if (!activeSession?.user?.id) throw new Error('Sessão não encontrada. Entre novamente.');
 
-  let result = await db.rpc('get_my_profile');
+  const { data, error } = await db
+    .from('member_profiles')
+    .select('*, member_ministries(ministries(name))')
+    .eq('user_id', activeSession.user.id)
+    .maybeSingle();
 
-  if (result.error && /permission denied|jwt|session/i.test(result.error.message || '')) {
-    const refreshed = await db.auth.refreshSession();
-    if (refreshed.error || !refreshed.data.session) throw result.error;
-    await sleep(150);
-    result = await db.rpc('get_my_profile');
-  }
+  if (error) throw error;
+  if (!data) throw new Error('Perfil não encontrado.');
 
-  if (result.error) throw result.error;
-  if (!result.data) throw new Error('Perfil não encontrado.');
-
-  profile = result.data;
+  data.ministries = (data.member_ministries || [])
+    .map(item => item.ministries?.name)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  data.completion_pct = completion(data);
+  profile = data;
   render();
 }
 
@@ -126,14 +144,12 @@ function render() {
 
 async function start(expectedSession = null) {
   show('loading');
-
   try {
     const session = await waitForSession(expectedSession);
     if (!session) {
       show('auth');
       return;
     }
-
     await loadProfile(session);
     msg('authMsg', '');
     show('app');
@@ -168,13 +184,11 @@ $('authButton').onclick = async () => {
         options: { data: { full_name: name } }
       });
       if (error) throw error;
-
       if (!data.session) {
         setMode('login');
-        msg('authMsg', 'Conta criada. Confirme o e-mail e depois entre.', false);
+        msg('authMsg', 'Conta criada. Confirme o e-mail e depois entre.');
         return;
       }
-
       await start(data.session);
     } else {
       const { data, error } = await db.auth.signInWithPassword({ email, password });
@@ -193,7 +207,6 @@ $('authButton').onclick = async () => {
 $('forgotButton').onclick = async () => {
   const email = $('email').value.trim().toLowerCase();
   if (!email) return msg('authMsg', 'Digite seu e-mail.', true);
-
   const { error } = await db.auth.resetPasswordForEmail(email, {
     redirectTo: location.origin + '/familia.html'
   });
@@ -212,13 +225,12 @@ $('saveProfile').onclick = async () => {
   msg('saveMsg', '');
 
   try {
-    const year = $('jesusYear').value ? Number($('jesusYear').value) : null;
     const patch = {
       full_name: $('fullName').value.trim() || null,
       phone: $('phone').value.trim() || null,
       instagram: $('instagram').value.trim() || null,
       birth_date: $('birthDate').value || null,
-      accepted_jesus_year: year,
+      accepted_jesus_year: $('jesusYear').value ? Number($('jesusYear').value) : null,
       came_from_other_ministry: $('previousMinistry').value === '' ? null : $('previousMinistry').value === 'true',
       baptized: $('baptized').value === '' ? null : $('baptized').value === 'true'
     };
@@ -226,8 +238,8 @@ $('saveProfile').onclick = async () => {
     const { error } = await db.from('member_profiles')
       .update(patch)
       .eq('user_id', profile.user_id);
-
     if (error) throw error;
+
     await loadProfile();
     toast('Perfil salvo');
   } catch (error) {
@@ -284,13 +296,10 @@ document.querySelectorAll('[data-copy]').forEach(button => {
   };
 });
 
-db.auth.onAuthStateChange((event, session) => {
+db.auth.onAuthStateChange(event => {
   if (event === 'SIGNED_OUT') {
     profile = null;
     show('auth');
-  }
-  if (event === 'SIGNED_IN' && session && !profile) {
-    setTimeout(() => start(session), 0);
   }
 });
 
