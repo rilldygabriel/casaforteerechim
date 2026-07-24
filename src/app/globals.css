@@ -736,9 +736,10 @@ h1 strong {
 
 .pix-card-top small {
   color: #f4f4ef;
-  font-size: 0.7rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
   text-align: right;
   text-transform: uppercase;
 }
@@ -814,6 +815,15 @@ h1 strong {
 
   .family-menu-featured {
     grid-column: auto;
+  }
+
+  .pix-card-top {
+    align-items: flex-start;
+  }
+
+  .pix-card-top small {
+    max-width: 78%;
+    font-size: clamp(1.25rem, 5.8vw, 1.7rem);
   }
 }
 
