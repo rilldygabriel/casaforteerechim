@@ -62,6 +62,19 @@ function HomeIcon() {
   );
 }
 
+function GenerosityIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="path-icon"
+      viewBox="0 0 32 32"
+      fill="none"
+    >
+      <path d="M16 27S5 21.1 5 12.8C5 9 7.8 6.5 11.1 6.5c2.1 0 3.9 1.1 4.9 2.8 1-1.7 2.8-2.8 4.9-2.8 3.3 0 6.1 2.5 6.1 6.3C27 21.1 16 27 16 27Z" />
+    </svg>
+  );
+}
+
 export default function Home() {
   return (
     <main className="site-shell">
@@ -206,7 +219,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="paths-grid paths-grid-two">
+          <div className="paths-grid">
             <article className="path-card">
               <div className="path-card-topline">
                 <span className="path-number">01</span>
@@ -256,6 +269,33 @@ export default function Home() {
                   href="/familia"
                 >
                   Entrar na Área da Família
+                  <ArrowIcon />
+                </Link>
+              </div>
+            </article>
+
+            <article className="path-card path-card-featured">
+              <div className="path-card-topline">
+                <span className="path-number">03</span>
+                <GenerosityIcon />
+              </div>
+              <div className="path-card-copy">
+                <p className="path-kicker">Semeie com propósito</p>
+                <h3>Generosidade</h3>
+                <p className="path-question">
+                  Contribua com primícias, dízimos e ofertas.
+                </p>
+                <p className="path-description">
+                  Acesse as chaves PIX oficiais da Casa Forte e copie com
+                  apenas um toque.
+                </p>
+              </div>
+              <div className="path-actions">
+                <Link
+                  className="path-link path-link-primary"
+                  href="/generosidade"
+                >
+                  Ver formas de contribuir
                   <ArrowIcon />
                 </Link>
               </div>
