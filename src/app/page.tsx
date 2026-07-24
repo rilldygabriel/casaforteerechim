@@ -5,11 +5,7 @@ const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
 const FIRST_VISIT_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20ir%20%C3%A0%20Casa%20pela%20primeira%20vez.%20Como%20funciona%3F";
-const VISITOR_URL =
-  "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Sou%20visitante%20da%20Casa%20Forte%20e%20quero%20me%20conectar.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
-const GROUP_URL =
-  "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 
 function ArrowIcon() {
   return (
@@ -34,20 +30,6 @@ function PinIcon() {
     >
       <path d="M15.25 8.25c0 3.5-5.25 8-5.25 8s-5.25-4.5-5.25-8a5.25 5.25 0 1 1 10.5 0Z" />
       <circle cx="10" cy="8.25" r="1.75" />
-    </svg>
-  );
-}
-
-function DoorIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="path-icon"
-      viewBox="0 0 32 32"
-      fill="none"
-    >
-      <path d="M6.5 27.5h19M9.5 27.5v-22h13v22M17.5 16h.01" />
-      <path d="M22.5 27.5h4v-22h-4" />
     </svg>
   );
 }
@@ -108,6 +90,14 @@ export default function Home() {
 
           <nav className="header-actions" aria-label="Acesso rápido">
             <a
+              className="first-visit-pill"
+              href={FIRST_VISIT_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Primeira vez na Casa?
+            </a>
+            <a
               className="header-link"
               href={MAPS_URL}
               target="_blank"
@@ -149,20 +139,15 @@ export default function Home() {
               família, bem no coração de Erechim.
             </p>
 
-            <div className="hero-actions">
-              <a className="button button-primary" href="#proximos-passos">
-                Quero conhecer a Casa
+            <div className="hero-actions hero-entry-actions">
+              <Link className="button button-primary entry-button" href="/visitante">
+                Sou visitante
                 <ArrowIcon />
-              </a>
-              <a
-                className="button button-secondary"
-                href={MAPS_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <PinIcon />
-                Ver no mapa
-              </a>
+              </Link>
+              <Link className="button button-secondary entry-button" href="/familia">
+                <HomeIcon />
+                Sou da Casa
+              </Link>
             </div>
           </div>
         </div>
@@ -211,58 +196,20 @@ export default function Home() {
             </p>
             <div className="paths-heading-copy">
               <h2 id="paths-title">
-                Como você chega
-                <strong>à Casa?</strong>
+                Encontre o seu
+                <strong>lugar na Casa.</strong>
               </h2>
               <p>
-                Escolha a opção que mais combina com o seu momento. A gente
-                mostra o caminho e caminha junto com você.
+                Para quem está chegando e para quem já vive esta família:
+                cada entrada leva você direto ao que precisa.
               </p>
             </div>
           </div>
 
-          <div className="paths-grid">
-            <article className="path-card path-card-featured">
-              <div className="path-card-topline">
-                <span className="path-number">01</span>
-                <DoorIcon />
-              </div>
-              <div className="path-card-copy">
-                <p className="path-kicker">Quero conhecer</p>
-                <h3>Primeira vez na Casa</h3>
-                <p className="path-question">
-                  Quero ir à Casa pela primeira vez. Como funciona?
-                </p>
-                <p className="path-description">
-                  Escolha um culto, veja como chegar e, se quiser, avise nossa
-                  equipe para receber você.
-                </p>
-              </div>
-              <div className="path-actions">
-                <a
-                  className="path-link path-link-primary"
-                  href={FIRST_VISIT_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Planejar minha visita
-                  <ArrowIcon />
-                </a>
-                <a
-                  className="path-link path-link-secondary"
-                  href={MAPS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <PinIcon />
-                  Ver localização
-                </a>
-              </div>
-            </article>
-
+          <div className="paths-grid paths-grid-two">
             <article className="path-card">
               <div className="path-card-topline">
-                <span className="path-number">02</span>
+                <span className="path-number">01</span>
                 <ConnectionIcon />
               </div>
               <div className="path-card-copy">
@@ -277,21 +224,19 @@ export default function Home() {
                 </p>
               </div>
               <div className="path-actions">
-                <a
+                <Link
                   className="path-link path-link-primary"
-                  href={VISITOR_URL}
-                  target="_blank"
-                  rel="noreferrer"
+                  href="/visitante"
                 >
-                  Quero me conectar
+                  Preencher ficha de visitante
                   <ArrowIcon />
-                </a>
+                </Link>
               </div>
             </article>
 
             <article className="path-card">
               <div className="path-card-topline">
-                <span className="path-number">03</span>
+                <span className="path-number">02</span>
                 <HomeIcon />
               </div>
               <div className="path-card-copy">
@@ -301,23 +246,18 @@ export default function Home() {
                   Já faço parte desta família e quero estar por dentro.
                 </p>
                 <p className="path-description">
-                  Entre no grupo oficial e acompanhe avisos, programações e o
-                  que acontece na Casa.
+                  Acesse seu perfil, sua caminhada e os recursos reservados
+                  para a família.
                 </p>
               </div>
               <div className="path-actions">
-                <a
+                <Link
                   className="path-link path-link-primary"
-                  href={GROUP_URL}
-                  target="_blank"
-                  rel="noreferrer"
+                  href="/familia"
                 >
-                  Acessar grupo da Casa
+                  Entrar na Área da Família
                   <ArrowIcon />
-                </a>
-                <span className="path-status">
-                  Área da Família em uma próxima etapa
-                </span>
+                </Link>
               </div>
             </article>
           </div>
