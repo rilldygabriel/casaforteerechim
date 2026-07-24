@@ -4,56 +4,79 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSe
 
 const $=id=>document.getElementById(id);
 let mode='login';
+let opening=false;
 
 function show(id){['loading','auth','member'].forEach(v=>$(v).classList.add('hidden'));$(id).classList.remove('hidden');}
 function message(text,error=false){const el=$('message');el.textContent=text||'';el.className='msg'+(error?' error':text?' ok':'');}
 function profileMessage(text,error=false){const el=$('profileMessage');el.textContent=text||'';el.className='msg'+(error?' error':'');}
 function setMode(next){mode=next;$('loginTab').classList.toggle('active',next==='login');$('signupTab').classList.toggle('active',next==='signup');$('nameField').classList.toggle('hidden',next!=='signup');$('submit').textContent=next==='signup'?'Criar minha conta':'Entrar';$('password').autocomplete=next==='signup'?'new-password':'current-password';message('');}
 function initials(name){return (name||'CF').trim().split(/\s+/).slice(0,2).map(part=>part[0]).join('').toUpperCase()||'CF';}
-const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
-async function openMember(session){
-  if(!session?.user?.id){show('auth');return;}
+async function profileRequest(session){
+  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_my_profile`,{
+    method:'POST',
+    headers:{
+      apikey:SUPABASE_KEY,
+      Authorization:`Bearer ${session.access_token}`,
+      'Content-Type':'application/json'
+    },
+    body:'{}'
+  });
+  if(!response.ok){
+    const body=await response.json().catch(()=>({}));
+    throw new Error(body.message||body.error_description||`Erro ${response.status}`);
+  }
+  return response.json();
+}
+
+async function validSession(session){
+  if(!session?.access_token||!session?.user?.id)return null;
+  const expiresAt=Number(session.expires_at||0)*1000;
+  if(expiresAt&&expiresAt>Date.now()+30000)return session;
+  const refreshed=await db.auth.refreshSession();
+  if(refreshed.error||!refreshed.data.session)return null;
+  return refreshed.data.session;
+}
+
+async function openMember(initialSession){
+  if(opening)return;
+  opening=true;
   show('loading');
   profileMessage('');
+  try{
+    let session=await validSession(initialSession);
+    if(!session)throw new Error('Sua sessão expirou. Entre novamente.');
 
-  const userCheck=await db.auth.getUser();
-  if(userCheck.error||!userCheck.data.user){
-    await db.auth.signOut();
+    let data;
+    try{
+      data=await profileRequest(session);
+    }catch(firstError){
+      const refreshed=await db.auth.refreshSession();
+      if(refreshed.error||!refreshed.data.session)throw firstError;
+      session=refreshed.data.session;
+      data=await profileRequest(session);
+    }
+
+    if(!data)throw new Error('Perfil não encontrado para esta conta.');
+
+    const name=data.full_name||'Bem-vindo';
+    $('memberName').textContent=name;
+    $('memberEmail').textContent=data.email||session.user.email||'';
+    $('memberStatus').textContent=data.church_status||'visitante';
+    $('profileState').textContent=data.profile_completed?'Completo':'Ainda não preenchido';
+
+    if(data.photo_url){
+      $('avatar').innerHTML=`<img src="${data.photo_url}" alt="Foto de perfil">`;
+    }else{
+      $('avatar').textContent=initials(name);
+    }
+    show('member');
+  }catch(error){
     show('auth');
-    return message('Sua sessão expirou. Entre novamente.',true);
+    message(error.message||'Não foi possível carregar seu perfil.',true);
+  }finally{
+    opening=false;
   }
-
-  let result=await db.rpc('get_my_profile');
-  if(result.error){
-    await wait(200);
-    result=await db.rpc('get_my_profile');
-  }
-
-  if(result.error){
-    show('auth');
-    return message('Não foi possível carregar seu perfil. Entre novamente.',true);
-  }
-
-  const data=result.data;
-  if(!data){
-    show('auth');
-    return message('Perfil não encontrado para esta conta.',true);
-  }
-
-  const name=data.full_name||'Bem-vindo';
-  $('memberName').textContent=name;
-  $('memberEmail').textContent=data.email||session.user.email||'';
-  $('memberStatus').textContent=data.church_status||'visitante';
-  $('profileState').textContent=data.profile_completed?'Completo':'Ainda não preenchido';
-
-  if(data.photo_url){
-    $('avatar').innerHTML=`<img src="${data.photo_url}" alt="Foto de perfil">`;
-  }else{
-    $('avatar').textContent=initials(name);
-  }
-
-  show('member');
 }
 
 $('loginTab').onclick=()=>setMode('login');
@@ -70,7 +93,6 @@ $('submit').onclick=async()=>{
   $('submit').disabled=true;
   $('submit').textContent='Aguarde…';
   message('');
-
   try{
     let result;
     if(mode==='signup'){
@@ -81,12 +103,11 @@ $('submit').onclick=async()=>{
       result=await db.auth.signInWithPassword({email,password});
       if(result.error)throw result.error;
     }
-
     if(!result.data.session)throw new Error('O login não criou uma sessão.');
     await openMember(result.data.session);
   }catch(error){
-    message(error.message||'Não foi possível continuar.',true);
     show('auth');
+    message(error.message||'Não foi possível continuar.',true);
   }finally{
     $('submit').disabled=false;
     $('submit').textContent=mode==='signup'?'Criar minha conta':'Entrar';
@@ -102,9 +123,7 @@ $('forgot').onclick=async()=>{
 
 $('logout').onclick=async()=>{await db.auth.signOut();message('');show('auth');};
 
-db.auth.onAuthStateChange(event=>{
-  if(event==='SIGNED_OUT')show('auth');
-});
+db.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')show('auth');});
 
 (async()=>{
   const {data,error}=await db.auth.getSession();
