@@ -303,9 +303,10 @@ h1 strong {
   width: min(100%, 570px);
 }
 
-.entry-button {
+.button.entry-button {
   min-height: 66px;
-  font-size: 0.82rem;
+  border-radius: 14px;
+  font-size: clamp(0.78rem, 1.4vw, 0.92rem);
 }
 
 .button {
