@@ -6,7 +6,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'casa-forte-auth'
+    storageKey: 'casa-forte-auth-v2'
   }
 });
 
@@ -39,39 +39,16 @@ function esc(value) {
   })[char]);
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function waitForSession(expectedSession = null) {
-  if (expectedSession?.access_token && expectedSession?.refresh_token) {
-    const { error } = await db.auth.setSession({
-      access_token: expectedSession.access_token,
-      refresh_token: expectedSession.refresh_token
-    });
-    if (error) throw error;
-  }
-
-  for (let attempt = 0; attempt < 15; attempt += 1) {
-    const { data, error } = await db.auth.getSession();
-    if (error) throw error;
-    if (data.session?.user?.id && data.session?.access_token) return data.session;
-    await sleep(150);
-  }
-
-  return null;
-}
-
-function completion(profileData) {
+function completion(data) {
   const fields = [
-    profileData.photo_url,
-    profileData.full_name,
-    profileData.phone,
-    profileData.instagram,
-    profileData.birth_date,
-    profileData.accepted_jesus_year,
-    profileData.came_from_other_ministry,
-    profileData.baptized
+    data.photo_url,
+    data.full_name,
+    data.phone,
+    data.instagram,
+    data.birth_date,
+    data.accepted_jesus_year,
+    data.came_from_other_ministry,
+    data.baptized
   ];
   const filled = fields.filter(value => value !== null && value !== undefined && value !== '').length;
   return Math.round((filled / fields.length) * 100);
@@ -87,14 +64,27 @@ function setMode(next) {
   msg('authMsg', '');
 }
 
+async function getValidSession() {
+  const { data: sessionData, error: sessionError } = await db.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!sessionData.session) return null;
+
+  const { data: userData, error: userError } = await db.auth.getUser();
+  if (userError || !userData.user) {
+    await db.auth.signOut({ scope: 'local' });
+    return null;
+  }
+
+  return sessionData.session;
+}
+
 async function loadProfile(session) {
-  const activeSession = session || await waitForSession();
-  if (!activeSession?.user?.id) throw new Error('Sessão não encontrada. Entre novamente.');
+  if (!session?.user?.id) throw new Error('Sessão não encontrada. Entre novamente.');
 
   const { data, error } = await db
     .from('member_profiles')
     .select('*, member_ministries(ministries(name))')
-    .eq('user_id', activeSession.user.id)
+    .eq('user_id', session.user.id)
     .maybeSingle();
 
   if (error) throw error;
@@ -135,27 +125,27 @@ function render() {
     $('avatar').innerHTML = `<img src="${esc(profile.photo_url)}" alt="Foto de perfil">`;
   } else {
     $('avatar').textContent = ((profile.full_name || 'CF')
-      .split(/\s+/)
-      .slice(0, 2)
-      .map(part => part[0])
-      .join('') || 'CF').toUpperCase();
+      .split(/\s+/).slice(0, 2).map(part => part[0]).join('') || 'CF').toUpperCase();
   }
 }
 
-async function start(expectedSession = null) {
+async function start() {
   show('loading');
+  msg('authMsg', '');
+
   try {
-    const session = await waitForSession(expectedSession);
+    const session = await getValidSession();
     if (!session) {
       show('auth');
       return;
     }
+
     await loadProfile(session);
-    msg('authMsg', '');
     show('app');
   } catch (error) {
-    msg('authMsg', 'Não foi possível carregar seu perfil: ' + (error.message || 'erro desconhecido'), true);
+    await db.auth.signOut({ scope: 'local' });
     show('auth');
+    msg('authMsg', 'Sua sessão expirou. Entre novamente.', true);
   }
 }
 
@@ -189,13 +179,15 @@ $('authButton').onclick = async () => {
         msg('authMsg', 'Conta criada. Confirme o e-mail e depois entre.');
         return;
       }
-      await start(data.session);
     } else {
-      const { data, error } = await db.auth.signInWithPassword({ email, password });
+      const { error } = await db.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      if (!data.session) throw new Error('A sessão não foi criada. Tente novamente.');
-      await start(data.session);
     }
+
+    const session = await getValidSession();
+    if (!session) throw new Error('A sessão não foi criada. Tente novamente.');
+    await loadProfile(session);
+    show('app');
   } catch (error) {
     msg('authMsg', error.message || 'Não foi possível continuar.', true);
   } finally {
@@ -214,12 +206,13 @@ $('forgotButton').onclick = async () => {
 };
 
 $('logout').onclick = async () => {
-  await db.auth.signOut();
+  await db.auth.signOut({ scope: 'local' });
   profile = null;
   show('auth');
 };
 
 $('saveProfile').onclick = async () => {
+  if (!profile) return;
   const button = $('saveProfile');
   button.disabled = true;
   msg('saveMsg', '');
@@ -235,12 +228,11 @@ $('saveProfile').onclick = async () => {
       baptized: $('baptized').value === '' ? null : $('baptized').value === 'true'
     };
 
-    const { error } = await db.from('member_profiles')
-      .update(patch)
-      .eq('user_id', profile.user_id);
+    const { error } = await db.from('member_profiles').update(patch).eq('user_id', profile.user_id);
     if (error) throw error;
 
-    await loadProfile();
+    const session = await getValidSession();
+    await loadProfile(session);
     toast('Perfil salvo');
   } catch (error) {
     msg('saveMsg', 'Não foi possível salvar: ' + error.message, true);
@@ -252,7 +244,7 @@ $('saveProfile').onclick = async () => {
 $('photoButton').onclick = () => $('photo').click();
 $('photo').onchange = async event => {
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file || !profile) return;
   if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
     return toast('Escolha uma imagem de até 5 MB');
   }
@@ -271,7 +263,8 @@ $('photo').onchange = async event => {
       .eq('user_id', profile.user_id);
     if (error) throw error;
 
-    await loadProfile();
+    const session = await getValidSession();
+    await loadProfile(session);
     toast('Foto atualizada');
   } catch (error) {
     toast(error.message || 'Não foi possível atualizar a foto');
