@@ -60,12 +60,36 @@ export default function Familia() {
         </article>
         <article className="family-menu-card">
           <span>03</span>
+          <h2>Meu Devocional</h2>
+          <p>Um espaço para fortalecer sua fé e caminhar com a Casa.</p>
+          <a
+            href="https://ig.me/j/AbbdKixwGYdyTwoi/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Acessar canal do Pastor
+          </a>
+        </article>
+        <article className="family-menu-card">
+          <span>04</span>
           <h2>Agenda da Casa</h2>
           <p>Domingo às 19h, quarta às 19h30 e sexta às 19h30.</p>
           <Link href="/#proximos-passos">Ver programação</Link>
         </article>
         <article className="family-menu-card">
-          <span>04</span>
+          <span>05</span>
+          <h2>Pedidos de Oração</h2>
+          <p>Envie seu pedido e permita que nossa equipe caminhe com você.</p>
+          <a
+            href={`${PASTOR_URL}?text=Ol%C3%A1%21%20Quero%20enviar%20um%20pedido%20de%20ora%C3%A7%C3%A3o.`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Enviar pedido
+          </a>
+        </article>
+        <article className="family-menu-card">
+          <span>06</span>
           <h2>Falar com um Pastor</h2>
           <p>Conte com orientação, cuidado e acompanhamento pastoral.</p>
           <a href={PASTOR_URL} target="_blank" rel="noreferrer">
@@ -73,7 +97,7 @@ export default function Familia() {
           </a>
         </article>
         <article className="family-menu-card family-menu-featured">
-          <span>05</span>
+          <span>07</span>
           <h2>Generosidade</h2>
           <p>
             Primícias: <strong>54993217227</strong>
