@@ -98,6 +98,7 @@ export default function Familia() {
             <br />
             Dízimos e ofertas: <strong>46534858000137</strong>
           </p>
+          <Link href="/generosidade">Ver formas de contribuir</Link>
         </article>
       </section>
     </main>
