@@ -297,6 +297,7 @@ export default function Home() {
               >
                 <div className="home-pix-option">
                   <span>Oferta de Primícias</span>
+                  <strong className="home-pix-key">54 99321-7227</strong>
                   <PixCopyButton
                     pixKey="54993217227"
                     label="Copiar PIX de Primícias"
@@ -305,6 +306,9 @@ export default function Home() {
                 </div>
                 <div className="home-pix-option">
                   <span>Dízimos e Ofertas</span>
+                  <strong className="home-pix-key">
+                    46.534.858/0001-37
+                  </strong>
                   <PixCopyButton
                     pixKey="46534858000137"
                     label="Copiar PIX de Dízimos e Ofertas"
