@@ -2676,3 +2676,109 @@ a:focus-visible {
   }
 }
 
+/* Hero fotográfico: imagem inteira com conteúdo sobreposto */
+.home-hero-panel {
+  position: relative;
+  display: block;
+  min-height: 0;
+  aspect-ratio: 3 / 2;
+  isolation: isolate;
+}
+
+.home-hero-copy {
+  position: absolute;
+  z-index: 3;
+  inset: 0 auto 0 0;
+  width: min(57%, 690px);
+  min-height: 0;
+  padding: clamp(42px, 6vw, 82px);
+}
+
+.home-hero-cover {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.home-hero-cover::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.018) 0,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    radial-gradient(circle at 72% 34%, transparent 0, rgba(5, 7, 8, 0.08) 48%);
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero-cover::after {
+  z-index: 2;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 6, 7, 0.9) 0%,
+      rgba(4, 6, 7, 0.68) 34%,
+      rgba(4, 6, 7, 0.18) 65%,
+      rgba(4, 6, 7, 0.04) 100%
+    ),
+    linear-gradient(180deg, rgba(4, 6, 7, 0.08), rgba(4, 6, 7, 0.42));
+}
+
+.home-hero-cover img {
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 760px) {
+  .home-hero-panel {
+    aspect-ratio: 3 / 2;
+  }
+
+  .home-hero-copy {
+    inset: 0;
+    width: 100%;
+    min-height: 0;
+    justify-content: flex-end;
+    padding: 18px 18px 27px;
+  }
+
+  .home-hero-copy .home-kicker {
+    margin-bottom: 8px;
+    font-size: 0.48rem;
+  }
+
+  .home-hero h1 {
+    max-width: 73%;
+    font-size: clamp(2.15rem, 11vw, 3.25rem);
+    line-height: 0.84;
+  }
+
+  .home-hero-copy > p:not(.home-kicker) {
+    display: none;
+  }
+
+  .home-inline-link {
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 0.55rem;
+  }
+
+  .home-hero-cover {
+    aspect-ratio: auto;
+  }
+
+  .home-hero-cover::after {
+    background:
+      linear-gradient(90deg, rgba(4, 6, 7, 0.72), transparent 76%),
+      linear-gradient(180deg, transparent 30%, rgba(4, 6, 7, 0.82));
+  }
+}
+
