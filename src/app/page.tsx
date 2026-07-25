@@ -177,27 +177,14 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="home-hero-pastors" aria-label="Pastores da Casa Forte">
-            <figure>
-              <Image
-                src="/images/pastor-rilldy.jpg"
-                alt="Pastor Rilldy Gabriel"
-                fill
-                priority
-                sizes="(max-width: 760px) 50vw, 28vw"
-              />
-              <figcaption>Pr. Rilldy</figcaption>
-            </figure>
-            <figure>
-              <Image
-                src="/images/pastora-lisy.jpg"
-                alt="Pastora Lisy"
-                fill
-                priority
-                sizes="(max-width: 760px) 50vw, 28vw"
-              />
-              <figcaption>Pra. Lisy</figcaption>
-            </figure>
+          <div className="home-hero-cover">
+            <Image
+              src="/images/capa-inicial-casaforte.webp"
+              alt="Pastores Rilldy e Lisy ministrando na Igreja Casa Forte"
+              fill
+              priority
+              sizes="(max-width: 760px) 100vw, 56vw"
+            />
           </div>
         </div>
 
