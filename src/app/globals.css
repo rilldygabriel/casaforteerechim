@@ -1887,27 +1887,30 @@ a:focus-visible {
 
 .home-program-grid article {
   display: flex;
-  min-height: 310px;
-  justify-content: space-between;
+  min-height: 330px;
+  overflow: hidden;
   flex-direction: column;
-  padding: clamp(24px, 3vw, 36px);
   border-radius: 20px;
-  background: linear-gradient(145deg, #fffe15, #e4e300);
+  background: white;
   color: #080908;
   box-shadow: 0 22px 52px rgba(255, 254, 21, 0.07);
 }
 
 .home-program-top {
   display: flex;
-  align-items: flex-start;
+  min-height: 108px;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
+  padding: clamp(24px, 3vw, 36px);
+  border-bottom: 1px solid rgba(8, 9, 8, 0.18);
+  background: linear-gradient(145deg, #fffe15, #e4e300);
 }
 
 .home-program-top span {
-  font-size: 0.66rem;
+  font-size: clamp(0.88rem, 1.35vw, 1.05rem);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
@@ -1921,15 +1924,24 @@ a:focus-visible {
   stroke-width: 1.8;
 }
 
+.home-program-body {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: clamp(28px, 3vw, 36px);
+  background: white;
+}
+
 .home-program-grid h3 {
   max-width: 260px;
-  margin: 64px 0 16px;
+  margin: 0 0 28px;
   font-size: clamp(1.35rem, 2.2vw, 2rem);
   letter-spacing: -0.045em;
   line-height: 1.05;
 }
 
-.home-program-grid article > strong {
+.home-program-body > strong {
   font-family: var(--font-display);
   font-size: clamp(2.7rem, 5vw, 4.7rem);
   letter-spacing: -0.06em;
@@ -2369,11 +2381,26 @@ a:focus-visible {
   }
 
   .home-program-grid article {
-    min-height: 235px;
+    min-height: 260px;
+  }
+
+  .home-program-top {
+    min-height: 82px;
+    padding: 21px 24px;
+  }
+
+  .home-program-top span {
+    font-size: 0.94rem;
+  }
+
+  .home-program-body {
+    min-height: 178px;
+    padding: 28px 24px 30px;
   }
 
   .home-program-grid h3 {
-    margin-top: 40px;
+    max-width: none;
+    margin: 0 0 28px;
   }
 
   .home-gallery {
@@ -2747,7 +2774,7 @@ a:focus-visible {
     width: 100%;
     min-height: 0;
     justify-content: flex-end;
-    padding: 18px 18px 27px;
+    padding: 18px 18px 58px;
   }
 
   .home-hero-copy .home-kicker {
@@ -2769,6 +2796,17 @@ a:focus-visible {
     gap: 8px;
     margin-top: 14px;
     font-size: 0.55rem;
+  }
+
+  .home-programs .home-section-heading-row > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .home-programs .home-section-heading h2 {
+    max-width: 100%;
+    font-size: clamp(2.35rem, 11.5vw, 3rem);
+    letter-spacing: -0.075em;
   }
 
   .home-hero-cover {
