@@ -11,6 +11,28 @@ export const metadata: Metadata = {
   description:
     "Você tem um lugar aqui. Conheça a Igreja Casa Forte em Erechim e venha viver Jesus em família.",
   applicationName: "Igreja Casa Forte Erechim",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Casa Forte",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: [
+      {
+        url: "/icon.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "/apple-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
   openGraph: {
     type: "website",
     locale: "pt_BR",
