@@ -262,8 +262,10 @@ export default function Home() {
                 <span>{program.eyebrow}</span>
                 <CalendarIcon />
               </div>
-              <h3>{program.title}</h3>
-              <strong>{program.time}</strong>
+              <div className="home-program-body">
+                <h3>{program.title}</h3>
+                <strong>{program.time}</strong>
+              </div>
             </article>
           ))}
         </div>
