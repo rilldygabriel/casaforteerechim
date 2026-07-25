@@ -10,6 +10,11 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
+const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
+const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
+const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
+const GROUP_URL =
+  "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 
 function ArrowIcon() {
   return (
@@ -334,6 +339,69 @@ export default function Home() {
             </span>
           </div>
         </a>
+      </section>
+
+      <section
+        className="home-block home-connections"
+        aria-labelledby="connections-title"
+      >
+        <article className="home-useful-links">
+          <div className="home-section-heading">
+            <p className="home-kicker">Tudo em um só lugar</p>
+            <h2 id="connections-title">Links úteis da Casa</h2>
+            <p>
+              Acesse nossos canais, grupos e conteúdos oficiais com segurança.
+            </p>
+          </div>
+
+          <div className="home-useful-links-grid">
+            <a href={GROUP_URL} target="_blank" rel="noreferrer">
+              <span>Comunidade</span>
+              <strong>Grupo oficial da Casa</strong>
+              <ArrowIcon />
+            </a>
+            <a href={PASTOR_CHANNEL_URL} target="_blank" rel="noreferrer">
+              <span>Devocionais</span>
+              <strong>Canal do Pastor</strong>
+              <ArrowIcon />
+            </a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">
+              <span>Instagram</span>
+              <strong>@casaforteerechim</strong>
+              <ArrowIcon />
+            </a>
+            <a href={YOUTUBE_URL} target="_blank" rel="noreferrer">
+              <span>Mensagens</span>
+              <strong>YouTube da Casa</strong>
+              <ArrowIcon />
+            </a>
+            <a href={CASA_MUSIC_URL} target="_blank" rel="noreferrer">
+              <span>Louvor</span>
+              <strong>Casa Forte Music</strong>
+              <ArrowIcon />
+            </a>
+            <a href={MAPS_URL} target="_blank" rel="noreferrer">
+              <span>Localização</span>
+              <strong>Como chegar</strong>
+              <ArrowIcon />
+            </a>
+          </div>
+        </article>
+
+        <article className="home-prayer-card">
+          <div>
+            <p className="home-kicker">Nós queremos caminhar com você</p>
+            <h2>Preciso de oração</h2>
+            <p>
+              Conte o que está acontecendo. Seu pedido será recebido com
+              cuidado pela nossa equipe de intercessão.
+            </p>
+            <Link href="/oracao">
+              Enviar pedido de oração
+              <ArrowIcon />
+            </Link>
+          </div>
+        </article>
       </section>
 
       <section className="home-block home-resources">
