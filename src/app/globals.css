@@ -2641,3 +2641,38 @@ a:focus-visible {
   }
 }
 
+/* Nova capa principal */
+.home-hero-cover {
+  position: relative;
+  min-width: 0;
+  min-height: 620px;
+  overflow: hidden;
+  background: #101210;
+}
+
+.home-hero-cover::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(8, 9, 8, 0.42), transparent 34%),
+    linear-gradient(180deg, transparent 68%, rgba(8, 9, 8, 0.48));
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero-cover img {
+  object-fit: cover;
+  object-position: 50% 46%;
+}
+
+@media (max-width: 760px) {
+  .home-hero-cover {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .home-hero-cover img {
+    object-position: center;
+  }
+}
+
