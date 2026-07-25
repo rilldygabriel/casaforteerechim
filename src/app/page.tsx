@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import PixCopyButton from "@/components/pix-copy-button";
+import PrayerForm from "@/components/prayer-form";
 
 const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
@@ -92,13 +93,48 @@ const programs = [
 
 const gallery = [
   {
-    src: "/images/familia.jpg",
-    alt: "Família celebrando na Igreja Casa Forte",
-    className: "home-gallery-tall",
+    src: "/images/momentos/culto-casa-cheia.jpeg",
+    alt: "Igreja Casa Forte reunida durante o culto",
+    className: "home-gallery-wide",
+  },
+  {
+    src: "/images/momentos/adoracao-jovem.jpeg",
+    alt: "Jovem adorando a Deus durante o culto",
+    className: "",
   },
   {
     src: "/images/abraco.jpg",
     alt: "Momento de comunhão e abraço na Casa Forte",
+    className: "",
+  },
+  {
+    src: "/images/momentos/oracao-no-palco.jpeg",
+    alt: "Pastor em oração durante a ministração",
+    className: "",
+  },
+  {
+    src: "/images/momentos/recepcao-alegria.jpeg",
+    alt: "Família sendo recebida com alegria na Casa Forte",
+    className: "",
+  },
+  {
+    src: "/images/familia.jpg",
+    alt: "Família celebrando na Igreja Casa Forte",
+    className: "home-gallery-wide",
+  },
+  {
+    src: "/images/momentos/adoracao-em-familia.jpeg",
+    alt: "Momento de adoração em família",
+    className: "",
+  },
+  {
+    src: "/images/momentos/culto-cruz-iluminada.jpeg",
+    alt: "Culto na Casa Forte com a cruz iluminada",
+    className: "home-gallery-wide",
+  },
+  {
+    src: "/images/momentos/pastora-lisy-recepcao.jpeg",
+    alt: "Pastora Lisy acolhendo pessoas na recepção",
     className: "",
   },
   {
@@ -107,8 +143,8 @@ const gallery = [
     className: "",
   },
   {
-    src: "/images/recepcao.jpg",
-    alt: "Recepção da Igreja Casa Forte",
+    src: "/images/momentos/abraco-na-recepcao.jpeg",
+    alt: "Abraço de boas-vindas na recepção da Casa Forte",
     className: "",
   },
   {
@@ -117,9 +153,19 @@ const gallery = [
     className: "",
   },
   {
+    src: "/images/momentos/pastores-no-palco.jpeg",
+    alt: "Pastores Rilldy e Lisy ministrando juntos",
+    className: "home-gallery-wide",
+  },
+  {
+    src: "/images/recepcao.jpg",
+    alt: "Recepção da Igreja Casa Forte",
+    className: "",
+  },
+  {
     src: "/images/celebracao.jpg",
     alt: "Celebração alegre na Igreja Casa Forte",
-    className: "home-gallery-tall",
+    className: "home-gallery-wide",
   },
 ];
 
@@ -377,19 +423,19 @@ export default function Home() {
           </div>
         </article>
 
-        <article className="home-prayer-card">
-          <div>
+        <article
+          className="home-prayer-card"
+          aria-labelledby="home-prayer-title"
+        >
+          <div className="home-prayer-intro">
             <p className="home-kicker">Nós queremos caminhar com você</p>
-            <h2>Preciso de oração</h2>
+            <h2 id="home-prayer-title">Preciso de oração</h2>
             <p>
               Conte o que está acontecendo. Seu pedido será recebido com
               cuidado pela nossa equipe de intercessão.
             </p>
-            <Link href="/oracao">
-              Enviar pedido de oração
-              <ArrowIcon />
-            </Link>
           </div>
+          <PrayerForm placement="home" />
         </article>
       </section>
 
@@ -411,20 +457,23 @@ export default function Home() {
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
           <div>
-            <a href="/images/celebracao.jpg" target="_blank">
-              Celebração na Casa
+            <a
+              href="/images/momentos/culto-casa-cheia.jpeg"
+              target="_blank"
+            >
+              A Casa reunida
               <ArrowIcon />
             </a>
-            <a href="/images/familia.jpg" target="_blank">
-              Família Casa Forte
+            <a href="/images/momentos/oracao-no-palco.jpeg" target="_blank">
+              Momentos de oração
               <ArrowIcon />
             </a>
-            <a href="/images/adoracao-jovem.jpg" target="_blank">
-              Momentos de adoração
-              <ArrowIcon />
-            </a>
-            <a href="/images/recepcao.jpg" target="_blank">
+            <a href="/images/momentos/recepcao-alegria.jpeg" target="_blank">
               Gente chegando em Casa
+              <ArrowIcon />
+            </a>
+            <a href="/images/momentos/pastores-no-palco.jpeg" target="_blank">
+              Pastores da Casa
               <ArrowIcon />
             </a>
           </div>
