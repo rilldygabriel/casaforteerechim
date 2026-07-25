@@ -2847,3 +2847,227 @@ a:focus-visible {
       linear-gradient(180deg, transparent 30%, rgba(4, 6, 7, 0.82));
   }
 }
+
+/* Painel administrativo isolado */
+.admin-auth-page,
+.admin-dashboard {
+  min-height: 100vh;
+  color: #f7f7f2;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(255, 254, 21, 0.08), transparent 30%),
+    #080908;
+}
+
+.admin-auth-page {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.admin-auth-card {
+  width: min(100%, 560px);
+  padding: clamp(30px, 6vw, 58px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 38px;
+  background: #111311;
+}
+
+.admin-auth-card > a:first-child {
+  display: inline-flex;
+  margin-bottom: 42px;
+}
+
+.admin-auth-card h1,
+.admin-dashboard h1 {
+  margin: 16px 0;
+  font-size: clamp(2.7rem, 7vw, 5rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.admin-auth-card > p:not(.section-eyebrow),
+.admin-dashboard-hero > p:not(.section-eyebrow) {
+  color: #a9ada7;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.admin-auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.admin-auth-form label {
+  margin-top: 8px;
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-auth-form input {
+  width: 100%;
+  min-height: 58px;
+  padding: 0 19px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  color: #fff;
+  background: #080908;
+  font: inherit;
+}
+
+.admin-auth-form input:focus {
+  border-color: #fffe15;
+  outline: 2px solid rgba(255, 254, 21, 0.2);
+}
+
+.admin-auth-form button,
+.admin-dashboard-header button {
+  min-height: 58px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  color: #080908;
+  background: #fffe15;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-auth-form button {
+  margin-top: 14px;
+}
+
+.admin-auth-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.admin-auth-form .admin-auth-secondary {
+  margin-top: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f7f7f2;
+  background: transparent;
+}
+
+.admin-auth-error,
+.admin-auth-message {
+  margin: 8px 0 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.admin-auth-error {
+  color: #ffd4d4;
+  background: rgba(172, 38, 38, 0.25);
+}
+
+.admin-auth-message {
+  color: #efffcf;
+  background: rgba(101, 130, 27, 0.24);
+}
+
+.admin-auth-back {
+  display: inline-block;
+  margin-top: 28px;
+  color: #c7cac5;
+  font-weight: 750;
+}
+
+.admin-dashboard {
+  padding: clamp(24px, 4vw, 60px);
+}
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.admin-dashboard-header button {
+  min-height: 48px;
+  padding-inline: 20px;
+}
+
+.admin-dashboard-hero {
+  max-width: 920px;
+  margin-top: clamp(70px, 12vw, 150px);
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 60px;
+}
+
+.admin-dashboard-grid article {
+  min-height: 270px;
+  padding: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  background: #111311;
+}
+
+.admin-dashboard-grid article > span {
+  color: #fffe15;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.admin-dashboard-grid h2 {
+  margin: 35px 0 12px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+}
+
+.admin-dashboard-grid p {
+  color: #a9ada7;
+  line-height: 1.55;
+}
+
+.admin-dashboard-grid strong {
+  display: inline-block;
+  margin-top: 24px;
+  color: #fffe15;
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .admin-auth-page {
+    padding: 14px;
+  }
+
+  .admin-auth-card {
+    padding: 28px 22px;
+    border-radius: 28px;
+  }
+
+  .admin-auth-card > a:first-child {
+    margin-bottom: 28px;
+  }
+
+  .admin-dashboard-header {
+    align-items: flex-start;
+  }
+
+  .admin-dashboard-header img {
+    width: 145px;
+    height: auto;
+  }
+
+  .admin-dashboard-header button {
+    max-width: 145px;
+    font-size: 0.76rem;
+  }
+
+  .admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
