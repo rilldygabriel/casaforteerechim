@@ -6,13 +6,16 @@ const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
 const FIRST_VISIT_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20ir%20%C3%A0%20Casa%20pela%20primeira%20vez.%20Como%20funciona%3F";
+const ACCEPT_JESUS_URL =
+  "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
+const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 
 function ArrowIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="button-icon"
+      className="home-icon"
       viewBox="0 0 20 20"
       fill="none"
     >
@@ -25,7 +28,7 @@ function PinIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="button-icon"
+      className="home-icon"
       viewBox="0 0 20 20"
       fill="none"
     >
@@ -39,7 +42,7 @@ function CalendarIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="schedule-calendar-icon"
+      className="home-calendar-icon"
       viewBox="0 0 32 32"
       fill="none"
     >
@@ -50,306 +53,376 @@ function CalendarIcon() {
   );
 }
 
-function ConnectionIcon() {
+function PlayIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="path-icon"
+      className="home-play-icon"
       viewBox="0 0 32 32"
       fill="none"
     >
-      <circle cx="11" cy="11" r="4" />
-      <circle cx="23.5" cy="12.5" r="3.5" />
-      <path d="M3.5 27c.7-5.2 3.1-8 7.5-8s6.8 2.8 7.5 8M18 20.2c1.3-1.4 3.1-2.2 5.5-2.2 3.5 0 5.4 2.2 6 6.2" />
+      <circle cx="16" cy="16" r="13" />
+      <path d="m13 11 9 5-9 5v-10Z" />
     </svg>
   );
 }
 
-function HomeIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="path-icon"
-      viewBox="0 0 32 32"
-      fill="none"
-    >
-      <path d="m4.5 14 11.5-9 11.5 9M7.5 12v15h17V12M12.5 27v-8h7v8" />
-    </svg>
-  );
-}
+const programs = [
+  {
+    eyebrow: "Domingo",
+    title: "Culto Domingo na Casa",
+    time: "19h",
+  },
+  {
+    eyebrow: "Quarta-feira",
+    title: "Culto Quarta de Ensino",
+    time: "19h30",
+  },
+  {
+    eyebrow: "Sexta-feira",
+    title: "Sexta de Oração",
+    time: "19h30",
+  },
+];
 
-function GenerosityIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="path-icon"
-      viewBox="0 0 32 32"
-      fill="none"
-    >
-      <path d="M16 27S5 21.1 5 12.8C5 9 7.8 6.5 11.1 6.5c2.1 0 3.9 1.1 4.9 2.8 1-1.7 2.8-2.8 4.9-2.8 3.3 0 6.1 2.5 6.1 6.3C27 21.1 16 27 16 27Z" />
-    </svg>
-  );
-}
+const gallery = [
+  {
+    src: "/images/familia.jpg",
+    alt: "Família celebrando na Igreja Casa Forte",
+    className: "home-gallery-tall",
+  },
+  {
+    src: "/images/abraco.jpg",
+    alt: "Momento de comunhão e abraço na Casa Forte",
+    className: "",
+  },
+  {
+    src: "/images/adoracao-jovem.jpg",
+    alt: "Jovem adorando durante um culto",
+    className: "",
+  },
+  {
+    src: "/images/recepcao.jpg",
+    alt: "Recepção da Igreja Casa Forte",
+    className: "",
+  },
+  {
+    src: "/images/7H0A8738.jpeg",
+    alt: "Ministração na Igreja Casa Forte",
+    className: "",
+  },
+  {
+    src: "/images/celebracao.jpg",
+    alt: "Celebração alegre na Igreja Casa Forte",
+    className: "home-gallery-tall",
+  },
+];
 
 export default function Home() {
   return (
-    <main className="site-shell">
-      <section className="hero" aria-labelledby="hero-title">
-        <Image
-          className="hero-image"
-          src="/images/hero.jpg"
-          alt="Comunidade reunida em um culto da Igreja Casa Forte Erechim"
-          fill
-          priority
-          sizes="100vw"
-        />
-        <div className="hero-overlay" />
-        <div className="hero-glow" />
+    <main className="home-page">
+      <header className="home-header">
+        <Link className="home-brand" href="/" aria-label="Casa Forte — início">
+          <Image
+            src="/images/logo-casa-forte.png"
+            alt="Igreja Casa Forte"
+            width={220}
+            height={85}
+            priority
+          />
+        </Link>
 
-        <header className="site-header">
-          <Link className="brand" href="/" aria-label="Casa Forte — início">
-            <Image
-              src="/images/logo-casa-forte.png"
-              alt="Igreja Casa Forte"
-              width={220}
-              height={85}
-              priority
-            />
-          </Link>
-
-          <nav className="header-actions" aria-label="Acesso rápido">
-            <a
-              className="header-link"
-              href={MAPS_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <PinIcon />
-              <span>Como chegar</span>
-            </a>
-            <div className="header-contact-actions">
-              <a
-                className="first-visit-pill"
-                href={FIRST_VISIT_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Quero visitar a Casa
-              </a>
-              <a
-                className="header-cta"
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Fale com a gente
-                <ArrowIcon />
-              </a>
-            </div>
-          </nav>
-        </header>
-
-        <div className="hero-content">
-          <div className="hero-copy">
-            <p className="eyebrow">
-              <span aria-hidden="true" />
-              Uma igreja para chamar de casa
-            </p>
-
-            <h1 id="hero-title">
-              Você tem um
-              <strong>lugar aqui.</strong>
-            </h1>
-
-            <p className="hero-message">
-              Não ande sozinho. <span>Vem pra casa.</span>
-            </p>
-
-            <p className="hero-description">
-              Uma comunidade para viver Jesus, construir vínculos e crescer em
-              família, bem no coração de Erechim.
-            </p>
-
-            <div className="hero-actions hero-entry-actions">
-              <Link className="button button-primary entry-button" href="/visitante">
-                Sou visitante
-                <ArrowIcon />
-              </Link>
-              <Link className="button button-primary entry-button" href="/familia">
-                Sou da Casa
-                <ArrowIcon />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-footer">
-          <div className="schedule" aria-label="Programação semanal">
-            <div className="schedule-item">
-              <CalendarIcon />
-              <div className="schedule-copy">
-                <span>Culto Domingo na Casa</span>
-                <strong>19h</strong>
-              </div>
-            </div>
-            <div className="schedule-item">
-              <CalendarIcon />
-              <div className="schedule-copy">
-                <span>Culto Quarta de Ensino</span>
-                <strong>19h30</strong>
-              </div>
-            </div>
-            <div className="schedule-item">
-              <CalendarIcon />
-              <div className="schedule-copy">
-                <span>Sexta de Oração</span>
-                <strong>19h30</strong>
-              </div>
-            </div>
-          </div>
-
+        <nav className="home-nav" aria-label="Acesso rápido">
+          <a href={MAPS_URL} target="_blank" rel="noreferrer">
+            <PinIcon />
+            Como chegar
+          </a>
+          <Link href="/familia">Área de membro</Link>
           <a
-            className="address"
-            href={MAPS_URL}
+            className="home-nav-highlight"
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noreferrer"
           >
-            <PinIcon />
+            Fale conosco
+          </a>
+        </nav>
+      </header>
+
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="home-hero-panel">
+          <div className="home-hero-copy">
+            <p className="home-kicker">Uma igreja para chamar de Casa</p>
+            <h1 id="home-title">
+              Você tem um
+              <strong>lugar aqui.</strong>
+            </h1>
+            <p>
+              Viva Jesus, construa vínculos e cresça em família. Não ande
+              sozinho. Vem pra Casa.
+            </p>
+            <a
+              className="home-inline-link"
+              href={FIRST_VISIT_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Quero visitar a Casa
+              <ArrowIcon />
+            </a>
+          </div>
+
+          <div className="home-hero-pastors" aria-label="Pastores da Casa Forte">
+            <figure>
+              <Image
+                src="/images/pastor-rilldy.jpg"
+                alt="Pastor Rilldy Gabriel"
+                fill
+                priority
+                sizes="(max-width: 760px) 50vw, 28vw"
+              />
+              <figcaption>Pr. Rilldy</figcaption>
+            </figure>
+            <figure>
+              <Image
+                src="/images/pastora-lisy.jpg"
+                alt="Pastora Lisy"
+                fill
+                priority
+                sizes="(max-width: 760px) 50vw, 28vw"
+              />
+              <figcaption>Pra. Lisy</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div className="home-entry-grid" aria-label="Escolha seu acesso">
+          <Link href="/visitante">
+            <span>Quero me conectar</span>
+            <strong>Sou visitante</strong>
+            <ArrowIcon />
+          </Link>
+          <Link href="/familia">
+            <span>Esta é a minha igreja</span>
+            <strong>Sou da Casa</strong>
+            <ArrowIcon />
+          </Link>
+        </div>
+      </section>
+
+      <section
+        className="home-block home-generosity"
+        aria-labelledby="generosity-title"
+      >
+        <div className="home-section-heading">
+          <p className="home-kicker">Semeie com propósito</p>
+          <h2 id="generosity-title">Generosidade</h2>
+          <p>
+            Copie a chave oficial com um toque, sem sair da página inicial.
+          </p>
+        </div>
+
+        <div className="home-generosity-grid">
+          <article>
+            <span>01</span>
+            <h3>Oferta de Primícias</h3>
+            <p>Uma expressão de honra e gratidão pelas primeiras conquistas.</p>
+            <strong>54 99321-7227</strong>
+            <PixCopyButton
+              pixKey="54993217227"
+              label="Clique para copiar"
+              className="home-copy-button"
+            />
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Dízimos e Ofertas</h3>
+            <p>Sua contribuição sustenta a missão e tudo o que construímos.</p>
+            <strong>46.534.858/0001-37</strong>
+            <PixCopyButton
+              pixKey="46534858000137"
+              label="Clique para copiar"
+              className="home-copy-button"
+            />
+          </article>
+        </div>
+      </section>
+
+      <section
+        className="home-block home-programs"
+        aria-labelledby="programs-title"
+      >
+        <div className="home-section-heading home-section-heading-row">
+          <div>
+            <p className="home-kicker">Toda semana na Casa</p>
+            <h2 id="programs-title">Nossas programações</h2>
+          </div>
+          <a href={MAPS_URL} target="_blank" rel="noreferrer">
+            Ver localização
+            <ArrowIcon />
+          </a>
+        </div>
+
+        <div className="home-program-grid">
+          {programs.map((program) => (
+            <article key={program.title}>
+              <div className="home-program-top">
+                <span>{program.eyebrow}</span>
+                <CalendarIcon />
+              </div>
+              <h3>{program.title}</h3>
+              <strong>{program.time}</strong>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="home-block home-moments"
+        id="o-que-esta-rolando"
+        aria-labelledby="moments-title"
+      >
+        <div className="home-section-heading home-section-heading-row">
+          <div>
+            <p className="home-kicker">Vida acontecendo</p>
+            <h2 id="moments-title">O que está rolando na Casa</h2>
+          </div>
+          <p>
+            Gente real, comunhão verdadeira e uma família crescendo em Jesus.
+          </p>
+        </div>
+
+        <div className="home-gallery">
+          {gallery.map((photo) => (
+            <a
+              className={photo.className}
+              href={photo.src}
+              key={photo.src}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Abrir foto: ${photo.alt}`}
+            >
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                sizes="(max-width: 720px) 50vw, 30vw"
+              />
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="home-block home-message"
+        aria-labelledby="message-title"
+      >
+        <a href={YOUTUBE_URL} target="_blank" rel="noreferrer">
+          <Image
+            src="/images/oracao.jpg"
+            alt="Ministração durante um culto da Igreja Casa Forte"
+            fill
+            sizes="100vw"
+          />
+          <div className="home-message-overlay" />
+          <div className="home-message-copy">
+            <p className="home-kicker">Palavra que transforma</p>
+            <h2 id="message-title">Assista à mensagem do último culto</h2>
             <span>
-              Rua José Reinaldo Angonezze, 319
-              <small>José Bonifácio • Erechim, RS</small>
+              <PlayIcon />
+              Assistir no YouTube
+            </span>
+          </div>
+        </a>
+      </section>
+
+      <section className="home-block home-resources">
+        <article className="home-jesus-card">
+          <p className="home-kicker">O seu maior passo</p>
+          <h2>Quero aceitar Jesus</h2>
+          <p>
+            Você não precisa caminhar sozinho. Fale com a nossa equipe e
+            comece hoje uma nova história.
+          </p>
+          <a href={ACCEPT_JESUS_URL} target="_blank" rel="noreferrer">
+            Quero conversar
+            <ArrowIcon />
+          </a>
+        </article>
+
+        <article className="home-photo-links">
+          <p className="home-kicker">Memórias da Casa</p>
+          <h2>Últimas fotos</h2>
+          <div>
+            <a href="/images/celebracao.jpg" target="_blank">
+              Celebração na Casa
+              <ArrowIcon />
+            </a>
+            <a href="/images/familia.jpg" target="_blank">
+              Família Casa Forte
+              <ArrowIcon />
+            </a>
+            <a href="/images/adoracao-jovem.jpg" target="_blank">
+              Momentos de adoração
+              <ArrowIcon />
+            </a>
+            <a href="/images/recepcao.jpg" target="_blank">
+              Gente chegando em Casa
+              <ArrowIcon />
+            </a>
+          </div>
+        </article>
+      </section>
+
+      <section
+        className="home-block home-pastors"
+        aria-labelledby="pastors-title"
+      >
+        <div className="home-section-heading">
+          <p className="home-kicker">Cuidado pastoral</p>
+          <h2 id="pastors-title">Conecte-se com os pastores</h2>
+        </div>
+
+        <div className="home-pastor-grid">
+          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+            <Image
+              src="/images/pastor-rilldy.jpg"
+              alt="Pastor Rilldy Gabriel"
+              fill
+              sizes="(max-width: 720px) 100vw, 50vw"
+            />
+            <span>
+              <small>Pastor</small>
+              Pr. Rilldy Gabriel
+            </span>
+          </a>
+          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+            <Image
+              src="/images/pastora-lisy.jpg"
+              alt="Pastora Lisy"
+              fill
+              sizes="(max-width: 720px) 100vw, 50vw"
+            />
+            <span>
+              <small>Pastora</small>
+              Pra. Lisy
             </span>
           </a>
         </div>
       </section>
 
-      <section
-        className="paths-section"
-        id="proximos-passos"
-        aria-labelledby="paths-title"
-      >
-        <div className="paths-inner">
-          <div className="paths-heading">
-            <p className="section-eyebrow">
-              <span aria-hidden="true" />
-              Seu próximo passo
-            </p>
-            <div className="paths-heading-copy">
-              <h2 id="paths-title">
-                Encontre o seu
-                <strong>lugar na Casa.</strong>
-              </h2>
-              <p>
-                Para quem está chegando e para quem já vive esta família:
-                cada entrada leva você direto ao que precisa.
-              </p>
-            </div>
-          </div>
-
-          <div className="paths-grid">
-            <article className="path-card">
-              <div className="path-card-topline">
-                <span className="path-number">01</span>
-                <ConnectionIcon />
-              </div>
-              <div className="path-card-copy">
-                <p className="path-kicker">Já estive em um culto</p>
-                <h3>Sou visitante</h3>
-                <p className="path-question">
-                  Quero continuar perto e conhecer melhor a Casa.
-                </p>
-                <p className="path-description">
-                  Nossa equipe de conexão está pronta para ouvir você e
-                  acompanhar seu próximo passo.
-                </p>
-              </div>
-              <div className="path-actions">
-                <Link
-                  className="path-link path-link-primary"
-                  href="/visitante"
-                >
-                  Preencher ficha de visitante
-                  <ArrowIcon />
-                </Link>
-              </div>
-            </article>
-
-            <article className="path-card">
-              <div className="path-card-topline">
-                <span className="path-number">02</span>
-                <HomeIcon />
-              </div>
-              <div className="path-card-copy">
-                <p className="path-kicker">Esta é a minha igreja</p>
-                <h3>Sou da Casa</h3>
-                <p className="path-question">
-                  Já faço parte desta família e quero estar por dentro.
-                </p>
-                <p className="path-description">
-                  Acesse seu perfil, sua caminhada e os recursos reservados
-                  para a família.
-                </p>
-              </div>
-              <div className="path-actions">
-                <Link
-                  className="path-link path-link-primary"
-                  href="/familia"
-                >
-                  Entrar na Área da Família
-                  <ArrowIcon />
-                </Link>
-              </div>
-            </article>
-
-            <article className="path-card path-card-featured">
-              <div className="path-card-topline">
-                <span className="path-number">03</span>
-                <GenerosityIcon />
-              </div>
-              <div className="path-card-copy">
-                <p className="path-kicker">Semeie com propósito</p>
-                <h3>Generosidade</h3>
-                <p className="path-question">
-                  Contribua com primícias, dízimos e ofertas.
-                </p>
-                <p className="path-description">
-                  Escolha a finalidade e copie a chave PIX oficial com um
-                  toque, sem sair desta página.
-                </p>
-              </div>
-              <div
-                className="home-pix-actions"
-                aria-label="Copiar chaves PIX da Casa Forte"
-              >
-                <div className="home-pix-option">
-                  <span>Oferta de Primícias</span>
-                  <strong className="home-pix-key">54 99321-7227</strong>
-                  <PixCopyButton
-                    pixKey="54993217227"
-                    label="Copiar PIX de Primícias"
-                    className="home-pix-button"
-                  />
-                </div>
-                <div className="home-pix-option">
-                  <span>Dízimos e Ofertas</span>
-                  <strong className="home-pix-key">
-                    46.534.858/0001-37
-                  </strong>
-                  <PixCopyButton
-                    pixKey="46534858000137"
-                    label="Copiar PIX de Dízimos e Ofertas"
-                    className="home-pix-button"
-                  />
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <p className="paths-statement">
-            Aqui você não é só mais um. <strong>Você é família.</strong>
-          </p>
-        </div>
-      </section>
+      <footer className="home-footer">
+        <Image
+          src="/images/logo-casa-forte.png"
+          alt="Igreja Casa Forte"
+          width={180}
+          height={70}
+        />
+        <p>Rua José Reinaldo Angonezze, 319 · Erechim, RS</p>
+        <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+          Fale conosco
+        </a>
+      </footer>
     </main>
   );
 }
