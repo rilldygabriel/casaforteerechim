@@ -1,0 +1,256 @@
+/* Módulo administrativo de pedidos de oração */
+.admin-prayer-filters {
+  display: grid;
+  width: min(100%, 780px);
+  grid-template-columns: minmax(250px, 1.2fr) repeat(2, minmax(145px, 0.55fr));
+  gap: 10px;
+}
+
+.admin-prayer-filters label,
+.admin-prayer-follow-up label {
+  display: grid;
+  gap: 8px;
+  color: #9ca09a;
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-prayer-filters input,
+.admin-prayer-filters select,
+.admin-prayer-follow-up input,
+.admin-prayer-follow-up select,
+.admin-prayer-follow-up textarea {
+  width: 100%;
+  min-height: 48px;
+  padding-inline: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 14px;
+  outline: 0;
+  color: #f7f7f2;
+  background: #080908;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-prayer-follow-up textarea {
+  min-height: 112px;
+  padding-block: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.admin-prayer-filters input:focus,
+.admin-prayer-filters select:focus,
+.admin-prayer-follow-up input:focus,
+.admin-prayer-follow-up select:focus,
+.admin-prayer-follow-up textarea:focus {
+  border-color: #fffe15;
+  box-shadow: 0 0 0 3px rgba(255, 254, 21, 0.11);
+}
+
+.admin-prayer-card[data-urgent="true"] {
+  border-color: rgba(255, 135, 98, 0.35);
+  background:
+    linear-gradient(145deg, rgba(255, 91, 53, 0.07), transparent 40%),
+    #121412;
+}
+
+.admin-prayer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.admin-prayer-badges strong {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding-inline: 12px;
+  border: 1px solid rgba(255, 254, 21, 0.28);
+  border-radius: 999px;
+  color: #fffe15;
+  background: rgba(255, 254, 21, 0.08);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-prayer-badges strong:first-child:not(:last-child) {
+  border-color: rgba(255, 133, 102, 0.42);
+  color: #ffb29e;
+  background: rgba(172, 54, 27, 0.2);
+}
+
+.admin-prayer-badges strong[data-status="concluido"] {
+  border-color: rgba(143, 224, 171, 0.32);
+  color: #9be7b4;
+  background: rgba(53, 135, 82, 0.14);
+}
+
+.admin-prayer-badges strong[data-status="em_oracao"],
+.admin-prayer-badges strong[data-status="em_contato"] {
+  border-color: rgba(157, 198, 255, 0.32);
+  color: #a9ccff;
+  background: rgba(63, 104, 164, 0.14);
+}
+
+.admin-prayer-request {
+  margin-top: 25px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: #0b0d0b;
+}
+
+.admin-prayer-request span {
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.admin-prayer-request p {
+  margin: 15px 0 0;
+  color: #e6e8e3;
+  font-size: clamp(1rem, 2vw, 1.18rem);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.admin-prayer-details {
+  margin-top: 16px;
+}
+
+.admin-prayer-contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.admin-prayer-contact-row > span {
+  color: #8f938e;
+  font-size: 0.74rem;
+}
+
+.admin-prayer-contact-row > div {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-prayer-contact-row a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #f7f7f2;
+  font-size: 0.67rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-prayer-contact-row a:last-child {
+  border-color: #fffe15;
+  color: #080908;
+  background: #fffe15;
+}
+
+.admin-prayer-follow-up {
+  display: grid;
+  grid-template-columns: minmax(145px, 0.45fr) minmax(220px, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-prayer-notes,
+.admin-prayer-save-row {
+  grid-column: span 2;
+}
+
+.admin-prayer-save-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-prayer-save-row p {
+  margin: 0;
+  color: #737871;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.admin-prayer-save-row p[data-kind="success"] {
+  color: #9be7b4;
+}
+
+.admin-prayer-save-row p[data-kind="error"] {
+  color: #ffb4b4;
+}
+
+.admin-prayer-save-row button {
+  min-height: 46px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #080908;
+  background: #fffe15;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-prayer-save-row button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+@media (max-width: 700px) {
+  .admin-prayer-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-prayer-badges {
+    justify-content: flex-start;
+  }
+
+  .admin-prayer-contact-row,
+  .admin-prayer-save-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-prayer-contact-row > div,
+  .admin-prayer-contact-row a,
+  .admin-prayer-save-row button {
+    width: 100%;
+  }
+
+  .admin-prayer-follow-up {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-prayer-notes,
+  .admin-prayer-save-row {
+    grid-column: auto;
+  }
+}
