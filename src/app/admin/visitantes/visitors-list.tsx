@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import {
+  INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE,
+  type VisitorFollowUpStatus,
+  updateVisitorFollowUp,
+} from "./actions";
 
 export type VisitorRecord = {
   id: number;
@@ -22,7 +27,7 @@ export type VisitorRecord = {
     | "Sim, estarei no próximo culto"
     | "Não, fui só visitar";
   data_visita: string;
-  status_acompanhamento: "novo" | "em_contato" | "acompanhado" | "concluido";
+  status_acompanhamento: VisitorFollowUpStatus;
   created_at: string;
 };
 
@@ -37,6 +42,42 @@ const STATUS_LABELS: Record<VisitorRecord["status_acompanhamento"], string> = {
   acompanhado: "Acompanhado",
   concluido: "Concluído",
 };
+
+function VisitorFollowUp({ visitor }: { visitor: VisitorRecord }) {
+  const [state, formAction, isPending] = useActionState(
+    updateVisitorFollowUp,
+    INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE,
+  );
+
+  return (
+    <form className="admin-visitor-follow-up" action={formAction}>
+      <input type="hidden" name="visitorId" value={visitor.id} />
+
+      <label>
+        <span>Status do acolhimento</span>
+        <select name="status" defaultValue={visitor.status_acompanhamento}>
+          <option value="novo">Novo</option>
+          <option value="em_contato">Em contato</option>
+          <option value="acompanhado">Acompanhado</option>
+          <option value="concluido">Concluído</option>
+        </select>
+      </label>
+
+      <div className="admin-visitor-save-row">
+        {state.kind !== "idle" ? (
+          <p data-kind={state.kind} role={state.kind === "error" ? "alert" : "status"}>
+            {state.message}
+          </p>
+        ) : (
+          <p>A ficha não pode ser apagada por este painel.</p>
+        )}
+        <button type="submit" disabled={isPending}>
+          {isPending ? "Salvando..." : "Salvar acompanhamento"}
+        </button>
+      </div>
+    </form>
+  );
+}
 
 const FAITH_STEP_LABELS: Record<VisitorRecord["passo_fe"], string> = {
   aceitei_jesus: "Aceitou Jesus",
@@ -262,6 +303,8 @@ export default function VisitorsList({
                         : "Não solicitou mensagem do pastor"}
                     </span>
                   </div>
+
+                  <VisitorFollowUp visitor={visitor} />
 
                   <footer>
                     <small>Recebido em {formatCreatedAt(visitor.created_at)}</small>

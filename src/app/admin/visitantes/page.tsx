@@ -68,8 +68,9 @@ export default async function AdminVisitorsPage() {
         </p>
         <h1>Visitantes</h1>
         <p>
-          Consulte as fichas enviadas pelo site. Esta primeira versão é somente
-          leitura e não permite apagar ou alterar nenhum registro.
+          Consulte as fichas enviadas pelo site e registre o andamento de cada
+          acolhimento. Somente administradores autorizados podem ler ou
+          atualizar estas informações.
         </p>
       </section>
 
