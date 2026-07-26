@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PixCopyButton from "@/components/pix-copy-button";
 import PrayerForm from "@/components/prayer-form";
+import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
 
 const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
@@ -102,84 +103,6 @@ const programs = [
     eyebrow: "Sexta-feira",
     title: "Sexta de Oração",
     time: "19h30",
-  },
-];
-
-const gallery = [
-  {
-    src: "/images/momentos/culto-casa-cheia.jpeg",
-    alt: "Igreja Casa Forte reunida durante o culto",
-    className: "home-gallery-wide",
-  },
-  {
-    src: "/images/momentos/adoracao-jovem.jpeg",
-    alt: "Jovem adorando a Deus durante o culto",
-    className: "",
-  },
-  {
-    src: "/images/abraco.jpg",
-    alt: "Momento de comunhão e abraço na Casa Forte",
-    className: "",
-  },
-  {
-    src: "/images/momentos/oracao-no-palco.jpeg",
-    alt: "Pastor em oração durante a ministração",
-    className: "",
-  },
-  {
-    src: "/images/momentos/recepcao-alegria.jpeg",
-    alt: "Família sendo recebida com alegria na Casa Forte",
-    className: "",
-  },
-  {
-    src: "/images/familia.jpg",
-    alt: "Família celebrando na Igreja Casa Forte",
-    className: "home-gallery-wide",
-  },
-  {
-    src: "/images/momentos/adoracao-em-familia.jpeg",
-    alt: "Momento de adoração em família",
-    className: "",
-  },
-  {
-    src: "/images/momentos/culto-cruz-iluminada.jpeg",
-    alt: "Culto na Casa Forte com a cruz iluminada",
-    className: "home-gallery-wide",
-  },
-  {
-    src: "/images/momentos/pastora-lisy-recepcao.jpeg",
-    alt: "Pastora Lisy acolhendo pessoas na recepção",
-    className: "",
-  },
-  {
-    src: "/images/adoracao-jovem.jpg",
-    alt: "Jovem adorando durante um culto",
-    className: "",
-  },
-  {
-    src: "/images/momentos/abraco-na-recepcao.jpeg",
-    alt: "Abraço de boas-vindas na recepção da Casa Forte",
-    className: "",
-  },
-  {
-    src: "/images/7H0A8738.jpeg",
-    alt: "Ministração na Igreja Casa Forte",
-    className: "",
-  },
-  {
-    src: "/images/momentos/pastores-no-palco.jpeg",
-    alt: "Pastores Rilldy e Lisy ministrando juntos",
-    className: "home-gallery-wide",
-  },
-  {
-    src: "/images/recepcao.jpg",
-    alt: "Recepção da Igreja Casa Forte",
-    className: "",
-  },
-  {
-    src: "/images/celebracao.jpg",
-    alt: "Celebração alegre na Igreja Casa Forte",
-    className: "home-gallery-wide",
   },
 ];
 
@@ -351,13 +274,11 @@ export default function Home() {
         </div>
 
         <div className="home-gallery">
-          {gallery.map((photo) => (
-            <a
+          {GALLERY_PHOTOS.map((photo) => (
+            <Link
               className={photo.className}
-              href={photo.src}
-              key={photo.src}
-              target="_blank"
-              rel="noreferrer"
+              href={getPhotoHref(photo.slug)}
+              key={photo.slug}
               aria-label={`Abrir foto: ${photo.alt}`}
             >
               <Image
@@ -366,7 +287,7 @@ export default function Home() {
                 fill
                 sizes="(max-width: 720px) 50vw, 30vw"
               />
-            </a>
+            </Link>
           ))}
         </div>
       </section>
@@ -475,25 +396,22 @@ export default function Home() {
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
           <div>
-            <a
-              href="/images/momentos/culto-casa-cheia.jpeg"
-              target="_blank"
-            >
+            <Link href={getPhotoHref("culto-casa-cheia")}>
               A Casa reunida
               <ArrowIcon />
-            </a>
-            <a href="/images/momentos/oracao-no-palco.jpeg" target="_blank">
+            </Link>
+            <Link href={getPhotoHref("oracao-no-palco")}>
               Momentos de oração
               <ArrowIcon />
-            </a>
-            <a href="/images/momentos/recepcao-alegria.jpeg" target="_blank">
+            </Link>
+            <Link href={getPhotoHref("recepcao-alegria")}>
               Gente chegando em Casa
               <ArrowIcon />
-            </a>
-            <a href="/images/momentos/pastores-no-palco.jpeg" target="_blank">
+            </Link>
+            <Link href={getPhotoHref("pastores-no-palco")}>
               Pastores da Casa
               <ArrowIcon />
-            </a>
+            </Link>
           </div>
         </article>
       </section>

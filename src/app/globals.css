@@ -3378,6 +3378,89 @@ a:focus-visible {
   background: rgba(255, 254, 21, 0.06);
 }
 
+.admin-visitor-follow-up {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.45fr) 1fr;
+  gap: 14px;
+  align-items: end;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-visitor-follow-up label {
+  display: grid;
+  gap: 8px;
+  color: #9ca09a;
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-visitor-follow-up select {
+  width: 100%;
+  min-height: 48px;
+  padding-inline: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 14px;
+  outline: 0;
+  color: #f7f7f2;
+  background: #080908;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-visitor-follow-up select:focus {
+  border-color: #fffe15;
+  box-shadow: 0 0 0 3px rgba(255, 254, 21, 0.11);
+}
+
+.admin-visitor-save-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.admin-visitor-save-row p {
+  margin: 0;
+  color: #737871;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.admin-visitor-save-row p[data-kind="success"] {
+  color: #9be7b4;
+}
+
+.admin-visitor-save-row p[data-kind="error"] {
+  color: #ffb4b4;
+}
+
+.admin-visitor-save-row button {
+  min-height: 46px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #080908;
+  background: #fffe15;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-visitor-save-row button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 .admin-visitor-card > footer {
   display: flex;
   align-items: center;
@@ -3558,8 +3641,124 @@ a:focus-visible {
     flex-direction: column;
   }
 
+  .admin-visitor-follow-up {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-visitor-save-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-visitor-save-row button {
+    width: 100%;
+  }
+
   .admin-visitor-card > footer > div,
   .admin-visitor-card > footer a {
+    width: 100%;
+  }
+}
+
+/* Visualizador interno da galeria */
+.photo-viewer-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  padding: clamp(16px, 3vw, 36px);
+  color: #f7f7f2;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(255, 254, 21, 0.08), transparent 28%),
+    #080908;
+}
+
+.photo-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.photo-viewer-header > a,
+.photo-viewer-back {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding-inline: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #f7f7f2;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.photo-viewer-header > a:hover,
+.photo-viewer-back:hover {
+  border-color: #fffe15;
+  color: #080908;
+  background: #fffe15;
+}
+
+.photo-viewer-figure {
+  width: min(100%, 1400px);
+  margin: clamp(26px, 5vw, 58px) auto 0;
+}
+
+.photo-viewer-image {
+  position: relative;
+  min-height: min(72vh, 880px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: clamp(18px, 3vw, 32px);
+  background: #030403;
+}
+
+.photo-viewer-image img {
+  object-fit: contain;
+}
+
+.photo-viewer-figure figcaption {
+  margin-top: 14px;
+  color: #9ca09a;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.photo-viewer-back {
+  align-self: center;
+  margin-top: 24px;
+  border-color: #fffe15;
+  color: #080908;
+  background: #fffe15;
+}
+
+@media (max-width: 700px) {
+  .photo-viewer-header img {
+    width: 118px;
+    height: auto;
+  }
+
+  .photo-viewer-header > a {
+    min-height: 42px;
+    padding-inline: 13px;
+    font-size: 0.62rem;
+  }
+
+  .photo-viewer-image {
+    min-height: 68vh;
+    border-radius: 18px;
+  }
+
+  .photo-viewer-back {
     width: 100%;
   }
 }
