@@ -47,7 +47,7 @@ export default function MemberSignupForm() {
         }),
       });
     } catch {
-      setError("Não foi possível enviar sua solicitação agora.");
+      setError("Não foi possível criar seu acesso agora.");
       setLoading(false);
       return;
     }
@@ -56,7 +56,9 @@ export default function MemberSignupForm() {
       setError(
         response.status === 400
           ? "Revise os dados preenchidos."
-          : "Não foi possível enviar sua solicitação agora.",
+          : response.status === 429
+            ? "Aguarde um minuto antes de tentar novamente."
+            : "Não foi possível criar seu acesso agora.",
       );
       setLoading(false);
       return;
@@ -82,10 +84,10 @@ export default function MemberSignupForm() {
           <span className="success-mark" aria-hidden="true">
             ✓
           </span>
-          <h1>Solicitação recebida.</h1>
+          <h1>Cadastro realizado.</h1>
           <p>
-            Sua solicitação chegou com segurança. Depois da aprovação da
-            liderança, você receberá o convite oficial para criar sua senha.
+            Enviamos agora o convite para o seu e-mail. Abra a mensagem e crie
+            sua senha para entrar na Área da Família.
           </p>
           <Link className="family-auth-primary-link" href="/familia/login">
             Ir para o acesso
@@ -117,8 +119,8 @@ export default function MemberSignupForm() {
         </p>
         <h1 id="member-signup-title">Quero fazer parte.</h1>
         <p>
-          Envie seus dados para a liderança. A conta só será criada depois da
-          aprovação, e o convite chegará no seu e-mail.
+          Preencha seus dados e enviaremos imediatamente o convite para você
+          criar sua senha e entrar na Área da Família.
         </p>
 
         <form onSubmit={handleSignup} className="admin-auth-form">
@@ -173,12 +175,12 @@ export default function MemberSignupForm() {
           ) : null}
 
           <button type="submit" disabled={loading}>
-            {loading ? "Enviando solicitação..." : "Solicitar meu acesso"}
+            {loading ? "Criando seu acesso..." : "Criar meu acesso"}
           </button>
         </form>
 
         <p className="family-auth-register">
-          Já recebeu seu convite? <Link href="/familia/login">Entrar</Link>
+          Já tem acesso? <Link href="/familia/login">Entrar</Link>
         </p>
         <Link className="admin-auth-back" href="/">
           Voltar ao site
