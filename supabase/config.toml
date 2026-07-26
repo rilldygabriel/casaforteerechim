@@ -1,2 +1,5 @@
 [functions.admin-password-recovery]
 verify_jwt = false
+
+[functions.approve-member-application]
+verify_jwt = false

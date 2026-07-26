@@ -1,0 +1,213 @@
+/* Gestão segura dos cadastros da Área da Família */
+.admin-members-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.admin-member-applications {
+  margin-bottom: clamp(22px, 4vw, 42px);
+}
+
+.admin-member-card {
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(255, 254, 21, 0.025), transparent 38%),
+    #121412;
+}
+
+.admin-member-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.admin-member-card > header div > span {
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.admin-member-card h2 {
+  margin: 12px 0 0;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  letter-spacing: -0.045em;
+}
+
+.admin-member-card > header p {
+  margin: 8px 0 0;
+  color: #92968f;
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-member-card > header > strong {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding-inline: 12px;
+  border: 1px solid rgba(255, 254, 21, 0.28);
+  border-radius: 999px;
+  color: #fffe15;
+  background: rgba(255, 254, 21, 0.08);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-member-card > header > strong[data-status="approved"] {
+  border-color: rgba(143, 224, 171, 0.32);
+  color: #9be7b4;
+  background: rgba(53, 135, 82, 0.14);
+}
+
+.admin-member-card > header > strong[data-status="invited"] {
+  border-color: rgba(143, 224, 171, 0.32);
+  color: #9be7b4;
+  background: rgba(53, 135, 82, 0.14);
+}
+
+.admin-member-card > header > strong[data-status="rejected"] {
+  border-color: rgba(255, 149, 131, 0.32);
+  color: #ffb4a7;
+  background: rgba(157, 55, 40, 0.14);
+}
+
+.admin-member-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 28px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-member-card dl > div {
+  min-width: 0;
+  min-height: 86px;
+  padding: 17px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-member-card dt {
+  color: #777c75;
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-member-card dd {
+  margin: 9px 0 0;
+  color: #e5e7e2;
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.admin-member-approval {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-member-approval p,
+.admin-member-protected-note {
+  margin: 0;
+  color: #737871;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.admin-member-approval p[data-kind="success"] {
+  color: #9be7b4;
+}
+
+.admin-member-approval p[data-kind="error"] {
+  color: #ffb4b4;
+}
+
+.admin-member-approval button {
+  min-height: 46px;
+  padding-inline: 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #080908;
+  background: #fffe15;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-member-approval-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-member-approval button[data-action="rejected"] {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f7f7f2;
+  background: transparent;
+}
+
+.admin-member-approval button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.admin-member-protected-note {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9be7b4;
+  text-align: right;
+}
+
+@media (max-width: 700px) {
+  .admin-member-card {
+    padding: 20px 14px;
+  }
+
+  .admin-member-card > header {
+    flex-direction: column;
+  }
+
+  .admin-member-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-member-approval {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-member-approval button {
+    width: 100%;
+  }
+
+  .admin-member-approval-buttons {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .admin-member-protected-note {
+    text-align: left;
+  }
+}

@@ -73,6 +73,15 @@ export default async function AdminPage() {
           </p>
           <strong>Acessar pedidos →</strong>
         </Link>
+        <Link className="admin-module-link" href="/admin/membros">
+          <span>03</span>
+          <h2>Membros</h2>
+          <p>
+            Revise novos cadastros e controle quem pode acessar a Área da
+            Família.
+          </p>
+          <strong>Gerenciar membros →</strong>
+        </Link>
       </section>
     </main>
   );

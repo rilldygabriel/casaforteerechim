@@ -9,8 +9,18 @@ const PUBLIC_ADMIN_ROUTES = new Set([
   "/admin/redefinir-senha",
 ]);
 
+const PUBLIC_FAMILY_ROUTES = new Set([
+  "/familia/aceitar-convite",
+  "/familia/login",
+  "/familia/cadastro",
+  "/familia/callback",
+]);
+
 export async function proxy(request: NextRequest) {
-  if (PUBLIC_ADMIN_ROUTES.has(request.nextUrl.pathname)) {
+  if (
+    PUBLIC_ADMIN_ROUTES.has(request.nextUrl.pathname) ||
+    PUBLIC_FAMILY_ROUTES.has(request.nextUrl.pathname)
+  ) {
     return NextResponse.next();
   }
 
@@ -42,5 +52,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/familia/:path*"],
 };
