@@ -53,21 +53,32 @@ export default function AdminLoginForm({
     }
 
     setResetLoading(true);
-    const supabase = getSupabaseBrowserClient();
-    const redirectTo = `${window.location.origin}/admin/callback?next=/admin/redefinir-senha`;
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-      normalizedEmail,
-      { redirectTo },
-    );
+    try {
+      const response = await fetch("/admin/recuperar-senha", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
 
-    if (resetError) {
-      setError("Não foi possível enviar o e-mail agora. Tente novamente.");
-    } else {
+      if (!response.ok) {
+        setError(
+          response.status === 429
+            ? "O limite temporário de e-mails foi atingido. Não tente novamente agora."
+            : "Não foi possível enviar o e-mail agora.",
+        );
+        return;
+      }
+
       setMessage(
         "Se esse e-mail estiver autorizado, você receberá o link para criar uma nova senha.",
       );
+    } catch {
+      setError("Não foi possível enviar o e-mail agora.");
+    } finally {
+      setResetLoading(false);
     }
-    setResetLoading(false);
   }
 
   return (
