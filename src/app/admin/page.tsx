@@ -53,8 +53,8 @@ export default async function AdminPage() {
         </p>
         <h1>Olá, {profile.full_name || "Pastor Rilldy"}.</h1>
         <p>
-          Sua autenticação está protegida. O módulo de visitantes já está
-          disponível para consulta segura.
+          Sua autenticação está protegida. Visitantes e pedidos de oração estão
+          disponíveis para consulta segura.
         </p>
       </section>
 
@@ -65,12 +65,14 @@ export default async function AdminPage() {
           <p>Consulte as fichas recebidas e os próximos passos de cada pessoa.</p>
           <strong>Acessar visitantes →</strong>
         </Link>
-        <article>
+        <Link className="admin-module-link" href="/admin/pedidos-oracao">
           <span>02</span>
           <h2>Pedidos de oração</h2>
-          <p>Será liberado depois do módulo de visitantes.</p>
-          <strong>Protegido</strong>
-        </article>
+          <p>
+            Consulte os pedidos e registre o andamento do cuidado pastoral.
+          </p>
+          <strong>Acessar pedidos →</strong>
+        </Link>
       </section>
     </main>
   );
