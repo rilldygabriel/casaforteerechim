@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -52,18 +53,18 @@ export default async function AdminPage() {
         </p>
         <h1>Olá, {profile.full_name || "Pastor Rilldy"}.</h1>
         <p>
-          Sua autenticação está protegida. Visitantes e pedidos de oração serão
-          conectados aqui somente depois deste acesso passar por todos os testes.
+          Sua autenticação está protegida. O módulo de visitantes já está
+          disponível para consulta segura.
         </p>
       </section>
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
-        <article>
+        <Link className="admin-module-link" href="/admin/visitantes">
           <span>01</span>
           <h2>Visitantes</h2>
-          <p>Próxima etapa após a validação completa do login.</p>
-          <strong>Protegido</strong>
-        </article>
+          <p>Consulte as fichas recebidas e os próximos passos de cada pessoa.</p>
+          <strong>Acessar visitantes →</strong>
+        </Link>
         <article>
           <span>02</span>
           <h2>Pedidos de oração</h2>

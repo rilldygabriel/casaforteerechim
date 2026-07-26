@@ -44,6 +44,20 @@ function PinIcon() {
   );
 }
 
+function LockIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="home-icon"
+      viewBox="0 0 20 20"
+      fill="none"
+    >
+      <rect x="4.25" y="8.25" width="11.5" height="8" rx="2" />
+      <path d="M6.75 8.25V6.5a3.25 3.25 0 0 1 6.5 0v1.75M10 11.5v1.75" />
+    </svg>
+  );
+}
+
 function CalendarIcon() {
   return (
     <svg
@@ -197,6 +211,10 @@ export default function Home() {
           >
             Fale conosco
           </a>
+          <Link className="home-nav-admin" href="/admin">
+            <LockIcon />
+            Painel
+          </Link>
         </nav>
       </header>
 
@@ -528,6 +546,10 @@ export default function Home() {
         <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
           Fale conosco
         </a>
+        <Link className="home-footer-admin" href="/admin">
+          <LockIcon />
+          Painel administrativo
+        </Link>
       </footer>
     </main>
   );
