@@ -230,11 +230,16 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
 - O painel de visitantes está disponível em `/admin/visitantes`, com pesquisa,
   filtro por status e consulta completa das fichas. A primeira versão é somente
   leitura e mantém as políticas RLS existentes, sem conceder `DELETE`.
+- O painel de pedidos de oração está disponível em
+  `/admin/pedidos-oracao`, com pesquisa, filtros, sinalização de urgência e
+  atualização de status, responsável e observações internas. O módulo usa as
+  políticas RLS existentes e não oferece nem concede `DELETE`.
 - A página inicial oferece acesso direto e discreto ao painel administrativo no
   cabeçalho e no rodapé.
-- Pedidos de oração são a próxima etapa do painel administrativo.
 - Backup imediatamente anterior ao painel de visitantes:
   `backup-pre-painel-visitantes-2026-07-26`.
+- Backup imediatamente anterior ao painel de pedidos de oração:
+  `backup-pre-painel-oracoes-2026-07-26`.
 
 ## Estado deste repositório
 
