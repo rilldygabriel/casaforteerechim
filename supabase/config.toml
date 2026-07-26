@@ -1,0 +1,2 @@
+[functions.admin-password-recovery]
+verify_jwt = false

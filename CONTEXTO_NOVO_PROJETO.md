@@ -1,15 +1,23 @@
-# Casa Forte Erechim — contexto para reconstrução
+# Casa Forte Erechim — contexto atual do projeto
 
-Este repositório foi limpo para que o site seja reconstruído do zero em uma nova conversa.
+Este arquivo registra o estado atual do site em produção. O código da branch
+`main` é a fonte principal da verdade e não deve ser reconstruído do zero.
 
 ## Regras de trabalho definidas pelo pastor Rilldy
 
 - Trabalhar em português do Brasil.
-- Executar diretamente no GitHub e publicar na Vercel quando solicitado.
+- Executar diretamente no GitHub, Vercel e Supabase usando os conectores
+  autorizados, sem transferir tarefas de painel ao usuário.
 - Não afirmar que algo foi publicado sem confirmar o deploy READY.
 - Avançar uma etapa por vez.
 - Não despejar planos longos nem ideias não solicitadas.
-- Tudo que precisar ser alterado no Supabase deve ser entregue em formato de prompt completo para o Claude executar.
+- Usar exclusivamente o Supabase novo `CasaForte-Site-2026`
+  (`fjwkfpwraipxmcjlwssv`).
+- É proibido acessar, consultar ou alterar o Supabase antigo
+  (`mfqlmsisrceyajspeeav`).
+- Criar backup antes de mudanças arriscadas e preservar os backups existentes.
+- Em autenticação e envio de e-mail, investigar o erro antes de uma nova
+  tentativa real.
 - O site público, a Área da Família e o Painel Administrativo devem ser módulos separados e independentes.
 - Só avançar quando a etapa atual estiver funcionando em produção.
 
@@ -176,15 +184,21 @@ A regra administrativa deve usar somente `member_profiles.is_admin = true`.
 
 ### Supabase
 
-O Supabase será limpo pelo Claude antes da reconstrução.
-
-Referências conhecidas:
-
-- Projeto antigo: `Casaforte-Admin`.
-- Project ref: `mfqlmsisrceyajspeeav`.
-- URL: https://mfqlmsisrceyajspeeav.supabase.co
-- Usuário administrador esperado: `ragrilldy@gmail.com`.
-- UID conhecido: `4388cb10-ed64-4950-ba86-9a82c45ab7dd`.
+- Projeto autorizado: `CasaForte-Site-2026`.
+- Project ref: `fjwkfpwraipxmcjlwssv`.
+- URL: https://fjwkfpwraipxmcjlwssv.supabase.co
+- Administrador: `ragrilldy@gmail.com` (`member_profiles.is_admin = true`).
+- Tabelas públicas em uso: `visitantes`, `pedidos_oracao` e
+  `member_profiles`, todas protegidas por RLS.
+- `anon` pode somente inserir nos formulários públicos. Não pode selecionar,
+  atualizar ou excluir registros.
+- Administradores autenticados podem selecionar e atualizar conforme as
+  políticas. Não existe permissão de `DELETE`.
+- A função Edge `admin-password-recovery` atende exclusivamente a recuperação
+  administrativa e valida criptograficamente a identidade OIDC da Vercel.
+- A chave privilegiada do Supabase e a credencial do Resend nunca ficam no
+  navegador nem no repositório.
+- Projeto antigo proibido: `mfqlmsisrceyajspeeav`.
 
 Não registrar tokens secretos neste repositório.
 
@@ -199,24 +213,24 @@ Não registrar tokens secretos neste repositório.
 
 Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel.
 
-## Ordem recomendada para a nova conversa
-
-1. Recriar somente o site público estático.
-2. Publicar e testar em celular e computador.
-3. Conectar visitante e oração ao Supabase.
-4. Configurar notificações WhatsApp.
-5. Criar Área da Família em etapas pequenas.
-6. Criar Painel Administrativo somente depois.
-
 ## Estado atual da reconstrução
 
 - Site público publicado na Vercel.
 - Formulário de visitantes integrado ao novo Supabase e validado em produção.
-- Módulo de pedidos de oração implementado em `/oracao`.
+- Módulo de pedidos de oração integrado e disponível na página inicial e em
+  `/oracao`.
 - API interna de oração implementada em `/api/oracao`, usando `Prefer: return=minimal`.
-- Acesso ao formulário de oração incluído na área “Sou da Casa”.
-- Próxima validação obrigatória: confirmar deployment `READY`, envio real e resposta HTTP `204` em produção.
+- Notificações WhatsApp Cloud API de visitantes e pedidos de oração validadas.
+- Rotas administrativas publicadas: `/admin/login`, `/admin`,
+  `/admin/callback` e `/admin/redefinir-senha`.
+- Login, logout, proteção de `/admin` e autorização por
+  `member_profiles.is_admin` validados.
+- Recuperação administrativa usa Vercel OIDC, função Edge do Supabase e
+  Resend, sem depender do SMTP padrão limitado do Supabase.
+- O painel de visitantes e pedidos de oração é a próxima etapa funcional,
+  depois da validação final da recuperação de senha.
 
 ## Estado deste repositório
 
-O código antigo foi removido intencionalmente. Este arquivo deve permanecer como fonte de contexto para a reconstrução.
+Este arquivo deve permanecer atualizado como referência de continuidade, sem
+substituir a branch `main` como fonte da verdade.
