@@ -654,8 +654,11 @@ h1 strong {
   padding-block: clamp(70px, 10vw, 130px) 55px;
 }
 
-.family-hero > p:last-child {
+.family-hero-copy {
   max-width: 620px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .family-menu {
@@ -738,20 +741,135 @@ h1 strong {
   cursor: pointer;
 }
 
-.family-welcome {
-  display: inline-flex;
-  margin-top: 24px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 254, 21, 0.2);
-  border-radius: 999px;
-  color: #c5c9c2;
-  background: rgba(255, 254, 21, 0.05);
-  font-size: 0.74rem;
+.family-member-summary {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 44px);
+  align-items: center;
+  margin-top: 38px;
+  padding: clamp(22px, 4vw, 36px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 254, 21, 0.22);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 92% 5%,
+      rgba(255, 254, 21, 0.12),
+      transparent 34%
+    ),
+    #121412;
 }
 
-.family-welcome strong {
-  margin-left: 4px;
+.family-photo-editor {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 170px;
+}
+
+.family-photo-frame {
+  position: relative;
+  display: grid;
+  width: 150px;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 254, 21, 0.52);
+  border-radius: 50%;
   color: var(--yellow);
+  background: rgba(255, 254, 21, 0.07);
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.family-photo-frame img {
+  object-fit: cover;
+}
+
+.family-photo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.family-photo-editor button {
+  min-height: 38px;
+  padding-inline: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #f4f4ef;
+  background: #090a09;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.family-photo-editor button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.family-photo-status {
+  min-height: 2.6em;
+  margin: 0;
+  color: #8f938f;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.family-photo-status[data-kind="success"] {
+  color: var(--yellow);
+}
+
+.family-photo-status[data-kind="error"] {
+  color: #ff9a9a;
+}
+
+.family-member-summary-copy > p {
+  margin: 0 0 11px;
+  color: var(--yellow);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.family-member-summary-copy h2 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(2.15rem, 5vw, 4.6rem);
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.family-member-summary-copy > strong {
+  display: block;
+  margin-top: 17px;
+  color: #c7cac6;
+  font-size: clamp(0.85rem, 1.8vw, 1rem);
+  font-weight: 720;
+}
+
+.family-member-summary-copy > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 254, 21, 0.3);
+  border-radius: 999px;
+  color: var(--yellow);
+  background: rgba(255, 254, 21, 0.06);
+  font-size: 0.68rem;
+  font-weight: 850;
 }
 
 .family-profile-section {
@@ -1206,6 +1324,24 @@ h1 strong {
 
   .family-profile-reward {
     position: static;
+  }
+
+  .family-member-summary {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .family-photo-editor {
+    width: min(100%, 220px);
+  }
+
+  .family-photo-frame {
+    width: 128px;
+  }
+
+  .family-member-summary-copy > strong {
+    line-height: 1.5;
   }
 
   .family-profile-form-heading,
