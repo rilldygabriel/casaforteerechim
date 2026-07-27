@@ -2694,7 +2694,7 @@ a:focus-visible {
   margin-top: 48px;
 }
 
-.home-pastor-grid > a {
+.home-pastor-grid > :is(a, article) {
   position: relative;
   min-height: 650px;
   overflow: hidden;
@@ -2702,7 +2702,7 @@ a:focus-visible {
   background: #1a1d1a;
 }
 
-.home-pastor-grid > a::after {
+.home-pastor-grid > :is(a, article)::after {
   position: absolute;
   z-index: 1;
   inset: 48% 0 0;
@@ -2716,11 +2716,11 @@ a:focus-visible {
   transition: transform 500ms ease;
 }
 
-.home-pastor-grid > a:hover img {
+.home-pastor-grid > :is(a, article):hover img {
   transform: scale(1.025);
 }
 
-.home-pastor-grid > a > span {
+.home-pastor-grid > :is(a, article) > span {
   position: absolute;
   z-index: 2;
   right: 34px;
@@ -2796,7 +2796,7 @@ a:focus-visible {
     min-height: 540px;
   }
 
-  .home-pastor-grid > a {
+  .home-pastor-grid > :is(a, article) {
     min-height: 540px;
   }
 }
@@ -3000,12 +3000,12 @@ a:focus-visible {
     margin-top: 36px;
   }
 
-  .home-pastor-grid > a {
+  .home-pastor-grid > :is(a, article) {
     min-height: 430px;
     border-radius: 15px;
   }
 
-  .home-pastor-grid > a > span {
+  .home-pastor-grid > :is(a, article) > span {
     right: 15px;
     bottom: 20px;
     left: 15px;
@@ -3042,7 +3042,7 @@ a:focus-visible {
     font-size: 1.25rem;
   }
 
-  .home-pastor-grid > a {
+  .home-pastor-grid > :is(a, article) {
     min-height: 360px;
   }
 }
