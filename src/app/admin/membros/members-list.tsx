@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import {
   INITIAL_MEMBER_APPROVAL_ACTION_STATE,
@@ -13,6 +14,7 @@ export type MemberApplicationRecord = {
   email: string;
   phone: string;
   status: "pending" | "invited" | "rejected";
+  auth_user_id: string | null;
   created_at: string;
   reviewed_at: string | null;
 };
@@ -228,9 +230,9 @@ export default function MembersList({
     <>
       <section className="admin-visitors-metrics" aria-label="Resumo">
         <article>
-          <span>Total</span>
-          <strong>{applications.length}</strong>
-          <p>solicitações recebidas</p>
+          <span>Membros</span>
+          <strong>{members.length}</strong>
+          <p>contas da Família</p>
         </article>
         <article>
           <span>Aguardando</span>
@@ -279,7 +281,18 @@ export default function MembersList({
                 <header>
                   <div>
                     <span>Solicitação #{application.id}</span>
-                    <h2>{application.full_name}</h2>
+                    <h2>
+                      {application.auth_user_id ? (
+                        <Link
+                          className="admin-member-name-link"
+                          href={`/admin/membros/${application.auth_user_id}`}
+                        >
+                          {application.full_name}
+                        </Link>
+                      ) : (
+                        application.full_name
+                      )}
+                    </h2>
                     <p>{application.email}</p>
                   </div>
                   <strong data-status={application.status}>
@@ -371,8 +384,21 @@ export default function MembersList({
                 <header>
                   <div>
                     <span>{member.is_admin ? "Administrador" : "Membro"}</span>
-                    <h2>{member.full_name || "Nome não informado"}</h2>
+                    <h2>
+                      <Link
+                        className="admin-member-name-link"
+                        href={`/admin/membros/${member.user_id}`}
+                      >
+                        {member.full_name || "Nome não informado"}
+                      </Link>
+                    </h2>
                     <p>{member.email}</p>
+                    <Link
+                      className="admin-member-open-profile"
+                      href={`/admin/membros/${member.user_id}`}
+                    >
+                      Ver perfil completo →
+                    </Link>
                   </div>
                   <strong data-status={member.approval_status}>
                     {STATUS_LABELS[member.approval_status]}
