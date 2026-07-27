@@ -17,6 +17,8 @@ const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
+const LATEST_PHOTOS_DRIVE_URL =
+  "https://drive.google.com/drive/folders/1TInw-3LUzBaKKEUJ5V_60rJbYmCCIUEo";
 const PASTOR_RILLDY_WHATSAPP_URL =
   "https://wa.me/5554993217227?text=Ol%C3%A1%2C%20Pastor%20Rilldy%21";
 const PASTORA_LISI_WHATSAPP_URL =
@@ -408,22 +410,30 @@ export default function Home() {
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
           <div>
-            <Link href={getPhotoHref("culto-casa-cheia")}>
-              A Casa reunida
-              <ArrowIcon />
-            </Link>
-            <Link href={getPhotoHref("oracao-no-palco")}>
-              Momentos de oração
-              <ArrowIcon />
-            </Link>
-            <Link href={getPhotoHref("recepcao-alegria")}>
+            <Link href={getPhotoHref("acolhimento-26-07")}>
               Gente chegando em Casa
               <ArrowIcon />
             </Link>
-            <Link href={getPhotoHref("pastores-no-palco")}>
-              Pastores da Casa
+            <Link href={getPhotoHref("adoracao-em-familia-26-07")}>
+              Adoração em família
               <ArrowIcon />
             </Link>
+            <Link href={getPhotoHref("abraco-26-07")}>
+              Comunhão e cuidado
+              <ArrowIcon />
+            </Link>
+            <Link href={getPhotoHref("palavra-26-07")}>
+              Palavra na Casa
+              <ArrowIcon />
+            </Link>
+            <a
+              href={LATEST_PHOTOS_DRIVE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver todas e baixar minha foto
+              <ArrowIcon />
+            </a>
           </div>
         </article>
       </section>

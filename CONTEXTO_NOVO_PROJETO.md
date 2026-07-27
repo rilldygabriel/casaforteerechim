@@ -42,7 +42,7 @@ Este arquivo registra o estado atual do site em produção. O código da branch
 - Casa Forte Music: https://youtube.com/@casafortemusic
 - Canal do pastor: https://ig.me/j/AbbdKixwGYdyTwoi/
 - Grupo da igreja: https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t
-- Fotos dos cultos: https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_
+- Fotos do culto mais recente: https://drive.google.com/drive/folders/1TInw-3LUzBaKKEUJ5V_60rJbYmCCIUEo
 
 ## Programação semanal
 
