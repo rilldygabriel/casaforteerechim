@@ -2490,9 +2490,9 @@ a:focus-visible {
 
 .home-gallery {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   grid-auto-flow: dense;
-  grid-auto-rows: clamp(175px, 16vw, 230px);
+  grid-auto-rows: clamp(180px, 17vw, 240px);
   gap: 10px;
   margin-top: 50px;
 }
@@ -2524,6 +2524,32 @@ a:focus-visible {
 .home-gallery a:hover img {
   filter: brightness(1.08);
   transform: scale(1.035);
+}
+
+.home-gallery-download {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding-inline: 20px;
+  border: 1px solid rgba(255, 254, 21, 0.48);
+  border-radius: 999px;
+  color: var(--yellow);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.home-gallery-download:hover {
+  border-color: var(--yellow);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 .home-message {
@@ -2788,8 +2814,8 @@ a:focus-visible {
   }
 
   .home-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 190px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 170px;
   }
 
   .home-message {
@@ -2952,9 +2978,22 @@ a:focus-visible {
   }
 
   .home-gallery {
-    grid-auto-rows: 165px;
-    gap: 7px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 92px;
+    gap: 5px;
     margin-top: 36px;
+  }
+
+  .home-gallery a {
+    min-height: 92px;
+    border-radius: 8px;
+  }
+
+  .home-gallery-download {
+    min-height: 44px;
+    margin-top: 16px;
+    padding-inline: 16px;
+    font-size: 0.68rem;
   }
 
   .home-message {

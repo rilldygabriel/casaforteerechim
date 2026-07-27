@@ -299,11 +299,20 @@ export default function Home() {
                 src={photo.src}
                 alt={photo.alt}
                 fill
-                sizes="(max-width: 720px) 50vw, 30vw"
+                sizes="(max-width: 760px) 25vw, (max-width: 1000px) 25vw, 20vw"
               />
             </Link>
           ))}
         </div>
+        <a
+          className="home-gallery-download"
+          href={LATEST_PHOTOS_DRIVE_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Baixe aqui as suas fotos
+          <ArrowIcon />
+        </a>
       </section>
 
       <section
@@ -410,30 +419,22 @@ export default function Home() {
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
           <div>
-            <Link href={getPhotoHref("acolhimento-26-07")}>
+            <Link href={getPhotoHref("chegada-em-familia-26-07")}>
               Gente chegando em Casa
               <ArrowIcon />
             </Link>
-            <Link href={getPhotoHref("adoracao-em-familia-26-07")}>
+            <Link href={getPhotoHref("familia-em-adoracao-26-07")}>
               Adoração em família
               <ArrowIcon />
             </Link>
-            <Link href={getPhotoHref("abraco-26-07")}>
+            <Link href={getPhotoHref("abraco-de-familia-26-07")}>
               Comunhão e cuidado
               <ArrowIcon />
             </Link>
-            <Link href={getPhotoHref("palavra-26-07")}>
+            <Link href={getPhotoHref("palavra-com-alegria-26-07")}>
               Palavra na Casa
               <ArrowIcon />
             </Link>
-            <a
-              href={LATEST_PHOTOS_DRIVE_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver todas e baixar minha foto
-              <ArrowIcon />
-            </a>
           </div>
         </article>
       </section>
