@@ -4431,3 +4431,125 @@ a:focus-visible {
     margin-bottom: 16px;
   }
 }
+
+
+/* Hierarquia e contatos da equipe pastoral */
+.home-pastor-grid-featured {
+  margin-bottom: 12px;
+}
+
+.home-pastor-grid-featured > a > span strong,
+.home-pastor-grid-team > article > span strong {
+  display: block;
+  font: inherit;
+}
+
+.home-pastor-grid-featured > a > span em {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  margin-top: 15px;
+  padding-inline: 14px;
+  border-radius: 999px;
+  color: #080908;
+  background: var(--yellow);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-pastor-grid-team {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.home-pastor-grid-team > article {
+  min-height: 390px;
+  border-radius: 16px;
+}
+
+.home-pastor-grid-team > article > span {
+  right: 20px;
+  bottom: 22px;
+  left: 20px;
+  font-size: clamp(1.25rem, 2vw, 1.85rem);
+}
+
+.home-pastor-grid-team > article > span > a {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  padding-inline: 14px;
+  border-radius: 999px;
+  color: #080908;
+  background: var(--yellow);
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.home-pastor-grid-team > article > span > a:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1000px) {
+  .home-pastor-grid-team {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-pastor-grid-team > article {
+    min-height: 430px;
+  }
+}
+
+@media (max-width: 760px) {
+  .home-pastor-grid-featured > a {
+    min-height: 430px;
+  }
+
+  .home-pastor-grid-team {
+    gap: 8px;
+  }
+
+  .home-pastor-grid-team > article {
+    min-height: 285px;
+  }
+
+  .home-pastor-grid-team > article > span {
+    right: 12px;
+    bottom: 14px;
+    left: 12px;
+    font-size: 1.05rem;
+  }
+
+  .home-pastor-grid-team small {
+    margin-bottom: 5px;
+    font-size: 0.54rem;
+  }
+
+  .home-pastor-grid-team > article > span > a {
+    min-height: 32px;
+    margin-top: 10px;
+    padding-inline: 11px;
+    font-size: 0.53rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .home-pastor-grid-featured > a {
+    min-height: 360px;
+  }
+
+  .home-pastor-grid-team > article {
+    min-height: 245px;
+  }
+}
