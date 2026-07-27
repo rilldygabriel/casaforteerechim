@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import ProfileForm from "./profile-form";
+import { ProfilePhotoUploader } from "./profile-photo-uploader";
 
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
@@ -59,6 +60,49 @@ function countProfileSteps(profile: {
   ].filter(Boolean).length;
 }
 
+function formatTimeInHouse(churchSinceMonth: string | null) {
+  if (!churchSinceMonth) {
+    return "Complete desde quando você frequenta a Casa";
+  }
+
+  const [year, month] = churchSinceMonth.slice(0, 7).split("-").map(Number);
+  const currentDateParts = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(new Date());
+  const currentYear = Number(
+    currentDateParts.find((part) => part.type === "year")?.value,
+  );
+  const currentMonth = Number(
+    currentDateParts.find((part) => part.type === "month")?.value,
+  );
+  const totalMonths =
+    currentYear * 12 +
+    currentMonth -
+    1 -
+    (year * 12 + month - 1);
+
+  if (totalMonths <= 0) {
+    return "Frequenta a Casa desde este mês";
+  }
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const yearText = years === 1 ? "1 ano" : `${years} anos`;
+  const monthText = months === 1 ? "1 mês" : `${months} meses`;
+
+  if (years === 0) {
+    return `Frequenta a Casa há ${monthText}`;
+  }
+
+  if (months === 0) {
+    return `Frequenta a Casa há ${yearText}`;
+  }
+
+  return `Frequenta a Casa há ${yearText} e ${monthText}`;
+}
+
 export const metadata: Metadata = {
   title: "Família",
   robots: {
@@ -82,7 +126,7 @@ export default async function Familia() {
   const { data: profile, error: profileError } = await supabase
     .from("member_profiles")
     .select(
-      "full_name,phone,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,profile_completed,is_admin,approval_status",
+      "full_name,phone,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,photo_url,profile_completed,is_admin,approval_status",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -138,6 +182,16 @@ export default async function Familia() {
   const completedProfileSteps = countProfileSteps(profile);
   const hasProfileStar =
     profile.profile_completed === true && completedProfileSteps === 9;
+  const memberName = profile.full_name || user.email || "Membro Casa Forte";
+  let signedPhotoUrl: string | null = null;
+
+  if (profile.photo_url) {
+    const { data: signedPhoto } = await supabase.storage
+      .from("member-profile-photos")
+      .createSignedUrl(profile.photo_url, 60 * 60);
+
+    signedPhotoUrl = signedPhoto?.signedUrl ?? null;
+  }
 
   return (
     <main className="inner-page family-page">
@@ -152,13 +206,27 @@ export default async function Familia() {
           Aqui você é
           <strong>família.</strong>
         </h1>
-        <p>
+        <p className="family-hero-copy">
           Este é o espaço de quem vive a Casa durante a semana e quer seguir
           crescendo junto.
         </p>
-        <p className="family-welcome">
-          Acesso de <strong>{profile.full_name || user.email}</strong>
-        </p>
+        <div className="family-member-summary">
+          <ProfilePhotoUploader
+            userId={user.id}
+            fullName={memberName}
+            initialPhotoUrl={signedPhotoUrl}
+          />
+          <div className="family-member-summary-copy">
+            <p>Meu perfil na Casa</p>
+            <h2>{memberName}</h2>
+            <strong>{formatTimeInHouse(profile.church_since_month)}</strong>
+            {hasProfileStar ? (
+              <span>
+                <span aria-hidden="true">★</span> Estrela da Família
+              </span>
+            ) : null}
+          </div>
+        </div>
       </section>
 
       <section
