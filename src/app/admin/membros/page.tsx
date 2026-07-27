@@ -3,10 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import MembersList, {
-  type MemberApplicationRecord,
-  type MemberApprovalRecord,
-} from "./members-list";
+import MembersList, { type MemberListRecord } from "./members-list";
 import "./members.css";
 
 export const metadata: Metadata = {
@@ -19,10 +16,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const MEMBER_FIELDS =
-  "user_id,email,full_name,phone,approval_status,church_status,is_admin,created_at,approved_at" as const;
-const APPLICATION_FIELDS =
-  "id,full_name,email,phone,status,auth_user_id,created_at,reviewed_at" as const;
+const MEMBER_FIELDS = "user_id,full_name,created_at" as const;
 
 export default async function AdminMembersPage() {
   const supabase = await getSupabaseServerClient();
@@ -45,19 +39,10 @@ export default async function AdminMembersPage() {
     redirect("/admin/login?erro=sem-permissao");
   }
 
-  const [
-    { data: memberData, error: memberError },
-    { data: applicationData, error: applicationError },
-  ] = await Promise.all([
-    supabase
-      .from("member_profiles")
-      .select(MEMBER_FIELDS)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("member_applications")
-      .select(APPLICATION_FIELDS)
-      .order("created_at", { ascending: false }),
-  ]);
+  const { data: memberData, error: memberError } = await supabase
+    .from("member_profiles")
+    .select(MEMBER_FIELDS)
+    .order("created_at", { ascending: false });
 
   return (
     <main className="admin-visitors-page">
@@ -83,16 +68,14 @@ export default async function AdminMembersPage() {
         </p>
         <h1>Membros</h1>
         <p>
-          Consulte quem faz parte da Área da Família. Clique no nome para abrir
-          a ficha completa, ver a caminhada da pessoa e acompanhar os dados de
-          contato. Nenhum cadastro pode ser apagado por este painel.
+          Uma lista simples de quem faz parte da Família. Clique no nome para
+          abrir a ficha completa.
         </p>
       </section>
 
       <MembersList
-        applications={(applicationData ?? []) as MemberApplicationRecord[]}
-        members={(memberData ?? []) as MemberApprovalRecord[]}
-        hasLoadError={Boolean(memberError || applicationError)}
+        members={(memberData ?? []) as MemberListRecord[]}
+        hasLoadError={Boolean(memberError)}
       />
     </main>
   );
