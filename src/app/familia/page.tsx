@@ -60,6 +60,11 @@ function countProfileSteps(profile: {
   ].filter(Boolean).length;
 }
 
+function getMemberWhatsappUrl(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  return `https://wa.me/${digits.startsWith("55") ? digits : `55${digits}`}`;
+}
+
 function formatTimeInHouse(churchSinceMonth: string | null) {
   if (!churchSinceMonth) {
     return "Complete desde quando você frequenta a Casa";
@@ -222,7 +227,7 @@ export default async function Familia() {
             {hasProfileStar ? (
               <a
                 className="family-member-phone"
-                href={`https://wa.me/55${profile.phone.replace(/\\D/g, "")}`}
+                href={getMemberWhatsappUrl(profile.phone)}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -248,7 +253,7 @@ export default async function Familia() {
           className="family-profile-section"
           aria-label="Perfil do membro"
         >
-        <aside
+          <aside
           className="family-profile-reward"
           data-earned={hasProfileStar}
         >
@@ -271,7 +276,7 @@ export default async function Familia() {
           <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
         </aside>
 
-        <ProfileForm
+          <ProfileForm
           initialProfile={{
             fullName: profile.full_name,
             phone: profile.phone,
@@ -285,7 +290,7 @@ export default async function Familia() {
             married: profile.married,
             spouseName: profile.spouse_name,
           }}
-        />
+          />
         </section>
       </details>
 
