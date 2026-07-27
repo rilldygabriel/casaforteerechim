@@ -17,8 +17,39 @@ const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
-const LATEST_PHOTOS_DRIVE_URL =
-  "https://drive.google.com/drive/folders/1TInw-3LUzBaKKEUJ5V_60rJbYmCCIUEo";
+const PHOTO_ARCHIVE_FOLDERS = [
+  {
+    date: "26/07",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1TInw-3LUzBaKKEUJ5V_60rJbYmCCIUEo",
+  },
+  {
+    date: "25/07",
+    title: "Núcleo Teens",
+    url: "https://drive.google.com/drive/folders/1ns8EApdh8IAYqlu-MHMk5w2YgKlae_hl",
+  },
+  {
+    date: "19/07",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1yzaEqUTo51ujr6KShIY2KjOgglW5WDd_",
+  },
+  {
+    date: "12/07",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1DsX2nr2E6Y9qKmTQkDYCuF87XpOWdk7m",
+  },
+  {
+    date: "05/07",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1I5W-WPtTQtw8NIwfrUi2omDQUCwSsh23",
+  },
+  {
+    date: "01/07",
+    title: "Culto de Quarta",
+    url: "https://drive.google.com/drive/folders/1-fH9xXpUwmSMueDmlhB1uD0-PtGAJOaZ",
+  },
+] as const;
+const LATEST_PHOTOS_DRIVE_URL = PHOTO_ARCHIVE_FOLDERS[0].url;
 const PASTOR_RILLDY_WHATSAPP_URL =
   "https://wa.me/5554993217227?text=Ol%C3%A1%2C%20Pastor%20Rilldy%21";
 const PASTORA_LISI_WHATSAPP_URL =
@@ -419,22 +450,17 @@ export default function Home() {
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
           <div>
-            <Link href={getPhotoHref("chegada-em-familia-26-07")}>
-              Gente chegando em Casa
-              <ArrowIcon />
-            </Link>
-            <Link href={getPhotoHref("familia-em-adoracao-26-07")}>
-              Adoração em família
-              <ArrowIcon />
-            </Link>
-            <Link href={getPhotoHref("abraco-de-familia-26-07")}>
-              Comunhão e cuidado
-              <ArrowIcon />
-            </Link>
-            <Link href={getPhotoHref("palavra-com-alegria-26-07")}>
-              Palavra na Casa
-              <ArrowIcon />
-            </Link>
+            {PHOTO_ARCHIVE_FOLDERS.map((folder) => (
+              <a
+                href={folder.url}
+                key={folder.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {folder.date} · {folder.title}
+                <ArrowIcon />
+              </a>
+            ))}
           </div>
         </article>
       </section>
