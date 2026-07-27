@@ -9,11 +9,6 @@ export type MemberProfileActionState = {
   earnedStar: boolean | null;
 };
 
-export const INITIAL_MEMBER_PROFILE_ACTION_STATE: MemberProfileActionState = {
-  kind: "idle",
-  message: "",
-  earnedStar: null,
-};
 
 function normalizeText(value: FormDataEntryValue | null) {
   return String(value ?? "")
