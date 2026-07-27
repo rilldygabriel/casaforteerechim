@@ -43,6 +43,7 @@ function html(body: string, status = 200) {
       input{box-sizing:border-box;width:100%;padding:14px;border:1px solid #555;border-radius:12px;background:#090909;color:#fff}
       button{margin-top:18px;border:0;border-radius:999px;padding:14px 22px;background:#f2ff38;color:#090909;font-weight:800;cursor:pointer}
       pre{overflow:auto;white-space:pre-wrap;word-break:break-word;background:#050505;border-radius:14px;padding:18px}
+      img{display:block;width:112px;height:112px;object-fit:cover;border:2px solid #f2ff38;border-radius:50%}
     </style>
   </head>
   <body><main><section>${body}</section></main></body>
@@ -225,6 +226,19 @@ function resultLine(ok: boolean, value: string) {
 }
 
 function safeError(error: unknown) {
+  if (error instanceof MetaApiError) {
+    const code = error.details?.code;
+    const subcode = error.details?.error_subcode;
+    const identifiers = [
+      typeof code === "number" ? `código ${code}` : "",
+      typeof subcode === "number" ? `subcódigo ${subcode}` : "",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    return identifiers ? `${error.message} (${identifiers})` : error.message;
+  }
+
   return error instanceof Error ? error.message : "Erro não identificado.";
 }
 
@@ -312,6 +326,18 @@ export async function POST(request: Request) {
     // O resultado das operações acima continua válido mesmo se a leitura atrasar.
   }
 
+  const profileData = Array.isArray(afterProfile?.data)
+    ? afterProfile.data
+    : [];
+  const currentProfile =
+    typeof profileData[0] === "object" && profileData[0]
+      ? (profileData[0] as JsonObject)
+      : undefined;
+  const profilePictureUrl =
+    typeof currentProfile?.profile_picture_url === "string"
+      ? currentProfile.profile_picture_url
+      : "";
+
   const report = [
     resultLine(pictureUpdated, "Foto empresarial atualizada com a logo oficial."),
     pictureError ? `Detalhe da foto: ${pictureError}` : "",
@@ -324,7 +350,7 @@ export async function POST(request: Request) {
     `Número: ${String(afterPhone?.display_phone_number || before?.display_phone_number || "não informado")}`,
     `Nome ativo: ${String(afterPhone?.verified_name || before?.verified_name || "não informado")}`,
     `Status do nome: ${String(afterPhone?.new_name_status || afterPhone?.name_status || before?.new_name_status || before?.name_status || "não informado")}`,
-    `Foto disponível: ${afterProfile?.data ? "sim" : pictureUpdated ? "atualização aceita" : "não confirmada"}`,
+    `Foto disponível: ${profilePictureUrl ? "sim" : pictureUpdated ? "atualização aceita" : "não confirmada"}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -333,5 +359,10 @@ export async function POST(request: Request) {
     <p class="accent">RESULTADO</p>
     <h1>Identidade do WhatsApp</h1>
     <pre>${report.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</pre>
+    ${
+      profilePictureUrl
+        ? `<p>Foto empresarial atual:</p><img src="${profilePictureUrl.replaceAll("&", "&amp;").replaceAll('"', "&quot;")}" alt="Foto empresarial atual" />`
+        : ""
+    }
   `);
 }
