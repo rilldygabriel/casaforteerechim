@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 const MEMBER_FIELDS =
   "user_id,email,full_name,phone,approval_status,church_status,is_admin,created_at,approved_at" as const;
 const APPLICATION_FIELDS =
-  "id,full_name,email,phone,status,created_at,reviewed_at" as const;
+  "id,full_name,email,phone,status,auth_user_id,created_at,reviewed_at" as const;
 
 export default async function AdminMembersPage() {
   const supabase = await getSupabaseServerClient();
@@ -83,9 +83,9 @@ export default async function AdminMembersPage() {
         </p>
         <h1>Membros</h1>
         <p>
-          Revise cada solicitação antes de enviar o convite oficial. A conta só
-          nasce após sua aprovação, e nenhum cadastro pode ser apagado por este
-          painel.
+          Consulte quem faz parte da Área da Família. Clique no nome para abrir
+          a ficha completa, ver a caminhada da pessoa e acompanhar os dados de
+          contato. Nenhum cadastro pode ser apagado por este painel.
         </p>
       </section>
 
