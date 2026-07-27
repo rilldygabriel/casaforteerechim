@@ -441,3 +441,144 @@
     grid-column: auto;
   }
 }
+
+
+/* Diretório simples de membros */
+.admin-member-directory {
+  margin-top: 48px;
+  padding: clamp(20px, 3vw, 34px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 28px;
+  background: #0e100e;
+}
+
+.admin-member-directory-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-member-directory-header h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  letter-spacing: -0.05em;
+}
+
+.admin-member-directory-header p {
+  margin: 8px 0 0;
+  color: #8f938e;
+  font-size: 0.8rem;
+}
+
+.admin-member-directory-header label {
+  display: grid;
+  width: min(100%, 280px);
+  gap: 8px;
+  color: #9ca09a;
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-member-directory-header select {
+  width: 100%;
+  min-height: 48px;
+  padding-inline: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 14px;
+  outline: 0;
+  color: #f7f7f2;
+  background: #080908;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-member-directory-header select:focus {
+  border-color: #fffe15;
+  box-shadow: 0 0 0 3px rgba(255, 254, 21, 0.11);
+}
+
+.admin-member-directory-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-member-directory-list li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.admin-member-directory-list li:last-child {
+  border-bottom: 0;
+}
+
+.admin-member-directory-list a {
+  display: grid;
+  min-height: 76px;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding-inline: 10px;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    padding 160ms ease;
+}
+
+.admin-member-directory-list a:hover,
+.admin-member-directory-list a:focus-visible {
+  padding-inline: 18px;
+  color: #fffe15;
+  background: rgba(255, 254, 21, 0.04);
+  outline: 0;
+}
+
+.admin-member-directory-list a > span:first-child {
+  color: #6f746d;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.admin-member-directory-list strong {
+  font-size: clamp(1.05rem, 2.3vw, 1.35rem);
+  letter-spacing: -0.025em;
+}
+
+.admin-member-directory-list a > span:last-child {
+  color: #fffe15;
+  font-size: 1.25rem;
+}
+
+@media (max-width: 700px) {
+  .admin-member-directory {
+    margin-top: 34px;
+    padding: 18px 12px;
+    border-radius: 22px;
+  }
+
+  .admin-member-directory-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .admin-member-directory-header label {
+    width: 100%;
+  }
+
+  .admin-member-directory-list a {
+    min-height: 68px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding-inline: 4px;
+  }
+}
