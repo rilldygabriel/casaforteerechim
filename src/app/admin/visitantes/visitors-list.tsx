@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import {
   INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE,
+  markVisitorAsOpened,
   type VisitorFollowUpStatus,
   updateVisitorFollowUp,
 } from "./actions";
@@ -29,6 +30,7 @@ export type VisitorRecord = {
   data_visita: string;
   status_acompanhamento: VisitorFollowUpStatus;
   created_at: string;
+  opened_at: string | null;
 };
 
 type VisitorsListProps = {
@@ -125,6 +127,15 @@ export default function VisitorsList({
   const [status, setStatus] = useState<"todos" | VisitorRecord["status_acompanhamento"]>(
     "todos",
   );
+  const [openedVisitorIds, setOpenedVisitorIds] = useState(
+    () =>
+      new Set(
+        visitors
+          .filter((visitor) => visitor.opened_at)
+          .map((visitor) => visitor.id),
+      ),
+  );
+  const [, startOpeningTransition] = useTransition();
 
   const normalizedQuery = normalizeText(query);
   const filteredVisitors = visitors.filter((visitor) => {
@@ -143,12 +154,31 @@ export default function VisitorsList({
     return matchesStatus && searchTarget.includes(normalizedQuery);
   });
 
-  const newVisitors = visitors.filter(
-    (visitor) => visitor.status_acompanhamento === "novo",
-  ).length;
   const followUpRequests = visitors.filter(
     (visitor) => visitor.acompanhamento || visitor.mensagem_pastor,
   ).length;
+  const unreadVisitors = visitors.filter(
+    (visitor) => !openedVisitorIds.has(visitor.id),
+  ).length;
+
+  function handleOpen(visitorId: number, isOpen: boolean) {
+    if (!isOpen || openedVisitorIds.has(visitorId)) {
+      return;
+    }
+
+    setOpenedVisitorIds((current) => new Set(current).add(visitorId));
+    startOpeningTransition(async () => {
+      const wasSaved = await markVisitorAsOpened(visitorId);
+
+      if (!wasSaved) {
+        setOpenedVisitorIds((current) => {
+          const next = new Set(current);
+          next.delete(visitorId);
+          return next;
+        });
+      }
+    });
+  }
 
   if (hasLoadError) {
     return (
@@ -169,9 +199,9 @@ export default function VisitorsList({
           <p>fichas recebidas</p>
         </article>
         <article>
-          <span>Novos</span>
-          <strong>{newVisitors}</strong>
-          <p>aguardando contato</p>
+          <span>Não abertos</span>
+          <strong>{unreadVisitors}</strong>
+          <p>fichas para ler</p>
         </article>
         <article>
           <span>Prioridade</span>
@@ -242,7 +272,22 @@ export default function VisitorsList({
               const whatsappNumber = phoneDigits(visitor.telefone);
 
               return (
-                <article className="admin-visitor-card" key={visitor.id}>
+                <details
+                  className="admin-visitor-card admin-inbox-card"
+                  key={visitor.id}
+                  onToggle={(event) =>
+                    handleOpen(visitor.id, event.currentTarget.open)
+                  }
+                >
+                  <summary>
+                    <span className="admin-inbox-name">{visitor.nome}</span>
+                    <span className="admin-inbox-summary-actions">
+                      {!openedVisitorIds.has(visitor.id) ? (
+                        <strong className="admin-unread-badge">Novo</strong>
+                      ) : null}
+                      <span className="admin-inbox-chevron" aria-hidden="true" />
+                    </span>
+                  </summary>
                   <header>
                     <div>
                       <span>Visitante #{visitor.id}</span>
@@ -323,7 +368,7 @@ export default function VisitorsList({
                       ) : null}
                     </div>
                   </footer>
-                </article>
+                </details>
               );
             })}
           </div>

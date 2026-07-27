@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import {
   INITIAL_PRAYER_REQUEST_ACTION_STATE,
+  markPrayerRequestAsOpened,
   type PrayerRequestStatus,
   updatePrayerRequest,
 } from "./actions";
@@ -27,6 +28,7 @@ export type PrayerRequestRecord = {
   observacoes: string | null;
   created_at: string;
   updated_at: string;
+  opened_at: string | null;
 };
 
 type PrayerRequestsListProps = {
@@ -147,6 +149,15 @@ export default function PrayerRequestsList({
   const [priority, setPriority] = useState<"todos" | "urgentes" | "contato">(
     "todos",
   );
+  const [openedRequestIds, setOpenedRequestIds] = useState(
+    () =>
+      new Set(
+        requests
+          .filter((request) => request.opened_at)
+          .map((request) => request.id),
+      ),
+  );
+  const [, startOpeningTransition] = useTransition();
 
   const normalizedQuery = normalizeText(query);
   const filteredRequests = requests.filter((request) => {
@@ -172,10 +183,29 @@ export default function PrayerRequestsList({
     );
   });
 
-  const newRequests = requests.filter(
-    (request) => request.status === "novo",
-  ).length;
   const urgentRequests = requests.filter((request) => request.urgente).length;
+  const unreadRequests = requests.filter(
+    (request) => !openedRequestIds.has(request.id),
+  ).length;
+
+  function handleOpen(requestId: number, isOpen: boolean) {
+    if (!isOpen || openedRequestIds.has(requestId)) {
+      return;
+    }
+
+    setOpenedRequestIds((current) => new Set(current).add(requestId));
+    startOpeningTransition(async () => {
+      const wasSaved = await markPrayerRequestAsOpened(requestId);
+
+      if (!wasSaved) {
+        setOpenedRequestIds((current) => {
+          const next = new Set(current);
+          next.delete(requestId);
+          return next;
+        });
+      }
+    });
+  }
 
   if (hasLoadError) {
     return (
@@ -196,9 +226,9 @@ export default function PrayerRequestsList({
           <p>pedidos recebidos</p>
         </article>
         <article>
-          <span>Novos</span>
-          <strong>{newRequests}</strong>
-          <p>aguardando acompanhamento</p>
+          <span>Não abertos</span>
+          <strong>{unreadRequests}</strong>
+          <p>pedidos para ler</p>
         </article>
         <article>
           <span>Urgentes</span>
@@ -283,11 +313,23 @@ export default function PrayerRequestsList({
               const whatsappNumber = phoneDigits(request.telefone);
 
               return (
-                <article
+                <details
                   className="admin-visitor-card admin-prayer-card"
                   key={request.id}
                   data-urgent={request.urgente}
+                  onToggle={(event) =>
+                    handleOpen(request.id, event.currentTarget.open)
+                  }
                 >
+                  <summary>
+                    <span className="admin-inbox-name">{request.nome}</span>
+                    <span className="admin-inbox-summary-actions">
+                      {!openedRequestIds.has(request.id) ? (
+                        <strong className="admin-unread-badge">Novo</strong>
+                      ) : null}
+                      <span className="admin-inbox-chevron" aria-hidden="true" />
+                    </span>
+                  </summary>
                   <header>
                     <div>
                       <span>Pedido #{request.id}</span>
@@ -347,7 +389,7 @@ export default function PrayerRequestsList({
                   </div>
 
                   <PrayerRequestFollowUp request={request} />
-                </article>
+                </details>
               );
             })}
           </div>

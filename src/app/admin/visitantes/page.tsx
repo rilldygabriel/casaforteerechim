@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import VisitorsList, { type VisitorRecord } from "./visitors-list";
+import "../inbox-list.css";
 
 export const metadata: Metadata = {
   title: "Visitantes",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const VISITOR_FIELDS =
-  "id,nome,telefone,cidade,bairro,acompanhamento,convidado_por,igreja_anterior,passo_fe,mensagem_pastor,experiencia_culto,voltar_culto,data_visita,status_acompanhamento,created_at" as const;
+  "id,nome,telefone,cidade,bairro,acompanhamento,convidado_por,igreja_anterior,passo_fe,mensagem_pastor,experiencia_culto,voltar_culto,data_visita,status_acompanhamento,created_at,opened_at" as const;
 
 export default async function AdminVisitorsPage() {
   const supabase = await getSupabaseServerClient();

@@ -1,0 +1,69 @@
+.admin-visitor-card > summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.admin-visitor-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-inbox-name {
+  color: #f7f7f2;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.admin-inbox-summary-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-unread-badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding-inline: 10px;
+  border-radius: 999px;
+  color: #080908;
+  background: #fffe15;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-inbox-chevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #a5aaa3;
+  border-bottom: 2px solid #a5aaa3;
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.admin-visitor-card[open] > summary {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-visitor-card[open] .admin-inbox-chevron {
+  transform: rotate(225deg);
+}
+
+.admin-visitor-card > summary:focus-visible {
+  border-radius: 8px;
+  outline: 3px solid rgba(255, 254, 21, 0.35);
+  outline-offset: 5px;
+}
+
+.admin-visitor-card[open] > header {
+  margin-top: 22px;
+}

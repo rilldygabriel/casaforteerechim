@@ -22,6 +22,54 @@ export const INITIAL_PRAYER_REQUEST_ACTION_STATE: PrayerRequestActionState = {
   message: "",
 };
 
+async function getAuthorizedAdminClient() {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data: profile } = await supabase
+    .from("member_profiles")
+    .select("is_admin")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return profile?.is_admin ? supabase : null;
+}
+
+export async function markPrayerRequestAsOpened(requestId: number) {
+  if (!Number.isSafeInteger(requestId) || requestId <= 0) {
+    return false;
+  }
+
+  const supabase = await getAuthorizedAdminClient();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("pedidos_oracao")
+    .update({ opened_at: new Date().toISOString() })
+    .eq("id", requestId)
+    .is("opened_at", null)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return false;
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/pedidos-oracao");
+
+  return Boolean(data);
+}
+
 function cleanOptionalText(value: FormDataEntryValue | null, maxLength: number) {
   const text = typeof value === "string" ? value.trim() : "";
 
@@ -52,28 +100,12 @@ export async function updatePrayerRequest(
     };
   }
 
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const supabase = await getAuthorizedAdminClient();
 
-  if (!user) {
+  if (!supabase) {
     return {
       kind: "error",
-      message: "Sua sessão expirou. Entre novamente no painel.",
-    };
-  }
-
-  const { data: profile } = await supabase
-    .from("member_profiles")
-    .select("is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (!profile?.is_admin) {
-    return {
-      kind: "error",
-      message: "Você não tem permissão para atualizar este pedido.",
+      message: "Sua sessão expirou ou você não tem permissão para atualizar este pedido.",
     };
   }
 

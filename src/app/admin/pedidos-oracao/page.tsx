@@ -7,6 +7,7 @@ import PrayerRequestsList, {
   type PrayerRequestRecord,
 } from "./prayer-requests-list";
 import "./prayer-requests.css";
+import "../inbox-list.css";
 
 export const metadata: Metadata = {
   title: "Pedidos de oração",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const PRAYER_REQUEST_FIELDS =
-  "id,nome,telefone,categoria,pedido,deseja_contato,urgente,status,responsavel,observacoes,created_at,updated_at" as const;
+  "id,nome,telefone,categoria,pedido,deseja_contato,urgente,status,responsavel,observacoes,created_at,updated_at,opened_at" as const;
 
 export default async function AdminPrayerRequestsPage() {
   const supabase = await getSupabaseServerClient();

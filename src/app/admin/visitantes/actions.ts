@@ -23,6 +23,54 @@ export const INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE: VisitorFollowUpActionState 
     message: "",
   };
 
+async function getAuthorizedAdminClient() {
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data: profile } = await supabase
+    .from("member_profiles")
+    .select("is_admin")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return profile?.is_admin ? supabase : null;
+}
+
+export async function markVisitorAsOpened(visitorId: number) {
+  if (!Number.isSafeInteger(visitorId) || visitorId <= 0) {
+    return false;
+  }
+
+  const supabase = await getAuthorizedAdminClient();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("visitantes")
+    .update({ opened_at: new Date().toISOString() })
+    .eq("id", visitorId)
+    .is("opened_at", null)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return false;
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/visitantes");
+
+  return Boolean(data);
+}
+
 export async function updateVisitorFollowUp(
   _previousState: VisitorFollowUpActionState,
   formData: FormData,
@@ -41,28 +89,12 @@ export async function updateVisitorFollowUp(
     };
   }
 
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const supabase = await getAuthorizedAdminClient();
 
-  if (!user) {
+  if (!supabase) {
     return {
       kind: "error",
-      message: "Sua sessão expirou. Entre novamente no painel.",
-    };
-  }
-
-  const { data: profile } = await supabase
-    .from("member_profiles")
-    .select("is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (!profile?.is_admin) {
-    return {
-      kind: "error",
-      message: "Você não tem permissão para atualizar esta ficha.",
+      message: "Sua sessão expirou ou você não tem permissão para atualizar esta ficha.",
     };
   }
 
