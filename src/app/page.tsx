@@ -12,6 +12,10 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
+const LATEST_MESSAGE_TITLE = "DOMINGO NA CASA";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/live/AbU1aJYMxag";
+const LATEST_MESSAGE_EMBED_URL =
+  "https://www.youtube-nocookie.com/embed/AbU1aJYMxag?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
@@ -115,20 +119,6 @@ function CalendarIcon() {
       <rect x="4.5" y="7.5" width="23" height="20" rx="4" />
       <path d="M10 4.5v6M22 4.5v6M4.5 13.5h23" />
       <path d="M10 18h3M19 18h3M10 23h3M19 23h3" />
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="home-play-icon"
-      viewBox="0 0 32 32"
-      fill="none"
-    >
-      <circle cx="16" cy="16" r="13" />
-      <path d="m13 11 9 5-9 5v-10Z" />
     </svg>
   );
 }
@@ -350,23 +340,25 @@ export default function Home() {
         className="home-block home-message"
         aria-labelledby="message-title"
       >
-        <a href={YOUTUBE_URL} target="_blank" rel="noreferrer">
-          <Image
-            src="/images/oracao.jpg"
-            alt="Ministração durante um culto da Igreja Casa Forte"
-            fill
-            sizes="100vw"
+        <div className="home-message-copy">
+          <p className="home-kicker">Palavra que transforma</p>
+          <h2 id="message-title">Assista à mensagem do último culto</h2>
+          <p>{LATEST_MESSAGE_TITLE}</p>
+          <a href={LATEST_MESSAGE_URL} target="_blank" rel="noreferrer">
+            Abrir no YouTube
+            <ArrowIcon />
+          </a>
+        </div>
+        <div className="home-message-player">
+          <iframe
+            src={LATEST_MESSAGE_EMBED_URL}
+            title={LATEST_MESSAGE_TITLE}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
           />
-          <div className="home-message-overlay" />
-          <div className="home-message-copy">
-            <p className="home-kicker">Palavra que transforma</p>
-            <h2 id="message-title">Assista à mensagem do último culto</h2>
-            <span>
-              <PlayIcon />
-              Assistir no YouTube
-            </span>
-          </div>
-        </a>
+        </div>
       </section>
 
       <section
