@@ -2,9 +2,15 @@
 
 import { useActionState, useState } from "react";
 import {
-  INITIAL_MEMBER_PROFILE_ACTION_STATE,
+  type MemberProfileActionState,
   updateMemberProfile,
 } from "./actions";
+
+const INITIAL_MEMBER_PROFILE_ACTION_STATE: MemberProfileActionState = {
+  kind: "idle",
+  message: "",
+  earnedStar: null,
+};
 
 export type EditableMemberProfile = {
   fullName: string;
