@@ -225,14 +225,19 @@ export default async function Familia() {
             <p>Meu perfil na Casa</p>
             <h2>{memberName}</h2>
             {hasProfileStar ? (
-              <a
-                className="family-member-phone"
-                href={getMemberWhatsappUrl(profile.phone)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {profile.phone}
-              </a>
+              <>
+                <a
+                  className="family-member-phone"
+                  href={getMemberWhatsappUrl(profile.phone)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {profile.phone}
+                </a>
+                <strong>
+                  {formatTimeInHouse(profile.church_since_month)}
+                </strong>
+              </>
             ) : (
               <strong>{formatTimeInHouse(profile.church_since_month)}</strong>
             )}
