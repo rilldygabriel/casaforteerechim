@@ -465,6 +465,7 @@ h1 strong {
 .inner-header,
 .form-layout,
 .family-hero,
+.family-profile-section,
 .family-menu {
   width: min(100% - 48px, 1120px);
   margin-inline: auto;
@@ -753,6 +754,277 @@ h1 strong {
   color: var(--yellow);
 }
 
+.family-profile-section {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.68fr) minmax(0, 1.32fr);
+  gap: 16px;
+  align-items: start;
+  padding-bottom: 70px;
+}
+
+.family-profile-reward,
+.family-profile-form {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #121412;
+}
+
+.family-profile-reward {
+  position: sticky;
+  top: 24px;
+  padding: clamp(26px, 4vw, 38px);
+  overflow: hidden;
+}
+
+.family-profile-reward::before {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: -90px;
+  top: -95px;
+  border-radius: 50%;
+  background: rgba(255, 254, 21, 0.07);
+  content: "";
+}
+
+.family-profile-star {
+  position: relative;
+  display: grid;
+  width: 94px;
+  height: 94px;
+  place-items: center;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255, 254, 21, 0.34);
+  border-radius: 50%;
+  color: var(--yellow);
+  background: rgba(255, 254, 21, 0.05);
+  font-size: 3.8rem;
+  line-height: 1;
+}
+
+.family-profile-reward[data-earned="true"] {
+  border-color: rgba(255, 254, 21, 0.55);
+  background:
+    radial-gradient(
+      circle at 86% 7%,
+      rgba(255, 254, 21, 0.18),
+      transparent 34%
+    ),
+    #121412;
+  box-shadow: 0 18px 70px rgba(255, 254, 21, 0.08);
+}
+
+.family-profile-reward[data-earned="true"] .family-profile-star {
+  color: #090a09;
+  background: var(--yellow);
+  box-shadow: 0 0 38px rgba(255, 254, 21, 0.22);
+}
+
+.family-profile-reward > p:first-of-type {
+  margin: 0 0 8px;
+  color: var(--yellow);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.family-profile-reward h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 0.98;
+}
+
+.family-profile-reward h2 + p {
+  margin: 18px 0 28px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.family-profile-progress {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.family-profile-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--yellow);
+  transition: width 240ms ease;
+}
+
+.family-profile-reward > strong {
+  display: block;
+  margin-top: 10px;
+  color: #c7cac6;
+  font-size: 0.7rem;
+}
+
+.family-profile-form {
+  display: grid;
+  gap: 28px;
+  padding: clamp(26px, 4vw, 42px);
+}
+
+.family-profile-form-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.family-profile-form-heading h2 {
+  margin: 15px 0 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 0.96;
+}
+
+.family-profile-form-heading > p {
+  max-width: 235px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.family-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 14px;
+}
+
+.family-profile-grid > label,
+.family-profile-conditional {
+  display: grid;
+  gap: 8px;
+  color: #f4f4ef;
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+.family-profile-grid input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  outline: 0;
+  color: #f8f8f4;
+  background: #090a09;
+  font: inherit;
+}
+
+.family-profile-grid input:focus {
+  border-color: var(--yellow);
+}
+
+.family-profile-grid small {
+  color: #8f938f;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.family-profile-field-wide {
+  grid-column: 1 / -1;
+}
+
+.family-profile-grid fieldset {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+}
+
+.family-profile-grid legend {
+  padding-inline: 7px;
+  color: #f4f4ef;
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+.family-profile-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+.family-profile-choices label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.family-profile-choices input {
+  width: 17px;
+  min-height: 17px;
+  padding: 0;
+  accent-color: var(--yellow);
+}
+
+.family-profile-conditional {
+  margin-top: 2px;
+}
+
+.family-profile-save-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.family-profile-save-row p {
+  max-width: 390px;
+  margin: 0;
+  color: #969a96;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.family-profile-save-row p[data-kind="success"] {
+  color: var(--yellow);
+}
+
+.family-profile-save-row p[data-kind="error"] {
+  color: #ff9a9a;
+}
+
+.family-profile-save-row button {
+  flex: 0 0 auto;
+  min-height: 50px;
+  padding-inline: 22px;
+  border: 0;
+  border-radius: 999px;
+  color: #090a09;
+  background: var(--yellow);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.family-profile-save-row button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .family-access-state {
   width: min(100% - 48px, 900px);
   margin-inline: auto;
@@ -913,6 +1185,8 @@ h1 strong {
 @media (max-width: 780px) {
   .hero-entry-actions,
   .form-row,
+  .family-profile-section,
+  .family-profile-grid,
   .family-menu,
   .pix-grid {
     grid-template-columns: 1fr;
@@ -928,6 +1202,29 @@ h1 strong {
 
   .family-menu-featured {
     grid-column: auto;
+  }
+
+  .family-profile-reward {
+    position: static;
+  }
+
+  .family-profile-form-heading,
+  .family-profile-save-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .family-profile-form-heading > p {
+    max-width: none;
+    text-align: left;
+  }
+
+  .family-profile-field-wide {
+    grid-column: auto;
+  }
+
+  .family-profile-save-row button {
+    width: 100%;
   }
 
   .family-header-actions {
