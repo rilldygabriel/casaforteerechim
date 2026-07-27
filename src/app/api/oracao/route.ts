@@ -10,6 +10,7 @@ const WHATSAPP_GRAPH_API_VERSION =
 const WHATSAPP_PHONE_NUMBER_ID =
   process.env.WHATSAPP_PHONE_NUMBER_ID || "1188719124331063";
 const WHATSAPP_NOTIFICATION_RECIPIENTS = [
+  { name: "Casa Forte", phone: "5554992640253" },
   { name: "Pastor Rilldy", phone: "5554993217227" },
   { name: "Pastora Lisi", phone: "5554991619014" },
   { name: "Pastora Eli", phone: "5554991460455" },
