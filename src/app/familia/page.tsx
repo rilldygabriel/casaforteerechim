@@ -3,10 +3,61 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import ProfileForm from "./profile-form";
 
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PASTOR_URL = "https://wa.me/5554992640253";
+
+function hasText(value: string | null | undefined, minimumLength: number) {
+  return (value ?? "").trim().length >= minimumLength;
+}
+
+function countProfileSteps(profile: {
+  full_name: string;
+  phone: string;
+  birth_date: string | null;
+  address: string;
+  church_since_month: string | null;
+  jesus_year: number | null;
+  attended_other_church: boolean | null;
+  previous_church_name: string;
+  baptized: boolean | null;
+  married: boolean | null;
+  spouse_name: string;
+}) {
+  const phoneDigits = profile.phone.replace(/\D/g, "");
+  const today = new Date().toISOString().slice(0, 10);
+  const currentMonth = today.slice(0, 7);
+  const currentYear = Number(today.slice(0, 4));
+
+  return [
+    hasText(profile.full_name, 3) && profile.full_name.length <= 160,
+    phoneDigits.length >= 10 && phoneDigits.length <= 15,
+    Boolean(
+      profile.birth_date &&
+        profile.birth_date >= "1900-01-01" &&
+        profile.birth_date <= today,
+    ),
+    hasText(profile.address, 8) && profile.address.length <= 500,
+    Boolean(
+      profile.church_since_month &&
+        profile.church_since_month <= `${currentMonth}-01`,
+    ),
+    profile.jesus_year !== null &&
+      profile.jesus_year >= 1900 &&
+      profile.jesus_year <= currentYear,
+    profile.attended_other_church !== null &&
+      (!profile.attended_other_church ||
+        (hasText(profile.previous_church_name, 2) &&
+          profile.previous_church_name.length <= 160)),
+    profile.baptized !== null,
+    profile.married !== null &&
+      (!profile.married ||
+        (hasText(profile.spouse_name, 3) &&
+          profile.spouse_name.length <= 160)),
+  ].filter(Boolean).length;
+}
 
 export const metadata: Metadata = {
   title: "Família",
@@ -30,7 +81,9 @@ export default async function Familia() {
 
   const { data: profile, error: profileError } = await supabase
     .from("member_profiles")
-    .select("full_name,is_admin,approval_status")
+    .select(
+      "full_name,phone,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,profile_completed,is_admin,approval_status",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -82,6 +135,10 @@ export default async function Familia() {
     );
   }
 
+  const completedProfileSteps = countProfileSteps(profile);
+  const hasProfileStar =
+    profile.profile_completed === true && completedProfileSteps === 9;
+
   return (
     <main className="inner-page family-page">
       <FamilyHeader signOut={signOut} />
@@ -102,6 +159,50 @@ export default async function Familia() {
         <p className="family-welcome">
           Acesso de <strong>{profile.full_name || user.email}</strong>
         </p>
+      </section>
+
+      <section
+        className="family-profile-section"
+        aria-label="Perfil do membro"
+      >
+        <aside
+          className="family-profile-reward"
+          data-earned={hasProfileStar}
+        >
+          <span className="family-profile-star" aria-hidden="true">
+            {hasProfileStar ? "★" : "☆"}
+          </span>
+          <p>{hasProfileStar ? "Recompensa conquistada" : "Sua recompensa"}</p>
+          <h2>Estrela da Família</h2>
+          <p>
+            {hasProfileStar
+              ? "Seu perfil está completo. Obrigado por permitir que a Casa cuide de você ainda melhor."
+              : "Complete todos os dados da sua caminhada para conquistar esta estrela."}
+          </p>
+          <div
+            className="family-profile-progress"
+            aria-label={`${completedProfileSteps} de 9 etapas concluídas`}
+          >
+            <span style={{ width: `${(completedProfileSteps / 9) * 100}%` }} />
+          </div>
+          <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
+        </aside>
+
+        <ProfileForm
+          initialProfile={{
+            fullName: profile.full_name,
+            phone: profile.phone,
+            birthDate: profile.birth_date ?? "",
+            address: profile.address,
+            churchSinceMonth: profile.church_since_month?.slice(0, 7) ?? "",
+            jesusYear: profile.jesus_year,
+            attendedOtherChurch: profile.attended_other_church,
+            previousChurchName: profile.previous_church_name,
+            baptized: profile.baptized,
+            married: profile.married,
+            spouseName: profile.spouse_name,
+          }}
+        />
       </section>
 
       <section className="family-menu" aria-label="Menu da Família Casa Forte">
