@@ -121,11 +121,14 @@ Perfil do membro:
 - WhatsApp.
 - Instagram.
 - Data de nascimento.
+- Endereço.
+- Mês e ano em que começou a frequentar a Casa.
 - Ano em que aceitou Jesus.
-- Se veio de outro ministério nos últimos 3 anos.
-- Se é batizado.
+- Se já frequentou outra igreja evangélica e, em caso positivo, qual.
+- Se é batizado nas águas.
+- Estado civil e nome do cônjuge quando casado.
 - Status na igreja.
-- Perfil 100% preenchido gera uma estrela.
+- Perfil 100% preenchido gera a “Estrela da Família”, calculada no banco.
 - Área de generosidade com os dois PIX.
 
 Neste primeiro momento, não incluir GC nem “Meu Ministério”.
@@ -243,6 +246,10 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
   automática ao WhatsApp pastoral com nome, WhatsApp e e-mail do membro. O
   aviso só é disparado quando o cadastro nasce de fato; acessos já existentes
   não geram mensagens duplicadas.
+- Cada membro aprovado pode preencher e atualizar os próprios dados dentro de
+  `/familia`. A estrela só é concedida quando todos os campos obrigatórios e
+  condicionais estão completos; `profile_completed` é calculado pelo banco e
+  não pode ser alterado diretamente pelo navegador.
 - Backup imediatamente anterior ao painel de visitantes:
   `backup-pre-painel-visitantes-2026-07-26`.
 - Backup imediatamente anterior ao painel de pedidos de oração:
