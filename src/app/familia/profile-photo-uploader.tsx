@@ -5,9 +5,9 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-const PROFILE_PHOTOS_BUCKET = "member-profile-photos";
 const MAX_SOURCE_SIZE = 12 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 40_000_000;
+const MAX_PREPARED_SIZE = 900 * 1024;
 const OUTPUT_SIZE = 512;
 
 type PhotoStatus = {
@@ -45,7 +45,11 @@ function loadImage(file: File) {
   });
 }
 
-function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  type: "image/jpeg",
+  quality: number,
+) {
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -56,7 +60,7 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
 
         reject(new Error("Não foi possível preparar a foto."));
       },
-      "image/webp",
+      type,
       quality,
     );
   });
@@ -108,19 +112,19 @@ async function preparePhoto(file: File) {
     OUTPUT_SIZE,
   );
 
-  let blob = await canvasToBlob(canvas, 0.84);
+  let blob = await canvasToBlob(canvas, "image/jpeg", 0.9);
 
-  if (blob.size > 1024 * 1024) {
-    blob = await canvasToBlob(canvas, 0.7);
+  if (blob.size > MAX_PREPARED_SIZE) {
+    blob = await canvasToBlob(canvas, "image/jpeg", 0.75);
   }
 
-  if (blob.size > 1024 * 1024) {
+  if (blob.size > MAX_PREPARED_SIZE) {
     throw new Error("Não foi possível reduzir a foto para o tamanho permitido.");
   }
 
   return {
     blob,
-    previewUrl: canvas.toDataURL("image/webp", 0.84),
+    previewUrl: canvas.toDataURL("image/jpeg", 0.9),
   };
 }
 
@@ -175,28 +179,32 @@ export function ProfilePhotoUploader({
       });
 
       const { blob, previewUrl } = await preparePhoto(file);
-      const photoPath = `${userId}/${crypto.randomUUID()}.webp`;
-      const { error: uploadError } = await supabase.storage
-        .from(PROFILE_PHOTOS_BUCKET)
-        .upload(photoPath, blob, {
-          cacheControl: "3600",
-          contentType: "image/webp",
-          upsert: false,
-        });
+      const response = await fetch("/api/familia/foto-perfil", {
+        method: "POST",
+        headers: {
+          "Content-Type": "image/jpeg",
+        },
+        body: await blob.arrayBuffer(),
+      });
+      const result = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
 
-      if (uploadError) {
-        throw new Error("Não foi possível enviar a foto. Tente novamente.");
+      if (response.status === 401) {
+        await supabase.auth.signOut({ scope: "local" });
+        setStatus({
+          kind: "error",
+          message: "Sua sessão expirou. Entre novamente para enviar a foto.",
+        });
+        router.replace("/familia/login?erro=sessao-expirada");
+        router.refresh();
+        return;
       }
 
-      const { data: updatedProfile, error: profileError } = await supabase
-        .from("member_profiles")
-        .update({ photo_url: photoPath })
-        .eq("user_id", userId)
-        .select("photo_url")
-        .maybeSingle();
-
-      if (profileError || updatedProfile?.photo_url !== photoPath) {
-        throw new Error("A foto foi enviada, mas não pôde ser ligada ao perfil.");
+      if (!response.ok) {
+        throw new Error(
+          result?.error || "Não foi possível enviar a foto. Tente novamente.",
+        );
       }
 
       setPhotoUrl(previewUrl);
