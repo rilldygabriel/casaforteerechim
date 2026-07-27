@@ -450,6 +450,54 @@ export default function Home() {
               Pra. Lisy
             </span>
           </a>
+          <article className="home-pastor-card">
+            <Image
+              src="/images/pastores/pastora-pamela.webp"
+              alt="Pastora Pâmela"
+              fill
+              sizes="(max-width: 720px) 50vw, 50vw"
+            />
+            <span>
+              <small>Pastora</small>
+              Pra. Pâmela
+            </span>
+          </article>
+          <article className="home-pastor-card">
+            <Image
+              src="/images/pastores/pastor-erisson.webp"
+              alt="Pastor Erisson"
+              fill
+              sizes="(max-width: 720px) 50vw, 50vw"
+            />
+            <span>
+              <small>Pastor</small>
+              Pr. Erisson
+            </span>
+          </article>
+          <article className="home-pastor-card">
+            <Image
+              src="/images/pastores/pastora-eli.webp"
+              alt="Pastora Eli"
+              fill
+              sizes="(max-width: 720px) 50vw, 50vw"
+            />
+            <span>
+              <small>Pastora</small>
+              Pra. Eli
+            </span>
+          </article>
+          <article className="home-pastor-card">
+            <Image
+              src="/images/pastores/pastor-airton.webp"
+              alt="Pastor Airton"
+              fill
+              sizes="(max-width: 720px) 50vw, 50vw"
+            />
+            <span>
+              <small>Pastor</small>
+              Pr. Airton
+            </span>
+          </article>
         </div>
       </section>
 
