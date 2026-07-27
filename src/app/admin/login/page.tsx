@@ -18,6 +18,8 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
       ? "Este usuário não possui acesso administrativo."
       : params.erro === "link-invalido"
         ? "Este link expirou ou não é mais válido."
+        : params.erro === "sessao-expirada"
+          ? "Sua sessão expirou. Entre novamente para continuar."
         : "";
 
   return (

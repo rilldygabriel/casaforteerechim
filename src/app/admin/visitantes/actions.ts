@@ -17,12 +17,6 @@ export type VisitorFollowUpActionState = {
   message: string;
 };
 
-export const INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE: VisitorFollowUpActionState =
-  {
-    kind: "idle",
-    message: "",
-  };
-
 async function getAuthorizedAdminClient() {
   const supabase = await getSupabaseServerClient();
   const {

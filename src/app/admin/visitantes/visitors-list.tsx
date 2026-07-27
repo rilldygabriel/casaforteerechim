@@ -2,11 +2,16 @@
 
 import { useActionState, useState, useTransition } from "react";
 import {
-  INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE,
   markVisitorAsOpened,
+  type VisitorFollowUpActionState,
   type VisitorFollowUpStatus,
   updateVisitorFollowUp,
 } from "./actions";
+
+const INITIAL_VISITOR_FOLLOW_UP_ACTION_STATE: VisitorFollowUpActionState = {
+  kind: "idle",
+  message: "",
+};
 
 export type VisitorRecord = {
   id: number;

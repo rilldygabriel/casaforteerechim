@@ -259,7 +259,7 @@ export default async function AdminMemberProfilePage({
     .maybeSingle();
 
   if (!adminProfile?.is_admin) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/admin/login?erro=sem-permissao");
   }
 

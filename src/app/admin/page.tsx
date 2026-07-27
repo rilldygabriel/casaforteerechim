@@ -20,14 +20,14 @@ export default async function AdminPage() {
     .maybeSingle();
 
   if (!profile?.is_admin) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/admin/login?erro=sem-permissao");
   }
 
   async function signOut() {
     "use server";
     const serverSupabase = await getSupabaseServerClient();
-    await serverSupabase.auth.signOut();
+    await serverSupabase.auth.signOut({ scope: "local" });
     redirect("/admin/login");
   }
 
