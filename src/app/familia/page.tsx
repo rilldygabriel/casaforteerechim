@@ -60,6 +60,11 @@ function countProfileSteps(profile: {
   ].filter(Boolean).length;
 }
 
+function getMemberWhatsappUrl(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  return `https://wa.me/${digits.startsWith("55") ? digits : `55${digits}`}`;
+}
+
 function formatTimeInHouse(churchSinceMonth: string | null) {
   if (!churchSinceMonth) {
     return "Complete desde quando você frequenta a Casa";
@@ -219,21 +224,36 @@ export default async function Familia() {
           <div className="family-member-summary-copy">
             <p>Meu perfil na Casa</p>
             <h2>{memberName}</h2>
-            <strong>{formatTimeInHouse(profile.church_since_month)}</strong>
             {hasProfileStar ? (
-              <span>
-                <span aria-hidden="true">★</span> Estrela da Família
-              </span>
-            ) : null}
+              <a
+                className="family-member-phone"
+                href={getMemberWhatsappUrl(profile.phone)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {profile.phone}
+              </a>
+            ) : (
+              <strong>{formatTimeInHouse(profile.church_since_month)}</strong>
+            )}
           </div>
         </div>
       </section>
 
-      <section
-        className="family-profile-section"
-        aria-label="Perfil do membro"
+      <details
+        className="family-profile-details"
+        data-complete={hasProfileStar}
+        open={!hasProfileStar}
       >
-        <aside
+        <summary>
+          <span>Ver meu perfil</span>
+          <span aria-hidden="true">↓</span>
+        </summary>
+        <section
+          className="family-profile-section"
+          aria-label="Perfil do membro"
+        >
+          <aside
           className="family-profile-reward"
           data-earned={hasProfileStar}
         >
@@ -256,7 +276,7 @@ export default async function Familia() {
           <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
         </aside>
 
-        <ProfileForm
+          <ProfileForm
           initialProfile={{
             fullName: profile.full_name,
             phone: profile.phone,
@@ -270,8 +290,9 @@ export default async function Familia() {
             married: profile.married,
             spouseName: profile.spouse_name,
           }}
-        />
-      </section>
+          />
+        </section>
+      </details>
 
       <section className="family-menu" aria-label="Menu da Família Casa Forte">
         <article className="family-menu-card">
