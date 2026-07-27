@@ -2,11 +2,16 @@
 
 import { useActionState, useState, useTransition } from "react";
 import {
-  INITIAL_PRAYER_REQUEST_ACTION_STATE,
   markPrayerRequestAsOpened,
+  type PrayerRequestActionState,
   type PrayerRequestStatus,
   updatePrayerRequest,
 } from "./actions";
+
+const INITIAL_PRAYER_REQUEST_ACTION_STATE: PrayerRequestActionState = {
+  kind: "idle",
+  message: "",
+};
 
 export type PrayerRequestRecord = {
   id: number;

@@ -39,7 +39,7 @@ export default async function AdminPrayerRequestsPage() {
     .maybeSingle();
 
   if (!profile?.is_admin) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     redirect("/admin/login?erro=sem-permissao");
   }
 

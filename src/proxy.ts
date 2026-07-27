@@ -16,6 +16,28 @@ const PUBLIC_FAMILY_ROUTES = new Set([
   "/familia/callback",
 ]);
 
+function getExpiredSessionResponse(request: NextRequest) {
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  const loginUrl = request.nextUrl.clone();
+  loginUrl.pathname = isAdminRoute ? "/admin/login" : "/familia/login";
+  loginUrl.search = "?erro=sessao-expirada";
+
+  const response = NextResponse.redirect(loginUrl);
+
+  request.cookies
+    .getAll()
+    .filter(({ name }) => name.startsWith("sb-"))
+    .forEach(({ name }) => {
+      response.cookies.set(name, "", {
+        expires: new Date(0),
+        maxAge: 0,
+        path: "/",
+      });
+    });
+
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   if (
     PUBLIC_ADMIN_ROUTES.has(request.nextUrl.pathname) ||
@@ -47,7 +69,16 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getClaims();
+  try {
+    const { error } = await supabase.auth.getClaims();
+
+    if (error) {
+      return getExpiredSessionResponse(request);
+    }
+  } catch {
+    return getExpiredSessionResponse(request);
+  }
+
   return response;
 }
 

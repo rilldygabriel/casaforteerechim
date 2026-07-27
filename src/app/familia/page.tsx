@@ -139,7 +139,7 @@ export default async function Familia() {
   async function signOut() {
     "use server";
     const serverSupabase = await getSupabaseServerClient();
-    await serverSupabase.auth.signOut();
+    await serverSupabase.auth.signOut({ scope: "local" });
     redirect("/familia/login");
   }
 

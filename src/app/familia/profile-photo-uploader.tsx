@@ -148,12 +148,33 @@ export function ProfilePhotoUploader({
 
     setStatus({
       kind: "loading",
-      message: "Preparando e enviando sua foto…",
+      message: "Verificando sua sessão…",
     });
 
     try {
-      const { blob, previewUrl } = await preparePhoto(file);
       const supabase = getSupabaseBrowserClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user || user.id !== userId) {
+        await supabase.auth.signOut({ scope: "local" });
+        setStatus({
+          kind: "error",
+          message: "Sua sessão expirou. Entre novamente para enviar a foto.",
+        });
+        router.replace("/familia/login?erro=sessao-expirada");
+        router.refresh();
+        return;
+      }
+
+      setStatus({
+        kind: "loading",
+        message: "Preparando e enviando sua foto…",
+      });
+
+      const { blob, previewUrl } = await preparePhoto(file);
       const photoPath = `${userId}/${crypto.randomUUID()}.webp`;
       const { error: uploadError } = await supabase.storage
         .from(PROFILE_PHOTOS_BUCKET)

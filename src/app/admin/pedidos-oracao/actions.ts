@@ -17,11 +17,6 @@ export type PrayerRequestActionState = {
   message: string;
 };
 
-export const INITIAL_PRAYER_REQUEST_ACTION_STATE: PrayerRequestActionState = {
-  kind: "idle",
-  message: "",
-};
-
 async function getAuthorizedAdminClient() {
   const supabase = await getSupabaseServerClient();
   const {

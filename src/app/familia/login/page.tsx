@@ -33,6 +33,8 @@ export default async function MemberLoginPage({
   const initialError =
     params.erro === "link-invalido"
       ? "Este link expirou ou não é mais válido."
+      : params.erro === "sessao-expirada"
+        ? "Sua sessão expirou. Entre novamente para continuar."
       : "";
 
   return <MemberLoginForm initialError={initialError} />;
