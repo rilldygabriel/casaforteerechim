@@ -17,6 +17,18 @@ const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
+const PASTOR_RILLDY_WHATSAPP_URL =
+  "https://wa.me/5554993217227?text=Ol%C3%A1%2C%20Pastor%20Rilldy%21";
+const PASTORA_LISI_WHATSAPP_URL =
+  "https://wa.me/5554991619014?text=Ol%C3%A1%2C%20Pastora%20Lisi%21";
+const PASTORA_PAMELA_WHATSAPP_URL =
+  "https://wa.me/5554999468565?text=Ol%C3%A1%2C%20Pastora%20Pamela%21";
+const PASTOR_HERRISON_WHATSAPP_URL =
+  "https://wa.me/5554999468558?text=Ol%C3%A1%2C%20Pastor%20Herrison%21";
+const PASTORA_ELI_WHATSAPP_URL =
+  "https://wa.me/5554991460455?text=Ol%C3%A1%2C%20Pastora%20Eli%21";
+const PASTOR_AIRTON_WHATSAPP_URL =
+  "https://wa.me/5554999897786?text=Ol%C3%A1%2C%20Pastor%20Airton%21";
 
 function ArrowIcon() {
   return (
@@ -425,53 +437,85 @@ export default function Home() {
           <h2 id="pastors-title">Conecte-se com os pastores</h2>
         </div>
 
-        <div className="home-pastor-grid">
-          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+        <div className="home-pastor-grid home-pastor-grid-featured">
+          <a
+            href={PASTOR_RILLDY_WHATSAPP_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             <Image
               src="/images/pastor-rilldy.jpg"
-              alt="Pastor Rilldy Gabriel"
+              alt="Pastor Rilldy"
               fill
-              sizes="(max-width: 720px) 100vw, 50vw"
+              sizes="(max-width: 720px) 50vw, 50vw"
             />
             <span>
               <small>Pastor</small>
-              Pr. Rilldy Gabriel
+              <strong>Pr. Rilldy</strong>
+              <em>WhatsApp</em>
             </span>
           </a>
-          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+          <a
+            href={PASTORA_LISI_WHATSAPP_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             <Image
               src="/images/pastora-lisy.jpg"
-              alt="Pastora Lisy"
-              fill
-              sizes="(max-width: 720px) 100vw, 50vw"
-            />
-            <span>
-              <small>Pastora</small>
-              Pra. Lisy
-            </span>
-          </a>
-          <article className="home-pastor-card">
-            <Image
-              src="/images/pastores/pastora-pamela.webp"
-              alt="Pastora Pâmela"
+              alt="Pastora Lisi"
               fill
               sizes="(max-width: 720px) 50vw, 50vw"
             />
             <span>
               <small>Pastora</small>
-              Pra. Pâmela
+              <strong>Pra. Lisi</strong>
+              <em>WhatsApp</em>
+            </span>
+          </a>
+        </div>
+
+        <div
+          className="home-pastor-grid home-pastor-grid-team"
+          aria-label="Equipe pastoral"
+        >
+          <article className="home-pastor-card">
+            <Image
+              src="/images/pastores/pastora-pamela.webp"
+              alt="Pastora Pamela"
+              fill
+              sizes="(max-width: 720px) 50vw, 25vw"
+            />
+            <span>
+              <small>Pastora</small>
+              <strong>Pra. Pamela</strong>
+              <a
+                href={PASTORA_PAMELA_WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Falar com a Pastora Pamela pelo WhatsApp"
+              >
+                WhatsApp
+              </a>
             </span>
           </article>
           <article className="home-pastor-card">
             <Image
               src="/images/pastores/pastor-erisson.webp"
-              alt="Pastor Erisson"
+              alt="Pastor Herrison"
               fill
-              sizes="(max-width: 720px) 50vw, 50vw"
+              sizes="(max-width: 720px) 50vw, 25vw"
             />
             <span>
               <small>Pastor</small>
-              Pr. Erisson
+              <strong>Pr. Herrison</strong>
+              <a
+                href={PASTOR_HERRISON_WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Falar com o Pastor Herrison pelo WhatsApp"
+              >
+                WhatsApp
+              </a>
             </span>
           </article>
           <article className="home-pastor-card">
@@ -479,11 +523,19 @@ export default function Home() {
               src="/images/pastores/pastora-eli.webp"
               alt="Pastora Eli"
               fill
-              sizes="(max-width: 720px) 50vw, 50vw"
+              sizes="(max-width: 720px) 50vw, 25vw"
             />
             <span>
               <small>Pastora</small>
-              Pra. Eli
+              <strong>Pra. Eli</strong>
+              <a
+                href={PASTORA_ELI_WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Falar com a Pastora Eli pelo WhatsApp"
+              >
+                WhatsApp
+              </a>
             </span>
           </article>
           <article className="home-pastor-card">
@@ -491,11 +543,19 @@ export default function Home() {
               src="/images/pastores/pastor-airton.webp"
               alt="Pastor Airton"
               fill
-              sizes="(max-width: 720px) 50vw, 50vw"
+              sizes="(max-width: 720px) 50vw, 25vw"
             />
             <span>
               <small>Pastor</small>
-              Pr. Airton
+              <strong>Pr. Airton</strong>
+              <a
+                href={PASTOR_AIRTON_WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Falar com o Pastor Airton pelo WhatsApp"
+              >
+                WhatsApp
+              </a>
             </span>
           </article>
         </div>
