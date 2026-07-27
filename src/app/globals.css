@@ -4356,3 +4356,78 @@ a:focus-visible {
     width: 100%;
   }
 }
+
+
+/* Perfil compacto após conquistar a Estrela da Família */
+.family-profile-details {
+  width: min(100% - 48px, 1120px);
+  margin: 0 auto;
+  padding-bottom: 70px;
+}
+
+.family-profile-details > summary {
+  display: flex;
+  width: fit-content;
+  min-height: 44px;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 22px auto;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 254, 21, 0.34);
+  border-radius: 999px;
+  color: var(--yellow);
+  background: rgba(255, 254, 21, 0.06);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.family-profile-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.family-profile-details > summary:hover {
+  color: #080908;
+  background: var(--yellow);
+}
+
+.family-profile-details[open] > summary span:last-child {
+  transform: rotate(180deg);
+}
+
+.family-profile-details[data-complete="false"] > summary {
+  display: none;
+}
+
+.family-profile-details .family-profile-section {
+  width: 100%;
+  padding-bottom: 0;
+}
+
+.family-member-phone {
+  display: inline-flex;
+  margin-top: 15px;
+  color: #f7f7f2;
+  font-size: 1rem;
+  font-weight: 760;
+}
+
+.family-member-phone:hover {
+  color: var(--yellow);
+}
+
+@media (max-width: 700px) {
+  .family-profile-details {
+    width: min(100% - 28px, 1120px);
+    padding-bottom: 50px;
+  }
+
+  .family-profile-details > summary {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+}
