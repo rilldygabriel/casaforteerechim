@@ -239,6 +239,10 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
   cabeçalho e no rodapé.
 - As fotos da galeria abrem em rotas internas `/fotos/[slug]`, com botões
   explícitos para voltar ao site e à seção de fotos.
+- Cada novo cadastro concluído na Área da Família envia uma notificação
+  automática ao WhatsApp pastoral com nome, WhatsApp e e-mail do membro. O
+  aviso só é disparado quando o cadastro nasce de fato; acessos já existentes
+  não geram mensagens duplicadas.
 - Backup imediatamente anterior ao painel de visitantes:
   `backup-pre-painel-visitantes-2026-07-26`.
 - Backup imediatamente anterior ao painel de pedidos de oração:
