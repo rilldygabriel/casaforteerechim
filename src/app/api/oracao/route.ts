@@ -9,7 +9,11 @@ const WHATSAPP_GRAPH_API_VERSION =
   process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0";
 const WHATSAPP_PHONE_NUMBER_ID =
   process.env.WHATSAPP_PHONE_NUMBER_ID || "1188719124331063";
-const WHATSAPP_NOTIFICATION_TO = "5554992640253";
+const WHATSAPP_NOTIFICATION_RECIPIENTS = [
+  { name: "Pastor Rilldy", phone: "5554993217227" },
+  { name: "Pastora Lisi", phone: "5554991619014" },
+  { name: "Pastora Eli", phone: "5554991460455" },
+] as const;
 const WHATSAPP_TEMPLATE_NAME = "notificacao_site_casa_forte";
 const WHATSAPP_TEMPLATE_LANGUAGE = "pt_BR";
 
@@ -71,66 +75,86 @@ async function notifyWhatsApp(payload: {
 
   if (!accessToken) {
     console.error(
-      "WhatsApp prayer notification skipped: WHATSAPP_ACCESS_TOKEN missing",
+      "WhatsApp prayer notifications skipped: WHATSAPP_ACCESS_TOKEN missing",
     );
     return;
   }
 
-  try {
-    const response = await fetch(
-      `https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: WHATSAPP_NOTIFICATION_TO,
-          type: "template",
-          template: {
-            name: WHATSAPP_TEMPLATE_NAME,
-            language: { code: WHATSAPP_TEMPLATE_LANGUAGE },
-            components: [
-              {
-                type: "body",
-                parameters: [
+  const notification = prayerNotification(payload);
+
+  const deliveries = await Promise.all(
+    WHATSAPP_NOTIFICATION_RECIPIENTS.map(async (recipient) => {
+      try {
+        const response = await fetch(
+          `https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              recipient_type: "individual",
+              to: recipient.phone,
+              type: "template",
+              template: {
+                name: WHATSAPP_TEMPLATE_NAME,
+                language: { code: WHATSAPP_TEMPLATE_LANGUAGE },
+                components: [
                   {
-                    type: "text",
-                    text: prayerNotification(payload),
+                    type: "body",
+                    parameters: [
+                      {
+                        type: "text",
+                        text: notification,
+                      },
+                    ],
                   },
                 ],
               },
-            ],
+            }),
+            signal: AbortSignal.timeout(8000),
+            cache: "no-store",
           },
-        }),
-        signal: AbortSignal.timeout(8000),
-        cache: "no-store",
-      },
-    );
+        );
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (!response.ok) {
-      console.error(
-        "WhatsApp prayer notification failed",
-        response.status,
-        result?.error?.code,
-        result?.error?.message,
-        result?.error?.error_data?.details,
-      );
-      return;
-    }
+        if (!response.ok) {
+          console.error(
+            "WhatsApp prayer notification failed",
+            recipient.name,
+            response.status,
+            result?.error?.code,
+            result?.error?.message,
+            result?.error?.error_data?.details,
+          );
+          return false;
+        }
 
-    console.info(
-      "WhatsApp prayer notification sent",
-      result?.messages?.[0]?.id || "without-message-id",
-    );
-  } catch (error) {
-    console.error("WhatsApp prayer notification unavailable", error);
-  }
+        console.info(
+          "WhatsApp prayer notification sent",
+          recipient.name,
+          result?.messages?.[0]?.id || "without-message-id",
+        );
+        return true;
+      } catch (error) {
+        console.error(
+          "WhatsApp prayer notification unavailable",
+          recipient.name,
+          error,
+        );
+        return false;
+      }
+    }),
+  );
+
+  console.info(
+    "WhatsApp prayer notification summary",
+    deliveries.filter(Boolean).length,
+    WHATSAPP_NOTIFICATION_RECIPIENTS.length,
+  );
 }
 
 export async function POST(request: NextRequest) {
