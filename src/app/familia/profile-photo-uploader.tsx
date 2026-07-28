@@ -265,14 +265,16 @@ export function ProfilePhotoUploader({
             ? "Trocar foto"
             : "Adicionar foto"}
       </button>
-      <p
-        className="family-photo-status"
-        data-kind={status.kind}
-        role="status"
-        aria-live="polite"
-      >
-        {status.message || "JPG, PNG ou WEBP. A foto será ajustada automaticamente."}
-      </p>
+      {status.message ? (
+        <p
+          className="family-photo-status"
+          data-kind={status.kind}
+          role="status"
+          aria-live="polite"
+        >
+          {status.message}
+        </p>
+      ) : null}
     </div>
   );
 }
