@@ -61,6 +61,7 @@ function isMemberVerification(value: unknown): value is MemberVerification {
 async function getAdminMemberStats(
   adminUserId: string,
 ): Promise<MemberStats | null> {
+  // Os dados privados do Auth chegam somente pela Edge Function protegida por OIDC.
   const requestId = crypto.randomUUID();
 
   try {
