@@ -29,8 +29,13 @@ type GeneratedLinkData = {
   user?: { id?: string };
 };
 
-function jsonResponse(ok: boolean, status: number, code?: string) {
-  return new Response(JSON.stringify({ ok, code }), {
+function jsonResponse(
+  ok: boolean,
+  status: number,
+  code?: string,
+  extra?: Record<string, unknown>,
+) {
+  return new Response(JSON.stringify({ ok, code, ...extra }), {
     status,
     headers: {
       "Content-Type": "application/json",
@@ -405,5 +410,5 @@ Deno.serve(async (request: Request) => {
     applicationId: application.id,
     resendMessageId,
   });
-  return jsonResponse(true, 201, "registered");
+  return jsonResponse(true, 201, "registered", { inviteUrl });
 });
