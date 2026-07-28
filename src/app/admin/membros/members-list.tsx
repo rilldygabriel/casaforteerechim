@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import MemberInviteResendButton from "./member-invite-resend-button";
 
 export type MemberListRecord = {
   user_id: string;
@@ -143,7 +144,10 @@ export default function MembersList({
         <ol className="admin-member-directory-list">
           {visibleMembers.map((member, index) => (
             <li key={member.user_id}>
-              <Link href={`/admin/membros/${member.user_id}`}>
+              <Link
+                className="admin-member-directory-profile"
+                href={`/admin/membros/${member.user_id}`}
+              >
                 <span aria-hidden="true">
                   {String(index + 1).padStart(2, "0")}
                 </span>
@@ -171,6 +175,14 @@ export default function MembersList({
                 </div>
                 <span aria-hidden="true">→</span>
               </Link>
+              {!member.email_verified &&
+              !member.phone_verified &&
+              member.email ? (
+                <MemberInviteResendButton
+                  memberId={member.user_id}
+                  memberName={member.full_name || "membro"}
+                />
+              ) : null}
             </li>
           ))}
         </ol>
