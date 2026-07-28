@@ -15,12 +15,35 @@ const WHATSAPP_PHONE_NUMBER_ID =
 const WHATSAPP_NOTIFICATION_TO = "5554992640253";
 const WHATSAPP_TEMPLATE_NAME = "notificacao_site_casa_forte";
 const WHATSAPP_TEMPLATE_LANGUAGE = "pt_BR";
+const WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME =
+  process.env.WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME ||
+  "confirmacao_cadastro_familia";
 
 type MemberApplicationPayload = {
   fullName?: unknown;
   email?: unknown;
   phone?: unknown;
 };
+
+type MemberRegistrationResult = {
+  ok: boolean;
+  code?: string;
+  inviteUrl?: string;
+};
+
+function toWhatsAppRecipient(rawPhone: string) {
+  const digits = rawPhone.replace(/\D/g, "");
+
+  if (digits.length === 10 || digits.length === 11) {
+    return `55${digits}`;
+  }
+
+  if ((digits.length === 12 || digits.length === 13) && digits.startsWith("55")) {
+    return digits;
+  }
+
+  return null;
+}
 
 function text(value: unknown) {
   return typeof value === "string"
@@ -149,6 +172,94 @@ async function notifyWhatsApp(
   }
 }
 
+async function notifyMemberInviteWhatsApp(
+  payload: {
+    fullName: string;
+    phone: string;
+    inviteUrl: string;
+  },
+  requestId: string,
+) {
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+
+  if (!accessToken) {
+    console.error("WhatsApp member invite skipped: token missing", {
+      requestId,
+    });
+    return;
+  }
+
+  const recipient = toWhatsAppRecipient(payload.phone);
+  if (!recipient) {
+    console.error("WhatsApp member invite skipped: invalid phone", {
+      requestId,
+    });
+    return;
+  }
+
+  const firstName = payload.fullName.split(" ")[0] || payload.fullName;
+  const messageBody =
+    `Olá, ${firstName}! Seu cadastro na Área da Família da Igreja Casa Forte ` +
+    `foi realizado. Crie sua senha aqui: ${payload.inviteUrl}`;
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to: recipient,
+          type: "template",
+          template: {
+            name: WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME,
+            language: { code: WHATSAPP_TEMPLATE_LANGUAGE },
+            components: [
+              {
+                type: "body",
+                parameters: [
+                  {
+                    type: "text",
+                    text: messageBody,
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+        signal: AbortSignal.timeout(8000),
+        cache: "no-store",
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("WhatsApp member invite failed", {
+        requestId,
+        status: response.status,
+        errorCode: result?.error?.code,
+      });
+      return;
+    }
+
+    console.info("WhatsApp member invite sent", {
+      requestId,
+      messageId: result?.messages?.[0]?.id || "without-message-id",
+    });
+  } catch (error) {
+    console.error("WhatsApp member invite unavailable", {
+      requestId,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+  }
+}
+
 export async function POST(request: NextRequest) {
   let body: MemberApplicationPayload;
 
@@ -217,7 +328,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (response.status === 201) {
+      const registration = (await response
+        .json()
+        .catch(() => null)) as MemberRegistrationResult | null;
+
       await notifyWhatsApp({ fullName, email, phone }, requestId);
+
+      if (registration?.inviteUrl) {
+        await notifyMemberInviteWhatsApp(
+          { fullName, phone, inviteUrl: registration.inviteUrl },
+          requestId,
+        );
+      }
     }
 
     return jsonResponse(true, response.status === 201 ? 201 : 200);
