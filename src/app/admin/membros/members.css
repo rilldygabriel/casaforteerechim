@@ -444,6 +444,90 @@
 
 
 /* Diretório simples de membros */
+.admin-member-dashboard {
+  display: grid;
+  grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 48px;
+}
+
+.admin-member-summary {
+  padding: clamp(22px, 3vw, 30px);
+  border: 1px solid rgba(255, 254, 21, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(255, 254, 21, 0.1),
+      transparent 42%
+    ),
+    #0e100e;
+}
+
+.admin-member-summary > p:first-child {
+  margin: 0;
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.admin-member-summary h2 {
+  margin: 10px 0 0;
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.admin-member-summary dl {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.admin-member-summary dl > div {
+  display: grid;
+  min-height: 92px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-member-summary dt {
+  color: #a5aaa3;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.admin-member-summary dd {
+  margin: 0;
+  color: #fffe15;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.admin-member-summary-note {
+  margin: 18px 0 0;
+  color: #8f938e;
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.admin-member-dashboard > .admin-member-directory,
+.admin-member-dashboard > .admin-visitors-state {
+  margin-top: 0;
+}
+
 .admin-member-directory {
   margin-top: 48px;
   padding: clamp(20px, 3vw, 34px);
@@ -559,6 +643,28 @@
 }
 
 @media (max-width: 700px) {
+  .admin-member-dashboard {
+    grid-template-columns: 1fr;
+    margin-top: 34px;
+  }
+
+  .admin-member-summary {
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .admin-member-summary dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-member-summary dl > div {
+    min-height: 112px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-content: space-between;
+    padding: 15px;
+  }
+
   .admin-member-directory {
     margin-top: 34px;
     padding: 18px 12px;
@@ -580,5 +686,17 @@
     grid-template-columns: 36px minmax(0, 1fr) auto;
     gap: 10px;
     padding-inline: 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .admin-member-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-member-summary dl > div {
+    min-height: 86px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: center;
   }
 }
