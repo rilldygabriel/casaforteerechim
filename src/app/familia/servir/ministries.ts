@@ -50,7 +50,7 @@ export const MINISTRIES: Ministry[] = [
   {
     key: "midias_stories",
     label: "Mídias — Stories",
-    leaders: [{ name: "Karen", phone: "54999630023" }],
+    leaders: [{ name: "Karen", phone: "54994355665" }],
   },
   {
     key: "midias_transmissao",
