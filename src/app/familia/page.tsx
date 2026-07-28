@@ -245,6 +245,19 @@ export default async function Familia() {
         </div>
       </section>
 
+      <section className="family-serve-cta">
+        <p className="section-eyebrow">
+          <span aria-hidden="true" />
+          Ministérios
+        </p>
+        <h2>Quero começar a servir na Casa</h2>
+        <p>
+          Escolha um ministério e avisamos o líder na hora, com seu nome e
+          seu WhatsApp.
+        </p>
+        <Link href="/familia/servir">Ver ministérios</Link>
+      </section>
+
       <details
         className="family-profile-details"
         data-complete={hasProfileStar}

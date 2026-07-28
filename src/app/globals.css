@@ -466,7 +466,9 @@ h1 strong {
 .form-layout,
 .family-hero,
 .family-profile-section,
-.family-menu {
+.family-menu,
+.family-serve-cta,
+.serve-grid {
   width: min(100% - 48px, 1120px);
   margin-inline: auto;
 }
@@ -714,6 +716,90 @@ h1 strong {
 
 .family-menu-featured a {
   color: #090a09;
+}
+
+.family-serve-cta {
+  margin-top: 22px;
+  padding: clamp(28px, 4vw, 44px);
+  border-radius: 22px;
+  background: var(--yellow);
+  color: #090a09;
+}
+
+.family-serve-cta > p:first-child {
+  color: #272727;
+}
+
+.family-serve-cta h2 {
+  margin: 10px 0 8px;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  letter-spacing: -0.03em;
+}
+
+.family-serve-cta > p:last-of-type {
+  max-width: 520px;
+  color: #272727;
+  line-height: 1.6;
+}
+
+.family-serve-cta a {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 20px;
+  padding-inline: 22px;
+  min-height: 52px;
+  border-radius: 999px;
+  background: #090a09;
+  color: #fffe15;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.serve-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-block: 40px 100px;
+}
+
+.serve-card-form {
+  margin-top: 18px;
+}
+
+.family-menu-card button {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--yellow);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+}
+
+.family-menu-card button:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.serve-status {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.serve-status[data-kind="success"] {
+  color: var(--yellow);
+}
+
+.serve-status[data-kind="error"] {
+  color: #ff6b6b;
 }
 
 .family-header-actions {
@@ -1306,6 +1392,7 @@ h1 strong {
   .family-profile-section,
   .family-profile-grid,
   .family-menu,
+  .serve-grid,
   .pix-grid {
     grid-template-columns: 1fr;
   }
