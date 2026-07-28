@@ -17,7 +17,7 @@ const WHATSAPP_TEMPLATE_NAME = "notificacao_site_casa_forte";
 const WHATSAPP_TEMPLATE_LANGUAGE = "pt_BR";
 const WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME =
   process.env.WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME ||
-  "confirmacao_cadastro_familia";
+  "acesso_area_familia";
 
 type MemberApplicationPayload = {
   fullName?: unknown;
