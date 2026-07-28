@@ -15,11 +15,6 @@ export type ServeActionState = {
   message: string;
 };
 
-export const INITIAL_SERVE_ACTION_STATE: ServeActionState = {
-  kind: "idle",
-  message: "",
-};
-
 async function notifyLeader(
   payload: { leaderName: string; leaderPhone: string; text: string },
   requestId: string,
