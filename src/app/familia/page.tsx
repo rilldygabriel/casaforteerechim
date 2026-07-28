@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import PixCopyButton from "@/components/pix-copy-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
@@ -245,19 +246,6 @@ export default async function Familia() {
         </div>
       </section>
 
-      <section className="family-serve-cta">
-        <p className="section-eyebrow">
-          <span aria-hidden="true" />
-          Ministérios
-        </p>
-        <h2>Quero começar a servir na Casa</h2>
-        <p>
-          Escolha um ministério e avisamos o líder na hora, com seu nome e
-          seu WhatsApp.
-        </p>
-        <Link href="/familia/servir">Ver ministérios</Link>
-      </section>
-
       <details
         className="family-profile-details"
         data-complete={hasProfileStar}
@@ -272,45 +260,99 @@ export default async function Familia() {
           aria-label="Perfil do membro"
         >
           <aside
-          className="family-profile-reward"
-          data-earned={hasProfileStar}
-        >
-          <span className="family-profile-star" aria-hidden="true">
-            {hasProfileStar ? "★" : "☆"}
-          </span>
-          <p>{hasProfileStar ? "Recompensa conquistada" : "Sua recompensa"}</p>
-          <h2>Estrela da Família</h2>
-          <p>
-            {hasProfileStar
-              ? "Seu perfil está completo. Obrigado por permitir que a Casa cuide de você ainda melhor."
-              : "Complete todos os dados da sua caminhada para conquistar esta estrela."}
-          </p>
-          <div
-            className="family-profile-progress"
-            aria-label={`${completedProfileSteps} de 9 etapas concluídas`}
+            className="family-profile-reward"
+            data-earned={hasProfileStar}
           >
-            <span style={{ width: `${(completedProfileSteps / 9) * 100}%` }} />
-          </div>
-          <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
-        </aside>
+            <span className="family-profile-star" aria-hidden="true">
+              {hasProfileStar ? "★" : "☆"}
+            </span>
+            <p>
+              {hasProfileStar ? "Recompensa conquistada" : "Sua recompensa"}
+            </p>
+            <h2>Estrela da Família</h2>
+            <p>
+              {hasProfileStar
+                ? "Seu perfil está completo. Obrigado por permitir que a Casa cuide de você ainda melhor."
+                : "Complete todos os dados da sua caminhada para conquistar esta estrela."}
+            </p>
+            <div
+              className="family-profile-progress"
+              aria-label={`${completedProfileSteps} de 9 etapas concluídas`}
+            >
+              <span
+                style={{ width: `${(completedProfileSteps / 9) * 100}%` }}
+              />
+            </div>
+            <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
+          </aside>
 
           <ProfileForm
-          initialProfile={{
-            fullName: profile.full_name,
-            phone: profile.phone,
-            birthDate: profile.birth_date ?? "",
-            address: profile.address,
-            churchSinceMonth: profile.church_since_month?.slice(0, 7) ?? "",
-            jesusYear: profile.jesus_year,
-            attendedOtherChurch: profile.attended_other_church,
-            previousChurchName: profile.previous_church_name,
-            baptized: profile.baptized,
-            married: profile.married,
-            spouseName: profile.spouse_name,
-          }}
+            initialProfile={{
+              fullName: profile.full_name,
+              phone: profile.phone,
+              birthDate: profile.birth_date ?? "",
+              address: profile.address,
+              churchSinceMonth: profile.church_since_month?.slice(0, 7) ?? "",
+              jesusYear: profile.jesus_year,
+              attendedOtherChurch: profile.attended_other_church,
+              previousChurchName: profile.previous_church_name,
+              baptized: profile.baptized,
+              married: profile.married,
+              spouseName: profile.spouse_name,
+            }}
           />
         </section>
       </details>
+
+      <section className="family-serve-cta">
+        <p className="section-eyebrow">
+          <span aria-hidden="true" />
+          Ministérios
+        </p>
+        <h2>Quero começar a servir na Casa</h2>
+        <p>
+          Escolha um ministério e avisamos o líder na hora, com seu nome e
+          seu WhatsApp.
+        </p>
+        <Link href="/familia/servir">Ver ministérios</Link>
+      </section>
+
+      <section className="family-generosity-cta">
+        <div className="family-generosity-copy">
+          <p className="section-eyebrow">
+            <span aria-hidden="true" />
+            Generosidade
+          </p>
+          <h2>Contribua com um toque</h2>
+          <p>
+            Escolha a finalidade e copie a chave PIX sem sair da Área da
+            Família.
+          </p>
+        </div>
+        <div
+          className="family-generosity-actions"
+          aria-label="Chaves PIX da Casa Forte"
+        >
+          <div className="family-generosity-option">
+            <span>Primícias</span>
+            <strong>54 99321-7227</strong>
+            <PixCopyButton
+              pixKey="54993217227"
+              label="Copiar PIX de Primícias"
+              className="family-generosity-pix-button"
+            />
+          </div>
+          <div className="family-generosity-option">
+            <span>Dízimos e ofertas</span>
+            <strong>46.534.858/0001-37</strong>
+            <PixCopyButton
+              pixKey="46534858000137"
+              label="Copiar PIX de Dízimos e ofertas"
+              className="family-generosity-pix-button"
+            />
+          </div>
+        </div>
+      </section>
 
       <section className="family-menu" aria-label="Menu da Família Casa Forte">
         <article className="family-menu-card">
@@ -364,16 +406,6 @@ export default async function Familia() {
           <a href={PASTOR_URL} target="_blank" rel="noreferrer">
             Chamar no WhatsApp
           </a>
-        </article>
-        <article className="family-menu-card family-menu-featured">
-          <span>07</span>
-          <h2>Generosidade</h2>
-          <p>
-            Primícias: <strong>54993217227</strong>
-            <br />
-            Dízimos e ofertas: <strong>46534858000137</strong>
-          </p>
-          <Link href="/generosidade">Ver formas de contribuir</Link>
         </article>
       </section>
     </main>
