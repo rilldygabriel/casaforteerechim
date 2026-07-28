@@ -41,9 +41,12 @@ export default async function AdminPage() {
           height={74}
           priority
         />
-        <form action={signOut}>
-          <button type="submit">Sair com segurança</button>
-        </form>
+        <div className="admin-dashboard-actions">
+          <Link href="/">Voltar ao site</Link>
+          <form action={signOut}>
+            <button type="submit">Sair com segurança</button>
+          </form>
+        </div>
       </header>
 
       <section className="admin-dashboard-hero">
