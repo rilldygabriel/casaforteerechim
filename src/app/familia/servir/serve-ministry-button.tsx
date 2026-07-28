@@ -1,10 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  INITIAL_SERVE_ACTION_STATE,
-  requestToServe,
-} from "./actions";
+import { type ServeActionState, requestToServe } from "./actions";
+
+const INITIAL_SERVE_ACTION_STATE: ServeActionState = {
+  kind: "idle",
+  message: "",
+};
 
 export default function ServeMinistryButton({
   ministryKey,
