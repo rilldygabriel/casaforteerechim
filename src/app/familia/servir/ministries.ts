@@ -38,8 +38,8 @@ export const MINISTRIES: Ministry[] = [
     key: "casa_kids",
     label: "Casa Kids",
     leaders: [
-      { name: "Elisson", phone: "54991985156" },
-      { name: "Tai", phone: "54991393511" },
+      { name: "Élison", phone: "54991985156" },
+      { name: "Tay", phone: "54991393511" },
     ],
   },
   {
