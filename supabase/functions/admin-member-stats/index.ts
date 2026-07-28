@@ -22,7 +22,7 @@ const jwks = createRemoteJWKSet(
 
 function jsonResponse(
   status: number,
-  body: Record<string, boolean | number | string>,
+  body: Record<string, unknown>,
 ) {
   return new Response(JSON.stringify(body), {
     status,
@@ -112,11 +112,16 @@ async function getMemberUserIds(
   throw new Error("member_page_limit");
 }
 
-async function countEmailAuthenticatedMembers(
+async function getMemberVerification(
   supabase: ReturnType<typeof createClient>,
   memberUserIds: Set<string>,
 ) {
   let emailAuthenticatedMembers = 0;
+  const memberVerification: Array<{
+    userId: string;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+  }> = [];
 
   for (let page = 1; page <= MAX_PAGES; page += 1) {
     const { data, error } = await supabase.auth.admin.listUsers({
@@ -129,17 +134,29 @@ async function countEmailAuthenticatedMembers(
     }
 
     for (const user of data.users) {
-      if (
-        memberUserIds.has(user.id) &&
-        typeof user.email_confirmed_at === "string" &&
-        !user.deleted_at
-      ) {
-        emailAuthenticatedMembers += 1;
+      if (memberUserIds.has(user.id) && !user.deleted_at) {
+        const emailVerified =
+          typeof user.email_confirmed_at === "string";
+        const phoneVerified =
+          typeof user.phone_confirmed_at === "string";
+
+        if (emailVerified) {
+          emailAuthenticatedMembers += 1;
+        }
+
+        memberVerification.push({
+          userId: user.id,
+          emailVerified,
+          phoneVerified,
+        });
       }
     }
 
     if (data.users.length < PAGE_SIZE) {
-      return emailAuthenticatedMembers;
+      return {
+        emailAuthenticatedMembers,
+        memberVerification,
+      };
     }
   }
 
@@ -239,13 +256,16 @@ Deno.serve(async (request: Request) => {
 
   try {
     const memberUserIds = await getMemberUserIds(supabase);
-    const emailAuthenticatedMembers =
-      await countEmailAuthenticatedMembers(supabase, memberUserIds);
+    const {
+      emailAuthenticatedMembers,
+      memberVerification,
+    } = await getMemberVerification(supabase, memberUserIds);
 
     return jsonResponse(200, {
       ok: true,
       registeredMembers: memberUserIds.size,
       emailAuthenticatedMembers,
+      memberVerification,
     });
   } catch {
     console.error("admin_member_stats_query_error", { requestId });

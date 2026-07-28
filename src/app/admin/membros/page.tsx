@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const MEMBER_FIELDS = "user_id,full_name,created_at" as const;
+const MEMBER_FIELDS =
+  "user_id,full_name,email,phone,profile_completed,created_at" as const;
 const SUPABASE_ADMIN_MEMBER_STATS_URL =
   "https://fjwkfpwraipxmcjlwssv.supabase.co/functions/v1/admin-member-stats";
 const VERCEL_TEAM_ID = "team_Pw24QkatuwWyFJiYuYCKi12Z";
@@ -26,6 +27,13 @@ const VERCEL_PROJECT_ID = "prj_My9r71EBQYchsF5T97S35WFXV8Kg";
 type MemberStats = {
   registeredMembers: number;
   emailAuthenticatedMembers: number;
+  memberVerification: MemberVerification[];
+};
+
+type MemberVerification = {
+  userId: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
 };
 
 function isValidCount(value: unknown): value is number {
@@ -33,6 +41,20 @@ function isValidCount(value: unknown): value is number {
     typeof value === "number" &&
     Number.isSafeInteger(value) &&
     value >= 0
+  );
+}
+
+function isMemberVerification(value: unknown): value is MemberVerification {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const verification = value as Record<string, unknown>;
+
+  return (
+    typeof verification.userId === "string" &&
+    typeof verification.emailVerified === "boolean" &&
+    typeof verification.phoneVerified === "boolean"
   );
 }
 
@@ -66,12 +88,15 @@ async function getAdminMemberStats(
       ok?: unknown;
       registeredMembers?: unknown;
       emailAuthenticatedMembers?: unknown;
+      memberVerification?: unknown;
     };
 
     if (
       result.ok !== true ||
       !isValidCount(result.registeredMembers) ||
       !isValidCount(result.emailAuthenticatedMembers) ||
+      !Array.isArray(result.memberVerification) ||
+      !result.memberVerification.every(isMemberVerification) ||
       result.emailAuthenticatedMembers > result.registeredMembers
     ) {
       return null;
@@ -80,6 +105,7 @@ async function getAdminMemberStats(
     return {
       registeredMembers: result.registeredMembers,
       emailAuthenticatedMembers: result.emailAuthenticatedMembers,
+      memberVerification: result.memberVerification,
     };
   } catch {
     return null;
@@ -118,14 +144,36 @@ export default async function AdminMembersPage() {
     getAdminMemberStats(user.id),
   ]);
   const members = (memberData ?? []) as MemberListRecord[];
+  const verificationByUserId = new Map(
+    (memberStats?.memberVerification ?? []).map((verification) => [
+      verification.userId,
+      verification,
+    ]),
+  );
+  const membersWithVerification = members.map((member) => {
+    const verification = verificationByUserId.get(member.user_id);
+
+    return {
+      ...member,
+      email_verified: verification?.emailVerified ?? false,
+      phone_verified: verification?.phoneVerified ?? false,
+    };
+  });
   const registeredMembers =
     memberStats?.registeredMembers ?? (memberError ? null : members.length);
-  const emailAuthenticatedMembers =
-    memberStats?.emailAuthenticatedMembers ?? null;
-  const emailConfirmationPending =
-    registeredMembers !== null && emailAuthenticatedMembers !== null
-      ? Math.max(registeredMembers - emailAuthenticatedMembers, 0)
+  const verifiedMembers = memberStats
+    ? memberStats.memberVerification.filter(
+        ({ emailVerified, phoneVerified }) =>
+          emailVerified || phoneVerified,
+      ).length
+    : null;
+  const verificationPending =
+    registeredMembers !== null && verifiedMembers !== null
+      ? Math.max(registeredMembers - verifiedMembers, 0)
       : null;
+  const completeProfiles = memberError
+    ? null
+    : members.filter((member) => member.profile_completed).length;
 
   return (
     <main className="admin-visitors-page">
@@ -170,27 +218,31 @@ export default async function AdminMembersPage() {
               <dd>{registeredMembers ?? "—"}</dd>
             </div>
             <div>
-              <dt>E-mails confirmados</dt>
-              <dd>{emailAuthenticatedMembers ?? "—"}</dd>
+              <dt>Contas verificadas</dt>
+              <dd>{verifiedMembers ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>Cadastros completos</dt>
+              <dd>{completeProfiles ?? "—"}</dd>
             </div>
           </dl>
 
           <p className="admin-member-summary-note">
-            {emailConfirmationPending === null
-              ? "A confirmação dos e-mails está temporariamente indisponível."
-              : emailConfirmationPending === 0
-                ? "Todos os membros cadastrados confirmaram o e-mail."
-                : `${emailConfirmationPending} ${
-                    emailConfirmationPending === 1
+            {verificationPending === null
+              ? "A verificação das contas está temporariamente indisponível."
+              : verificationPending === 0
+                ? "Todos os membros cadastrados possuem uma conta verificada."
+                : `${verificationPending} ${
+                    verificationPending === 1
                       ? "membro ainda precisa"
                       : "membros ainda precisam"
-                  } confirmar o e-mail.`}
+                  } verificar o e-mail ou, futuramente, o WhatsApp.`}
           </p>
         </aside>
 
         <MembersList
-          members={members}
-          hasLoadError={Boolean(memberError)}
+          members={membersWithVerification}
+          hasLoadError={Boolean(memberError) || !memberStats}
         />
       </div>
     </main>
