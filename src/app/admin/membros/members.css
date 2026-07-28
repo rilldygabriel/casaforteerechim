@@ -642,6 +642,10 @@
 }
 
 .admin-member-directory-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
 }
 
@@ -649,7 +653,7 @@
   border-bottom: 0;
 }
 
-.admin-member-directory-list a {
+.admin-member-directory-profile {
   display: grid;
   min-height: 76px;
   grid-template-columns: 48px minmax(0, 1fr) auto;
@@ -662,15 +666,15 @@
     padding 160ms ease;
 }
 
-.admin-member-directory-list a:hover,
-.admin-member-directory-list a:focus-visible {
+.admin-member-directory-profile:hover,
+.admin-member-directory-profile:focus-visible {
   padding-inline: 18px;
   color: #fffe15;
   background: rgba(255, 254, 21, 0.04);
   outline: 0;
 }
 
-.admin-member-directory-list a > span:first-child {
+.admin-member-directory-profile > span:first-child {
   color: #6f746d;
   font-size: 0.68rem;
   font-weight: 850;
@@ -731,9 +735,58 @@
   background: rgba(157, 55, 40, 0.1);
 }
 
-.admin-member-directory-list a > span:last-child {
+.admin-member-directory-profile > span:last-child {
   color: #fffe15;
   font-size: 1.25rem;
+}
+
+.admin-member-resend {
+  display: grid;
+  width: min(100%, 190px);
+  gap: 7px;
+  justify-items: end;
+  padding-block: 12px;
+}
+
+.admin-member-resend button {
+  min-height: 40px;
+  padding-inline: 14px;
+  border: 1px solid rgba(255, 254, 21, 0.5);
+  border-radius: 999px;
+  color: #fffe15;
+  background: rgba(255, 254, 21, 0.06);
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-member-resend button:hover,
+.admin-member-resend button:focus-visible {
+  color: #080908;
+  background: #fffe15;
+  outline: 0;
+}
+
+.admin-member-resend button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.admin-member-resend p {
+  max-width: 190px;
+  margin: 0;
+  color: #9be7b4;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.admin-member-resend p[data-kind="error"] {
+  color: #ffb4a7;
 }
 
 @media (max-width: 700px) {
@@ -788,11 +841,28 @@
     justify-content: space-between;
   }
 
-  .admin-member-directory-list a {
+  .admin-member-directory-list li {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-bottom: 14px;
+  }
+
+  .admin-member-directory-profile {
     min-height: 68px;
     grid-template-columns: 36px minmax(0, 1fr) auto;
     gap: 10px;
     padding-inline: 4px;
+  }
+
+  .admin-member-resend {
+    width: 100%;
+    justify-items: stretch;
+    padding: 0 4px;
+  }
+
+  .admin-member-resend p {
+    max-width: none;
+    text-align: left;
   }
 }
 

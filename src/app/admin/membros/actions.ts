@@ -14,10 +14,17 @@ export type MemberApprovalActionState = {
   message: string;
 };
 
+export type MemberInviteResendActionState = {
+  kind: "idle" | "success" | "error";
+  message: string;
+};
+
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SUPABASE_MEMBER_APPROVAL_URL =
   "https://fjwkfpwraipxmcjlwssv.supabase.co/functions/v1/approve-member-application";
+const SUPABASE_MEMBER_INVITE_RESEND_URL =
+  "https://fjwkfpwraipxmcjlwssv.supabase.co/functions/v1/admin-resend-member-invite";
 const VERCEL_TEAM_ID = "team_Pw24QkatuwWyFJiYuYCKi12Z";
 const VERCEL_PROJECT_ID = "prj_My9r71EBQYchsF5T97S35WFXV8Kg";
 
@@ -259,5 +266,123 @@ export async function updateMemberApproval(
     message: approved
       ? "Acesso à Família liberado com segurança."
       : "Acesso à Família suspenso com segurança.",
+  };
+}
+
+export async function resendMemberInvite(
+  _previousState: MemberInviteResendActionState,
+  formData: FormData,
+): Promise<MemberInviteResendActionState> {
+  const memberId = String(formData.get("memberId") ?? "");
+
+  if (!UUID_PATTERN.test(memberId)) {
+    return {
+      kind: "error",
+      message: "Este cadastro não pôde ser identificado.",
+    };
+  }
+
+  const { supabase, user } = await getCurrentAdmin();
+
+  if (!user) {
+    return {
+      kind: "error",
+      message: "Sua sessão expirou ou não possui permissão.",
+    };
+  }
+
+  const { data: member } = await supabase
+    .from("member_profiles")
+    .select("user_id,email,is_admin,approval_status")
+    .eq("user_id", memberId)
+    .maybeSingle();
+
+  if (
+    !member ||
+    member.is_admin ||
+    member.approval_status !== "approved" ||
+    !member.email
+  ) {
+    return {
+      kind: "error",
+      message: "Este cadastro não está disponível para reenvio.",
+    };
+  }
+
+  const resendApiKey = process.env.RESEND_API_KEY;
+
+  if (!resendApiKey) {
+    return {
+      kind: "error",
+      message: "A credencial segura de e-mail não está disponível.",
+    };
+  }
+
+  const requestId = crypto.randomUUID();
+
+  try {
+    const oidcToken = await getVercelOidcToken({
+      team: VERCEL_TEAM_ID,
+      project: VERCEL_PROJECT_ID,
+      expirationBufferMs: 10_000,
+    });
+    const response = await fetch(SUPABASE_MEMBER_INVITE_RESEND_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${oidcToken}`,
+        "Content-Type": "application/json",
+        "x-request-id": requestId,
+        "x-resend-api-key": resendApiKey,
+      },
+      body: JSON.stringify({
+        memberId,
+        adminUserId: user.id,
+      }),
+      cache: "no-store",
+    });
+
+    if (response.status === 409) {
+      revalidatePath("/admin/membros");
+      return {
+        kind: "success",
+        message: "Esta conta já foi verificada.",
+      };
+    }
+
+    if (response.status === 429) {
+      return {
+        kind: "error",
+        message: "Aguarde um minuto antes de reenviar novamente.",
+      };
+    }
+
+    if (!response.ok) {
+      console.error("Falha protegida ao reenviar acesso de membro.", {
+        requestId,
+        memberId,
+        status: response.status,
+      });
+      return {
+        kind: "error",
+        message: "Não foi possível reenviar agora. Tente novamente depois.",
+      };
+    }
+  } catch (error) {
+    console.error("Falha ao iniciar reenvio da Área da Família.", {
+      requestId,
+      memberId,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      kind: "error",
+      message: "Não foi possível reenviar agora. Tente novamente depois.",
+    };
+  }
+
+  revalidatePath("/admin/membros");
+
+  return {
+    kind: "success",
+    message: "Novo e-mail enviado com segurança.",
   };
 }
