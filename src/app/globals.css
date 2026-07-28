@@ -468,6 +468,7 @@ h1 strong {
 .family-profile-section,
 .family-menu,
 .family-serve-cta,
+.family-generosity-cta,
 .serve-grid {
   width: min(100% - 48px, 1120px);
   margin-inline: auto;
@@ -667,6 +668,7 @@ h1 strong {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  margin-top: 46px;
   padding-bottom: 100px;
 }
 
@@ -719,7 +721,7 @@ h1 strong {
 }
 
 .family-serve-cta {
-  margin-top: 22px;
+  margin-top: 0;
   padding: clamp(28px, 4vw, 44px);
   border-radius: 22px;
   background: var(--yellow);
@@ -755,6 +757,99 @@ h1 strong {
   font-weight: 850;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.family-generosity-cta {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  margin-top: 16px;
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid rgba(255, 254, 21, 0.24);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 92% 10%,
+      rgba(255, 254, 21, 0.1),
+      transparent 34%
+    ),
+    #121412;
+}
+
+.family-generosity-copy .section-eyebrow {
+  color: var(--yellow);
+}
+
+.family-generosity-copy h2 {
+  margin: 10px 0 8px;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  letter-spacing: -0.03em;
+}
+
+.family-generosity-copy > p:last-child {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.family-generosity-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.family-generosity-option {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.family-generosity-option > span {
+  color: var(--yellow);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.family-generosity-option > strong {
+  color: #f4f4ef;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  overflow-wrap: anywhere;
+}
+
+.family-generosity-pix-button {
+  min-height: 48px;
+  margin-top: 4px;
+  padding: 12px 15px;
+  border: 1px solid var(--yellow);
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #090a09;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.family-generosity-pix-button:hover {
+  background: #ffff62;
+  transform: translateY(-2px);
+}
+
+.family-generosity-pix-button.is-copied {
+  border-color: #f4f4ef;
+  background: #f4f4ef;
 }
 
 .serve-grid {
@@ -1392,6 +1487,8 @@ h1 strong {
   .family-profile-section,
   .family-profile-grid,
   .family-menu,
+  .family-generosity-cta,
+  .family-generosity-actions,
   .serve-grid,
   .pix-grid {
     grid-template-columns: 1fr;
@@ -4484,7 +4581,7 @@ a:focus-visible {
 .family-profile-details {
   width: min(100% - 48px, 1120px);
   margin: 0 auto;
-  padding-bottom: 70px;
+  padding-bottom: 28px;
 }
 
 .family-profile-details > summary {
@@ -4544,7 +4641,7 @@ a:focus-visible {
 @media (max-width: 700px) {
   .family-profile-details {
     width: min(100% - 28px, 1120px);
-    padding-bottom: 50px;
+    padding-bottom: 24px;
   }
 
   .family-profile-details > summary {
