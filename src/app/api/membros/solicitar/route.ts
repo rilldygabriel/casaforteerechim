@@ -198,9 +198,6 @@ async function notifyMemberInviteWhatsApp(
   }
 
   const firstName = payload.fullName.split(" ")[0] || payload.fullName;
-  const messageBody =
-    `Olá, ${firstName}! Seu cadastro na Área da Família da Igreja Casa Forte ` +
-    `foi realizado. Crie sua senha aqui: ${payload.inviteUrl}`;
 
   try {
     const response = await fetch(
@@ -223,10 +220,8 @@ async function notifyMemberInviteWhatsApp(
               {
                 type: "body",
                 parameters: [
-                  {
-                    type: "text",
-                    text: messageBody,
-                  },
+                  { type: "text", text: firstName },
+                  { type: "text", text: payload.inviteUrl },
                 ],
               },
             ],
