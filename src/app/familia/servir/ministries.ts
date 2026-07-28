@@ -58,6 +58,11 @@ export const MINISTRIES: Ministry[] = [
     leaders: [{ name: "Wesley", phone: "54999532705" }],
   },
   {
+    key: "projecao",
+    label: "Projeção",
+    leaders: [{ name: "Thaynan", phone: "54996819052" }],
+  },
+  {
     key: "intercessao",
     label: "Intercessão",
     leaders: [{ name: "Eli", phone: "54991460455" }],
@@ -66,6 +71,11 @@ export const MINISTRIES: Ministry[] = [
     key: "cozinha",
     label: "Cozinha",
     leaders: [{ name: "Eli", phone: "54991460455" }],
+  },
+  {
+    key: "cafe",
+    label: "Café",
+    leaders: [{ name: "Jocemara", phone: "54997003539" }],
   },
   {
     key: "mesa_de_som",
