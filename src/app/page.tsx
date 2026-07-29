@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PixCopyButton from "@/components/pix-copy-button";
 import PrayerForm from "@/components/prayer-form";
+import VerseOfDayCard from "@/components/verse-of-day-card";
 import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
 
 const WHATSAPP_URL =
@@ -161,6 +162,7 @@ export default function Home() {
             Como chegar
           </a>
           <Link href="/familia">Área de membro</Link>
+          <Link href="/biblia">Bíblia</Link>
           <a
             className="home-nav-highlight"
             href={WHATSAPP_URL}
@@ -223,6 +225,8 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      <VerseOfDayCard />
 
       <section
         className="home-block home-generosity"
@@ -375,6 +379,11 @@ export default function Home() {
           </div>
 
           <div className="home-useful-links-grid">
+            <Link href="/biblia">
+              <span>Palavra</span>
+              <strong>Bíblia Sagrada</strong>
+              <ArrowIcon />
+            </Link>
             <a href={GROUP_URL} target="_blank" rel="noreferrer">
               <span>Comunidade</span>
               <strong>Grupo oficial da Casa</strong>

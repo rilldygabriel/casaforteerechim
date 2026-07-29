@@ -256,6 +256,15 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
   `backup-pre-painel-oracoes-2026-07-26`.
 - Backup imediatamente anterior à gestão de visitantes e ao visualizador de
   fotos: `backup-pre-painel-visitantes-gestao-e-fotos-2026-07-26`.
+- A integração oficial da Bíblia está implementada em `/biblia` usando
+  exclusivamente a YouVersion Platform pelo servidor. A chave
+  `YVP_APP_KEY` deve existir somente nas variáveis protegidas da Vercel.
+- A página inicial possui link para a Bíblia e um Versículo do Dia carregado
+  sem bloquear o restante da home. Se a YouVersion estiver indisponível, o
+  card é ocultado.
+- Os textos bíblicos não são gravados no Supabase nem mantidos em cache
+  permanente. Somente traduções confirmadas no catálogo licenciado da conta
+  da organização são habilitadas.
 
 ## Estado deste repositório
 
