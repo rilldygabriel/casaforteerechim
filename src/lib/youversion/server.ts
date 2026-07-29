@@ -178,9 +178,21 @@ function toVersionOption(
 }
 
 function summarizeIndex(index: BibleIndex): BibleIndexSummary {
+  const books = [...index.books].sort((left, right) => {
+    const canonOrder = {
+      old_testament: 0,
+      new_testament: 1,
+    } as const;
+
+    return (
+      (canonOrder[left.canon as keyof typeof canonOrder] ?? 2) -
+      (canonOrder[right.canon as keyof typeof canonOrder] ?? 2)
+    );
+  });
+
   return {
     textDirection: index.text_direction,
-    books: index.books.map((book) => ({
+    books: books.map((book) => ({
       id: book.id,
       title: book.title,
       fullTitle: book.full_title,

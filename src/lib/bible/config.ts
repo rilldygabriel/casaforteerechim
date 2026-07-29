@@ -9,7 +9,7 @@ export const DESIRED_BIBLE_VERSIONS = [
   {
     key: "blt",
     id: 3254,
-    label: "BLT — Novo Testamento",
+    label: "BLT — Bíblia completa",
     abbreviation: "BLT",
     expectedTitle: "Biblia Livre Para Todos",
   },
