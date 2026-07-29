@@ -7,6 +7,13 @@ export const DESIRED_BIBLE_VERSIONS = [
     expectedTitle: "Nova Versão Internacional 2011",
   },
   {
+    key: "blt",
+    id: 3254,
+    label: "BLT — Novo Testamento",
+    abbreviation: "BLT",
+    expectedTitle: "Biblia Livre Para Todos",
+  },
+  {
     key: "naa",
     id: 1840,
     label: "NAA",
@@ -74,4 +81,3 @@ export function isExpectedBibleVersion(
     (title.includes(expectedTitle) || expectedTitle.includes(title))
   );
 }
-
