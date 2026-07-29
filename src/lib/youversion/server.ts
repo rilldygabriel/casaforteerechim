@@ -27,6 +27,9 @@ import type {
 
 const API_TIMEOUT_MS = 8_000;
 const PORTUGUESE_LANGUAGE_RANGE = "pt*";
+const BLT_VERSION_ID = 3254;
+const BLT_ATTRIBUTION =
+  "Bíblia Livre Para Todos, © 2022 Free Bible Ministry, Inc. Licença Creative Commons Atribuição-CompartilhaIgual 4.0.";
 
 type PublisherInfo = {
   name: string | null;
@@ -160,7 +163,9 @@ function toVersionOption(
       : catalogVersion
         ? "license_required"
         : "unavailable",
-    copyright: version?.copyright ?? null,
+    copyright:
+      version?.copyright ??
+      (desired.id === BLT_VERSION_ID ? BLT_ATTRIBUTION : null),
     promotionalContent: version?.promotional_content ?? null,
     info: version?.info ?? null,
     publisherName: publisher?.name ?? null,
@@ -337,17 +342,35 @@ export async function getVerseOfTheDay(): Promise<VerseOfDayResponse> {
 
   const day = getDayOfYearInSaoPaulo();
   const verseOfDay = await bible.getVOTD(day);
-  const passage = await bible.getPassage(
-    version.id,
-    verseOfDay.passage_id,
-    "text",
-    false,
-    false,
-  );
+  let passageId = verseOfDay.passage_id;
+  let passage;
+
+  try {
+    passage = await bible.getPassage(
+      version.id,
+      passageId,
+      "text",
+      false,
+      false,
+    );
+  } catch (error) {
+    if (version.id !== BLT_VERSION_ID || getHttpStatus(error) !== 404) {
+      throw error;
+    }
+
+    passageId = "JHN.3.16";
+    passage = await bible.getPassage(
+      version.id,
+      passageId,
+      "text",
+      false,
+      false,
+    );
+  }
 
   return {
     day,
-    passageId: verseOfDay.passage_id,
+    passageId,
     text: passage.content.trim(),
     reference: passage.reference,
     versionId: version.id,
@@ -355,7 +378,7 @@ export async function getVerseOfTheDay(): Promise<VerseOfDayResponse> {
       version.localized_abbreviation || version.abbreviation,
     youVersionUrl: buildYouVersionPassageUrl(
       version.id,
-      verseOfDay.passage_id,
+      passageId,
       version.localized_abbreviation || version.abbreviation,
       version.youversion_deep_link,
     ),
@@ -440,4 +463,3 @@ export function getPublicYouVersionError(
     },
   };
 }
-
