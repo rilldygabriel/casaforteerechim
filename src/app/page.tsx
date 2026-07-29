@@ -81,20 +81,6 @@ function ArrowIcon() {
   );
 }
 
-function PinIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="home-icon"
-      viewBox="0 0 20 20"
-      fill="none"
-    >
-      <path d="M15.25 8.25c0 3.5-5.25 8-5.25 8s-5.25-4.5-5.25-8a5.25 5.25 0 1 1 10.5 0Z" />
-      <circle cx="10" cy="8.25" r="1.75" />
-    </svg>
-  );
-}
-
 function LockIcon() {
   return (
     <svg
@@ -157,22 +143,21 @@ export default function Home() {
         </Link>
 
         <nav className="home-nav" aria-label="Acesso rápido">
-          <a href={MAPS_URL} target="_blank" rel="noreferrer">
-            <PinIcon />
-            Como chegar
-          </a>
-          <Link href="/familia">Área de membro</Link>
-          <Link href="/biblia">Bíblia</Link>
+          <Link className="home-nav-filled" href="/familia">
+            Área de membro
+          </Link>
+          <Link className="home-nav-light" href="/biblia">
+            Bíblia
+          </Link>
           <a
-            className="home-nav-highlight"
+            className="home-nav-light"
             href={WHATSAPP_URL}
             target="_blank"
             rel="noreferrer"
           >
             Fale conosco
           </a>
-          <Link className="home-nav-admin" href="/admin">
-            <LockIcon />
+          <Link className="home-nav-filled" href="/admin">
             Painel
           </Link>
         </nav>
