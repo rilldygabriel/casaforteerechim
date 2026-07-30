@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 const CHURCH_LATITUDE = -27.6463616;
 const CHURCH_LONGITUDE = -52.2682368;
-const MAX_DISTANCE_METERS = 200;
-const MAX_ACCURACY_METERS = 150;
+const MAX_DISTANCE_METERS = 100;
+const MAX_ACCURACY_METERS = 100;
 
 type ActiveWindow = {
   eventKey: keyof typeof CHECKIN_EVENTS;
