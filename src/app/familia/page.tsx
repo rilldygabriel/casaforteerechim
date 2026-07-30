@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import PixCopyButton from "@/components/pix-copy-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
 
@@ -244,6 +245,7 @@ export default async function Familia() {
             )}
           </div>
         </div>
+        <LocationCheckin />
       </section>
 
       <details

@@ -941,6 +941,68 @@ h1 strong {
     #121412;
 }
 
+.family-location-checkin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 14px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 254, 21, 0.36);
+  border-radius: 18px;
+  background: rgba(255, 254, 21, 0.07);
+}
+
+.family-location-checkin > div {
+  display: grid;
+  gap: 5px;
+}
+
+.family-location-checkin p,
+.family-location-checkin strong,
+.family-location-checkin small {
+  margin: 0;
+}
+
+.family-location-checkin p {
+  color: var(--yellow);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.family-location-checkin strong {
+  color: white;
+  font-size: 0.94rem;
+}
+
+.family-location-checkin small {
+  max-width: 650px;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.family-location-checkin button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #080908;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.family-location-checkin.is-success {
+  border-color: rgba(127, 230, 156, 0.5);
+  background: rgba(127, 230, 156, 0.08);
+}
+
 .family-photo-editor {
   display: grid;
   justify-items: center;
