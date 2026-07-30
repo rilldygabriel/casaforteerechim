@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getNextSundayDate } from "@/lib/programs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
@@ -23,6 +24,12 @@ export default async function AdminPage() {
     await supabase.auth.signOut({ scope: "local" });
     redirect("/admin/login?erro=sem-permissao");
   }
+
+  const upcomingSunday = getNextSundayDate();
+  const { count: checkinCount } = await supabase
+    .from("culto_checkins")
+    .select("id", { count: "exact", head: true })
+    .eq("event_date", upcomingSunday);
 
   async function signOut() {
     "use server";
@@ -84,6 +91,17 @@ export default async function AdminPage() {
             Família.
           </p>
           <strong>Gerenciar membros →</strong>
+        </Link>
+        <Link className="admin-module-link" href="/admin/pre-checkin">
+          <span>04</span>
+          <h2>Pré-check-in</h2>
+          <p>
+            Veja quem estará no próximo culto, quem não poderá comparecer e
+            quem acompanhará pela live.
+          </p>
+          <strong>
+            {checkinCount ?? 0} {(checkinCount ?? 0) === 1 ? "resposta" : "respostas"} →
+          </strong>
         </Link>
       </section>
     </main>
