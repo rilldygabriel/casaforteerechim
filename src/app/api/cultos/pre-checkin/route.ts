@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getNextSundayDate } from "@/lib/programs";
+import {
+  CHECKIN_EVENTS,
+  getCheckinEvent,
+  getNextProgramDate,
+} from "@/lib/programs";
 import { getSupabaseRouteClient } from "@/lib/supabase/route";
 
 export const runtime = "nodejs";
@@ -67,14 +71,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const eventDate = getNextSundayDate();
+  const eventDates = Object.values(CHECKIN_EVENTS).map((event) =>
+    getNextProgramDate(event.weekday),
+  );
   const { data, error } = await supabase
     .from("culto_checkins")
-    .select("resposta")
-    .eq("event_key", "domingo-casa")
-    .eq("event_date", eventDate)
+    .select("event_key,resposta")
+    .in("event_date", eventDates)
     .eq("user_id", user.id)
-    .maybeSingle();
+    .in("event_key", Object.keys(CHECKIN_EVENTS));
 
   if (error) {
     return applyAuthState(
@@ -90,8 +95,9 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       approved: true,
       memberName: profile.full_name,
-      answer: data?.resposta ?? null,
-      eventDate,
+      answers: Object.fromEntries(
+        (data ?? []).map((item) => [item.event_key, item.resposta]),
+      ),
     }),
   );
 }
@@ -128,10 +134,14 @@ export async function POST(request: NextRequest) {
   }
 
   const resposta = text(body.resposta, 20);
+  const eventKey = text(body.eventKey, 40);
   const eventDate = text(body.eventDate, 10);
-  const expectedDate = getNextSundayDate();
+  const event = getCheckinEvent(eventKey);
+  const expectedDate = event
+    ? getNextProgramDate(event.weekday)
+    : "";
 
-  if (!VALID_ANSWERS.has(resposta) || eventDate !== expectedDate) {
+  if (!event || !VALID_ANSWERS.has(resposta) || eventDate !== expectedDate) {
     return applyAuthState(
       NextResponse.json(
         { error: "Esta programação foi atualizada. Recarregue a página." },
@@ -144,9 +154,9 @@ export async function POST(request: NextRequest) {
     (profile.phone ?? "").replace(/\D/g, "").slice(0, 13) || null;
   const { error } = await supabase.from("culto_checkins").upsert(
     {
-      event_key: "domingo-casa",
+      event_key: event.key,
       event_date: eventDate,
-      event_title: "Culto Domingo na Casa",
+      event_title: event.title,
       user_id: user.id,
       nome: profile.full_name.trim(),
       telefone: normalizedPhone,

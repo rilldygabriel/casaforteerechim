@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
+  type CheckinEventKey,
   formatProgramDate,
   getNextProgramDate,
-  getNextSundayDate,
 } from "@/lib/programs";
 
 type CheckinAnswer = "presencial" | "nao_vou" | "live";
@@ -15,19 +15,19 @@ const programs = [
     weekday: 0,
     title: "Culto Domingo na Casa",
     time: "19h",
-    checkin: true,
+    checkinKey: "domingo-casa",
   },
   {
     weekday: 3,
     title: "Culto Quarta de Ensino",
     time: "19h30",
-    checkin: false,
+    checkinKey: "quarta-ensino",
   },
   {
     weekday: 5,
     title: "Sexta de Oração",
     time: "19h30",
-    checkin: false,
+    checkinKey: null,
   },
 ] as const;
 
@@ -60,13 +60,17 @@ function ArrowIcon() {
 }
 
 export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
-  const [answer, setAnswer] = useState<CheckinAnswer | null>(null);
+  const [answers, setAnswers] = useState<
+    Partial<Record<CheckinEventKey, CheckinAnswer>>
+  >({});
   const [access, setAccess] = useState<
     "loading" | "guest" | "blocked" | "member" | "error"
   >("loading");
   const [memberName, setMemberName] = useState("");
-  const [saving, setSaving] = useState<CheckinAnswer | null>(null);
-  const [feedback, setFeedback] = useState("");
+  const [saving, setSaving] = useState<CheckinEventKey | null>(null);
+  const [feedback, setFeedback] = useState<
+    Partial<Record<CheckinEventKey, string>>
+  >({});
   const schedule = useMemo(
     () =>
       programs.map((program) => {
@@ -75,8 +79,6 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
       }),
     [],
   );
-  const sundayDate = getNextSundayDate();
-
   useEffect(() => {
     const controller = new AbortController();
 
@@ -89,7 +91,7 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
         const result = (await response.json()) as {
           approved?: boolean;
           memberName?: string;
-          answer?: CheckinAnswer | null;
+          answers?: Partial<Record<CheckinEventKey, CheckinAnswer>>;
         };
 
         if (response.status === 401) {
@@ -108,7 +110,7 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
         }
 
         setMemberName(result.memberName || "");
-        setAnswer(result.answer ?? null);
+        setAnswers(result.answers ?? {});
         setAccess("member");
       } catch (error) {
         if (!(error instanceof Error && error.name === "AbortError")) {
@@ -121,9 +123,13 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
     return () => controller.abort();
   }, []);
 
-  async function saveAnswer(nextAnswer: CheckinAnswer) {
-    setSaving(nextAnswer);
-    setFeedback("");
+  async function saveAnswer(
+    eventKey: CheckinEventKey,
+    eventDate: string,
+    nextAnswer: CheckinAnswer,
+  ) {
+    setSaving(eventKey);
+    setFeedback((current) => ({ ...current, [eventKey]: "" }));
 
     try {
       const response = await fetch("/api/cultos/pre-checkin", {
@@ -131,7 +137,8 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           resposta: nextAnswer,
-          eventDate: sundayDate,
+          eventKey,
+          eventDate,
         }),
       });
       const result = (await response.json()) as {
@@ -140,14 +147,23 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
       };
 
       if (!response.ok) {
-        setFeedback(result.error || "Não foi possível salvar agora.");
+        setFeedback((current) => ({
+          ...current,
+          [eventKey]: result.error || "Não foi possível salvar agora.",
+        }));
         return;
       }
 
-      setAnswer(nextAnswer);
-      setFeedback(result.message || "Sua resposta ficou registrada.");
+      setAnswers((current) => ({ ...current, [eventKey]: nextAnswer }));
+      setFeedback((current) => ({
+        ...current,
+        [eventKey]: result.message || "Sua resposta ficou registrada.",
+      }));
     } catch {
-      setFeedback("Sem conexão agora. Tente novamente em instantes.");
+      setFeedback((current) => ({
+        ...current,
+        [eventKey]: "Sem conexão agora. Tente novamente em instantes.",
+      }));
     } finally {
       setSaving(null);
     }
@@ -172,7 +188,9 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
       <div className="home-program-grid">
         {schedule.map((program) => (
           <article
-            className={program.checkin ? "home-program-with-checkin" : undefined}
+            className={
+              program.checkinKey ? "home-program-with-checkin" : undefined
+            }
             key={program.title}
           >
             <div className="home-program-top">
@@ -183,7 +201,7 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
               <h3>{program.title}</h3>
               <strong>{program.time}</strong>
             </div>
-            {program.checkin ? (
+            {program.checkinKey ? (
               <div className="home-checkin">
                 <div>
                   <p>Pré-check-in dos membros</p>
@@ -222,38 +240,72 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
                     <div
                       className="home-checkin-options"
                       role="group"
-                      aria-label="Como você participará do próximo culto"
+                      aria-label={`Como você participará de ${program.title}`}
                     >
                       <button
                         type="button"
-                        className={answer === "presencial" ? "is-selected" : ""}
-                        aria-pressed={answer === "presencial"}
+                        className={
+                          answers[program.checkinKey] === "presencial"
+                            ? "is-selected"
+                            : ""
+                        }
+                        aria-pressed={
+                          answers[program.checkinKey] === "presencial"
+                        }
                         disabled={saving !== null}
-                        onClick={() => void saveAnswer("presencial")}
+                        onClick={() =>
+                          void saveAnswer(
+                            program.checkinKey,
+                            program.date,
+                            "presencial",
+                          )
+                        }
                       >
                         Vou estar na Casa
                       </button>
                       <button
                         type="button"
-                        className={answer === "nao_vou" ? "is-selected" : ""}
-                        aria-pressed={answer === "nao_vou"}
+                        className={
+                          answers[program.checkinKey] === "nao_vou"
+                            ? "is-selected"
+                            : ""
+                        }
+                        aria-pressed={answers[program.checkinKey] === "nao_vou"}
                         disabled={saving !== null}
-                        onClick={() => void saveAnswer("nao_vou")}
+                        onClick={() =>
+                          void saveAnswer(
+                            program.checkinKey,
+                            program.date,
+                            "nao_vou",
+                          )
+                        }
                       >
                         Não poderei ir
                       </button>
                       <button
                         type="button"
-                        className={answer === "live" ? "is-selected" : ""}
-                        aria-pressed={answer === "live"}
+                        className={
+                          answers[program.checkinKey] === "live"
+                            ? "is-selected"
+                            : ""
+                        }
+                        aria-pressed={answers[program.checkinKey] === "live"}
                         disabled={saving !== null}
-                        onClick={() => void saveAnswer("live")}
+                        onClick={() =>
+                          void saveAnswer(
+                            program.checkinKey,
+                            program.date,
+                            "live",
+                          )
+                        }
                       >
                         Vou assistir pela live
                       </button>
                     </div>
                     <p className="home-checkin-feedback" aria-live="polite">
-                      {saving ? "Salvando sua resposta..." : feedback}
+                      {saving === program.checkinKey
+                        ? "Salvando sua resposta..."
+                        : feedback[program.checkinKey]}
                     </p>
                   </>
                 )}
