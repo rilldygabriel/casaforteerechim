@@ -87,7 +87,9 @@ export default function MemberSignupForm() {
           <h1>Cadastro realizado.</h1>
           <p>
             Enviamos agora o convite para o seu e-mail. Abra a mensagem e crie
-            sua senha para entrar na Área da Família.
+            sua senha para entrar na Área da Família. O convite precisa ser
+            confirmado em até 24 horas; depois desse prazo, o cadastro é
+            excluído automaticamente.
           </p>
           <Link className="family-auth-primary-link" href="/familia/login">
             Ir para o acesso
@@ -120,7 +122,8 @@ export default function MemberSignupForm() {
         <h1 id="member-signup-title">Quero fazer parte.</h1>
         <p>
           Preencha seus dados e enviaremos imediatamente o convite para você
-          criar sua senha e entrar na Área da Família.
+          criar sua senha e entrar na Área da Família. Você terá 24 horas para
+          confirmar o e-mail.
         </p>
 
         <form onSubmit={handleSignup} className="admin-auth-form">
