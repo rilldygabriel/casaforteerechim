@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatProgramDate,
   getNextProgramDate,
@@ -59,11 +60,13 @@ function ArrowIcon() {
 }
 
 export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
-  const [answer, setAnswer] = useState<CheckinAnswer>("presencial");
-  const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
-  const [message, setMessage] = useState("");
+  const [answer, setAnswer] = useState<CheckinAnswer | null>(null);
+  const [access, setAccess] = useState<
+    "loading" | "guest" | "blocked" | "member" | "error"
+  >("loading");
+  const [memberName, setMemberName] = useState("");
+  const [saving, setSaving] = useState<CheckinAnswer | null>(null);
+  const [feedback, setFeedback] = useState("");
   const schedule = useMemo(
     () =>
       programs.map((program) => {
@@ -74,20 +77,60 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
   );
   const sundayDate = getNextSundayDate();
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setState("sending");
-    setMessage("");
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadMemberCheckin() {
+      try {
+        const response = await fetch("/api/cultos/pre-checkin", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const result = (await response.json()) as {
+          approved?: boolean;
+          memberName?: string;
+          answer?: CheckinAnswer | null;
+        };
+
+        if (response.status === 401) {
+          setAccess("guest");
+          return;
+        }
+
+        if (response.status === 403 || result.approved === false) {
+          setAccess("blocked");
+          return;
+        }
+
+        if (!response.ok) {
+          setAccess("error");
+          return;
+        }
+
+        setMemberName(result.memberName || "");
+        setAnswer(result.answer ?? null);
+        setAccess("member");
+      } catch (error) {
+        if (!(error instanceof Error && error.name === "AbortError")) {
+          setAccess("error");
+        }
+      }
+    }
+
+    void loadMemberCheckin();
+    return () => controller.abort();
+  }, []);
+
+  async function saveAnswer(nextAnswer: CheckinAnswer) {
+    setSaving(nextAnswer);
+    setFeedback("");
 
     try {
-      const formData = new FormData(event.currentTarget);
       const response = await fetch("/api/cultos/pre-checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nome: formData.get("nome"),
-          telefone: formData.get("telefone"),
-          resposta: answer,
+          resposta: nextAnswer,
           eventDate: sundayDate,
         }),
       });
@@ -97,16 +140,16 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
       };
 
       if (!response.ok) {
-        setState("error");
-        setMessage(result.error || "Não foi possível registrar agora.");
+        setFeedback(result.error || "Não foi possível salvar agora.");
         return;
       }
 
-      setState("success");
-      setMessage(result.message || "Pré-check-in confirmado. Esperamos você!");
+      setAnswer(nextAnswer);
+      setFeedback(result.message || "Sua resposta ficou registrada.");
     } catch {
-      setState("error");
-      setMessage("Sem conexão agora. Tente novamente em instantes.");
+      setFeedback("Sem conexão agora. Tente novamente em instantes.");
+    } finally {
+      setSaving(null);
     }
   }
 
@@ -141,75 +184,80 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
               <strong>{program.time}</strong>
             </div>
             {program.checkin ? (
-              <form className="home-checkin" onSubmit={handleSubmit}>
+              <div className="home-checkin">
                 <div>
-                  <p>Pré-check-in</p>
-                  <strong>Você estará com a gente?</strong>
+                  <p>Pré-check-in dos membros</p>
+                  <strong>
+                    {access === "member" && memberName
+                      ? `${memberName.split(" ")[0]}, você estará com a gente?`
+                      : "Você estará com a gente?"}
+                  </strong>
                 </div>
-                <fieldset>
-                  <legend>Escolha como você participará</legend>
-                  <label>
-                    <input
-                      type="radio"
-                      name="resposta"
-                      checked={answer === "presencial"}
-                      onChange={() => setAnswer("presencial")}
-                    />
-                    Eu vou
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="resposta"
-                      checked={answer === "nao_vou"}
-                      onChange={() => setAnswer("nao_vou")}
-                    />
-                    Não poderei estar
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="resposta"
-                      checked={answer === "live"}
-                      onChange={() => setAnswer("live")}
-                    />
-                    Vou assistir pela live
-                  </label>
-                </fieldset>
-                <div className="home-checkin-fields">
-                  <label>
-                    Seu nome
-                    <input
-                      name="nome"
-                      autoComplete="name"
-                      minLength={3}
-                      maxLength={120}
-                      required
-                    />
-                  </label>
-                  <label>
-                    WhatsApp
-                    <input
-                      name="telefone"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="(54) 99999-9999"
-                      required
-                    />
-                  </label>
-                </div>
-                <button type="submit" disabled={state === "sending"}>
-                  {state === "sending" ? "Registrando..." : "Confirmar resposta"}
-                </button>
-                <p
-                  className="home-checkin-feedback"
-                  data-kind={state}
-                  aria-live="polite"
-                >
-                  {message}
-                </p>
-              </form>
+                {access === "loading" ? (
+                  <p className="home-checkin-status">
+                    Verificando sua Área de Membro...
+                  </p>
+                ) : access === "guest" ? (
+                  <div className="home-checkin-member-access">
+                    <p>
+                      Entre na sua Área de Membro para responder sem preencher
+                      nome ou telefone.
+                    </p>
+                    <Link href="/familia/login">Entrar e responder</Link>
+                  </div>
+                ) : access === "blocked" ? (
+                  <div className="home-checkin-member-access">
+                    <p>
+                      O pré-check-in será liberado assim que seu cadastro de
+                      membro for aprovado.
+                    </p>
+                    <Link href="/familia">Ver minha área</Link>
+                  </div>
+                ) : access === "error" ? (
+                  <p className="home-checkin-status">
+                    Não foi possível verificar seu acesso agora.
+                  </p>
+                ) : (
+                  <>
+                    <div
+                      className="home-checkin-options"
+                      role="group"
+                      aria-label="Como você participará do próximo culto"
+                    >
+                      <button
+                        type="button"
+                        className={answer === "presencial" ? "is-selected" : ""}
+                        aria-pressed={answer === "presencial"}
+                        disabled={saving !== null}
+                        onClick={() => void saveAnswer("presencial")}
+                      >
+                        Vou estar na Casa
+                      </button>
+                      <button
+                        type="button"
+                        className={answer === "nao_vou" ? "is-selected" : ""}
+                        aria-pressed={answer === "nao_vou"}
+                        disabled={saving !== null}
+                        onClick={() => void saveAnswer("nao_vou")}
+                      >
+                        Não poderei ir
+                      </button>
+                      <button
+                        type="button"
+                        className={answer === "live" ? "is-selected" : ""}
+                        aria-pressed={answer === "live"}
+                        disabled={saving !== null}
+                        onClick={() => void saveAnswer("live")}
+                      >
+                        Vou assistir pela live
+                      </button>
+                    </div>
+                    <p className="home-checkin-feedback" aria-live="polite">
+                      {saving ? "Salvando sua resposta..." : feedback}
+                    </p>
+                  </>
+                )}
+              </div>
             ) : null}
           </article>
         ))}

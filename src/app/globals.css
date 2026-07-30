@@ -2717,112 +2717,115 @@ a:focus-visible {
   font-size: 1.35rem;
 }
 
-.home-checkin fieldset {
+.home-checkin-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin: 0;
-  padding: 0;
-  border: 0;
 }
 
-.home-checkin legend {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-.home-checkin fieldset label {
+.home-checkin-options button {
+  position: relative;
   display: flex;
-  min-height: 50px;
+  min-height: 54px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px;
+  gap: 9px;
+  padding: 10px 18px;
   border: 1px solid rgba(8, 9, 8, 0.16);
-  border-radius: 12px;
+  border-radius: 999px;
   background: white;
+  color: #080908;
+  font: inherit;
   font-size: 0.76rem;
   font-weight: 850;
   text-align: center;
   cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
-.home-checkin fieldset label:has(input:checked) {
+.home-checkin-options button::before {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border: 2px solid #8c8f87;
+  border-radius: 50%;
+  content: "";
+}
+
+.home-checkin-options button:hover:not(:disabled) {
+  border-color: #9a9900;
+  transform: translateY(-1px);
+}
+
+.home-checkin-options button.is-selected {
   border-color: #9a9900;
   background: var(--yellow);
 }
 
-.home-checkin input[type="radio"] {
-  accent-color: #080908;
-}
-
-.home-checkin-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.home-checkin-fields label {
-  display: grid;
-  gap: 7px;
-  color: #454842;
-  font-size: 0.66rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.home-checkin-fields input {
-  width: 100%;
-  min-height: 48px;
-  padding: 0 14px;
-  border: 1px solid rgba(8, 9, 8, 0.18);
-  border-radius: 10px;
-  background: white;
-  color: #080908;
-  font: inherit;
-  font-size: 0.9rem;
-}
-
-.home-checkin > button {
-  min-height: 50px;
-  border: 0;
-  border-radius: 999px;
+.home-checkin-options button.is-selected::before {
+  border-color: #080908;
   background: #080908;
-  color: white;
-  font: inherit;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  cursor: pointer;
+  box-shadow: inset 0 0 0 2px var(--yellow);
 }
 
-.home-checkin > button:disabled {
+.home-checkin-options button:disabled {
   cursor: wait;
   opacity: 0.62;
 }
 
 .home-checkin-feedback {
   min-height: 1.2em;
-  margin: -8px 0 0;
+  margin: -7px 0 0;
   color: #62655f;
   font-size: 0.76rem;
   text-align: center;
 }
 
-.home-checkin-feedback[data-kind="success"] {
-  color: #287330;
-  font-weight: 800;
+.home-checkin-status {
+  margin: 0;
+  padding: 18px;
+  border-radius: 999px;
+  background: white;
+  color: #62655f;
+  font-size: 0.78rem;
+  text-align: center;
 }
 
-.home-checkin-feedback[data-kind="error"] {
-  color: #a52222;
-  font-weight: 800;
+.home-checkin-member-access {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(8, 9, 8, 0.12);
+  border-radius: 18px;
+  background: white;
+}
+
+.home-checkin-member-access p {
+  margin: 0;
+  color: #565952;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.home-checkin-member-access a {
+  display: inline-flex;
+  min-height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 18px;
+  border-radius: 999px;
+  background: #080908;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .home-program-body > strong {
@@ -3370,16 +3373,20 @@ a:focus-visible {
     padding: 22px 18px 25px;
   }
 
-  .home-checkin fieldset,
-  .home-checkin-fields {
+  .home-checkin-options {
     grid-template-columns: 1fr;
   }
 
-  .home-checkin fieldset label {
+  .home-checkin-options button {
     min-height: 46px;
     justify-content: flex-start;
     padding-inline: 14px;
     text-align: left;
+  }
+
+  .home-checkin-member-access {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .home-gallery {
