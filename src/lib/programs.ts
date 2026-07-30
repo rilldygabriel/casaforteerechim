@@ -1,5 +1,24 @@
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
 
+export const CHECKIN_EVENTS = {
+  "domingo-casa": {
+    key: "domingo-casa",
+    weekday: 0,
+    title: "Culto Domingo na Casa",
+    time: "19h",
+    reminderTime: "17:00",
+  },
+  "quarta-ensino": {
+    key: "quarta-ensino",
+    weekday: 3,
+    title: "Culto Quarta de Ensino",
+    time: "19h30",
+    reminderTime: "17:30",
+  },
+} as const;
+
+export type CheckinEventKey = keyof typeof CHECKIN_EVENTS;
+
 function saoPauloDateParts(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: SAO_PAULO_TIME_ZONE,
@@ -33,6 +52,10 @@ export function getNextProgramDate(targetWeekday: number, now = new Date()) {
 
 export function getNextSundayDate(now = new Date()) {
   return getNextProgramDate(0, now);
+}
+
+export function getCheckinEvent(eventKey: string) {
+  return CHECKIN_EVENTS[eventKey as CheckinEventKey] ?? null;
 }
 
 export function formatProgramDate(dateValue: string) {

@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { formatProgramDate, getNextSundayDate } from "@/lib/programs";
+import {
+  CHECKIN_EVENTS,
+  formatProgramDate,
+  getNextProgramDate,
+} from "@/lib/programs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import AttendanceControls from "./attendance-controls";
 import "./pre-checkin.css";
 
 export const metadata: Metadata = {
@@ -15,10 +20,13 @@ export const dynamic = "force-dynamic";
 
 type CheckinRecord = {
   id: number;
+  event_key: string;
   event_date: string;
   nome: string;
   telefone: string | null;
   resposta: "presencial" | "nao_vou" | "live";
+  presenca_status: "pendente" | "presente" | "ausente";
+  lembrete_enviado_em: string | null;
   created_at: string;
 };
 
@@ -54,12 +62,21 @@ export default async function AdminPreCheckinPage() {
     redirect("/admin/login?erro=sem-permissao");
   }
 
-  const eventDate = getNextSundayDate();
+  const events = Object.values(CHECKIN_EVENTS).map((event) => ({
+    ...event,
+    date: getNextProgramDate(event.weekday),
+  }));
   const { data, error } = await supabase
     .from("culto_checkins")
-    .select("id,event_date,nome,telefone,resposta,created_at")
-    .eq("event_date", eventDate)
-    .order("created_at", { ascending: false });
+    .select(
+      "id,event_key,event_date,nome,telefone,resposta,presenca_status,lembrete_enviado_em,created_at",
+    )
+    .in(
+      "event_date",
+      events.map((event) => event.date),
+    )
+    .order("event_date", { ascending: true })
+    .order("nome", { ascending: true });
   const checkins = (data ?? []) as CheckinRecord[];
   const counts = {
     presencial: checkins.filter((item) => item.resposta === "presencial").length,
@@ -91,8 +108,8 @@ export default async function AdminPreCheckinPage() {
         </p>
         <h1>Pré-check-in</h1>
         <p>
-          Culto Domingo na Casa — {formatProgramDate(eventDate)}. As respostas
-          aparecem aqui assim que forem enviadas pelo site.
+          Controle das confirmações e da presença nos cultos de quarta e
+          domingo.
         </p>
       </section>
 
@@ -111,49 +128,74 @@ export default async function AdminPreCheckinPage() {
         </article>
       </section>
 
-      <section className="admin-checkin-content">
-        <header>
-          <div>
-            <p>Respostas recebidas</p>
-            <h2>{checkins.length} no total</h2>
-          </div>
-        </header>
-
-        {error ? (
+      {error ? (
+        <section className="admin-checkin-content">
           <p className="admin-checkin-empty" role="alert">
             Não foi possível carregar as respostas agora.
           </p>
-        ) : checkins.length === 0 ? (
-          <p className="admin-checkin-empty">
-            Nenhuma resposta recebida para este culto ainda.
-          </p>
-        ) : (
-          <ol className="admin-checkin-list">
-            {checkins.map((checkin) => {
-              const info = answerInfo[checkin.resposta];
-              return (
-                <li key={checkin.id}>
-                  <div>
-                    <strong>{checkin.nome}</strong>
-                    <span className={info.className}>{info.label}</span>
-                  </div>
-                  {checkin.telefone ? (
-                    <a
-                      href={whatsappUrl(checkin.telefone)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {checkin.telefone}
-                    </a>
-                  ) : (
-                    <span>Identificado pela Área de Membro</span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        )}
-      </section>
+        </section>
+      ) : (
+        events.map((event) => {
+          const eventCheckins = checkins.filter(
+            (item) => item.event_date === event.date,
+          );
+          return (
+            <section className="admin-checkin-content" key={event.key}>
+              <header>
+                <div>
+                  <p>{event.title}</p>
+                  <h2>{formatProgramDate(event.date)}</h2>
+                  <span>
+                    {event.time} · {eventCheckins.length} respostas
+                  </span>
+                </div>
+              </header>
+
+              {eventCheckins.length === 0 ? (
+                <p className="admin-checkin-empty">
+                  Nenhuma resposta recebida para este culto ainda.
+                </p>
+              ) : (
+                <ol className="admin-checkin-list">
+                  {eventCheckins.map((checkin) => {
+                    const info = answerInfo[checkin.resposta];
+                    return (
+                      <li key={checkin.id}>
+                        <div className="admin-checkin-member">
+                          <div>
+                            <strong>{checkin.nome}</strong>
+                            <span className={info.className}>{info.label}</span>
+                            {checkin.lembrete_enviado_em ? (
+                              <small>Lembrete enviado</small>
+                            ) : null}
+                          </div>
+                          {checkin.telefone ? (
+                            <a
+                              href={whatsappUrl(checkin.telefone)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {checkin.telefone}
+                            </a>
+                          ) : (
+                            <span>Área de Membro</span>
+                          )}
+                        </div>
+                        {checkin.resposta === "presencial" ? (
+                          <AttendanceControls
+                            checkinId={checkin.id}
+                            initialStatus={checkin.presenca_status}
+                          />
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </section>
+          );
+        })
+      )}
     </main>
   );
 }

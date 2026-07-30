@@ -63,6 +63,14 @@
   font-size: clamp(2rem, 4vw, 3.4rem);
 }
 
+.admin-checkin-content > header span {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .admin-checkin-list {
   display: grid;
   gap: 8px;
@@ -83,14 +91,29 @@
   background: rgba(255, 255, 255, 0.025);
 }
 
-.admin-checkin-list li > div {
+.admin-checkin-member {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-checkin-member > div {
   display: grid;
   gap: 6px;
 }
 
-.admin-checkin-list li > div > strong {
+.admin-checkin-member strong {
   color: white;
   font-size: 1rem;
+}
+
+.admin-checkin-member small {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .admin-checkin-list li span {
@@ -127,6 +150,36 @@
   text-align: center;
 }
 
+.admin-attendance-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-attendance-controls button {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-attendance-controls button.is-selected.is-present {
+  border-color: var(--yellow);
+  background: var(--yellow);
+  color: #080908;
+}
+
+.admin-attendance-controls button.is-selected.is-away {
+  border-color: #ffadad;
+  background: #ffadad;
+  color: #250909;
+}
+
 @media (max-width: 700px) {
   .admin-checkin-metrics {
     grid-template-columns: repeat(3, 1fr);
@@ -151,5 +204,9 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .admin-checkin-member {
+    width: 100%;
   }
 }

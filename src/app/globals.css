@@ -3374,14 +3374,22 @@ a:focus-visible {
   }
 
   .home-checkin-options {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
   }
 
   .home-checkin-options button {
-    min-height: 46px;
-    justify-content: flex-start;
-    padding-inline: 14px;
-    text-align: left;
+    min-height: 58px;
+    gap: 4px;
+    padding: 7px 5px;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .home-checkin-options button::before {
+    width: 8px;
+    height: 8px;
   }
 
   .home-checkin-member-access {
