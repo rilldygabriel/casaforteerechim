@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PixCopyButton from "@/components/pix-copy-button";
 import PrayerForm from "@/components/prayer-form";
+import ProgramsSection from "@/components/programs-section";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
 
@@ -94,39 +95,6 @@ function LockIcon() {
     </svg>
   );
 }
-
-function CalendarIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="home-calendar-icon"
-      viewBox="0 0 32 32"
-      fill="none"
-    >
-      <rect x="4.5" y="7.5" width="23" height="20" rx="4" />
-      <path d="M10 4.5v6M22 4.5v6M4.5 13.5h23" />
-      <path d="M10 18h3M19 18h3M10 23h3M19 23h3" />
-    </svg>
-  );
-}
-
-const programs = [
-  {
-    eyebrow: "Domingo",
-    title: "Culto Domingo na Casa",
-    time: "19h",
-  },
-  {
-    eyebrow: "Quarta-feira",
-    title: "Culto Quarta de Ensino",
-    time: "19h30",
-  },
-  {
-    eyebrow: "Sexta-feira",
-    title: "Sexta de Oração",
-    time: "19h30",
-  },
-];
 
 export default function Home() {
   return (
@@ -251,36 +219,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className="home-block home-programs"
-        aria-labelledby="programs-title"
-      >
-        <div className="home-section-heading home-section-heading-row">
-          <div>
-            <p className="home-kicker">Toda semana na Casa</p>
-            <h2 id="programs-title">Nossas programações</h2>
-          </div>
-          <a href={MAPS_URL} target="_blank" rel="noreferrer">
-            Ver localização
-            <ArrowIcon />
-          </a>
-        </div>
-
-        <div className="home-program-grid">
-          {programs.map((program) => (
-            <article key={program.title}>
-              <div className="home-program-top">
-                <span>{program.eyebrow}</span>
-                <CalendarIcon />
-              </div>
-              <div className="home-program-body">
-                <h3>{program.title}</h3>
-                <strong>{program.time}</strong>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <ProgramsSection mapsUrl={MAPS_URL} />
 
       <section
         className="home-block home-moments"

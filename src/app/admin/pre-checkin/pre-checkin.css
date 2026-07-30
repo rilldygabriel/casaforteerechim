@@ -1,0 +1,155 @@
+.admin-checkin-page {
+  min-height: 100svh;
+}
+
+.admin-checkin-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.admin-checkin-metrics article {
+  display: grid;
+  min-height: 150px;
+  align-content: space-between;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 20px;
+  background: #121412;
+}
+
+.admin-checkin-metrics span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-checkin-metrics strong {
+  color: white;
+  font-size: 3rem;
+}
+
+.admin-checkin-metrics .is-present {
+  border-color: rgba(255, 254, 21, 0.45);
+}
+
+.admin-checkin-metrics .is-present strong {
+  color: var(--yellow);
+}
+
+.admin-checkin-content {
+  margin-top: 16px;
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 24px;
+  background: #121412;
+}
+
+.admin-checkin-content > header p {
+  margin: 0 0 8px;
+  color: var(--yellow);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-checkin-content h2 {
+  margin: 0;
+  color: white;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.admin-checkin-list {
+  display: grid;
+  gap: 8px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-checkin-list li {
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-checkin-list li > div {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-checkin-list li > div > strong {
+  color: white;
+  font-size: 1rem;
+}
+
+.admin-checkin-list li span {
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-checkin-list .is-present {
+  color: var(--yellow);
+}
+
+.admin-checkin-list .is-away {
+  color: #ffadad;
+}
+
+.admin-checkin-list .is-live {
+  color: #a9d2ff;
+}
+
+.admin-checkin-list a {
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.admin-checkin-empty {
+  margin: 28px 0 0;
+  padding: 28px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .admin-checkin-metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+  }
+
+  .admin-checkin-metrics article {
+    min-height: 110px;
+    padding: 15px 11px;
+    border-radius: 14px;
+  }
+
+  .admin-checkin-metrics span {
+    font-size: 0.54rem;
+  }
+
+  .admin-checkin-metrics strong {
+    font-size: 2rem;
+  }
+
+  .admin-checkin-list li {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+}

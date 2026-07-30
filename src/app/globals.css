@@ -2631,7 +2631,7 @@ a:focus-visible {
 
 .home-program-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 48px;
 }
@@ -2645,6 +2645,10 @@ a:focus-visible {
   background: white;
   color: #080908;
   box-shadow: 0 22px 52px rgba(255, 254, 21, 0.07);
+}
+
+.home-program-grid .home-program-with-checkin {
+  grid-column: 1 / -1;
 }
 
 .home-program-top {
@@ -2690,6 +2694,135 @@ a:focus-visible {
   font-size: clamp(1.35rem, 2.2vw, 2rem);
   letter-spacing: -0.045em;
   line-height: 1.05;
+}
+
+.home-checkin {
+  display: grid;
+  gap: 18px;
+  padding: 28px 36px 34px;
+  border-top: 1px solid rgba(8, 9, 8, 0.14);
+  background: #f4f4ef;
+}
+
+.home-checkin > div:first-child p {
+  margin: 0 0 5px;
+  color: #62655f;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.home-checkin > div:first-child strong {
+  font-size: 1.35rem;
+}
+
+.home-checkin fieldset {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.home-checkin legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.home-checkin fieldset label {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(8, 9, 8, 0.16);
+  border-radius: 12px;
+  background: white;
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-align: center;
+  cursor: pointer;
+}
+
+.home-checkin fieldset label:has(input:checked) {
+  border-color: #9a9900;
+  background: var(--yellow);
+}
+
+.home-checkin input[type="radio"] {
+  accent-color: #080908;
+}
+
+.home-checkin-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.home-checkin-fields label {
+  display: grid;
+  gap: 7px;
+  color: #454842;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.home-checkin-fields input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(8, 9, 8, 0.18);
+  border-radius: 10px;
+  background: white;
+  color: #080908;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.home-checkin > button {
+  min-height: 50px;
+  border: 0;
+  border-radius: 999px;
+  background: #080908;
+  color: white;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.home-checkin > button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.home-checkin-feedback {
+  min-height: 1.2em;
+  margin: -8px 0 0;
+  color: #62655f;
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+.home-checkin-feedback[data-kind="success"] {
+  color: #287330;
+  font-weight: 800;
+}
+
+.home-checkin-feedback[data-kind="error"] {
+  color: #a52222;
+  font-weight: 800;
 }
 
 .home-program-body > strong {
@@ -3205,6 +3338,10 @@ a:focus-visible {
     margin-top: 36px;
   }
 
+  .home-program-grid .home-program-with-checkin {
+    grid-column: 1;
+  }
+
   .home-program-grid article {
     min-height: 260px;
   }
@@ -3226,6 +3363,23 @@ a:focus-visible {
   .home-program-grid h3 {
     max-width: none;
     margin: 0 0 28px;
+  }
+
+  .home-checkin {
+    gap: 14px;
+    padding: 22px 18px 25px;
+  }
+
+  .home-checkin fieldset,
+  .home-checkin-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .home-checkin fieldset label {
+    min-height: 46px;
+    justify-content: flex-start;
+    padding-inline: 14px;
+    text-align: left;
   }
 
   .home-gallery {
