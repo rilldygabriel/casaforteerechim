@@ -17,7 +17,7 @@ type CheckinRecord = {
   id: number;
   event_date: string;
   nome: string;
-  telefone: string;
+  telefone: string | null;
   resposta: "presencial" | "nao_vou" | "live";
   created_at: string;
 };
@@ -137,13 +137,17 @@ export default async function AdminPreCheckinPage() {
                     <strong>{checkin.nome}</strong>
                     <span className={info.className}>{info.label}</span>
                   </div>
-                  <a
-                    href={whatsappUrl(checkin.telefone)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {checkin.telefone}
-                  </a>
+                  {checkin.telefone ? (
+                    <a
+                      href={whatsappUrl(checkin.telefone)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {checkin.telefone}
+                    </a>
+                  ) : (
+                    <span>Identificado pela Área de Membro</span>
+                  )}
                 </li>
               );
             })}
