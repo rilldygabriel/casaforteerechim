@@ -6,6 +6,9 @@ import ProgramsSection from "@/components/programs-section";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
 
+// Mantém as datas das próximas programações atualizadas sem exigir um novo deploy.
+export const revalidate = 300;
+
 const WHATSAPP_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Quero%20conhecer%20a%20Igreja%20Casa%20Forte.";
 const FIRST_VISIT_URL =
