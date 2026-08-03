@@ -396,7 +396,7 @@ export default async function Familia() {
           <span>04</span>
           <h2>Agenda da Casa</h2>
           <p>Domingo às 19h, quarta às 19h30 e sexta às 19h30.</p>
-          <Link href="/#proximos-passos">Ver programação</Link>
+          <Link href="/calendario">Ver calendário completo</Link>
         </article>
         <article className="family-menu-card">
           <span>05</span>

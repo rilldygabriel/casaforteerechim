@@ -182,10 +182,10 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
           <p className="home-kicker">Próximos encontros</p>
           <h2 id="programs-title">Nossas programações</h2>
         </div>
-        <a href={mapsUrl} target="_blank" rel="noreferrer">
-          Ver localização
-          <ArrowIcon />
-        </a>
+        <div className="home-program-links">
+          <Link href="/calendario">Calendário completo <ArrowIcon /></Link>
+          <a href={mapsUrl} target="_blank" rel="noreferrer">Ver localização <ArrowIcon /></a>
+        </div>
       </div>
 
       <div className="home-program-grid">
