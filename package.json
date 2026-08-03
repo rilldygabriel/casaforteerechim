@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:bible": "node --experimental-strip-types --test scripts/bible-reference.test.mjs"
+    "test:bible": "node --experimental-strip-types --test scripts/bible-reference.test.mjs",
+    "test:calendar": "node --experimental-strip-types --test scripts/calendar-events.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

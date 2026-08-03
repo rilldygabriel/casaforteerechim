@@ -273,6 +273,10 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
   Os jobs `notificacao-push-domingo`, `notificacao-push-quarta` e
   `notificacao-push-sexta` usam Supabase Cron, `pg_net` e o segredo existente
   no Vault. As chaves VAPID ficam nas variáveis protegidas da Vercel.
+- A página pública `/calendario` reúne a agenda de agosto a dezembro de 2026,
+  com eventos especiais, filtros, detalhes e programações recorrentes. Os dados
+  ficam centralizados em `src/lib/calendar-events.ts`; eventos internos ficam
+  ocultos enquanto `SHOW_INTERNAL_EVENTS` estiver desativado.
 
 ## Estado deste repositório
 
