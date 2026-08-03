@@ -54,6 +54,12 @@ export function getNextSundayDate(now = new Date()) {
   return getNextProgramDate(0, now);
 }
 
+export function sortProgramsByDate<T extends { date: string }>(programs: T[]) {
+  return [...programs].sort((first, second) =>
+    first.date.localeCompare(second.date),
+  );
+}
+
 export function getCheckinEvent(eventKey: string) {
   return CHECKIN_EVENTS[eventKey as CheckinEventKey] ?? null;
 }

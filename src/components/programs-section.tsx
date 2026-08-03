@@ -6,6 +6,7 @@ import {
   type CheckinEventKey,
   formatProgramDate,
   getNextProgramDate,
+  sortProgramsByDate,
 } from "@/lib/programs";
 
 type CheckinAnswer = "presencial" | "nao_vou" | "live";
@@ -73,10 +74,12 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
   >({});
   const schedule = useMemo(
     () =>
-      programs.map((program) => {
-        const date = getNextProgramDate(program.weekday);
-        return { ...program, date, formattedDate: formatProgramDate(date) };
-      }),
+      sortProgramsByDate(
+        programs.map((program) => {
+          const date = getNextProgramDate(program.weekday);
+          return { ...program, date, formattedDate: formatProgramDate(date) };
+        }),
+      ),
     [],
   );
   useEffect(() => {
