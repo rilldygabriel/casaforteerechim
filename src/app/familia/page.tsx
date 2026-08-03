@@ -7,6 +7,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
+import PushNotifications from "./push-notifications";
 
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
@@ -247,6 +248,8 @@ export default async function Familia() {
         </div>
         <LocationCheckin />
       </section>
+
+      <PushNotifications />
 
       <details
         className="family-profile-details"

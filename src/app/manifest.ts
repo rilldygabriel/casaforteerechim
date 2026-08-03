@@ -6,6 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Casa Forte",
     description:
       "Você tem um lugar aqui. Conheça a Igreja Casa Forte em Erechim.",
+    id: "/",
     start_url: "/",
     display: "standalone",
     background_color: "#080908",

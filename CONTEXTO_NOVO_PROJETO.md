@@ -265,6 +265,14 @@ Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel
 - Os textos bíblicos não são gravados no Supabase nem mantidos em cache
   permanente. Somente traduções confirmadas no catálogo licenciado da conta
   da organização são habilitadas.
+- A Área da Família permite ativar notificações Web Push no aparelho para
+  lembrar os cultos de domingo, quarta e sexta duas horas antes. No iPhone,
+  o site precisa estar adicionado à Tela de Início. As inscrições ficam
+  vinculadas ao membro, protegidas por RLS, e os envios são idempotentes.
+- O endpoint `/api/cron/push-culto-reminders` é protegido por `CRON_SECRET`.
+  Os jobs `notificacao-push-domingo`, `notificacao-push-quarta` e
+  `notificacao-push-sexta` usam Supabase Cron, `pg_net` e o segredo existente
+  no Vault. As chaves VAPID ficam nas variáveis protegidas da Vercel.
 
 ## Estado deste repositório
 
