@@ -11,9 +11,9 @@ import {
   eventOccursOn,
   eventsForMonth,
   featuredEvents,
-  formatEventDate,
   formatEventPeriod,
   formatEventTime,
+  formatEventWeekday,
   parseDateParts,
 } from "@/lib/calendar-events";
 
@@ -103,7 +103,7 @@ export default function CalendarExperience({ today }: { today: string }) {
               const { day, month: itemMonth } = parseDateParts(item.startDate);
               return (
                 <article className="calendar-feature-card" data-category={item.category} data-next={item.id === nextEventId} key={item.id}>
-                  <div className="calendar-feature-visual"><span>{String(day).padStart(2, "0")}</span><small>{monthLabel(itemMonth).split(" ")[0]}</small></div>
+                  <div className="calendar-feature-visual"><em>{formatEventWeekday(item.startDate, "short")}</em><span>{String(day).padStart(2, "0")}</span><small>{monthLabel(itemMonth).split(" ")[0]}</small></div>
                   <div className="calendar-feature-copy">
                     {item.id === nextEventId ? <span className="calendar-next-label">Próximo confirmado</span> : null}
                     <p>{item.category}</p><h3>{item.title}</h3>
@@ -159,7 +159,7 @@ export default function CalendarExperience({ today }: { today: string }) {
         <div className="calendar-mobile-list" aria-label={`Agenda de ${monthLabel(month)}`}>
           {monthlyEvents.length > 0 ? monthlyEvents.map((item) => (
             <button type="button" className="calendar-list-event" data-category={item.category} data-status={item.status} onClick={() => setSelectedEvent(item)} key={item.id}>
-              <time dateTime={item.startDate}><strong>{parseDateParts(item.startDate).day}</strong><span>{monthLabel(month).split(" ")[0]}</span></time>
+              <time dateTime={item.startDate}><small>{formatEventWeekday(item.startDate, "short")}</small><strong>{parseDateParts(item.startDate).day}</strong><span>{monthLabel(month).split(" ")[0]}</span></time>
               <div><span>{item.category}{item.recurring ? " · Recorrente" : ""}</span><h3>{item.title}</h3><p>{formatEventPeriod(item)} · {formatEventTime(item)}</p></div>
               {item.status === "tentative" ? <small>A confirmar</small> : <span aria-hidden="true">→</span>}
             </button>
@@ -184,7 +184,7 @@ function EventDetails({ item, close, closeButtonRef }: { item: ChurchEvent; clos
         <h2 id="event-detail-title">{item.title}</h2>
         <dl>
           <div><dt>Data</dt><dd>{formatEventPeriod(item)}</dd></div>
-          <div><dt>Dia</dt><dd>{formatEventDate(item.startDate, { weekday: "long" })}</dd></div>
+          <div><dt>Dia da semana</dt><dd>{formatEventWeekday(item.startDate)}</dd></div>
           <div><dt>Horário</dt><dd>{formatEventTime(item)}</dd></div>
           <div><dt>Tipo</dt><dd>{item.recurring ? "Programação recorrente" : "Evento especial"}</dd></div>
           <div><dt>Status</dt><dd>{item.status === "confirmed" ? "Confirmado" : item.status === "tentative" ? "A confirmar" : "Cancelado"}</dd></div>

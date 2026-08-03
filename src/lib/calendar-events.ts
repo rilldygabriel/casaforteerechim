@@ -45,7 +45,7 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
   event("rede-mulheres-setembro", "Rede de Mulheres", "2026-09-11", "Mulheres"),
   event("encontrao-teens-setembro", "Encontrão Rede Teens", "2026-09-12", "Rede Teens"),
   event("rede-homens-setembro", "Rede de Homens", "2026-09-18", "Homens"),
-  event("seminario-eclesia", "Seminário Eclesia: Um Novo Tempo", "2026-09-19", "Seminários"),
+  event("seminario-ekklesia", "Seminário Ekklesia: Um Novo Tempo", "2026-09-19", "Seminários"),
   event("rede-teens-setembro", "Rede Teens", "2026-09-26", "Rede Teens"),
   event("tarde-criancas", "Tarde das Crianças", "2026-10-10", "Crianças"),
   event("encontro-deus-mulheres", "Encontro com Deus de Mulheres", "2026-10-16", "Mulheres", { endDate: "2026-10-18" }),
@@ -221,6 +221,14 @@ export function formatEventDate(date: string, options?: Intl.DateTimeFormatOptio
     month: "long",
     year: "numeric",
     ...options,
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+export function formatEventWeekday(date: string, style: "long" | "short" = "long") {
+  const { year, month, day } = parseDateParts(date);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC",
+    weekday: style,
   }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
