@@ -216,6 +216,11 @@ Não registrar tokens secretos neste repositório.
 
 Não registrar token permanente no GitHub. Usar variáveis de ambiente da Vercel.
 
+- Caixa de entrada administrativa: `/admin/whatsapp`.
+- Webhook de mensagens recebidas: `/api/webhooks/whatsapp`.
+- Variáveis adicionais obrigatórias: `WHATSAPP_WEBHOOK_VERIFY_TOKEN` e
+  `WHATSAPP_APP_SECRET`.
+
 ## Estado atual da reconstrução
 
 - Site público publicado na Vercel.
