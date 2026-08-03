@@ -5479,6 +5479,14 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+.calendar-feature-visual em {
+  font-style: normal;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .calendar-feature-copy {
   display: flex;
   align-items: flex-start;
@@ -5926,6 +5934,7 @@ a:focus-visible {
     letter-spacing: -0.05em;
   }
 
+  .calendar-list-event time small,
   .calendar-list-event time span,
   .calendar-list-event > div > span {
     color: rgba(255, 255, 255, 0.48);

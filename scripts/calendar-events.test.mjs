@@ -5,6 +5,11 @@ import {
   formatEventTime,
 } from "../src/lib/calendar-events.ts";
 
+test("usa a grafia Ekklesia no seminário", () => {
+  assert.equal(CHURCH_EVENTS.some((item) => item.title.includes("Eclesia")), false);
+  assert.equal(CHURCH_EVENTS.some((item) => item.title.includes("Ekklesia")), true);
+});
+
 test("todas as programações recorrentes possuem horário definido", () => {
   const recurring = CHURCH_EVENTS.filter((item) => item.recurring);
   assert.ok(recurring.length > 0);
