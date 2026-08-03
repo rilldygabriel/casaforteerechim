@@ -103,6 +103,12 @@ export default async function AdminPage() {
             {checkinCount ?? 0} {(checkinCount ?? 0) === 1 ? "resposta" : "respostas"} →
           </strong>
         </Link>
+        <Link className="admin-module-link" href="/admin/whatsapp">
+          <span>05</span>
+          <h2>WhatsApp</h2>
+          <p>Leia e responda às mensagens recebidas no número oficial.</p>
+          <strong>Acessar conversas →</strong>
+        </Link>
       </section>
     </main>
   );
