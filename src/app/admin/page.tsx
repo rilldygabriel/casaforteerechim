@@ -6,122 +6,75 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
   const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/admin/login");
 
-  if (!user) {
-    redirect("/admin/login");
+  const [{ data: profile }, disciplerResult, leaderResult] = await Promise.all([
+    supabase.from("member_profiles").select("full_name,is_admin,approval_status").eq("user_id", user.id).maybeSingle(),
+    supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
+    supabase.from("ministry_leaders").select("ministry_key").eq("member_id", user.id),
+  ]);
+
+  const isAdmin = Boolean(profile?.is_admin);
+  const isDiscipler = Boolean(disciplerResult.data);
+  const ministryCount = leaderResult.data?.length ?? 0;
+  const isApproved = profile?.approval_status === "approved";
+
+  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && ministryCount === 0)))) {
+    redirect("/familia");
   }
 
-  const { data: profile } = await supabase
-    .from("member_profiles")
-    .select("full_name,is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (!profile?.is_admin) {
-    await supabase.auth.signOut({ scope: "local" });
-    redirect("/admin/login?erro=sem-permissao");
+  let checkinCount = 0;
+  if (isAdmin) {
+    const { count } = await supabase
+      .from("culto_checkins")
+      .select("id", { count: "exact", head: true })
+      .eq("event_date", getNextSundayDate());
+    checkinCount = count ?? 0;
   }
-
-  const upcomingSunday = getNextSundayDate();
-  const { count: checkinCount } = await supabase
-    .from("culto_checkins")
-    .select("id", { count: "exact", head: true })
-    .eq("event_date", upcomingSunday);
 
   async function signOut() {
     "use server";
     const serverSupabase = await getSupabaseServerClient();
     await serverSupabase.auth.signOut({ scope: "local" });
-    redirect("/admin/login");
+    redirect("/familia/login");
   }
 
   return (
     <main className="admin-dashboard">
       <header className="admin-dashboard-header">
-        <Image
-          src="/images/logo-casa-forte.png"
-          alt="Igreja Casa Forte"
-          width={190}
-          height={74}
-          priority
-        />
+        <Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={190} height={74} priority />
         <div className="admin-dashboard-actions">
-          <Link href="/">Voltar ao site</Link>
-          <form action={signOut}>
-            <button type="submit">Sair com segurança</button>
-          </form>
+          <Link href="/familia">Área da Família</Link>
+          <form action={signOut}><button type="submit">Sair com segurança</button></form>
         </div>
       </header>
 
       <section className="admin-dashboard-hero">
-        <p className="section-eyebrow">
-          <span aria-hidden="true" />
-          Painel administrativo
-        </p>
-        <h1>Olá, {profile.full_name || "Pastor Rilldy"}.</h1>
-        <p>
-          Sua autenticação está protegida. Visitantes e pedidos de oração estão
-          disponíveis para consulta segura.
-        </p>
+        <p className="section-eyebrow"><span aria-hidden="true" />{isAdmin ? "Painel administrativo" : "Meu painel de liderança"}</p>
+        <h1>Olá, {profile.full_name || "Família"}.</h1>
+        <p>{isAdmin ? "Você possui a visão administrativa completa da Casa." : "Aqui aparecem somente as áreas e pessoas confiadas à sua liderança."}</p>
       </section>
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
-        <Link className="admin-module-link" href="/admin/visitantes">
-          <span>01</span>
-          <h2>Visitantes</h2>
-          <p>Consulte as fichas recebidas e os próximos passos de cada pessoa.</p>
-          <strong>Acessar visitantes →</strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/pedidos-oracao">
-          <span>02</span>
-          <h2>Pedidos de oração</h2>
-          <p>
-            Consulte os pedidos e registre o andamento do cuidado pastoral.
-          </p>
-          <strong>Acessar pedidos →</strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/membros">
-          <span>03</span>
-          <h2>Membros</h2>
-          <p>
-            Revise novos cadastros e controle quem pode acessar a Área da
-            Família.
-          </p>
-          <strong>Gerenciar membros →</strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/pre-checkin">
-          <span>04</span>
-          <h2>Pré-check-in</h2>
-          <p>
-            Veja quem estará no próximo culto, quem não poderá comparecer e
-            quem acompanhará pela live.
-          </p>
-          <strong>
-            {checkinCount ?? 0} {(checkinCount ?? 0) === 1 ? "resposta" : "respostas"} →
-          </strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/whatsapp">
-          <span>05</span>
-          <h2>WhatsApp</h2>
-          <p>Leia e responda às mensagens recebidas no número oficial.</p>
-          <strong>Acessar conversas →</strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/lideranca/discipuladores">
-          <span>06</span>
-          <h2>Discipuladores</h2>
-          <p>Classifique discipuladores e consulte a ficha completa de cada pessoa.</p>
-          <strong>Gerenciar discipuladores →</strong>
-        </Link>
-        <Link className="admin-module-link" href="/admin/lideranca/ministerios">
-          <span>07</span>
-          <h2>Ministérios</h2>
-          <p>Organize líderes e participantes de todos os ministérios da Casa.</p>
-          <strong>Gerenciar ministérios →</strong>
-        </Link>
+        {isAdmin && <>
+          <Module number="01" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
+          <Module number="02" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
+          <Module number="03" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
+          <Module number="04" href="/admin/pre-checkin" title="Pré-check-in" copy="Veja quem estará no próximo culto e quem acompanhará pela live." action={`${checkinCount} ${checkinCount === 1 ? "resposta" : "respostas"}`} />
+          <Module number="05" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
+          <Module number="06" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
+          <Module number="07" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
+        </>}
+
+        {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
+        {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" />}
+        <Module number={isAdmin ? "08" : String((isDiscipler ? 1 : 0) + (ministryCount > 0 ? 1 : 0) + 1).padStart(2, "0")} href="/calendario" title="Calendário" copy="Consulte a programação dinâmica dos cultos, reuniões e eventos da Casa." action="Abrir calendário" />
       </section>
     </main>
   );
+}
+
+function Module({ number, href, title, copy, action }: { number: string; href: string; title: string; copy: string; action: string }) {
+  return <Link className="admin-module-link" href={href}><span>{number}</span><h2>{title}</h2><p>{copy}</p><strong>{action} →</strong></Link>;
 }
