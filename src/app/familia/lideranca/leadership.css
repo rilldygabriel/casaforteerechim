@@ -5,9 +5,84 @@
 .family-leadership-hero,
 .family-leadership-grid,
 .family-leadership-teams,
+.family-discipleship-section,
 .family-leadership-admin-link {
   width: min(100% - 48px, 1120px);
   margin-inline: auto;
+}
+
+.family-discipleship-section {
+  margin-top: 16px;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid rgba(255, 254, 21, 0.25);
+  border-radius: 22px;
+  background: #0e100e;
+}
+
+.family-discipleship-section > header span,
+.family-disciple-card > span {
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.family-discipleship-section > header h2 {
+  margin: 9px 0 0;
+  font-size: clamp(2rem, 5vw, 3.7rem);
+  letter-spacing: -0.05em;
+}
+
+.family-discipleship-section > header p {
+  max-width: 650px;
+  color: #979c95;
+  line-height: 1.55;
+}
+
+.family-discipleship-section > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.family-disciple-card {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid rgba(139, 230, 164, 0.25);
+  border-radius: 17px;
+  color: #f5f5ef;
+  background: rgba(62, 143, 86, 0.06);
+}
+
+.family-disciple-card[data-attention="true"] {
+  border-color: rgba(255, 254, 21, 0.35);
+  background: rgba(255, 254, 21, 0.045);
+}
+
+.family-disciple-card h3 {
+  margin: 8px 0 4px;
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
+}
+
+.family-disciple-card strong {
+  color: #b9bdb6;
+  font-size: 0.78rem;
+}
+
+.family-disciple-card small {
+  margin-top: 12px;
+  color: #fffe15;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.family-discipleship-empty {
+  color: #959a93;
 }
 
 .family-leadership-hero {
@@ -138,6 +213,7 @@
 
 @media (max-width: 760px) {
   .family-leadership-grid,
+  .family-discipleship-section > div,
   .family-leadership-teams > article {
     grid-template-columns: 1fr;
   }

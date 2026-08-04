@@ -24,6 +24,26 @@ type TeamMember = {
   full_name: string;
 };
 
+type DiscipleRelationship = {
+  id: string;
+  disciple_id: string;
+};
+
+type DiscipleSession = {
+  relationship_id: string;
+  meeting_date: string;
+};
+
+function daysSince(date: string | undefined) {
+  if (!date) return null;
+  return Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(`${date}T12:00:00-03:00`).getTime()) / 86400000,
+    ),
+  );
+}
+
 export default async function FamilyLeadershipPage() {
   const supabase = await getSupabaseServerClient();
   const {
@@ -79,6 +99,42 @@ export default async function FamilyLeadershipPage() {
 
   let teamAssignments: MinistryAssignment[] = [];
   let teamMembers: TeamMember[] = [];
+  let discipleRelationships: DiscipleRelationship[] = [];
+  let discipleSessions: DiscipleSession[] = [];
+  let discipleProfiles: TeamMember[] = [];
+
+  if (isDiscipler) {
+    const { data: relationships } = await supabase
+      .from("discipleship_relationships")
+      .select("id,disciple_id")
+      .eq("discipler_id", user.id)
+      .order("created_at");
+    discipleRelationships = (relationships ?? []) as DiscipleRelationship[];
+
+    const relationshipIds = discipleRelationships.map((relationship) => relationship.id);
+    const discipleIds = discipleRelationships.map((relationship) => relationship.disciple_id);
+
+    if (relationshipIds.length > 0) {
+      const { data: sessions } = await supabase
+        .from("discipleship_sessions")
+        .select("relationship_id,meeting_date")
+        .in("relationship_id", relationshipIds)
+        .order("meeting_date", { ascending: false });
+      discipleSessions = (sessions ?? []) as DiscipleSession[];
+
+      try {
+        const serviceSupabase = getSupabaseServiceClient();
+        const { data: profiles } = await serviceSupabase
+          .from("member_profiles")
+          .select("user_id,full_name")
+          .in("user_id", discipleIds)
+          .eq("approval_status", "approved");
+        discipleProfiles = (profiles ?? []) as TeamMember[];
+      } catch {
+        discipleProfiles = [];
+      }
+    }
+  }
 
   if (leaderKeys.length > 0) {
     const { data } = await supabase
@@ -107,6 +163,15 @@ export default async function FamilyLeadershipPage() {
   }
 
   const memberById = new Map(teamMembers.map((member) => [member.user_id, member]));
+  const discipleById = new Map(
+    discipleProfiles.map((member) => [member.user_id, member]),
+  );
+  const latestSessionByRelationship = new Map<string, string>();
+  for (const session of discipleSessions) {
+    if (!latestSessionByRelationship.has(session.relationship_id)) {
+      latestSessionByRelationship.set(session.relationship_id, session.meeting_date);
+    }
+  }
   const ministryByKey = new Map(MINISTRIES.map((ministry) => [ministry.key, ministry]));
 
   return (
@@ -146,8 +211,8 @@ export default async function FamilyLeadershipPage() {
             <span>Discipulado</span>
             <h2>Você é discipulador(a)</h2>
             <p>
-              Seu acesso está liberado. Na próxima etapa, seus discípulos serão
-              vinculados e aparecerão aqui.
+              Seu acesso está liberado. Acompanhe seus discípulos, demandas e
+              o tempo desde o último encontro.
             </p>
           </article>
         )}
@@ -165,6 +230,44 @@ export default async function FamilyLeadershipPage() {
           );
         })}
       </section>
+
+      {isDiscipler && (
+        <section className="family-discipleship-section">
+          <header>
+            <span>Pessoas sob meu cuidado</span>
+            <h2>Meus discípulos</h2>
+            <p>Abra uma pessoa para registrar um novo discipulado e consultar todo o histórico.</p>
+          </header>
+          <div>
+            {discipleRelationships.length === 0 ? (
+              <p className="family-discipleship-empty">A liderança ainda não vinculou discípulos à sua conta.</p>
+            ) : discipleRelationships.map((relationship) => {
+              const disciple = discipleById.get(relationship.disciple_id);
+              const latestDate = latestSessionByRelationship.get(relationship.id);
+              const elapsed = daysSince(latestDate);
+              return (
+                <Link
+                  className="family-disciple-card"
+                  href={`/familia/lideranca/discipulos/${relationship.id}`}
+                  key={relationship.id}
+                  data-attention={elapsed === null || elapsed >= 30}
+                >
+                  <span>Discípulo(a)</span>
+                  <h3>{disciple?.full_name || "Membro da Família"}</h3>
+                  <strong>
+                    {elapsed === null
+                      ? "Sem discipulado registrado"
+                      : elapsed === 0
+                        ? "Discipulado realizado hoje"
+                        : `Último discipulado há ${elapsed} ${elapsed === 1 ? "dia" : "dias"}`}
+                  </strong>
+                  <small>Abrir acompanhamento →</small>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {leaderAssignments.length > 0 && (
         <section className="family-leadership-teams">

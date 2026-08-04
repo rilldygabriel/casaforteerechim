@@ -1,0 +1,32 @@
+.discipleship-detail-page { padding-bottom: clamp(70px, 10vw, 120px); }
+.discipleship-detail-hero, .discipleship-counter, .discipleship-feedback, .discipleship-workspace { width: min(100% - 48px, 1120px); margin-inline: auto; }
+.discipleship-detail-hero { display: flex; align-items: center; gap: clamp(22px, 4vw, 42px); padding-block: clamp(60px, 9vw, 105px) 38px; }
+.discipleship-photo { position: relative; width: clamp(112px, 15vw, 170px); aspect-ratio: 1; flex: 0 0 auto; overflow: hidden; border: 2px solid #fffe15; border-radius: 50%; background: #171917; }
+.discipleship-photo img { object-fit: cover; }
+.discipleship-photo > span { display: grid; height: 100%; place-items: center; color: #fffe15; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 850; }
+.discipleship-detail-hero h1 { margin: 12px 0 8px; font-size: clamp(2.7rem, 7vw, 5.8rem); letter-spacing: -.06em; line-height: .92; }
+.discipleship-detail-hero > div > p:last-of-type { color: #a2a69f; }
+.discipleship-profile-link { display: inline-flex; margin-top: 10px; color: #fffe15; font-size: .68rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.discipleship-counter { padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(139, 230, 164, .3); border-radius: 22px; background: rgba(62, 143, 86, .08); }
+.discipleship-counter[data-attention="true"] { border-color: rgba(255, 254, 21, .34); background: rgba(255, 254, 21, .055); }
+.discipleship-counter > span, .discipleship-session-form header > span, .discipleship-history > header > span { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.discipleship-counter > strong { display: block; margin-top: 8px; font-size: clamp(2.2rem, 6vw, 4.4rem); letter-spacing: -.06em; }
+.discipleship-counter p { margin: 5px 0 0; color: #969b94; }
+.discipleship-feedback { margin-top: 14px; padding: 14px 18px; border: 1px solid rgba(143, 224, 171, .3); border-radius: 14px; color: #9be7b4; background: rgba(53, 135, 82, .12); }
+.discipleship-feedback[data-kind="error"] { border-color: rgba(255,149,131,.3); color: #ffb4a7; background: rgba(157,55,40,.12); }
+.discipleship-workspace { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 16px; margin-top: 16px; align-items: start; }
+.discipleship-session-form, .discipleship-history { padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: #101210; }
+.discipleship-session-form { display: grid; gap: 16px; }
+.discipleship-session-form h2, .discipleship-history h2 { margin: 9px 0 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.05em; }
+.discipleship-session-form header p { color: #959a93; line-height: 1.5; }
+.discipleship-session-form label { display: grid; gap: 7px; color: #afb3ad; font-size: .67rem; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+.discipleship-session-form input, .discipleship-session-form textarea { width: 100%; padding: 13px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; color: #f5f5ef; background: #080908; font: inherit; font-size: .82rem; line-height: 1.5; resize: vertical; }
+.discipleship-session-form button { min-height: 50px; border: 0; border-radius: 999px; color: #090a09; background: #fffe15; cursor: pointer; font: inherit; font-size: .67rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.discipleship-history { display: grid; gap: 12px; }
+.discipleship-history > header { padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.discipleship-history article { display: grid; gap: 16px; padding: 20px; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: rgba(255,255,255,.025); }
+.discipleship-history time { color: #fffe15; font-size: .7rem; font-weight: 900; text-transform: capitalize; }
+.discipleship-history article strong { color: #b5b9b2; font-size: .63rem; letter-spacing: .08em; text-transform: uppercase; }
+.discipleship-history article p { margin: 7px 0 0; color: #e5e7e1; line-height: 1.65; white-space: pre-wrap; }
+.discipleship-empty { color: #929790; }
+@media (max-width: 760px) { .discipleship-detail-hero { align-items: flex-start; flex-direction: column; } .discipleship-workspace { grid-template-columns: 1fr; } }

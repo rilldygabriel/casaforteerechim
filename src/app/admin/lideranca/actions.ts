@@ -66,6 +66,81 @@ function revalidateLeadership() {
   revalidatePath("/familia/lideranca");
 }
 
+export async function addDisciple(formData: FormData) {
+  const disciplerId = String(formData.get("disciplerId") ?? "");
+  const discipleId = String(formData.get("discipleId") ?? "");
+  const { supabase, user } = await getCurrentAdmin();
+
+  if (
+    !user ||
+    disciplerId === discipleId ||
+    !UUID_PATTERN.test(disciplerId) ||
+    !(await validateApprovedMember(discipleId, supabase))
+  ) {
+    redirectWithMessage("discipuladores", "erro", "Confira o discipulador e o discípulo escolhidos.");
+  }
+
+  const { data: role } = await supabase
+    .from("discipler_roles")
+    .select("member_id")
+    .eq("member_id", disciplerId)
+    .maybeSingle();
+
+  if (!role) {
+    redirectWithMessage("discipuladores", "erro", "Essa pessoa ainda não é discipuladora.");
+  }
+
+  const { error } = await supabase.from("discipleship_relationships").insert({
+    discipler_id: disciplerId,
+    disciple_id: discipleId,
+    assigned_by: user.id,
+  });
+
+  if (error?.code === "23505") {
+    redirectWithMessage("discipuladores", "erro", "Esse discípulo já está vinculado a um discipulador.");
+  }
+  if (error) {
+    redirectWithMessage("discipuladores", "erro", "Não foi possível cadastrar o discípulo agora.");
+  }
+
+  revalidateLeadership();
+  redirectWithMessage("discipuladores", "sucesso", "Discípulo cadastrado com sucesso.");
+}
+
+export async function removeDisciple(formData: FormData) {
+  const relationshipId = String(formData.get("relationshipId") ?? "");
+  const { supabase, user } = await getCurrentAdmin();
+
+  if (!user || !UUID_PATTERN.test(relationshipId)) {
+    redirectWithMessage("discipuladores", "erro", "Ação não autorizada.");
+  }
+
+  const { count } = await supabase
+    .from("discipleship_sessions")
+    .select("id", { count: "exact", head: true })
+    .eq("relationship_id", relationshipId);
+
+  if ((count ?? 0) > 0) {
+    redirectWithMessage(
+      "discipuladores",
+      "erro",
+      "Esse vínculo possui histórico pastoral e não pode ser apagado.",
+    );
+  }
+
+  const { error } = await supabase
+    .from("discipleship_relationships")
+    .delete()
+    .eq("id", relationshipId);
+
+  if (error) {
+    redirectWithMessage("discipuladores", "erro", "Não foi possível remover esse vínculo.");
+  }
+
+  revalidateLeadership();
+  redirectWithMessage("discipuladores", "sucesso", "Vínculo de discipulado removido.");
+}
+
 export async function addDiscipler(formData: FormData) {
   const memberId = String(formData.get("memberId") ?? "");
   const { supabase, user } = await getCurrentAdmin();
@@ -105,6 +180,19 @@ export async function removeDiscipler(formData: FormData) {
 
   if (!user || !UUID_PATTERN.test(memberId)) {
     redirectWithMessage("discipuladores", "erro", "Ação não autorizada.");
+  }
+
+  const { count } = await supabase
+    .from("discipleship_relationships")
+    .select("id", { count: "exact", head: true })
+    .eq("discipler_id", memberId);
+
+  if ((count ?? 0) > 0) {
+    redirectWithMessage(
+      "discipuladores",
+      "erro",
+      "Transfira ou remova os discípulos antes de retirar essa função.",
+    );
   }
 
   const { error } = await supabase
