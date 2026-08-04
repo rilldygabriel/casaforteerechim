@@ -877,6 +877,160 @@ h1 strong {
   line-height: 1;
 }
 
+/* Carrossel compartilhado de aniversários */
+.birthday-carousel {
+  width: min(100% - 48px, 1180px);
+  margin-inline: auto;
+  padding: clamp(24px, 4vw, 38px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  color: #f7f7f2;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(255, 254, 21, 0.08), transparent 30%),
+    #101210;
+}
+
+.birthday-carousel-public {
+  margin-block: clamp(18px, 4vw, 48px) clamp(70px, 10vw, 120px);
+}
+
+.birthday-carousel-family {
+  margin-bottom: 16px;
+}
+
+.birthday-carousel-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.birthday-carousel-heading h2 {
+  margin: 9px 0 5px;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  letter-spacing: -0.055em;
+}
+
+.birthday-carousel-heading > div:first-child > p:last-child {
+  margin: 0;
+  color: #9da29b;
+}
+
+.birthday-carousel-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.birthday-carousel-controls button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  color: #f7f7f2;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.1rem;
+}
+
+.birthday-carousel-controls button:hover,
+.birthday-carousel-controls button:focus-visible {
+  border-color: #fffe15;
+  color: #fffe15;
+}
+
+.birthday-carousel-track {
+  display: grid;
+  grid-auto-columns: minmax(205px, 235px);
+  grid-auto-flow: column;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 3px 3px 14px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: rgba(255, 254, 21, 0.45) transparent;
+}
+
+.birthday-day-card {
+  min-height: 235px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.025);
+  scroll-snap-align: center;
+}
+
+.birthday-day-card[data-today="true"] {
+  border-color: rgba(255, 254, 21, 0.52);
+  background:
+    radial-gradient(circle at 90% 8%, rgba(255, 254, 21, 0.15), transparent 34%),
+    rgba(255, 254, 21, 0.05);
+}
+
+.birthday-day-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.birthday-day-card > header span {
+  color: #fffe15;
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.birthday-day-card > header strong {
+  font-size: 0.7rem;
+  text-transform: capitalize;
+}
+
+.birthday-day-people {
+  display: grid;
+  gap: 14px;
+  margin-top: 15px;
+}
+
+.birthday-day-people > p {
+  color: #858a83;
+  font-size: 0.72rem;
+}
+
+.birthday-person-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.birthday-person-photo {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 2px solid #fffe15;
+  border-radius: 50%;
+  background: #1a1d1a;
+}
+
+.birthday-person-photo img { object-fit: cover; }
+.birthday-person-photo > span { display: grid; height: 100%; place-items: center; color: #fffe15; font-size: 1.1rem; font-weight: 900; }
+.birthday-person-mini small { color: #fffe15; font-size: 0.56rem; font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; }
+.birthday-person-mini h3 { margin: 5px 0 0; font-size: 0.95rem; line-height: 1.15; }
+
+@media (max-width: 700px) {
+  .birthday-carousel { width: min(100% - 24px, 1180px); padding: 20px 16px; }
+  .birthday-carousel-heading { align-items: flex-start; }
+  .birthday-carousel-heading > div:first-child > p:last-child { max-width: 220px; font-size: 0.75rem; }
+  .birthday-carousel-track { grid-auto-columns: minmax(190px, 82vw); }
+}
+
 .family-push-card h2 {
   margin: 10px 0 8px;
   font-size: clamp(1.8rem, 3.2vw, 2.6rem);
