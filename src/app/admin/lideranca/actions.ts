@@ -200,3 +200,49 @@ export async function removeMinistryAssignment(formData: FormData) {
   revalidateLeadership();
   redirectWithMessage("ministerios", "sucesso", "Função removida.");
 }
+
+export async function replaceMinistryAssignments(formData: FormData) {
+  const ministryKey = String(formData.get("ministryKey") ?? "");
+  const role = String(formData.get("role") ?? "");
+  const memberIds = Array.from(
+    new Set(formData.getAll("memberIds").map(String)),
+  );
+  const ministry = findMinistry(ministryKey);
+  const { supabase, user } = await getCurrentAdmin();
+
+  if (
+    !user ||
+    !ministry ||
+    !["leader", "member"].includes(role) ||
+    memberIds.some((memberId) => !UUID_PATTERN.test(memberId))
+  ) {
+    redirectWithMessage(
+      "ministerios",
+      "erro",
+      "Não foi possível validar as pessoas selecionadas.",
+    );
+  }
+
+  const { error } = await supabase.rpc("replace_ministry_assignments", {
+    p_ministry_key: ministryKey,
+    p_role: role,
+    p_member_ids: memberIds,
+  });
+
+  if (error) {
+    redirectWithMessage(
+      "ministerios",
+      "erro",
+      "Não foi possível salvar a seleção. Nenhum vínculo foi alterado.",
+    );
+  }
+
+  revalidateLeadership();
+  redirectWithMessage(
+    "ministerios",
+    "sucesso",
+    role === "leader"
+      ? `Líderes de ${ministry.label} salvos de uma vez.`
+      : `Participantes de ${ministry.label} salvos de uma vez.`,
+  );
+}
