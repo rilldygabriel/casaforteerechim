@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { replaceMinistryAssignments } from "./actions";
 
 type MemberOption = {
@@ -59,18 +60,13 @@ export default function BulkAssignmentDialog({
 
           <div className="leadership-bulk-options">
             {members.map((member) => (
-              <label key={member.userId}>
-                <input
-                  type="checkbox"
-                  name="memberIds"
-                  value={member.userId}
-                  defaultChecked={selected.has(member.userId)}
-                />
-                <span>
-                  <strong>{member.name || member.email}</strong>
-                  <small>{member.email}</small>
-                </span>
-              </label>
+              <div className="leadership-bulk-option" key={member.userId}>
+                <label>
+                  <input type="checkbox" name="memberIds" value={member.userId} defaultChecked={selected.has(member.userId)} />
+                  <span><strong>{member.name || member.email}</strong><small>{member.email}</small></span>
+                </label>
+                <Link href={`/admin/membros/${member.userId}`}>Ver ficha</Link>
+              </div>
             ))}
           </div>
 
