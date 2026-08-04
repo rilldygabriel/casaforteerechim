@@ -71,6 +71,7 @@ export default async function AdminPage() {
           <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
           <Module number="05" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
           <Module number="06" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
+          <Module number="07" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
