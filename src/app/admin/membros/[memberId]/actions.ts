@@ -1,5 +1,6 @@
 "use server";
 
+import { getVercelOidcToken } from "@vercel/oidc";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -11,6 +12,9 @@ export type WhatsAppResetState = {
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SITE_ORIGIN = "https://www.casaforteerechim.app.br";
+const RESEND_URL = "https://fjwkfpwraipxmcjlwssv.supabase.co/functions/v1/admin-resend-member-invite";
+const VERCEL_TEAM_ID = "team_Pw24QkatuwWyFJiYuYCKi12Z";
+const VERCEL_PROJECT_ID = "prj_My9r71EBQYchsF5T97S35WFXV8Kg";
 
 function whatsappRecipient(phone: string) {
   const digits = phone.replace(/\D/g, "");
@@ -69,4 +73,56 @@ export async function sendPasswordResetWhatsApp(
   const result = await response.json();
   if (!response.ok || !result?.messages?.[0]?.id) return { kind: "error", message: "O WhatsApp recusou o envio. Tente por e-mail." };
   return { kind: "success", message: "Link de redefinição enviado pelo WhatsApp." };
+}
+
+export async function sendPasswordResetBoth(
+  _previousState: WhatsAppResetState,
+  formData: FormData,
+): Promise<WhatsAppResetState> {
+  const memberId = String(formData.get("memberId") ?? "");
+  if (!UUID_PATTERN.test(memberId)) return { kind: "error", message: "Membro inválido." };
+
+  const sessionClient = await getSupabaseServerClient();
+  const { data: { user } } = await sessionClient.auth.getUser();
+  if (!user) return { kind: "error", message: "Sua sessão expirou." };
+  const { data: admin } = await sessionClient.from("member_profiles").select("is_admin,approval_status").eq("user_id", user.id).maybeSingle();
+  if (!admin?.is_admin || admin.approval_status !== "approved") return { kind: "error", message: "Ação não autorizada." };
+
+  const service = getSupabaseServiceClient();
+  const { data: member } = await service.from("member_profiles").select("phone,full_name").eq("user_id", memberId).maybeSingle();
+  const recipient = whatsappRecipient(member?.phone ?? "");
+  if (!recipient) return { kind: "error", message: "Cadastre um WhatsApp válido para esta pessoa." };
+
+  const oidcToken = await getVercelOidcToken({ project: VERCEL_PROJECT_ID, team: VERCEL_TEAM_ID, expirationBufferMs: 10_000 });
+  const emailResponse = await fetch(RESEND_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${oidcToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ memberId }),
+    cache: "no-store",
+  });
+  const emailResult = await emailResponse.json() as { inviteUrl?: string };
+  if (!emailResponse.ok || !emailResult.inviteUrl) return { kind: "error", message: "Não foi possível enviar o e-mail agora." };
+
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID || "1188719124331063";
+  if (!accessToken) return { kind: "error", message: "O e-mail foi enviado, mas o WhatsApp não está configurado." };
+  const whatsAppResponse = await fetch(`https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messaging_product: "whatsapp", recipient_type: "individual", to: recipient, type: "template",
+      template: {
+        name: process.env.WHATSAPP_MEMBER_INVITE_TEMPLATE_NAME || "acesso_area_familia",
+        language: { code: "pt_BR" },
+        components: [{ type: "body", parameters: [
+          { type: "text", text: (member?.full_name || "Membro").split(" ")[0] },
+          { type: "text", text: emailResult.inviteUrl },
+        ] }],
+      },
+    }),
+    signal: AbortSignal.timeout(10000), cache: "no-store",
+  });
+  const whatsAppResult = await whatsAppResponse.json();
+  if (!whatsAppResponse.ok || !whatsAppResult?.messages?.[0]?.id) return { kind: "error", message: "O e-mail foi enviado, mas o WhatsApp recusou o envio." };
+  return { kind: "success", message: "O mesmo link foi enviado por e-mail e WhatsApp." };
 }

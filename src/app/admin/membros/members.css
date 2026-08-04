@@ -401,6 +401,7 @@
 .admin-password-reset-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .admin-password-reset-buttons button { min-height: 42px; padding-inline: 16px; border: 0; border-radius: 999px; color: #090a09; background: #fffe15; cursor: pointer; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; }
 .admin-password-reset-buttons form:last-child button { border: 1px solid rgba(255,255,255,.2); color: #fff; background: transparent; }
+.admin-password-reset-buttons button.is-primary { border: 0; color: #090a09; background: #fffe15; }
 .admin-password-reset-buttons button:disabled { cursor: wait; opacity: .55; }
 .admin-password-reset-actions > [role="status"][data-kind="success"] { color: #9be7b4; }
 .admin-password-reset-actions > [role="status"][data-kind="error"] { color: #ffb4a7; }
