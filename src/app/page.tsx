@@ -18,15 +18,20 @@ const ACCEPT_JESUS_URL =
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 const LATEST_MESSAGE_TITLE = "DOMINGO NA CASA";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/live/AbU1aJYMxag";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/live/I2A1-xY1QQE";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/AbU1aJYMxag?rel=0";
+  "https://www.youtube-nocookie.com/embed/I2A1-xY1QQE?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PHOTO_ARCHIVE_FOLDERS = [
+  {
+    date: "02/08",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1IGnUA1xfrI6j1SJnWWElMblnN6wwmABQ",
+  },
   {
     date: "26/07",
     title: "Culto de Domingo",
