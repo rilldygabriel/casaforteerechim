@@ -163,6 +163,48 @@
   white-space: nowrap;
 }
 
+.discipler-management-list {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 1180px);
+  margin: 16px auto 0;
+}
+
+.discipler-management-card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
+  background: #0e100e;
+}
+
+.discipler-management-card > summary {
+  display: flex;
+  min-height: 108px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.discipler-management-card > summary::-webkit-details-marker { display: none; }
+.discipler-management-card > summary span { color: #fffe15; font-size: 0.62rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.discipler-management-card > summary h2 { margin: 8px 0 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -0.05em; }
+.discipler-management-card > summary > strong { color: #a8aca6; font-size: 0.72rem; }
+.discipler-management-content { padding: 24px 28px 28px; border-top: 1px solid rgba(255,255,255,.1); }
+.discipler-management-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.discipler-management-tools a, .disciple-admin-actions > a { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.discipler-management-tools button, .disciple-admin-actions button { min-height: 36px; padding-inline: 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #d7dad4; background: transparent; cursor: pointer; font: inherit; font-size: .57rem; font-weight: 900; text-transform: uppercase; }
+.discipler-add-disciple { margin-top: 22px; padding: 20px; border: 1px solid rgba(255,254,21,.2); border-radius: 17px; background: rgba(255,254,21,.035); }
+.disciple-admin-grid { display: grid; gap: 10px; margin-top: 18px; }
+.disciple-admin-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 18px; border: 1px solid rgba(139,230,164,.2); border-radius: 16px; background: rgba(62,143,86,.045); }
+.disciple-admin-card[data-attention="true"] { border-color: rgba(255,254,21,.3); background: rgba(255,254,21,.04); }
+.disciple-admin-card span { color: #fffe15; font-size: .59rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.disciple-admin-card h3 { margin: 7px 0 0; font-size: 1.25rem; }
+.disciple-admin-card p { margin: 6px 0 0; color: #979c95; font-size: .72rem; }
+.disciple-admin-actions { display: flex; align-items: center; gap: 12px; }
+
 .leadership-saved-list {
   display: grid;
   gap: 10px;
@@ -587,4 +629,16 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
+
+  .discipler-management-card > summary,
+  .discipler-management-tools,
+  .disciple-admin-card,
+  .disciple-admin-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .discipler-management-card > summary { display: flex; }
+  .disciple-admin-card { grid-template-columns: 1fr; }
+  .disciple-admin-actions { display: flex; }
 }
