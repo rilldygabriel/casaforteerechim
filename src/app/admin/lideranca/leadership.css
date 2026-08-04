@@ -1,0 +1,329 @@
+.leadership-admin-page {
+  padding-bottom: clamp(70px, 10vw, 120px);
+}
+
+.leadership-admin-hero {
+  padding-bottom: 28px;
+}
+
+.leadership-tabs,
+.leadership-panel,
+.leadership-ministries,
+.leadership-feedback {
+  width: min(100%, 1180px);
+  margin-inline: auto;
+}
+
+.leadership-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  background: #0e100e;
+}
+
+.leadership-tabs a {
+  display: flex;
+  min-height: 52px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 13px;
+  color: #a7aba5;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.leadership-tabs a[aria-current="page"] {
+  color: #090a09;
+  background: #fffe15;
+}
+
+.leadership-tabs span {
+  display: grid;
+  min-width: 25px;
+  min-height: 25px;
+  place-items: center;
+  padding-inline: 6px;
+  border-radius: 999px;
+  color: #090a09;
+  background: #f4f4ef;
+  font-size: 0.62rem;
+}
+
+.leadership-feedback {
+  margin-top: 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(143, 224, 171, 0.3);
+  border-radius: 14px;
+  color: #9be7b4;
+  background: rgba(53, 135, 82, 0.12);
+  font-size: 0.78rem;
+}
+
+.leadership-feedback[data-kind="error"] {
+  border-color: rgba(255, 149, 131, 0.3);
+  color: #ffb4a7;
+  background: rgba(157, 55, 40, 0.12);
+}
+
+.leadership-panel,
+.leadership-ministry-card {
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
+  background: #0e100e;
+}
+
+.leadership-panel {
+  padding: clamp(22px, 4vw, 40px);
+}
+
+.leadership-panel > header {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(380px, 1.25fr);
+  gap: 30px;
+  align-items: end;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leadership-panel > header span,
+.leadership-ministry-card summary span {
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.leadership-panel h2,
+.leadership-ministry-card h2 {
+  margin: 9px 0 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+}
+
+.leadership-panel header p {
+  margin: 10px 0 0;
+  color: #8f938e;
+  line-height: 1.5;
+}
+
+.leadership-add-form {
+  display: grid;
+  gap: 8px;
+}
+
+.leadership-add-form label {
+  color: #9ca09a;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.leadership-add-form > div {
+  display: flex;
+  gap: 8px;
+}
+
+.leadership-add-form select {
+  min-width: 0;
+  min-height: 48px;
+  flex: 1;
+  padding-inline: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  color: #f5f5ef;
+  background: #080908;
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.leadership-add-form button,
+.leadership-saved-list button,
+.leadership-assignment-group button {
+  min-height: 42px;
+  padding-inline: 16px;
+  border: 0;
+  border-radius: 999px;
+  color: #090a09;
+  background: #fffe15;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.leadership-saved-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.leadership-saved-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.leadership-saved-list strong,
+.leadership-saved-list small {
+  display: block;
+}
+
+.leadership-saved-list small {
+  margin-top: 4px;
+  color: #8f938e;
+  font-size: 0.7rem;
+}
+
+.leadership-saved-list button,
+.leadership-assignment-group button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #d7dad4;
+  background: transparent;
+}
+
+.leadership-empty {
+  color: #8f938e;
+}
+
+.leadership-ministries {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.leadership-ministry-card {
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.leadership-ministry-card summary {
+  display: flex;
+  min-height: 110px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.leadership-ministry-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.leadership-ministry-card summary > strong {
+  color: #a7aba5;
+  font-size: 0.72rem;
+}
+
+.leadership-ministry-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 28px 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leadership-ministry-content > .leadership-add-form {
+  grid-column: 1 / -1;
+  padding-top: 24px;
+}
+
+.leadership-assignment-group {
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.leadership-assignment-group h3 {
+  margin: 0 0 14px;
+  color: #fffe15;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.leadership-assignment-group > p {
+  color: #7f847d;
+  font-size: 0.76rem;
+}
+
+.leadership-assignment-group > div {
+  display: grid;
+  gap: 8px;
+}
+
+.leadership-assignment-group article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.leadership-assignment-group article:last-child {
+  border-bottom: 0;
+}
+
+.leadership-assignment-group button {
+  min-height: 34px;
+  padding-inline: 11px;
+  font-size: 0.57rem;
+}
+
+@media (max-width: 760px) {
+  .leadership-tabs,
+  .leadership-panel > header,
+  .leadership-ministry-content {
+    grid-template-columns: 1fr;
+  }
+
+  .leadership-tabs {
+    display: grid;
+  }
+
+  .leadership-panel > header {
+    align-items: stretch;
+  }
+
+  .leadership-add-form > div {
+    flex-direction: column;
+  }
+
+  .leadership-add-form button {
+    width: 100%;
+  }
+
+  .leadership-saved-list article,
+  .leadership-ministry-card summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .leadership-saved-list button {
+    width: 100%;
+  }
+
+  .leadership-ministry-content > .leadership-add-form {
+    grid-column: auto;
+  }
+}

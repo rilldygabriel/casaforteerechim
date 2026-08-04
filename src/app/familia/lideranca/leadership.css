@@ -1,0 +1,144 @@
+.family-leadership-page {
+  padding-bottom: clamp(70px, 10vw, 120px);
+}
+
+.family-leadership-hero,
+.family-leadership-grid,
+.family-leadership-teams,
+.family-leadership-admin-link {
+  width: min(100% - 48px, 1120px);
+  margin-inline: auto;
+}
+
+.family-leadership-hero {
+  padding-block: clamp(70px, 10vw, 120px) 48px;
+}
+
+.family-leadership-hero h1 {
+  max-width: 900px;
+  font-size: clamp(3.3rem, 7vw, 6rem);
+}
+
+.family-leadership-hero > p:last-child {
+  max-width: 650px;
+  color: #a1a59f;
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.family-leadership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.family-leadership-role-card {
+  min-height: 240px;
+  padding: clamp(24px, 4vw, 36px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  background: #121412;
+}
+
+.family-leadership-role-card.is-featured {
+  border-color: rgba(255, 254, 21, 0.35);
+  background:
+    radial-gradient(circle at 90% 10%, rgba(255, 254, 21, 0.12), transparent 34%),
+    #121412;
+}
+
+.family-leadership-role-card > span,
+.family-leadership-teams > header span,
+.family-leadership-teams article > div span {
+  color: #fffe15;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.family-leadership-role-card h2 {
+  margin: 38px 0 12px;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.family-leadership-role-card p {
+  margin: 0;
+  color: #9a9e98;
+  line-height: 1.6;
+}
+
+.family-leadership-teams {
+  margin-top: 16px;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  background: #0e100e;
+}
+
+.family-leadership-teams > header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.family-leadership-teams > header h2 {
+  margin: 10px 0 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.family-leadership-teams > article {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.25fr);
+  gap: 24px;
+  padding-block: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.family-leadership-teams > article:last-child {
+  border-bottom: 0;
+}
+
+.family-leadership-teams h3 {
+  margin: 9px 0 0;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.family-leadership-teams ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.family-leadership-teams li {
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #d8dbd5;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.family-leadership-admin-link {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  border-radius: 999px;
+  color: #090a09;
+  background: #fffe15;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .family-leadership-grid,
+  .family-leadership-teams > article {
+    grid-template-columns: 1fr;
+  }
+}

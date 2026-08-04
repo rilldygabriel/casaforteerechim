@@ -263,7 +263,29 @@ export default async function Familia() {
   const hasProfileStar =
     profile.profile_completed === true && completedProfileSteps === 9;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
-  const birthdayMembers = await getBirthdayMembers();
+  const [birthdayMembers, disciplerRole, ministryLeaderRoles, ministryMemberRoles] =
+    await Promise.all([
+      getBirthdayMembers(),
+      supabase
+        .from("discipler_roles")
+        .select("member_id")
+        .eq("member_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("ministry_leaders")
+        .select("ministry_key")
+        .eq("member_id", user.id),
+      supabase
+        .from("ministry_members")
+        .select("ministry_key")
+        .eq("member_id", user.id),
+    ]);
+  const hasLeadershipArea = Boolean(
+    profile.is_admin ||
+      disciplerRole.data ||
+      ministryLeaderRoles.data?.length ||
+      ministryMemberRoles.data?.length,
+  );
   let signedPhotoUrl: string | null = null;
 
   if (profile.photo_url) {
@@ -321,6 +343,23 @@ export default async function Familia() {
         </div>
         <LocationCheckin />
       </section>
+
+      {hasLeadershipArea && (
+        <section className="family-leadership-access">
+          <div>
+            <p className="section-eyebrow">
+              <span aria-hidden="true" />
+              Minha liderança
+            </p>
+            <h2>Funções e equipes da Casa</h2>
+            <p>
+              Veja os ministérios em que você participa e as áreas que estão
+              sob seu cuidado.
+            </p>
+          </div>
+          <Link href="/familia/lideranca">Abrir meu painel</Link>
+        </section>
+      )}
 
       <section className="family-birthday-card" aria-labelledby="birthday-title">
         <div className="family-birthday-heading">

@@ -109,6 +109,15 @@ export default async function AdminPage() {
           <p>Leia e responda às mensagens recebidas no número oficial.</p>
           <strong>Acessar conversas →</strong>
         </Link>
+        <Link className="admin-module-link" href="/admin/lideranca">
+          <span>06</span>
+          <h2>Liderança</h2>
+          <p>
+            Classifique discipuladores, líderes e participantes de cada
+            ministério.
+          </p>
+          <strong>Organizar liderança →</strong>
+        </Link>
       </section>
     </main>
   );

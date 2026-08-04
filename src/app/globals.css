@@ -470,6 +470,7 @@ h1 strong {
 .family-serve-cta,
 .family-generosity-cta,
 .family-birthday-card,
+.family-leadership-access,
 .family-push-card,
 .serve-grid {
   width: min(100% - 48px, 1120px);
@@ -757,6 +758,47 @@ h1 strong {
     radial-gradient(circle at 94% 8%, rgba(255, 255, 255, 0.38), transparent 27%),
     var(--yellow);
   color: #090a09;
+}
+
+.family-leadership-access {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 16px;
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid rgba(255, 254, 21, 0.3);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 92% 10%, rgba(255, 254, 21, 0.12), transparent 32%),
+    #121412;
+}
+
+.family-leadership-access h2 {
+  margin: 10px 0 8px;
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  letter-spacing: -0.04em;
+}
+
+.family-leadership-access p:not(.section-eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.family-leadership-access > a {
+  display: inline-flex;
+  min-height: 50px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-inline: 22px;
+  border-radius: 999px;
+  color: #090a09;
+  background: var(--yellow);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 
 .family-birthday-heading .section-eyebrow {
@@ -1711,6 +1753,20 @@ h1 strong {
     flex-direction: column;
     gap: 18px;
     text-align: center;
+  }
+
+  .family-leadership-access {
+    align-items: stretch;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .family-leadership-access .section-eyebrow {
+    justify-content: center;
+  }
+
+  .family-leadership-access > a {
+    justify-content: center;
   }
 
   .family-push-card .section-eyebrow {
