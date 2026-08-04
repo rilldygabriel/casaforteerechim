@@ -33,6 +33,8 @@ export type ChurchEvent = {
   recurring?: boolean;
   internal?: boolean;
   notes?: string;
+  registrationSlug?: string;
+  registrationLabel?: string;
 };
 
 export const SHOW_INTERNAL_EVENTS = false;
@@ -128,15 +130,20 @@ function createRecurringEvents() {
 
         if (sundayCount === 2) {
           const withBaptism = currentDate === "2026-09-13" || currentDate === "2026-12-13";
-          events.push(
-            recurringEvent(
+          const ceiaEvent = recurringEvent(
               `ceia-${currentDate}`,
-              withBaptism ? "Culto de Ceia e Batismo na Casa" : "Culto de Ceia",
+              withBaptism ? "Culto de Ceia + Batismo na Casa" : "Culto de Ceia",
               currentDate,
               "19:00",
               "Ceia e Batismo",
-            ),
-          );
+            );
+          if (withBaptism) {
+            ceiaEvent.featured = true;
+            ceiaEvent.description = "Você tomou a decisão de seguir Jesus e deseja dar o próximo passo? Faça sua inscrição para o Batismo na Casa.";
+            ceiaEvent.registrationSlug = currentDate === "2026-09-13" ? "batismo-setembro-2026" : "batismo-dezembro-2026";
+            ceiaEvent.registrationLabel = "Inscrições abertas";
+          }
+          events.push(ceiaEvent);
         } else {
           events.push(recurringEvent(`culto-${currentDate}`, "Culto na Casa", currentDate, "19:00", "Cultos"));
         }

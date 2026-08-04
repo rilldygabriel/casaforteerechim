@@ -6858,6 +6858,122 @@ a:focus-visible {
   line-height: 1.55;
 }
 
+.calendar-registration-link,
+.calendar-modal-registration {
+  display: inline-flex !important;
+  min-height: 43px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #090a09 !important;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.calendar-modal-registration { margin-top: 22px; }
+
+/* Eventos públicos */
+.event-public-page { min-height: 100svh; padding: 28px clamp(16px, 5vw, 70px) 80px; background: radial-gradient(circle at 86% 4%, rgba(255,254,21,.09), transparent 27%), #090a09; color: white; }
+.event-public-header { display: flex; width: min(100%, 1180px); align-items: center; justify-content: space-between; gap: 20px; margin-inline: auto; }
+.event-public-header img { width: 170px; height: auto; }
+.event-public-header > a:last-child { padding: 12px 17px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; color: white; font-size: .68rem; font-weight: 850; text-transform: uppercase; }
+.event-public-hero { display: grid; width: min(100%, 1180px); grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: clamp(28px, 6vw, 80px); align-items: end; margin: 76px auto 0; padding-bottom: 52px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.event-public-hero h1 { max-width: 850px; margin: 0; font-family: var(--font-display); font-size: clamp(3.7rem, 8vw, 7.5rem); letter-spacing: -.075em; line-height: .86; }
+.event-public-hero > div > p:last-child { max-width: 700px; margin: 28px 0 0; color: #c8cac5; line-height: 1.75; }
+.event-public-hero dl { display: grid; gap: 1px; margin: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 20px; background: rgba(255,255,255,.1); }
+.event-public-hero dl > div { padding: 17px 19px; background: #111311; }
+.event-public-hero dt { color: var(--yellow); font-size: .63rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.event-public-hero dd { margin: 6px 0 0; color: white; line-height: 1.45; }
+.event-registration-layout { display: grid; width: min(100%, 1050px); grid-template-columns: minmax(260px, .65fr) minmax(0, 1fr); gap: clamp(30px, 7vw, 90px); margin: 70px auto 0; }
+.event-registration-layout h2 { margin: 8px 0 18px; font-size: clamp(2.6rem, 5vw, 4.5rem); letter-spacing: -.06em; line-height: .94; }
+.event-registration-layout > div > p:last-child { color: var(--muted); line-height: 1.7; }
+.event-registration-form { display: grid; gap: 17px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255,254,21,.25); border-radius: 24px; background: #121412; }
+.event-registration-form > label:not(.event-consent) { display: grid; gap: 8px; color: #d7d8d4; font-size: .7rem; font-weight: 850; letter-spacing: .055em; text-transform: uppercase; }
+.event-registration-form label small { color: var(--muted); font-size: .58rem; }
+.event-registration-form :is(input:not([type="checkbox"]), select, textarea) { width: 100%; padding: 14px 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: #080a08; color: white; font: inherit; line-height: 1.5; }
+.event-registration-form textarea { resize: vertical; }
+.event-registration-form :is(input, select, textarea):focus { border-color: var(--yellow); }
+.event-consent { display: grid; grid-template-columns: 22px 1fr; gap: 11px; align-items: start; color: #c4c6c1; font-size: .78rem; line-height: 1.55; }
+.event-consent input { width: 20px; height: 20px; accent-color: var(--yellow); }
+.event-registration-form > button { min-height: 52px; border: 0; border-radius: 999px; background: var(--yellow); color: #090a09; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.event-registration-form > button:disabled { opacity: .55; cursor: wait; }
+.event-form-message { margin: 0; color: var(--yellow); line-height: 1.5; }
+.event-form-message[data-state="error"] { color: #ff9b9b; }
+.event-registration-success, .event-registration-closed { padding: clamp(30px, 5vw, 50px); border: 1px solid rgba(127,230,156,.4); border-radius: 24px; background: rgba(127,230,156,.07); }
+.event-registration-success > span { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 50%; background: var(--yellow); color: #090a09; font-size: 1.5rem; font-weight: 900; }
+.event-registration-success h2 { margin: 22px 0 12px; font-size: clamp(2rem, 5vw, 3.5rem); }
+.event-registration-success p, .event-registration-closed p { margin: 0; color: #ced0ca; line-height: 1.7; }
+
+/* Administração de eventos */
+.admin-events-page { min-height: 100svh; padding: 28px clamp(15px, 4vw, 62px) 90px; background: radial-gradient(circle at 90% 2%, rgba(255,254,21,.08), transparent 24%), #0a0b0a; color: white; }
+.admin-events-hero, .admin-event-summary, .admin-event-tabs, .admin-events-layout, .admin-registrations, .admin-event-feedback { width: min(100%, 1280px); margin-inline: auto; }
+.admin-events-hero { margin-top: 66px; }
+.admin-events-hero h1 { margin: 6px 0 18px; font-family: var(--font-display); font-size: clamp(4rem, 9vw, 8.2rem); letter-spacing: -.075em; line-height: .86; }
+.admin-events-hero > p:last-child { max-width: 720px; color: var(--muted); line-height: 1.65; }
+.admin-event-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 42px; }
+.admin-event-summary article { display: grid; gap: 14px; padding: 23px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: #121412; }
+.admin-event-summary span { color: var(--muted); font-size: .68rem; font-weight: 800; text-transform: uppercase; }
+.admin-event-summary strong { color: var(--yellow); font-size: 2.5rem; }
+.admin-event-feedback { margin-top: 18px; padding: 15px 18px; border: 1px solid rgba(255,254,21,.3); border-radius: 14px; background: rgba(255,254,21,.06); color: var(--yellow); }
+.admin-event-tabs { display: flex; gap: 8px; margin-top: 30px; padding: 7px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: #111311; }
+.admin-event-tabs a { display: flex; min-height: 46px; flex: 1; align-items: center; justify-content: center; border-radius: 999px; color: var(--muted); font-size: .7rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.admin-event-tabs a[data-active="true"] { background: var(--yellow); color: #090a09; }
+.admin-events-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); gap: 16px; margin-top: 18px; }
+.admin-events-layout > :is(article, aside), .admin-registration-filters, .admin-registration-table { padding: clamp(22px, 4vw, 36px); border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: #121412; }
+.admin-events-layout h2 { margin: 8px 0 26px; font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.055em; }
+.admin-event-editor form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-event-editor form > label { display: grid; gap: 7px; color: #d4d6d1; font-size: .67rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.admin-event-editor .is-wide { grid-column: 1 / -1; }
+.admin-event-editor :is(input, select, textarea), .admin-registration-filters :is(input, select), .admin-registration-table details :is(input, select, textarea) { width: 100%; padding: 13px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; outline: 0; background: #080a08; color: white; font: inherit; }
+.admin-event-editor textarea { resize: vertical; }
+.admin-event-editor fieldset { display: flex; flex-wrap: wrap; gap: 14px 22px; padding: 18px; border: 1px solid rgba(255,255,255,.13); border-radius: 14px; }
+.admin-event-editor legend { padding: 0 7px; color: var(--yellow); font-size: .67rem; font-weight: 900; text-transform: uppercase; }
+.admin-event-editor fieldset label { display: flex; align-items: center; gap: 8px; color: #d5d7d2; font-size: .78rem; }
+.admin-event-editor fieldset input { width: 18px; height: 18px; accent-color: var(--yellow); }
+.admin-event-form-actions, .admin-event-list article > div:last-child { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.admin-event-form-actions :is(button, a), .admin-event-list article > div:last-child :is(a, button), .admin-registration-filters > :is(button, a), .admin-registration-table details button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; border: 0; border-radius: 999px; background: var(--yellow); color: #090a09; font-size: .65rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.admin-event-form-actions a, .admin-event-list article > div:last-child a:nth-child(2), .admin-registration-filters > a { border: 1px solid rgba(255,255,255,.18); background: transparent; color: white; }
+.admin-event-list > article { padding: 20px 0; border-top: 1px solid rgba(255,255,255,.1); }
+.admin-event-list article > div:first-child { display: flex; justify-content: space-between; gap: 14px; color: var(--yellow); font-size: .66rem; font-weight: 850; text-transform: uppercase; }
+.admin-event-list h3 { margin: 10px 0; font-size: 1.25rem; }
+.admin-event-list article > p { color: var(--muted); line-height: 1.55; }
+.admin-event-list article > div:last-child button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ff9b9b; }
+.admin-registrations { margin-top: 18px; }
+.admin-registration-filters { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)) auto auto auto; gap: 10px; align-items: end; }
+.admin-registration-filters label { display: grid; gap: 7px; color: var(--muted); font-size: .65rem; font-weight: 850; text-transform: uppercase; }
+.admin-registration-table { margin-top: 14px; overflow-x: auto; }
+.admin-registration-table table { width: 100%; min-width: 1040px; border-collapse: collapse; }
+.admin-registration-table th { padding: 12px; color: var(--yellow); font-size: .64rem; text-align: left; text-transform: uppercase; }
+.admin-registration-table td { padding: 15px 12px; border-top: 1px solid rgba(255,255,255,.09); color: #d4d6d1; font-size: .82rem; vertical-align: top; }
+.admin-registration-table td:first-child { display: grid; gap: 4px; }
+.admin-registration-table td small { color: var(--muted); }
+.admin-registration-table td > span { display: inline-flex; padding: 7px 10px; border-radius: 999px; background: rgba(255,254,21,.08); color: var(--yellow); font-size: .65rem; font-weight: 850; }
+.admin-registration-table summary { color: var(--yellow); font-weight: 850; cursor: pointer; }
+.admin-registration-table details[open] { width: 310px; }
+.admin-registration-table details form { display: grid; gap: 10px; margin-top: 14px; padding: 15px; border-radius: 14px; background: #080a08; }
+.admin-registration-table details label { display: grid; gap: 5px; color: var(--muted); font-size: .65rem; text-transform: uppercase; }
+.admin-registration-table details button.is-danger { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ff9b9b; }
+
+@media (max-width: 850px) {
+  .event-public-hero, .event-registration-layout, .admin-events-layout { grid-template-columns: 1fr; }
+  .admin-event-summary { grid-template-columns: 1fr 1fr; }
+  .admin-registration-filters { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .event-public-page, .admin-events-page { padding-inline: 14px; }
+  .event-public-header img { width: 138px; }
+  .event-public-header > a:last-child { padding-inline: 12px; }
+  .event-public-hero { margin-top: 50px; }
+  .admin-event-summary, .admin-registration-filters, .admin-event-editor form { grid-template-columns: 1fr; }
+  .admin-event-editor .is-wide { grid-column: auto; }
+}
+
 :is(.calendar-feature-card, .calendar-day-events button, .calendar-list-event, .calendar-modal-accent)[data-category="Cultos"] { --event-color: #fffe15; }
 :is(.calendar-feature-card, .calendar-day-events button, .calendar-list-event, .calendar-modal-accent)[data-category="Ceia e Batismo"] { --event-color: #f4b860; }
 :is(.calendar-feature-card, .calendar-day-events button, .calendar-list-event, .calendar-modal-accent)[data-category="Oração"] { --event-color: #9dc5ff; }

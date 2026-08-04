@@ -87,7 +87,7 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
               <p>{event.category}{event.recurring ? " · Recorrente" : ""}</p>
               <h3>{event.title}</h3>
               <strong>{formatEventTime(event)}</strong>
-              <Link href="/calendario">Ver no calendário</Link>
+              <Link href={event.registrationSlug ? `/eventos/${event.registrationSlug}` : "/calendario"}>{event.registrationSlug ? "Quero me inscrever" : "Ver no calendário"}</Link>
             </div>
           </article>
         ))}

@@ -9,8 +9,6 @@ import {
   type ChurchEvent,
   type EventCategory,
   eventOccursOn,
-  eventsForMonth,
-  featuredEvents,
   formatEventPeriod,
   formatEventTime,
   formatEventWeekday,
@@ -42,14 +40,17 @@ function dateKey(month: number, day: number) {
   return `2026-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export default function CalendarExperience({ today }: { today: string }) {
+export default function CalendarExperience({ today, events }: { today: string; events: ChurchEvent[] }) {
   const [month, setMonth] = useState(() => initialMonth(today));
   const [category, setCategory] = useState<EventCategory | "Todos">("Todos");
   const [selectedEvent, setSelectedEvent] = useState<ChurchEvent | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const monthlyEvents = useMemo(() => eventsForMonth(month, category), [month, category]);
-  const specialEvents = useMemo(() => featuredEvents(today), [today]);
+  const monthlyEvents = useMemo(() => {
+    const prefix = `2026-${String(month).padStart(2, "0")}`;
+    return events.filter((item) => (item.startDate.startsWith(prefix) || item.endDate?.startsWith(prefix)) && (category === "Todos" || item.category === category));
+  }, [events, month, category]);
+  const specialEvents = useMemo(() => events.filter((item) => item.featured === true && item.recurring !== true && item.status === "confirmed" && (item.endDate ?? item.startDate) >= today), [events, today]);
   const cells = useMemo(() => calendarCells(month), [month]);
   const nextEventId = specialEvents[0]?.id;
   const monthIndex = CALENDAR_MONTHS.indexOf(month as (typeof CALENDAR_MONTHS)[number]);
@@ -109,6 +110,7 @@ export default function CalendarExperience({ today }: { today: string }) {
                     <p>{item.category}</p><h3>{item.title}</h3>
                     <strong>{formatEventTime(item)}</strong>
                     <button type="button" onClick={() => setSelectedEvent(item)}>Ver detalhes</button>
+                    {item.registrationSlug ? <Link className="calendar-registration-link" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
                   </div>
                 </article>
               );
@@ -190,7 +192,9 @@ function EventDetails({ item, close, closeButtonRef }: { item: ChurchEvent; clos
           <div><dt>Status</dt><dd>{item.status === "confirmed" ? "Confirmado" : item.status === "tentative" ? "A confirmar" : "Cancelado"}</dd></div>
         </dl>
         {item.description ? <p>{item.description}</p> : null}
+        {item.registrationLabel ? <p className="calendar-registration-status">{item.registrationLabel}</p> : null}
         {item.notes ? <aside><strong>Observação</strong><p>{item.notes}</p></aside> : null}
+        {item.registrationSlug ? <Link className="calendar-modal-registration" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
       </section>
     </div>
   );
