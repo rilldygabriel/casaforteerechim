@@ -17,6 +17,9 @@
 .admin-role-request-actions input { display: none; }
 .admin-role-request-actions button { min-height: 39px; padding-inline: 14px; border: 1px solid #fffe15; border-radius: 999px; background: #fffe15; color: #090a09; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
 .admin-role-request-actions button:last-child { border-color: rgba(255,255,255,.2); background: transparent; color: white; }
+.admin-role-request-actions button:disabled { cursor: wait; opacity: .62; }
+.admin-role-request-actions [role="status"] { margin: 10px 0 0; color: #9be7b4; font-size: .7rem; line-height: 1.4; }
+.admin-role-request-actions [role="status"][data-kind="error"] { color: #ffb4a7; }
 @media (max-width: 700px) { .admin-role-requests-list { grid-template-columns: 1fr; } }
 
 .admin-member-applications {

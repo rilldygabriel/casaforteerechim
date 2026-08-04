@@ -6,6 +6,12 @@
   padding-bottom: 28px;
 }
 
+.leadership-admin-hero h1 {
+  max-width: 100%;
+  font-size: clamp(2.65rem, 13vw, 6.2rem);
+  overflow-wrap: anywhere;
+}
+
 .leadership-tabs,
 .leadership-panel,
 .leadership-ministries,
@@ -565,6 +571,11 @@
 }
 
 @media (max-width: 760px) {
+  .leadership-admin-hero h1 {
+    font-size: clamp(2.65rem, 12.5vw, 4.6rem);
+    letter-spacing: -0.065em;
+  }
+
   .leadership-tabs,
   .leadership-panel > header,
   .leadership-ministry-content {
