@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
 const PUBLIC_ADMIN_ROUTES = new Set([
-  "/admin/login",
   "/admin/callback",
   "/admin/recuperar-senha",
   "/admin/redefinir-senha",
@@ -11,19 +10,22 @@ const PUBLIC_ADMIN_ROUTES = new Set([
 
 const PUBLIC_FAMILY_ROUTES = new Set([
   "/familia/aceitar-convite",
-  "/familia/login",
   "/familia/cadastro",
   "/familia/callback",
 ]);
 
-function getExpiredSessionResponse(request: NextRequest) {
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = isAdminRoute ? "/admin/login" : "/familia/login";
-  loginUrl.search = "?erro=sessao-expirada";
+const LOGIN_ROUTES = new Set(["/admin/login", "/familia/login"]);
 
-  const response = NextResponse.redirect(loginUrl);
+function preventAuthPageCache(response: NextResponse) {
+  response.headers.set(
+    "Cache-Control",
+    "private, no-store, no-cache, must-revalidate, max-age=0",
+  );
+  response.headers.set("Pragma", "no-cache");
+  return response;
+}
 
+function clearSupabaseCookies(request: NextRequest, response: NextResponse) {
   request.cookies
     .getAll()
     .filter(({ name }) => name.startsWith("sb-"))
@@ -32,10 +34,20 @@ function getExpiredSessionResponse(request: NextRequest) {
         expires: new Date(0),
         maxAge: 0,
         path: "/",
+        sameSite: "lax",
       });
     });
 
-  return response;
+  return preventAuthPageCache(response);
+}
+
+function getExpiredSessionResponse(request: NextRequest) {
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  const loginUrl = request.nextUrl.clone();
+  loginUrl.pathname = isAdminRoute ? "/admin/login" : "/familia/login";
+  loginUrl.search = "?erro=sessao-expirada";
+
+  return clearSupabaseCookies(request, NextResponse.redirect(loginUrl));
 }
 
 export async function proxy(request: NextRequest) {
@@ -73,13 +85,19 @@ export async function proxy(request: NextRequest) {
     const { error } = await supabase.auth.getClaims();
 
     if (error) {
+      if (LOGIN_ROUTES.has(request.nextUrl.pathname)) {
+        return clearSupabaseCookies(request, NextResponse.next({ request }));
+      }
       return getExpiredSessionResponse(request);
     }
   } catch {
+    if (LOGIN_ROUTES.has(request.nextUrl.pathname)) {
+      return clearSupabaseCookies(request, NextResponse.next({ request }));
+    }
     return getExpiredSessionResponse(request);
   }
 
-  return response;
+  return preventAuthPageCache(response);
 }
 
 export const config = {

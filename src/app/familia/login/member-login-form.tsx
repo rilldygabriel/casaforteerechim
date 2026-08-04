@@ -22,23 +22,30 @@ export default function MemberLoginForm({
     setError("");
     setLoading(true);
 
-    const supabase = getSupabaseBrowserClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    });
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-    if (signInError) {
+      if (signInError) {
+        setError(
+          signInError.code === "email_not_confirmed"
+            ? "Confirme seu e-mail antes de entrar."
+            : "E-mail ou senha incorretos.",
+        );
+        return;
+      }
+
+      window.location.href = "/familia";
+    } catch {
       setError(
-        signInError.code === "email_not_confirmed"
-          ? "Confirme seu e-mail antes de entrar."
-          : "E-mail ou senha incorretos.",
+        "Não foi possível entrar agora. Verifique sua internet e tente novamente.",
       );
+    } finally {
       setLoading(false);
-      return;
     }
-
-    window.location.assign("/familia");
   }
 
   return (
