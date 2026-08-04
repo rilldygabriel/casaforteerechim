@@ -188,7 +188,7 @@ export default function Home() {
         </div>
       </section>
 
-      <VerseOfDayCard />
+      <ProgramsSection mapsUrl={MAPS_URL} />
 
       <section
         className="home-block home-generosity"
@@ -228,7 +228,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ProgramsSection mapsUrl={MAPS_URL} />
+      <VerseOfDayCard />
 
       <section
         className="home-block home-moments"
