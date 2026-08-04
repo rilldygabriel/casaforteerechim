@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  CHURCH_EVENTS,
+  formatEventDate,
+  formatEventWeekday,
+  getSaoPauloDateKey,
+} from "@/lib/calendar-events";
 import { getNextSundayDate } from "@/lib/programs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -58,23 +64,55 @@ export default async function AdminPage() {
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
         {isAdmin && <>
-          <Module number="01" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
-          <Module number="02" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
-          <Module number="03" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
-          <Module number="04" href="/admin/pre-checkin" title="Pré-check-in" copy="Veja quem estará no próximo culto e quem acompanhará pela live." action={`${checkinCount} ${checkinCount === 1 ? "resposta" : "respostas"}`} />
-          <Module number="05" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
-          <Module number="06" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
-          <Module number="07" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
+          <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
+          <Module number="02" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
+          <Module number="03" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
+          <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
+          <Module number="05" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
+          <Module number="06" href="/admin/pre-checkin" title="Pré-check-in" copy="Veja quem estará no próximo culto e quem acompanhará pela live." action={`${checkinCount} ${checkinCount === 1 ? "resposta" : "respostas"}`} />
+          <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
         {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" />}
-        <Module number={isAdmin ? "08" : String((isDiscipler ? 1 : 0) + (ministryCount > 0 ? 1 : 0) + 1).padStart(2, "0")} href="/calendario" title="Calendário" copy="Consulte a programação dinâmica dos cultos, reuniões e eventos da Casa." action="Abrir calendário" />
       </section>
+      <AdminCalendarTicker />
     </main>
   );
 }
 
 function Module({ number, href, title, copy, action }: { number: string; href: string; title: string; copy: string; action: string }) {
   return <Link className="admin-module-link" href={href}><span>{number}</span><h2>{title}</h2><p>{copy}</p><strong>{action} →</strong></Link>;
+}
+
+function AdminCalendarTicker() {
+  const today = getSaoPauloDateKey();
+  const events = CHURCH_EVENTS.filter(
+    (event) => event.status !== "cancelled" && (event.endDate ?? event.startDate) >= today,
+  ).slice(0, 14);
+
+  return (
+    <footer className="admin-calendar-footer">
+      <div className="admin-calendar-footer-heading">
+        <div><span>Calendário dinâmico</span><h2>Próximos eventos da Casa</h2></div>
+        <Link href="/calendario">Abrir calendário completo →</Link>
+      </div>
+      <div className="admin-calendar-marquee" aria-label="Próximos eventos em movimento">
+        <div className="admin-calendar-track">
+          <CalendarEventGroup events={events} />
+          <CalendarEventGroup events={events} hidden />
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function CalendarEventGroup({ events, hidden = false }: { events: typeof CHURCH_EVENTS; hidden?: boolean }) {
+  return <div className="admin-calendar-group" aria-hidden={hidden || undefined}>{events.map((event) => (
+    <article key={`${hidden ? "copy-" : ""}${event.id}`}>
+      <time dateTime={event.startDate}>{formatEventWeekday(event.startDate, "short")} · {formatEventDate(event.startDate, { day: "2-digit", month: "short" })}</time>
+      <strong>{event.title}</strong>
+      <span>{event.startTime ? `${event.startTime} · ` : ""}{event.category}</span>
+    </article>
+  ))}</div>;
 }
