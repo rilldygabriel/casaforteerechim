@@ -50,7 +50,8 @@ export default function CalendarExperience({ today, events }: { today: string; e
     const prefix = `2026-${String(month).padStart(2, "0")}`;
     return events.filter((item) => (item.startDate.startsWith(prefix) || item.endDate?.startsWith(prefix)) && (category === "Todos" || item.category === category));
   }, [events, month, category]);
-  const specialEvents = useMemo(() => events.filter((item) => item.featured === true && item.recurring !== true && item.status === "confirmed" && (item.endDate ?? item.startDate) >= today), [events, today]);
+  const specialEvents = useMemo(() => events.filter((item) => item.featured === true && item.recurring !== true && item.title !== "Batismo nas Águas" && item.status === "confirmed" && (item.endDate ?? item.startDate) >= today), [events, today]);
+  const baptismEvents = useMemo(() => events.filter((item) => item.registrationSlug && item.title === "Batismo nas Águas" && (item.endDate ?? item.startDate) >= today), [events, today]);
   const cells = useMemo(() => calendarCells(month), [month]);
   const nextEventId = specialEvents[0]?.id;
   const monthIndex = CALENDAR_MONTHS.indexOf(month as (typeof CALENDAR_MONTHS)[number]);
@@ -118,6 +119,14 @@ export default function CalendarExperience({ today, events }: { today: string; e
           </div>
         ) : <p className="calendar-empty">Nenhum evento especial confirmado neste período.</p>}
       </section>
+
+      {baptismEvents.length ? <section className="calendar-baptism" aria-labelledby="baptism-title">
+        <div className="calendar-baptism-heading"><div><p className="calendar-eyebrow">Seu próximo passo</p><h2 id="baptism-title">Batismo nas Águas</h2></div><p>Uma decisão pública de fé, uma nova história e toda a Casa celebrando com você.</p></div>
+        <div className="calendar-baptism-grid">{baptismEvents.map((item) => <article key={item.id}>
+          <div className="calendar-baptism-date"><strong>{parseDateParts(item.startDate).day}</strong><span>{monthLabel(parseDateParts(item.startDate).month).split(" ")[0]}</span><small>{formatEventWeekday(item.startDate)}</small></div>
+          <div className="calendar-baptism-copy"><span>Durante o Culto de Ceia · {formatEventTime(item)}</span><h3>{item.title}</h3><p>{item.description}</p><Link href={`/eventos/${item.registrationSlug}`}>Quero me inscrever <span aria-hidden="true">→</span></Link></div>
+        </article>)}</div>
+      </section> : null}
 
       <section className="calendar-agenda" aria-labelledby="agenda-title">
         <div className="calendar-section-heading calendar-agenda-heading">

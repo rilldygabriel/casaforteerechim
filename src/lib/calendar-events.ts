@@ -132,14 +132,14 @@ function createRecurringEvents() {
           const withBaptism = currentDate === "2026-09-13" || currentDate === "2026-12-13";
           const ceiaEvent = recurringEvent(
               `ceia-${currentDate}`,
-              withBaptism ? "Culto de Ceia + Batismo na Casa" : "Culto de Ceia",
+              withBaptism ? "Batismo nas Águas" : "Culto de Ceia",
               currentDate,
               "19:00",
               "Ceia e Batismo",
             );
           if (withBaptism) {
             ceiaEvent.featured = true;
-            ceiaEvent.description = "Você tomou a decisão de seguir Jesus e deseja dar o próximo passo? Faça sua inscrição para o Batismo na Casa.";
+            ceiaEvent.description = "Você tomou a decisão de seguir Jesus e deseja dar o próximo passo? Participe do Batismo nas Águas durante o Culto de Ceia na Casa.";
             ceiaEvent.registrationSlug = currentDate === "2026-09-13" ? "batismo-setembro-2026" : "batismo-dezembro-2026";
             ceiaEvent.registrationLabel = "Inscrições abertas";
           }

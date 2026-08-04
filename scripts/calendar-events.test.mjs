@@ -21,12 +21,18 @@ test("todas as programações recorrentes possuem horário definido", () => {
 
 test("domingos usam 19h e as demais recorrências usam 19h30", () => {
   for (const item of CHURCH_EVENTS.filter((event) => event.recurring)) {
-    if (item.title.startsWith("Culto na Casa") || item.title.startsWith("Culto de Ceia")) {
+    if ((item.category === "Cultos" && item.title === "Culto na Casa") || item.category === "Ceia e Batismo") {
       assert.equal(item.startTime, "19:00");
     } else {
       assert.equal(item.startTime, "19:30");
     }
   }
+});
+
+test("os batismos são apresentados como Batismo nas Águas", () => {
+  const baptisms = CHURCH_EVENTS.filter((item) => item.registrationSlug);
+  assert.equal(baptisms.length, 2);
+  assert.equal(baptisms.every((item) => item.title === "Batismo nas Águas"), true);
 });
 
 test("as datas mensais de ceia estão corretas", () => {
