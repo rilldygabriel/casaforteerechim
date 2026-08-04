@@ -173,15 +173,15 @@ export default function PushNotifications() {
       <div>
         <p className="section-eyebrow">
           <span aria-hidden="true" />
-          Lembretes de cultos
+          Permissão de notificações
         </p>
-        <h2>Não perca o horário da Casa</h2>
+        <h2>Receba os avisos da Casa</h2>
         <p>{message}</p>
         <small>Domingo, quarta e sexta. Você pode desativar quando quiser.</small>
       </div>
       {state === "inactive" || state === "error" ? (
         <button type="button" onClick={enable}>
-          Ativar lembretes
+          Aceitar notificações
         </button>
       ) : null}
       {state === "active" ? (

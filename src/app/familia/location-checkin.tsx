@@ -2,13 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type State = "checking" | "hidden" | "locating" | "success" | "error";
+type State = "checking" | "inactive" | "locating" | "active" | "success" | "blocked" | "error";
+
+const CONSENT_KEY = "casaforte-location-consent";
 
 export default function LocationCheckin() {
   const [state, setState] = useState<State>("checking");
   const [message, setMessage] = useState("");
 
-  const locate = useCallback(() => {
+  const locate = useCallback((manual = false) => {
     if (!navigator.geolocation) {
       setState("error");
       setMessage("Este aparelho não oferece localização pelo navegador.");
@@ -20,6 +22,15 @@ export default function LocationCheckin() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
+          localStorage.setItem(CONSENT_KEY, "accepted");
+          const eligibilityResponse = await fetch("/api/cultos/check-in-localizacao", { cache: "no-store" });
+          const eligibility = (await eligibilityResponse.json()) as { eligible?: boolean };
+          if (!eligibilityResponse.ok || !eligibility.eligible) {
+            setState("active");
+            setMessage("Localização autorizada. O check-in automático será feito no horário dos cultos.");
+            return;
+          }
+
           const response = await fetch("/api/cultos/check-in-localizacao", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -48,10 +59,10 @@ export default function LocationCheckin() {
         }
       },
       (error) => {
-        setState("error");
+        setState(error.code === error.PERMISSION_DENIED ? "blocked" : "error");
         setMessage(
           error.code === error.PERMISSION_DENIED
-            ? "Autorize a localização para usar o check-in automático."
+            ? "A localização está bloqueada. Libere-a nas configurações do navegador."
             : "Não foi possível obter uma localização precisa. Tente novamente.",
         );
       },
@@ -61,35 +72,46 @@ export default function LocationCheckin() {
         timeout: 15_000,
       },
     );
+    if (manual) setMessage("Solicitando sua autorização de localização...");
   }, []);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    async function checkWindow() {
+    async function checkPermission() {
       try {
-        const response = await fetch("/api/cultos/check-in-localizacao", {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        const result = (await response.json()) as { eligible?: boolean };
-        if (!response.ok || !result.eligible) {
-          setState("hidden");
+        const accepted = localStorage.getItem(CONSENT_KEY) === "accepted";
+        const permission = "permissions" in navigator
+          ? await navigator.permissions.query({ name: "geolocation" })
+          : null;
+        if (permission?.state === "denied") {
+          setState("blocked");
+          setMessage("A localização está bloqueada. Libere-a nas configurações do navegador.");
           return;
         }
-        locate();
+        if (accepted || permission?.state === "granted") {
+          const response = await fetch("/api/cultos/check-in-localizacao", { cache: "no-store", signal: controller.signal });
+          const result = (await response.json()) as { eligible?: boolean };
+          if (response.ok && result.eligible) locate();
+          else {
+            setState("active");
+            setMessage("Localização autorizada. O check-in automático será feito no horário dos cultos.");
+          }
+          return;
+        }
+        setState("inactive");
+        setMessage("Autorize a localização para confirmar automaticamente sua presença nos cultos.");
       } catch (error) {
         if (!(error instanceof Error && error.name === "AbortError")) {
-          setState("hidden");
+          setState("inactive");
+          setMessage("Autorize a localização para confirmar automaticamente sua presença nos cultos.");
         }
       }
     }
 
-    void checkWindow();
+    void checkPermission();
     return () => controller.abort();
   }, [locate]);
-
-  if (state === "checking" || state === "hidden") return null;
 
   return (
     <section
@@ -97,18 +119,19 @@ export default function LocationCheckin() {
       aria-live="polite"
     >
       <div>
-        <p>Check-in por localização</p>
+        <p>Permissão de localização</p>
         <strong>{message}</strong>
         <small>
           Usamos sua posição somente para confirmar que você está próximo da
           igreja. As coordenadas exatas não são armazenadas.
         </small>
       </div>
-      {state === "error" ? (
-        <button type="button" onClick={locate}>
-          Tentar novamente
+      {state === "inactive" || state === "error" ? (
+        <button type="button" onClick={() => locate(true)}>
+          {state === "inactive" ? "Aceitar e permitir localização" : "Tentar novamente"}
         </button>
       ) : null}
+      {state === "checking" || state === "locating" ? <button type="button" disabled>Aguarde...</button> : null}
     </section>
   );
 }

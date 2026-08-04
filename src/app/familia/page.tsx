@@ -295,7 +295,6 @@ export default async function Familia() {
             )}
           </div>
         </div>
-        <LocationCheckin />
       </section>
 
       {hasLeadershipArea && (
@@ -336,8 +335,6 @@ export default async function Familia() {
       </section>
 
       <BirthdayCarousel variant="family" />
-
-      <PushNotifications />
 
       <details
         className="family-profile-details"
@@ -506,6 +503,18 @@ export default async function Familia() {
             Chamar no WhatsApp
           </a>
         </article>
+      </section>
+
+      <section className="family-permissions" aria-labelledby="family-permissions-title">
+        <div className="family-permissions-heading">
+          <p className="section-eyebrow"><span aria-hidden="true" />Permissões do aplicativo</p>
+          <h2 id="family-permissions-title">Fique conectado com a Casa</h2>
+          <p>Você escolhe o que deseja permitir neste aparelho e pode alterar as permissões quando quiser.</p>
+        </div>
+        <div className="family-permissions-grid">
+          <LocationCheckin />
+          <PushNotifications />
+        </div>
       </section>
     </main>
   );

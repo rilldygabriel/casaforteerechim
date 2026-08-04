@@ -1407,9 +1407,40 @@ h1 strong {
   cursor: pointer;
 }
 
+.family-location-checkin button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
 .family-location-checkin.is-success {
   border-color: rgba(127, 230, 156, 0.5);
   background: rgba(127, 230, 156, 0.08);
+}
+
+.family-location-checkin.is-active {
+  border-color: rgba(127, 230, 156, 0.5);
+  background: rgba(127, 230, 156, 0.08);
+}
+
+.family-permissions {
+  margin-top: 18px;
+  padding: clamp(28px, 5vw, 54px);
+  border: 1px solid rgba(255, 254, 21, 0.24);
+  border-radius: 24px;
+  background: radial-gradient(circle at 92% 8%, rgba(255,254,21,.09), transparent 28%), #101210;
+}
+
+.family-permissions-heading { max-width: 720px; }
+.family-permissions-heading h2 { margin: 8px 0 14px; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.055em; }
+.family-permissions-heading > p:last-child { margin: 0; color: var(--muted); line-height: 1.65; }
+.family-permissions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+.family-permissions-grid .family-location-checkin,
+.family-permissions-grid .family-push-card { height: 100%; margin: 0; }
+.family-permissions-grid .family-location-checkin { align-items: flex-start; flex-direction: column; }
+.family-permissions-grid .family-location-checkin button { margin-top: auto; }
+
+@media (max-width: 760px) {
+  .family-permissions-grid { grid-template-columns: 1fr; }
 }
 
 .family-photo-editor {
