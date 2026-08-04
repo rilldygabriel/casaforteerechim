@@ -31,9 +31,9 @@ export default function MemberInviteResendButton({
       <button
         type="submit"
         disabled={pending || state.kind === "success"}
-        aria-label={`Reenviar e-mail de acesso para ${memberName}`}
+        aria-label={`Enviar novo link de acesso para ${memberName}`}
       >
-        {pending ? "Enviando…" : "Reenviar e-mail"}
+        {pending ? "Enviando…" : "Enviar novo link"}
       </button>
       {state.message ? (
         <p role="status" aria-live="polite" data-kind={state.kind}>

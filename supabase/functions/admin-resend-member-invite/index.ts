@@ -236,10 +236,6 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(false, 409, "auth_user_mismatch");
   }
 
-  if (authUser.email_confirmed_at || authUser.phone_confirmed_at) {
-    return jsonResponse(false, 409, "already_verified");
-  }
-
   const { data: application, error: applicationError } = await supabase
     .from("member_applications")
     .select("id,status,updated_at")
