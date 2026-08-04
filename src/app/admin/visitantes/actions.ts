@@ -17,7 +17,7 @@ export type VisitorFollowUpActionState = {
   message: string;
 };
 
-async function getAuthorizedAdminClient() {
+async function getAuthorizedVisitorClient() {
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -27,13 +27,33 @@ async function getAuthorizedAdminClient() {
     return null;
   }
 
-  const { data: profile } = await supabase
-    .from("member_profiles")
-    .select("is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: ministryMember }, { data: ministryLeader }] =
+    await Promise.all([
+      supabase
+        .from("member_profiles")
+        .select("is_admin,approval_status")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("ministry_members")
+        .select("member_id")
+        .eq("member_id", user.id)
+        .eq("ministry_key", "connect_consolidacao")
+        .maybeSingle(),
+      supabase
+        .from("ministry_leaders")
+        .select("member_id")
+        .eq("member_id", user.id)
+        .eq("ministry_key", "connect_consolidacao")
+        .maybeSingle(),
+    ]);
 
-  return profile?.is_admin ? supabase : null;
+  const isAuthorized = Boolean(
+    profile?.is_admin ||
+      (profile?.approval_status === "approved" && (ministryMember || ministryLeader)),
+  );
+
+  return isAuthorized ? supabase : null;
 }
 
 export async function markVisitorAsOpened(visitorId: number) {
@@ -41,7 +61,7 @@ export async function markVisitorAsOpened(visitorId: number) {
     return false;
   }
 
-  const supabase = await getAuthorizedAdminClient();
+  const supabase = await getAuthorizedVisitorClient();
 
   if (!supabase) {
     return false;
@@ -83,7 +103,7 @@ export async function updateVisitorFollowUp(
     };
   }
 
-  const supabase = await getAuthorizedAdminClient();
+  const supabase = await getAuthorizedVisitorClient();
 
   if (!supabase) {
     return {
