@@ -6329,6 +6329,116 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+/* Carrossel do calendário dinâmico na programação da página inicial */
+.home-program-carousel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.home-program-carousel-heading > p {
+  margin: 0;
+  color: #a9ada7;
+  font-size: 0.85rem;
+}
+
+.home-program-carousel-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.home-program-carousel-controls button {
+  display: inline-flex;
+  width: 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 254, 21, 0.3);
+  border-radius: 50%;
+  background: #171917;
+  color: #fffe15;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.home-program-carousel-controls button:hover {
+  background: #fffe15;
+  color: #080908;
+  transform: translateY(-2px);
+}
+
+.home-program-carousel {
+  display: grid;
+  grid-auto-columns: minmax(300px, 38%);
+  grid-auto-flow: column;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 2px 0 24px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: inline mandatory;
+  scrollbar-color: #fffe15 rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+}
+
+.home-program-carousel article {
+  display: flex;
+  min-height: 360px;
+  overflow: hidden;
+  flex-direction: column;
+  border-radius: 20px;
+  background: white;
+  color: #080908;
+  scroll-snap-align: start;
+  box-shadow: 0 22px 52px rgba(255, 254, 21, 0.07);
+}
+
+.home-program-carousel h3 {
+  max-width: 280px;
+  margin: 12px 0 28px;
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.home-program-category {
+  color: #6c6f68;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .home-program-carousel-heading {
+    align-items: flex-start;
+    margin-top: 36px;
+  }
+
+  .home-program-carousel-heading > p {
+    max-width: 210px;
+  }
+
+  .home-program-carousel-controls button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .home-program-carousel {
+    grid-auto-columns: min(84vw, 340px);
+    gap: 10px;
+    margin-right: calc(clamp(20px, 5vw, 72px) * -1);
+    padding-right: clamp(20px, 5vw, 72px);
+  }
+
+  .home-program-carousel article {
+    min-height: 300px;
+  }
+}
+
 @media (max-width: 900px) {
   .calendar-weekly {
     grid-template-columns: 1fr;
