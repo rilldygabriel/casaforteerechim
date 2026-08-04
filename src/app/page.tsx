@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
-import PrayerForm from "@/components/prayer-form";
 import ProgramsSection from "@/components/programs-section";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
@@ -361,8 +360,11 @@ export default function Home() {
               Conte o que está acontecendo. Seu pedido será recebido com
               cuidado pela nossa equipe de intercessão.
             </p>
+            <Link className="home-prayer-cta" href="/oracao">
+              Preciso de oração
+              <ArrowIcon />
+            </Link>
           </div>
-          <PrayerForm placement="home" />
         </article>
       </section>
 

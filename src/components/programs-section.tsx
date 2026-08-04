@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { CHURCH_EVENTS, formatEventDate, formatEventTime, formatEventWeekday, getSaoPauloDateKey, parseDateParts } from "@/lib/calendar-events";
 
 function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
@@ -10,6 +10,7 @@ function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
 
 export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
   const carouselRef = useRef<HTMLDivElement>(null);
+  const isPausedRef = useRef(false);
   const events = useMemo(() => {
     const today = getSaoPauloDateKey();
     return CHURCH_EVENTS.filter((event) => event.status !== "cancelled" && (event.endDate ?? event.startDate) >= today).slice(0, 12);
@@ -21,6 +22,26 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
     const card = carousel.querySelector<HTMLElement>("article");
     carousel.scrollBy({ left: direction * ((card?.offsetWidth ?? carousel.clientWidth * 0.82) + 14), behavior: "smooth" });
   }
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = window.setInterval(() => {
+      if (isPausedRef.current) return;
+
+      const card = carousel.querySelector<HTMLElement>("article");
+      const distance = (card?.offsetWidth ?? carousel.clientWidth * 0.82) + 14;
+      const reachedEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - distance * 0.45;
+
+      carousel.scrollTo({
+        left: reachedEnd ? 0 : carousel.scrollLeft + distance,
+        behavior: "smooth",
+      });
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <section className="home-block home-programs" aria-labelledby="programs-title">
@@ -40,7 +61,21 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
         </div>
       </div>
 
-      <div className="home-program-carousel" ref={carouselRef} tabIndex={0} aria-label="Próximas programações da Casa Forte">
+      <div
+        className="home-program-carousel"
+        ref={carouselRef}
+        tabIndex={0}
+        aria-label="Próximas programações da Casa Forte"
+        onMouseEnter={() => { isPausedRef.current = true; }}
+        onMouseLeave={() => { isPausedRef.current = false; }}
+        onFocus={() => { isPausedRef.current = true; }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) isPausedRef.current = false;
+        }}
+        onPointerDown={() => { isPausedRef.current = true; }}
+        onPointerUp={() => { isPausedRef.current = false; }}
+        onPointerCancel={() => { isPausedRef.current = false; }}
+      >
         {events.map((event) => (
           <article className="calendar-feature-card home-program-card" data-category={event.category} data-status={event.status} key={event.id}>
             <div className="calendar-feature-visual">
