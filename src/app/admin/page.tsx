@@ -8,6 +8,7 @@ import {
   getSaoPauloDateKey,
 } from "@/lib/calendar-events";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 export default async function AdminPage() {
   const supabase = await getSupabaseServerClient();
@@ -38,6 +39,20 @@ export default async function AdminPage() {
 
   if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && ministryCount === 0 && !isConnectMember)))) {
     redirect("/familia");
+  }
+
+  let pendingServeRequests = 0;
+  if (ministryCount > 0) {
+    const leaderKeys = (leaderResult.data ?? []).map(
+      ({ ministry_key }) => ministry_key,
+    );
+    const service = getSupabaseServiceClient();
+    const { count } = await service
+      .from("ministry_membership_requests")
+      .select("member_id", { count: "exact", head: true })
+      .in("ministry_key", leaderKeys)
+      .eq("status", "pending");
+    pendingServeRequests = count ?? 0;
   }
 
   async function signOut() {
@@ -76,7 +91,7 @@ export default async function AdminPage() {
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
-        {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" />}
+        {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" notice={pendingServeRequests > 0 ? `${pendingServeRequests} ${pendingServeRequests === 1 ? "novo pedido" : "novos pedidos"} para analisar` : undefined} />}
         {!isAdmin && canManageVisitors && <Module number={isDiscipler && ministryCount > 0 ? "03" : isDiscipler || ministryCount > 0 ? "02" : "01"} href="/admin/visitantes" title="Visitantes" copy="Acolha as pessoas que preencheram o cadastro de visitante." action="Acessar visitantes" />}
       </section>
       <AdminCalendarTicker />
@@ -84,8 +99,8 @@ export default async function AdminPage() {
   );
 }
 
-function Module({ number, href, title, copy, action }: { number: string; href: string; title: string; copy: string; action: string }) {
-  return <Link className="admin-module-link" href={href}><span>{number}</span><h2>{title}</h2><p>{copy}</p><strong>{action} →</strong></Link>;
+function Module({ number, href, title, copy, action, notice }: { number: string; href: string; title: string; copy: string; action: string; notice?: string }) {
+  return <Link className="admin-module-link" href={href} data-has-notice={Boolean(notice)}><span>{number}</span>{notice ? <em>{notice}</em> : null}<h2>{title}</h2><p>{copy}</p><strong>{action} →</strong></Link>;
 }
 
 function AdminCalendarTicker() {

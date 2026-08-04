@@ -5391,6 +5391,25 @@ a:focus-visible {
   transform: translateY(-4px);
 }
 
+.admin-dashboard-grid .admin-module-link[data-has-notice="true"] {
+  border-color: #fffe15;
+  box-shadow: 0 14px 40px rgba(255, 254, 21, 0.1);
+}
+
+.admin-dashboard-grid .admin-module-link > em {
+  display: inline-flex;
+  margin-left: 10px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #fffe15;
+  color: #0b0c0b;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* Módulo administrativo de visitantes */
 .admin-visitors-page {
   min-height: 100vh;

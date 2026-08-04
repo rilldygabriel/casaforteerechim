@@ -102,6 +102,7 @@ export default async function FamilyLeadershipPage() {
   let discipleRelationships: DiscipleRelationship[] = [];
   let discipleSessions: DiscipleSession[] = [];
   let discipleProfiles: TeamMember[] = [];
+  let pendingServeRequestCount = 0;
 
   if (isDiscipler) {
     const { data: relationships } = await supabase
@@ -159,6 +160,18 @@ export default async function FamilyLeadershipPage() {
       } catch {
         teamMembers = [];
       }
+    }
+
+    try {
+      const serviceSupabase = getSupabaseServiceClient();
+      const { count } = await serviceSupabase
+        .from("ministry_membership_requests")
+        .select("member_id", { count: "exact", head: true })
+        .in("ministry_key", leaderKeys)
+        .eq("status", "pending");
+      pendingServeRequestCount = count ?? 0;
+    } catch {
+      pendingServeRequestCount = 0;
     }
   }
 
@@ -275,6 +288,21 @@ export default async function FamilyLeadershipPage() {
             <span>Áreas sob meu cuidado</span>
             <h2>Meus ministérios</h2>
           </header>
+
+          {pendingServeRequestCount > 0 && (
+            <Link
+              className="family-leadership-request-alert"
+              href="/admin/meu-ministerio"
+            >
+              <strong>{pendingServeRequestCount}</strong>
+              <span>
+                {pendingServeRequestCount === 1
+                  ? "novo pedido para servir"
+                  : "novos pedidos para servir"}
+                <small>Toque para abrir e analisar agora →</small>
+              </span>
+            </Link>
+          )}
 
           {leaderAssignments.map((assignment) => {
             const ministry = ministryByKey.get(assignment.ministry_key);

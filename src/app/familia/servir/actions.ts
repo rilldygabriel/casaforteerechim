@@ -1,6 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import webPush from "web-push";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { findMinistry } from "./ministries";
 
 const WHATSAPP_GRAPH_API_VERSION =
@@ -132,12 +135,54 @@ export async function requestToServe(
   }
 
   const requestId = crypto.randomUUID();
+  const service = getSupabaseServiceClient();
+  const { data: existingAssignment } = await service
+    .from("ministry_members")
+    .select("member_id")
+    .eq("member_id", user.id)
+    .eq("ministry_key", ministry.key)
+    .maybeSingle();
+
+  if (existingAssignment) {
+    return {
+      kind: "success",
+      message: `Você já faz parte do ${ministry.label}.`,
+    };
+  }
+
+  const { error: requestError } = await service
+    .from("ministry_membership_requests")
+    .upsert(
+      {
+        member_id: user.id,
+        ministry_key: ministry.key,
+        status: "pending",
+        reviewed_by: null,
+        reviewed_at: null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "member_id,ministry_key" },
+    );
+
+  if (requestError) {
+    console.error("serve_request_save_failed", {
+      requestId,
+      memberId: user.id,
+      ministryKey: ministry.key,
+      errorCode: requestError.code,
+    });
+    return {
+      kind: "error",
+      message: "Não foi possível registrar seu pedido agora. Tente novamente.",
+    };
+  }
+
   const messageText =
     `Olá! ${profile.full_name} tem interesse em servir no Ministério de ` +
     `${ministry.label}. Este é o WhatsApp dele(a): ${profile.phone}. ` +
     "Favor entrar em contato com essa pessoa.";
 
-  const results = await Promise.all(
+  const whatsappResults = await Promise.all(
     ministry.leaders.map((leader) =>
       notifyLeader(
         { leaderName: leader.name, leaderPhone: leader.phone, text: messageText },
@@ -146,16 +191,80 @@ export async function requestToServe(
     ),
   );
 
-  if (!results.some(Boolean)) {
-    return {
-      kind: "error",
-      message:
-        "Não foi possível avisar a liderança agora. Tente novamente em instantes.",
-    };
+  const publicKey = process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY?.trim();
+  const privateKey = process.env.WEB_PUSH_PRIVATE_KEY?.trim();
+  let pushSent = 0;
+
+  if (publicKey && privateKey) {
+    webPush.setVapidDetails(
+      "mailto:contato@casaforteerechim.app.br",
+      publicKey,
+      privateKey,
+    );
+    const { data: leaders } = await service
+      .from("ministry_leaders")
+      .select("member_id")
+      .eq("ministry_key", ministry.key);
+    const leaderIds = (leaders ?? []).map((leader) => leader.member_id);
+    const { data: subscriptions } = leaderIds.length
+      ? await service
+          .from("web_push_subscriptions")
+          .select("id,endpoint,p256dh,auth_key")
+          .in("user_id", leaderIds)
+      : { data: [] };
+
+    await Promise.all(
+      (subscriptions ?? []).map(async (subscription) => {
+        try {
+          await webPush.sendNotification(
+            {
+              endpoint: subscription.endpoint,
+              keys: {
+                p256dh: subscription.p256dh,
+                auth: subscription.auth_key,
+              },
+            },
+            JSON.stringify({
+              title: "Novo pedido para servir",
+              body: `${profile.full_name} quer servir no ${ministry.label}.`,
+              tag: `servir-${ministry.key}-${user.id}`,
+              url: "/admin/meu-ministerio",
+            }),
+            { TTL: 60 * 60 * 24 * 7, urgency: "high" },
+          );
+          pushSent += 1;
+        } catch (pushError) {
+          const statusCode =
+            typeof pushError === "object" &&
+            pushError !== null &&
+            "statusCode" in pushError
+              ? Number(pushError.statusCode)
+              : 0;
+          if (statusCode === 404 || statusCode === 410) {
+            await service
+              .from("web_push_subscriptions")
+              .delete()
+              .eq("id", subscription.id);
+          }
+        }
+      }),
+    );
   }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/meu-ministerio");
+  revalidatePath("/familia/lideranca");
+
+  console.info("serve_request_registered", {
+    requestId,
+    memberId: user.id,
+    ministryKey: ministry.key,
+    whatsappSent: whatsappResults.some(Boolean),
+    pushSent,
+  });
 
   return {
     kind: "success",
-    message: `Avisamos a liderança do ${ministry.label}. Em breve alguém vai falar com você.`,
+    message: `Seu pedido foi enviado à liderança do ${ministry.label}. Em breve alguém vai falar com você.`,
   };
 }

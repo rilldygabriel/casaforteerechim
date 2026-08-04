@@ -163,6 +163,43 @@
   font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
+.family-leadership-request-alert {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid rgba(255, 254, 21, 0.7);
+  border-radius: 16px;
+  color: #f7f7f2;
+  background: rgba(255, 254, 21, 0.06);
+}
+
+.family-leadership-request-alert > strong {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: #090a09;
+  background: #fffe15;
+  font-size: 1.15rem;
+}
+
+.family-leadership-request-alert > span {
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.family-leadership-request-alert small {
+  display: block;
+  margin-top: 5px;
+  color: #fffe15;
+  font-size: 0.64rem;
+}
+
 .family-leadership-teams > article {
   display: grid;
   grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.25fr);
