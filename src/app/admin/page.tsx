@@ -7,7 +7,6 @@ import {
   formatEventWeekday,
   getSaoPauloDateKey,
 } from "@/lib/calendar-events";
-import { getNextSundayDate } from "@/lib/programs";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
@@ -28,15 +27,6 @@ export default async function AdminPage() {
 
   if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && ministryCount === 0)))) {
     redirect("/familia");
-  }
-
-  let checkinCount = 0;
-  if (isAdmin) {
-    const { count } = await supabase
-      .from("culto_checkins")
-      .select("id", { count: "exact", head: true })
-      .eq("event_date", getNextSundayDate());
-    checkinCount = count ?? 0;
   }
 
   async function signOut() {
@@ -69,8 +59,7 @@ export default async function AdminPage() {
           <Module number="03" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
           <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
           <Module number="05" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
-          <Module number="06" href="/admin/pre-checkin" title="Pré-check-in" copy="Veja quem estará no próximo culto e quem acompanhará pela live." action={`${checkinCount} ${checkinCount === 1 ? "resposta" : "respostas"}`} />
-          <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
+          <Module number="06" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}

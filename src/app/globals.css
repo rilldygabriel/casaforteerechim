@@ -4751,10 +4751,11 @@ a:focus-visible {
 
 .admin-dashboard-grid > a:nth-child(4n + 1),
 .admin-dashboard-grid > a:nth-child(4n + 4) {
-  border-color: rgba(119, 221, 157, 0.24);
+  border-color: rgba(255, 254, 21, 0.68);
   background:
-    radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.08), transparent 30%),
-    #17613d;
+    radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.5), transparent 32%),
+    #fffe15;
+  color: #0b0c0b;
 }
 
 .admin-dashboard-grid article > span,
@@ -4782,7 +4783,14 @@ a:focus-visible {
 
 .admin-dashboard-grid > a:nth-child(4n + 1) p,
 .admin-dashboard-grid > a:nth-child(4n + 4) p {
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(11, 12, 11, 0.7);
+}
+
+.admin-dashboard-grid > a:nth-child(4n + 1) > span,
+.admin-dashboard-grid > a:nth-child(4n + 4) > span,
+.admin-dashboard-grid > a:nth-child(4n + 1) strong,
+.admin-dashboard-grid > a:nth-child(4n + 4) strong {
+  color: #0b0c0b;
 }
 
 .admin-dashboard-grid strong {
@@ -4887,9 +4895,6 @@ a:focus-visible {
 
 .admin-dashboard-grid .admin-module-link:hover {
   border-color: rgba(255, 254, 21, 0.62);
-  background:
-    linear-gradient(145deg, rgba(255, 254, 21, 0.08), transparent 52%),
-    #111311;
   transform: translateY(-4px);
 }
 
