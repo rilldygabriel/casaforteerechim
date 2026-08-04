@@ -1,0 +1,14 @@
+.role-panel-list { display: grid; gap: 14px; width: min(100%, 1120px); margin: 20px auto 0; }
+.role-panel-card { padding: clamp(22px, 4vw, 36px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: #101210; }
+.role-panel-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.role-panel-card header span { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.role-panel-card h2 { margin: 9px 0 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.05em; }
+.role-panel-card header strong { color: #a4a9a2; font-size: .74rem; }
+.role-panel-people { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 20px; }
+.role-panel-person { display: grid; gap: 7px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 15px; color: #f5f5ef; background: rgba(255,255,255,.025); }
+.role-panel-person span { color: #fffe15; font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.role-panel-person h3 { margin: 4px 0; font-size: 1.25rem; }
+.role-panel-person p { margin: 0; color: #949990; font-size: .74rem; }
+.role-panel-person strong { margin-top: 8px; color: #fffe15; font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; }
+.role-panel-empty { color: #959a93; }
+@media (max-width: 720px) { .role-panel-card > header { flex-direction: column; } .role-panel-people { grid-template-columns: 1fr; } }

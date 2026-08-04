@@ -801,6 +801,13 @@ h1 strong {
   text-transform: uppercase;
 }
 
+.family-calendar-access {
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(circle at 92% 10%, rgba(255, 255, 255, 0.09), transparent 32%),
+    #121412;
+}
+
 .family-birthday-heading .section-eyebrow {
   color: #292929;
 }

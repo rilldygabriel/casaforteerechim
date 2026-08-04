@@ -286,6 +286,11 @@ export default async function Familia() {
       ministryLeaderRoles.data?.length ||
       ministryMemberRoles.data?.length,
   );
+  const hasManagementPanel = Boolean(
+    profile.is_admin ||
+      disciplerRole.data ||
+      ministryLeaderRoles.data?.length,
+  );
   let signedPhotoUrl: string | null = null;
 
   if (profile.photo_url) {
@@ -357,9 +362,20 @@ export default async function Familia() {
               sob seu cuidado.
             </p>
           </div>
-          <Link href="/familia/lideranca">Abrir meu painel</Link>
+          <Link href={hasManagementPanel ? "/admin" : "/familia/lideranca"}>
+            {hasManagementPanel ? "Abrir painel de liderança" : "Abrir minhas funções"}
+          </Link>
         </section>
       )}
+
+      <section className="family-leadership-access family-calendar-access">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />Programação da Casa</p>
+          <h2>Calendário dinâmico</h2>
+          <p>Veja cultos, reuniões, encontros e toda a programação atualizada da igreja.</p>
+        </div>
+        <Link href="/calendario">Abrir calendário</Link>
+      </section>
 
       <section className="family-birthday-card" aria-labelledby="birthday-title">
         <div className="family-birthday-heading">
