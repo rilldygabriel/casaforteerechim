@@ -36,8 +36,8 @@ function redirectWithMessage(
   kind: "sucesso" | "erro",
   message: string,
 ): never {
-  const params = new URLSearchParams({ aba: tab, [kind]: message });
-  redirect(`/admin/lideranca?${params.toString()}`);
+  const params = new URLSearchParams({ [kind]: message });
+  redirect(`/admin/lideranca/${tab}?${params.toString()}`);
 }
 
 async function validateApprovedMember(
@@ -60,6 +60,8 @@ async function validateApprovedMember(
 
 function revalidateLeadership() {
   revalidatePath("/admin/lideranca");
+  revalidatePath("/admin/lideranca/discipuladores");
+  revalidatePath("/admin/lideranca/ministerios");
   revalidatePath("/familia");
   revalidatePath("/familia/lideranca");
 }

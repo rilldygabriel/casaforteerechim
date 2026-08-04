@@ -109,14 +109,17 @@ export default async function AdminPage() {
           <p>Leia e responda às mensagens recebidas no número oficial.</p>
           <strong>Acessar conversas →</strong>
         </Link>
-        <Link className="admin-module-link" href="/admin/lideranca">
+        <Link className="admin-module-link" href="/admin/lideranca/discipuladores">
           <span>06</span>
-          <h2>Liderança</h2>
-          <p>
-            Classifique discipuladores, líderes e participantes de cada
-            ministério.
-          </p>
-          <strong>Organizar liderança →</strong>
+          <h2>Discipuladores</h2>
+          <p>Classifique discipuladores e consulte a ficha completa de cada pessoa.</p>
+          <strong>Gerenciar discipuladores →</strong>
+        </Link>
+        <Link className="admin-module-link" href="/admin/lideranca/ministerios">
+          <span>07</span>
+          <h2>Ministérios</h2>
+          <p>Organize líderes e participantes de todos os ministérios da Casa.</p>
+          <strong>Gerenciar ministérios →</strong>
         </Link>
       </section>
     </main>

@@ -185,6 +185,24 @@
   display: block;
 }
 
+.leadership-profile-link {
+  min-width: 0;
+  color: #f5f5ef;
+  text-decoration: none;
+}
+
+.leadership-profile-link:hover,
+.leadership-profile-link:focus-visible {
+  color: #fffe15;
+}
+
+.leadership-profile-link small {
+  display: block;
+  margin-top: 4px;
+  color: #8f938e;
+  font-size: 0.66rem;
+}
+
 .leadership-saved-list small {
   margin-top: 4px;
   color: #8f938e;
@@ -366,21 +384,47 @@
   padding: 18px 24px;
 }
 
+.leadership-bulk-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
 .leadership-bulk-options label {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
   padding: 13px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.025);
   cursor: pointer;
 }
 
-.leadership-bulk-options label:has(input:checked) {
+.leadership-bulk-option:has(input:checked) {
   border-color: rgba(255, 254, 21, 0.52);
   background: rgba(255, 254, 21, 0.07);
+}
+
+.leadership-bulk-option > a {
+  margin-right: 14px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: #d7dad4;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.leadership-bulk-option > a:hover,
+.leadership-bulk-option > a:focus-visible {
+  border-color: #fffe15;
+  color: #fffe15;
 }
 
 .leadership-bulk-options input {
@@ -468,6 +512,10 @@
   border-bottom: 0;
 }
 
+.leadership-assignment-group .leadership-profile-link {
+  font-size: 0.78rem;
+}
+
 .leadership-assignment-group button {
   min-height: 34px;
   padding-inline: 11px;
@@ -522,6 +570,17 @@
 
   .leadership-bulk-options {
     padding-inline: 18px;
+  }
+
+  .leadership-bulk-option {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-bottom: 12px;
+  }
+
+  .leadership-bulk-option > a {
+    width: fit-content;
+    margin-left: 51px;
   }
 
   .leadership-bulk-dialog footer {
