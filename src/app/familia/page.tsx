@@ -223,6 +223,12 @@ export default async function Familia() {
       disciplerRole.data ||
       ministryLeaderRoles.data?.length,
   );
+  const [{ data: announcements }, { data: announcementReads }] = await Promise.all([
+    supabase.from("family_announcements").select("id").order("created_at", { ascending: false }).limit(100),
+    supabase.from("family_announcement_reads").select("announcement_id").eq("user_id", user.id),
+  ]);
+  const readAnnouncementIds = new Set((announcementReads ?? []).map((item) => item.announcement_id));
+  const unreadNotifications = (announcements ?? []).filter((item) => !readAnnouncementIds.has(item.id)).length;
   let signedPhotoUrl: string | null = null;
   const service = getSupabaseServiceClient();
   const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult] = await Promise.all([
@@ -246,7 +252,7 @@ export default async function Familia() {
 
   return (
     <main className="inner-page family-page">
-      <FamilyHeader signOut={signOut} />
+      <FamilyHeader signOut={signOut} unreadNotifications={unreadNotifications} />
 
       <section className="family-hero">
         <p className="section-eyebrow">
@@ -498,8 +504,10 @@ export default async function Familia() {
 
 function FamilyHeader({
   signOut,
+  unreadNotifications = 0,
 }: {
   signOut: () => Promise<void>;
+  unreadNotifications?: number;
 }) {
   return (
     <header className="inner-header">
@@ -512,6 +520,11 @@ function FamilyHeader({
         />
       </Link>
       <div className="family-header-actions">
+        <Link className="family-notification-link" href="/familia/notificacoes" aria-label={`Notificações${unreadNotifications ? `, ${unreadNotifications} não lidas` : ""}`}>
+          <span aria-hidden="true">●</span>
+          <strong>Mensagens</strong>
+          {unreadNotifications > 0 ? <em>{unreadNotifications > 99 ? "99+" : unreadNotifications}</em> : null}
+        </Link>
         <Link className="inner-back" href="/">
           Voltar ao site
         </Link>

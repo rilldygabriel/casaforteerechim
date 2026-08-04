@@ -1297,6 +1297,40 @@ h1 strong {
   cursor: pointer;
 }
 
+.family-notification-link {
+  position: relative;
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 254, 21, 0.34);
+  border-radius: 999px;
+  color: #f4f4ef;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.family-notification-link > span {
+  color: var(--yellow);
+  font-size: 0.7rem;
+}
+
+.family-notification-link em {
+  display: grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  padding-inline: 5px;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #090a09;
+  font-size: 0.62rem;
+  font-style: normal;
+}
+
 .family-member-summary {
   display: grid;
   grid-template-columns: 170px minmax(0, 1fr);
@@ -2069,6 +2103,27 @@ h1 strong {
     gap: 10px;
   }
 
+  .family-notification-link {
+    width: 42px;
+    min-height: 42px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .family-notification-link strong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .family-notification-link em {
+    position: absolute;
+    top: -7px;
+    right: -5px;
+  }
+
   .family-header-actions .inner-back {
     font-size: 0.62rem;
   }
@@ -2089,6 +2144,133 @@ h1 strong {
     max-width: 78%;
     font-size: clamp(1.25rem, 5.8vw, 1.7rem);
   }
+}
+
+/* Central de mensagens da Área da Família */
+.family-notifications-page,
+.admin-announcements-page {
+  min-height: 100vh;
+  padding: clamp(20px, 4vw, 60px);
+  color: #f7f7f2;
+  background: radial-gradient(circle at 88% 0%, rgba(255, 254, 21, 0.1), transparent 32%), #080908;
+}
+
+.family-notifications-hero,
+.admin-announcements-hero {
+  max-width: 900px;
+  margin: clamp(70px, 10vw, 120px) auto 46px;
+}
+
+.family-notifications-hero h1,
+.admin-announcements-hero h1 {
+  margin: 14px 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.6rem, 9vw, 7.8rem);
+  font-weight: 900;
+  letter-spacing: -0.075em;
+  line-height: 0.86;
+}
+
+.family-notifications-hero > p:not(.section-eyebrow),
+.admin-announcements-hero > p:not(.section-eyebrow) {
+  max-width: 680px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.family-notifications-hero button,
+.admin-announcement-form button {
+  min-height: 50px;
+  margin-top: 18px;
+  padding-inline: 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #090a09;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.family-notifications-list {
+  display: grid;
+  max-width: 900px;
+  gap: 12px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+.family-notifications-list > article {
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  background: #121412;
+}
+
+.family-notifications-list > article[data-unread="true"] {
+  border-color: rgba(255, 254, 21, 0.58);
+  box-shadow: inset 4px 0 0 var(--yellow);
+}
+
+.family-notifications-list article > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.family-notifications-list span,
+.family-notifications-list time {
+  color: var(--yellow);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.family-notifications-list time { color: var(--muted); }
+.family-notifications-list h2 { margin: 24px 0 12px; font-size: clamp(1.6rem, 4vw, 2.6rem); }
+.family-notifications-list p { margin: 0; color: #d3d5d0; line-height: 1.7; white-space: pre-wrap; }
+
+.admin-announcements-layout {
+  display: grid;
+  max-width: 1180px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: 16px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+.admin-announcements-layout > :is(article, aside) {
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  background: #121412;
+}
+
+.admin-announcements-layout h2 { margin: 10px 0 26px; font-size: clamp(1.8rem, 4vw, 3rem); }
+.admin-announcement-form { display: grid; gap: 18px; }
+.admin-announcement-form label { display: grid; gap: 8px; color: #d5d7d2; font-size: 0.72rem; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; }
+.admin-announcement-form :is(input, textarea) { width: 100%; padding: 15px 17px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: #090b09; color: white; font: inherit; line-height: 1.5; }
+.admin-announcement-form :is(input, textarea):focus { border-color: var(--yellow); }
+.admin-announcement-form button:disabled { opacity: .58; cursor: wait; }
+.admin-announcement-feedback { margin: 0; color: var(--yellow); line-height: 1.5; }
+.admin-announcement-feedback[data-kind="error"] { color: #ff8d8d; }
+.admin-announcements-layout aside > article { padding: 18px 0; border-top: 1px solid rgba(255,255,255,.1); }
+.admin-announcements-layout aside time { color: var(--yellow); font-size: .66rem; }
+.admin-announcements-layout aside h3 { margin: 9px 0; font-size: 1.25rem; }
+.admin-announcements-layout aside article p { margin: 0; color: var(--muted); line-height: 1.55; white-space: pre-wrap; }
+
+@media (max-width: 760px) {
+  .family-notifications-page,
+  .admin-announcements-page { padding: 18px 14px 40px; }
+  .family-notifications-hero,
+  .admin-announcements-hero { margin-top: 62px; }
+  .family-notifications-hero h1,
+  .admin-announcements-hero h1 { font-size: clamp(3.5rem, 19vw, 5rem); }
+  .admin-announcements-layout { grid-template-columns: 1fr; }
+  .family-notifications-list article > div { align-items: flex-start; flex-direction: column; gap: 7px; }
 }
 
 .paths-section::before {
