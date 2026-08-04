@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import PasswordResetActions from "./password-reset-actions";
 import "../members.css";
 
 const UUID_PATTERN =
@@ -451,6 +452,7 @@ export default async function AdminMemberProfilePage({
               {formatTimestamp(member.approved_at)}
             </ProfileField>
           </dl>
+          <PasswordResetActions memberId={member.user_id} hasPhone={Boolean(whatsAppUrl)} />
         </article>
       </section>
     </main>
