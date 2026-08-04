@@ -44,11 +44,12 @@ function saoPauloParts(now = new Date()) {
 function activeWindow(): ActiveWindow {
   const now = saoPauloParts();
 
-  if (now.weekday === "Wed" && now.minutes >= 18 * 60 + 30 && now.minutes <= 21 * 60 + 30) {
+  // O check-in abre 1h30 antes e fecha 30 minutos depois do início do culto.
+  if (now.weekday === "Wed" && now.minutes >= 18 * 60 && now.minutes <= 20 * 60) {
     return { eventKey: "quarta-ensino", date: now.date };
   }
 
-  if (now.weekday === "Sun" && now.minutes >= 17 * 60 && now.minutes <= 21 * 60 + 30) {
+  if (now.weekday === "Sun" && now.minutes >= 17 * 60 + 30 && now.minutes <= 19 * 60 + 30) {
     return { eventKey: "domingo-casa", date: now.date };
   }
 
