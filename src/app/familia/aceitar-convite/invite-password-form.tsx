@@ -129,7 +129,7 @@ export default function InvitePasswordForm() {
         {inviteState === "invalid" ? (
           <>
             <p className="admin-auth-error" role="alert">
-              Este convite expirou ou não é mais válido.
+              Este link já foi usado ou expirou. Por segurança, cada link funciona uma única vez. Peça à liderança para enviar um novo link de acesso.
             </p>
             <Link className="admin-auth-back" href="/familia/login">
               Voltar ao acesso

@@ -175,9 +175,7 @@ export default function MembersList({
                 </div>
                 <span aria-hidden="true">→</span>
               </Link>
-              {!member.email_verified &&
-              !member.phone_verified &&
-              member.email ? (
+              {member.email ? (
                 <MemberInviteResendButton
                   memberId={member.user_id}
                   memberName={member.full_name || "membro"}

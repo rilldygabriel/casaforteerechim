@@ -6,3 +6,7 @@ verify_jwt = false
 
 [functions.register-member]
 verify_jwt = false
+
+[auth.email]
+# Prazo máximo permitido pelo Supabase para links e códigos enviados por e-mail.
+otp_expiry = 86400
