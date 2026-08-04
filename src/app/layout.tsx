@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
+import ScrollToTop from "@/components/scroll-to-top";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -73,7 +74,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={GeistSans.variable}>
-      <body>{children}</body>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'if("scrollRestoration" in history){history.scrollRestoration="manual";}',
+          }}
+        />
+      </head>
+      <body>
+        <ScrollToTop />
+        {children}
+      </body>
     </html>
   );
 }
