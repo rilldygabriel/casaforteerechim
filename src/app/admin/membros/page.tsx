@@ -5,7 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import MembersList, { type MemberListRecord } from "./members-list";
-import { reviewRoleRequest } from "./actions";
+import RoleRequestActions from "./role-request-actions";
 import "./members.css";
 
 export const metadata: Metadata = {
@@ -266,15 +266,11 @@ export default async function AdminMembersPage() {
         <header><p>Novas escolhas</p><h2 id="role-requests-title">Ministérios e discipulado para aprovar</h2></header>
         {pendingMinistryRequests.length + pendingDiscipleshipRequests.length === 0 ? <p className="admin-role-requests-empty">Nenhuma solicitação aguardando seu aceite.</p> : (
           <div className="admin-role-requests-list">
-            {pendingDiscipleshipRequests.map((request) => <article key={`d-${request.member_id}`}><span>Discipulado</span><h3>{memberNames.get(request.member_id)}</h3><p>Escolheu {disciplerNames.get(request.discipler_id) ?? "Discipulador"}</p><RequestActions type="discipleship" memberId={request.member_id} referenceId={request.discipler_id} /></article>)}
-            {pendingMinistryRequests.map((request) => <article key={`m-${request.member_id}-${request.ministry_key}`}><span>Ministério</span><h3>{memberNames.get(request.member_id)}</h3><p>{ministryNames.get(request.ministry_key) ?? request.ministry_key}</p><RequestActions type="ministry" memberId={request.member_id} referenceId={request.ministry_key} /></article>)}
+            {pendingDiscipleshipRequests.map((request) => <article key={`d-${request.member_id}`}><span>Discipulado</span><h3>{memberNames.get(request.member_id)}</h3><p>Escolheu {disciplerNames.get(request.discipler_id) ?? "Discipulador"}</p><RoleRequestActions type="discipleship" memberId={request.member_id} referenceId={request.discipler_id} /></article>)}
+            {pendingMinistryRequests.map((request) => <article key={`m-${request.member_id}-${request.ministry_key}`}><span>Ministério</span><h3>{memberNames.get(request.member_id)}</h3><p>{ministryNames.get(request.ministry_key) ?? request.ministry_key}</p><RoleRequestActions type="ministry" memberId={request.member_id} referenceId={request.ministry_key} /></article>)}
           </div>
         )}
       </section>
     </main>
   );
-}
-
-function RequestActions({ type, memberId, referenceId }: { type: "ministry" | "discipleship"; memberId: string; referenceId: string }) {
-  return <div className="admin-role-request-actions"><form action={reviewRoleRequest}><input type="hidden" name="requestType" value={type} /><input type="hidden" name="memberId" value={memberId} /><input type="hidden" name="referenceId" value={referenceId} /><button name="decision" value="approve">Aceitar</button><button name="decision" value="reject">Recusar</button></form></div>;
 }

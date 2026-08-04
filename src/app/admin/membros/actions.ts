@@ -19,6 +19,11 @@ export type MemberInviteResendActionState = {
   message: string;
 };
 
+export type RoleRequestActionState = {
+  kind: "idle" | "success" | "error";
+  message: string;
+};
+
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SUPABASE_MEMBER_APPROVAL_URL =
@@ -269,37 +274,49 @@ export async function updateMemberApproval(
   };
 }
 
-export async function reviewRoleRequest(formData: FormData) {
+export async function reviewRoleRequest(
+  _previousState: RoleRequestActionState,
+  formData: FormData,
+): Promise<RoleRequestActionState> {
   const requestType = String(formData.get("requestType") ?? "");
   const memberId = String(formData.get("memberId") ?? "");
   const referenceId = String(formData.get("referenceId") ?? "");
   const decision = String(formData.get("decision") ?? "");
-  if (!UUID_PATTERN.test(memberId) || !["ministry", "discipleship"].includes(requestType) || !["approve", "reject"].includes(decision)) return;
+  if (!UUID_PATTERN.test(memberId) || !["ministry", "discipleship"].includes(requestType) || !["approve", "reject"].includes(decision)) {
+    return { kind: "error", message: "Esta solicitação não pôde ser identificada." };
+  }
 
   const { supabase, user } = await getCurrentAdmin();
-  if (!user) return;
+  if (!user) return { kind: "error", message: "Sua sessão expirou. Entre novamente no painel." };
   const now = new Date().toISOString();
 
   if (requestType === "ministry") {
-    if (!/^[a-z0-9_]+$/.test(referenceId)) return;
+    if (!/^[a-z0-9_]+$/.test(referenceId)) return { kind: "error", message: "O ministério informado é inválido." };
     if (decision === "approve") {
       const { error } = await supabase.from("ministry_members").upsert({ ministry_key: referenceId, member_id: memberId, assigned_by: user.id }, { onConflict: "ministry_key,member_id" });
-      if (error) return;
+      if (error) return { kind: "error", message: "Não foi possível incluir a pessoa no ministério. Tente novamente." };
     }
-    await supabase.from("ministry_membership_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId).eq("ministry_key", referenceId);
+    const { error: requestError } = await supabase.from("ministry_membership_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId).eq("ministry_key", referenceId);
+    if (requestError) return { kind: "error", message: "A função foi salva, mas o pedido não foi concluído. Atualize e tente novamente." };
   } else {
-    if (!UUID_PATTERN.test(referenceId)) return;
+    if (!UUID_PATTERN.test(referenceId)) return { kind: "error", message: "O discipulador informado é inválido." };
     if (decision === "approve") {
-      await supabase.from("discipleship_relationships").delete().eq("disciple_id", memberId);
+      const { error: deleteError } = await supabase.from("discipleship_relationships").delete().eq("disciple_id", memberId);
+      if (deleteError) return { kind: "error", message: "Não foi possível atualizar o discipulador desta pessoa." };
       const { error } = await supabase.from("discipleship_relationships").insert({ discipler_id: referenceId, disciple_id: memberId, assigned_by: user.id });
-      if (error) return;
+      if (error) return { kind: "error", message: "Não foi possível vincular o discipulador. Tente novamente." };
     }
-    await supabase.from("discipleship_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId);
+    const { error: requestError } = await supabase.from("discipleship_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId);
+    if (requestError) return { kind: "error", message: "O vínculo foi salvo, mas o pedido não foi concluído. Atualize e tente novamente." };
   }
   revalidatePath("/admin/membros");
   revalidatePath("/admin/lideranca/discipuladores");
   revalidatePath("/admin/lideranca/ministerios");
   revalidatePath("/familia");
+  return {
+    kind: "success",
+    message: decision === "approve" ? "Aceite concluído com sucesso." : "Solicitação recusada.",
+  };
 }
 
 export async function resendMemberInvite(
