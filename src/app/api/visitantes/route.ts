@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,7 +10,10 @@ const WHATSAPP_GRAPH_API_VERSION =
   process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0";
 const WHATSAPP_PHONE_NUMBER_ID =
   process.env.WHATSAPP_PHONE_NUMBER_ID || "1188719124331063";
-const WHATSAPP_NOTIFICATION_TO = "5554992640253";
+const PASTORAL_NOTIFICATION_RECIPIENTS = [
+  { name: "Pastor Rilldy", phone: "5554993217227" },
+  { name: "Pastora Lisi", phone: "5554991619014" },
+] as const;
 const WHATSAPP_TEMPLATE_NAME = "notificacao_site_casa_forte";
 const WHATSAPP_TEMPLATE_LANGUAGE = "pt_BR";
 
@@ -51,6 +55,40 @@ function clean(value: unknown, max = 600) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, max);
+}
+
+function normalizeWhatsAppPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 10 || digits.length === 11) return `55${digits}`;
+  if (digits.startsWith("55") && (digits.length === 12 || digits.length === 13)) return digits;
+  return null;
+}
+
+async function getNotificationRecipients() {
+  const recipients = new Map<string, { name: string; phone: string }>();
+  for (const recipient of PASTORAL_NOTIFICATION_RECIPIENTS) recipients.set(recipient.phone, { ...recipient });
+
+  const service = getSupabaseServiceClient();
+  const { data: leadership, error: leadershipError } = await service
+    .from("ministry_leaders")
+    .select("member_id")
+    .eq("ministry_key", "connect_consolidacao");
+  if (leadershipError) throw leadershipError;
+
+  const leaderIds = (leadership ?? []).map((item) => item.member_id);
+  if (leaderIds.length) {
+    const { data: profiles, error: profilesError } = await service
+      .from("member_profiles")
+      .select("full_name,phone")
+      .in("user_id", leaderIds);
+    if (profilesError) throw profilesError;
+    for (const profile of profiles ?? []) {
+      const phone = normalizeWhatsAppPhone(profile.phone ?? "");
+      if (phone) recipients.set(phone, { name: profile.full_name || "Liderança do Connect", phone });
+    }
+  }
+
+  return [...recipients.values()];
 }
 
 function visitorNotification(payload: {
@@ -108,57 +146,38 @@ async function notifyWhatsApp(payload: {
   }
 
   try {
-    const response = await fetch(
-      `https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+    const recipients = await getNotificationRecipients();
+    const deliveries = await Promise.allSettled(recipients.map(async (recipient) => {
+      const response = await fetch(
+        `https://graph.facebook.com/${WHATSAPP_GRAPH_API_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: recipient.phone,
+            type: "template",
+            template: {
+              name: WHATSAPP_TEMPLATE_NAME,
+              language: { code: WHATSAPP_TEMPLATE_LANGUAGE },
+              components: [{ type: "body", parameters: [{ type: "text", text: visitorNotification(payload) }] }],
+            },
+          }),
+          signal: AbortSignal.timeout(8000),
+          cache: "no-store",
         },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: WHATSAPP_NOTIFICATION_TO,
-          type: "template",
-          template: {
-            name: WHATSAPP_TEMPLATE_NAME,
-            language: { code: WHATSAPP_TEMPLATE_LANGUAGE },
-            components: [
-              {
-                type: "body",
-                parameters: [
-                  {
-                    type: "text",
-                    text: visitorNotification(payload),
-                  },
-                ],
-              },
-            ],
-          },
-        }),
-        signal: AbortSignal.timeout(8000),
-        cache: "no-store",
-      },
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error(
-        "WhatsApp visitor notification failed",
-        response.status,
-        result?.error?.code,
-        result?.error?.message,
-        result?.error?.error_data?.details,
       );
-      return;
-    }
-
-    console.info(
-      "WhatsApp visitor notification sent",
-      result?.messages?.[0]?.id || "without-message-id",
-    );
+      const result = await response.json();
+      if (!response.ok || !result?.messages?.[0]?.id) {
+        throw new Error(`WhatsApp recusou a notificação (${response.status}, ${result?.error?.code ?? "sem código"}).`);
+      }
+      return result.messages[0].id as string;
+    }));
+    const sent = deliveries.filter((item) => item.status === "fulfilled").length;
+    const failed = deliveries.length - sent;
+    console.info("WhatsApp visitor notifications completed", { recipients: recipients.length, sent, failed });
+    deliveries.forEach((item) => { if (item.status === "rejected") console.error("WhatsApp visitor recipient notification failed", item.reason); });
   } catch (error) {
     console.error("WhatsApp visitor notification unavailable", error);
   }
