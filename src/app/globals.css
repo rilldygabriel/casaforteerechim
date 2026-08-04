@@ -19,12 +19,17 @@
 }
 
 html {
+  width: 100%;
+  min-width: 100%;
   background: var(--background);
   scroll-behavior: smooth;
 }
 
 body {
+  width: 100%;
+  min-width: 100%;
   margin: 0;
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -460,6 +465,19 @@ h1 strong {
   background:
     radial-gradient(circle at 12% 6%, rgba(255, 254, 21, 0.09), transparent 28%),
     #090a09;
+}
+
+.family-page {
+  width: 100%;
+  min-width: 100vw;
+  max-width: none;
+  overflow-x: clip;
+}
+
+@supports (width: 100dvw) {
+  .family-page {
+    min-width: 100dvw;
+  }
 }
 
 .inner-header,
