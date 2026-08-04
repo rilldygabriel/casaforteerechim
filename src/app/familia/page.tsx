@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import PixCopyButton from "@/components/pix-copy-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
@@ -12,6 +13,77 @@ import PushNotifications from "./push-notifications";
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PASTOR_URL = "https://wa.me/5554992640253";
+
+type BirthdayMember = {
+  fullName: string;
+  photoUrl: string | null;
+};
+
+function getTodayInSaoPaulo() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  return {
+    month: parts.find((part) => part.type === "month")?.value ?? "",
+    day: parts.find((part) => part.type === "day")?.value ?? "",
+  };
+}
+
+async function getBirthdayMembers(): Promise<BirthdayMember[]> {
+  try {
+    const serviceSupabase = getSupabaseServiceClient();
+    const { month, day } = getTodayInSaoPaulo();
+    const { data, error } = await serviceSupabase
+      .from("member_profiles")
+      .select("full_name,birth_date,photo_url")
+      .not("birth_date", "is", null)
+      .or("approval_status.eq.approved,is_admin.eq.true")
+      .order("full_name");
+
+    if (error) {
+      return [];
+    }
+
+    const birthdayProfiles = (data ?? []).filter((member) => {
+      const [, birthMonth, birthDay] = (member.birth_date ?? "").split("-");
+      return birthMonth === month && birthDay === day;
+    });
+
+    return Promise.all(
+      birthdayProfiles.map(async (member) => {
+        let photoUrl: string | null = null;
+
+        if (member.photo_url) {
+          const { data: signedPhoto } = await serviceSupabase.storage
+            .from("member-profile-photos")
+            .createSignedUrl(member.photo_url, 15 * 60);
+
+          photoUrl = signedPhoto?.signedUrl ?? null;
+        }
+
+        return {
+          fullName: member.full_name || "Membro Casa Forte",
+          photoUrl,
+        };
+      }),
+    );
+  } catch {
+    return [];
+  }
+}
+
+function getInitials(fullName: string) {
+  return fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
 
 function hasText(value: string | null | undefined, minimumLength: number) {
   return (value ?? "").trim().length >= minimumLength;
@@ -191,6 +263,7 @@ export default async function Familia() {
   const hasProfileStar =
     profile.profile_completed === true && completedProfileSteps === 9;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
+  const birthdayMembers = await getBirthdayMembers();
   let signedPhotoUrl: string | null = null;
 
   if (profile.photo_url) {
@@ -247,6 +320,57 @@ export default async function Familia() {
           </div>
         </div>
         <LocationCheckin />
+      </section>
+
+      <section className="family-birthday-card" aria-labelledby="birthday-title">
+        <div className="family-birthday-heading">
+          <p className="section-eyebrow">
+            <span aria-hidden="true" />
+            Aniversariante do dia
+          </p>
+          <h2 id="birthday-title">
+            {birthdayMembers.length > 0
+              ? birthdayMembers.length === 1
+                ? "Hoje a Casa celebra uma vida!"
+                : "Hoje a Casa celebra vidas!"
+              : "Hoje não temos aniversariantes."}
+          </h2>
+          <p>
+            {birthdayMembers.length > 0
+              ? "Que este novo ciclo seja cheio da presença de Deus, alegria e propósito."
+              : "Quando alguém da família completar mais um ano, vamos celebrar juntos aqui."}
+          </p>
+        </div>
+
+        {birthdayMembers.length > 0 && (
+          <div className="family-birthday-list">
+            {birthdayMembers.map((birthdayMember) => (
+              <article
+                className="family-birthday-person"
+                key={birthdayMember.fullName}
+              >
+                <div className="family-birthday-photo">
+                  {birthdayMember.photoUrl ? (
+                    <Image
+                      src={birthdayMember.photoUrl}
+                      alt={`Foto de ${birthdayMember.fullName}`}
+                      fill
+                      sizes="(max-width: 780px) 112px, 132px"
+                    />
+                  ) : (
+                    <span aria-hidden="true">
+                      {getInitials(birthdayMember.fullName)}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <span>Parabéns!</span>
+                  <h3>{birthdayMember.fullName}</h3>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <PushNotifications />
