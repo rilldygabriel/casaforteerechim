@@ -4,6 +4,7 @@ import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
 import VerseOfDayCard from "@/components/verse-of-day-card";
+import TestimonialsSection from "@/components/testimonials-section";
 import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
 
 // Mantém as datas das próximas programações atualizadas sem exigir um novo deploy.
@@ -533,6 +534,8 @@ export default function Home() {
           </article>
         </div>
       </section>
+
+      <TestimonialsSection />
 
       <BirthdayCarousel variant="public" />
 

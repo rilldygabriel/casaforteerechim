@@ -326,6 +326,15 @@ export default async function Familia() {
         <Link href="/calendario">Abrir calendário</Link>
       </section>
 
+      <section className="family-leadership-access family-testimonials-access">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />O que Deus tem feito</p>
+          <h2>Meus testemunhos</h2>
+          <p>Publique e edite as histórias que você quer compartilhar com toda a Casa.</p>
+        </div>
+        <Link href="/familia/testemunhos">Abrir testemunhos</Link>
+      </section>
+
       <BirthdayCarousel variant="family" />
 
       <PushNotifications />
