@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import MembersList, { type MemberListRecord } from "./members-list";
+import { reviewRoleRequest } from "./actions";
 import "./members.css";
 
 export const metadata: Metadata = {
@@ -137,12 +138,18 @@ export default async function AdminMembersPage() {
   const [
     { data: memberData, error: memberError },
     memberStats,
+    ministryRequestsResult,
+    discipleshipRequestsResult,
+    ministriesResult,
   ] = await Promise.all([
     supabase
       .from("member_profiles")
       .select(MEMBER_FIELDS)
       .order("created_at", { ascending: false }),
     getAdminMemberStats(user.id),
+    supabase.from("ministry_membership_requests").select("member_id,ministry_key").eq("status", "pending").order("created_at"),
+    supabase.from("discipleship_requests").select("member_id,discipler_id").eq("status", "pending").order("created_at"),
+    supabase.from("ministries").select("key,name"),
   ]);
   const members = (memberData ?? []) as MemberListRecord[];
   const verificationByUserId = new Map(
@@ -175,6 +182,15 @@ export default async function AdminMembersPage() {
   const completeProfiles = memberError
     ? null
     : members.filter((member) => member.profile_completed).length;
+  const memberNames = new Map(members.map((member) => [member.user_id, member.full_name || member.email || "Membro"]));
+  const ministryNames = new Map((ministriesResult.data ?? []).map((item) => [item.key, item.name]));
+  const pendingMinistryRequests = ministryRequestsResult.data ?? [];
+  const pendingDiscipleshipRequests = discipleshipRequestsResult.data ?? [];
+  const pendingDisciplerIds = [...new Set(pendingDiscipleshipRequests.map((item) => item.discipler_id))];
+  const { data: pendingDisciplerProfiles } = pendingDisciplerIds.length
+    ? await supabase.from("member_profiles").select("user_id,full_name").in("user_id", pendingDisciplerIds)
+    : { data: [] as { user_id: string; full_name: string }[] };
+  const disciplerNames = new Map((pendingDisciplerProfiles ?? []).map((item) => [item.user_id, item.full_name]));
 
   return (
     <main className="admin-visitors-page">
@@ -246,6 +262,19 @@ export default async function AdminMembersPage() {
           hasLoadError={Boolean(memberError) || !memberStats}
         />
       </div>
+      <section className="admin-role-requests" aria-labelledby="role-requests-title">
+        <header><p>Novas escolhas</p><h2 id="role-requests-title">Ministérios e discipulado para aprovar</h2></header>
+        {pendingMinistryRequests.length + pendingDiscipleshipRequests.length === 0 ? <p className="admin-role-requests-empty">Nenhuma solicitação aguardando seu aceite.</p> : (
+          <div className="admin-role-requests-list">
+            {pendingDiscipleshipRequests.map((request) => <article key={`d-${request.member_id}`}><span>Discipulado</span><h3>{memberNames.get(request.member_id)}</h3><p>Escolheu {disciplerNames.get(request.discipler_id) ?? "Discipulador"}</p><RequestActions type="discipleship" memberId={request.member_id} referenceId={request.discipler_id} /></article>)}
+            {pendingMinistryRequests.map((request) => <article key={`m-${request.member_id}-${request.ministry_key}`}><span>Ministério</span><h3>{memberNames.get(request.member_id)}</h3><p>{ministryNames.get(request.ministry_key) ?? request.ministry_key}</p><RequestActions type="ministry" memberId={request.member_id} referenceId={request.ministry_key} /></article>)}
+          </div>
+        )}
+      </section>
     </main>
   );
+}
+
+function RequestActions({ type, memberId, referenceId }: { type: "ministry" | "discipleship"; memberId: string; referenceId: string }) {
+  return <div className="admin-role-request-actions"><form action={reviewRoleRequest}><input type="hidden" name="requestType" value={type} /><input type="hidden" name="memberId" value={memberId} /><input type="hidden" name="referenceId" value={referenceId} /><button name="decision" value="approve">Aceitar</button><button name="decision" value="reject">Recusar</button></form></div>;
 }

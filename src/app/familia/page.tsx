@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
@@ -30,6 +31,8 @@ function countProfileSteps(profile: {
   baptized: boolean | null;
   married: boolean | null;
   spouse_name: string;
+  has_discipler: boolean | null;
+  serves_ministry: boolean | null;
 }) {
   const phoneDigits = profile.phone.replace(/\D/g, "");
   const today = new Date().toISOString().slice(0, 10);
@@ -60,7 +63,9 @@ function countProfileSteps(profile: {
     profile.married !== null &&
       (!profile.married ||
         (hasText(profile.spouse_name, 3) &&
-          profile.spouse_name.length <= 160)),
+        profile.spouse_name.length <= 160)),
+    profile.has_discipler !== null,
+    profile.serves_ministry !== null,
   ].filter(Boolean).length;
 }
 
@@ -135,7 +140,7 @@ export default async function Familia() {
   const { data: profile, error: profileError } = await supabase
     .from("member_profiles")
     .select(
-      "full_name,phone,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,photo_url,profile_completed,is_admin,approval_status",
+      "full_name,phone,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,has_discipler,serves_ministry,photo_url,profile_completed,is_admin,approval_status",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -189,8 +194,7 @@ export default async function Familia() {
   }
 
   const completedProfileSteps = countProfileSteps(profile);
-  const hasProfileStar =
-    profile.profile_completed === true && completedProfileSteps === 9;
+  const hasProfileStar = profile.profile_completed === true && completedProfileSteps === 11;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
   const [disciplerRole, ministryLeaderRoles, ministryMemberRoles] =
     await Promise.all([
@@ -220,6 +224,17 @@ export default async function Familia() {
       ministryLeaderRoles.data?.length,
   );
   let signedPhotoUrl: string | null = null;
+  const service = getSupabaseServiceClient();
+  const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult] = await Promise.all([
+    service.from("ministries").select("key,name").eq("active", true).order("sort_order"),
+    service.from("discipler_roles").select("member_id"),
+    service.from("ministry_membership_requests").select("ministry_key").eq("member_id", user.id),
+    service.from("discipleship_requests").select("discipler_id").eq("member_id", user.id).maybeSingle(),
+  ]);
+  const disciplerIds = (disciplerRolesResult.data ?? []).map((item) => item.member_id).filter((id) => id !== user.id);
+  const { data: disciplerProfiles } = disciplerIds.length
+    ? await service.from("member_profiles").select("user_id,full_name").in("user_id", disciplerIds).order("full_name")
+    : { data: [] as { user_id: string; full_name: string }[] };
 
   if (profile.photo_url) {
     const { data: signedPhoto } = await supabase.storage
@@ -340,13 +355,13 @@ export default async function Familia() {
             </p>
             <div
               className="family-profile-progress"
-              aria-label={`${completedProfileSteps} de 9 etapas concluídas`}
+              aria-label={`${completedProfileSteps} de 11 etapas concluídas`}
             >
               <span
-                style={{ width: `${(completedProfileSteps / 9) * 100}%` }}
+                style={{ width: `${(completedProfileSteps / 11) * 100}%` }}
               />
             </div>
-            <strong>{completedProfileSteps} de 9 etapas concluídas</strong>
+            <strong>{completedProfileSteps} de 11 etapas concluídas</strong>
           </aside>
 
           <ProfileForm
@@ -362,7 +377,13 @@ export default async function Familia() {
               baptized: profile.baptized,
               married: profile.married,
               spouseName: profile.spouse_name,
+              hasDiscipler: profile.has_discipler,
+              servesMinistry: profile.serves_ministry,
             }}
+            ministries={(ministriesResult.data ?? []).map((item) => ({ value: item.key, label: item.name }))}
+            disciplers={(disciplerProfiles ?? []).map((item) => ({ value: item.user_id, label: item.full_name }))}
+            initialMinistryKeys={(ministryRequestsResult.data ?? []).map((item) => item.ministry_key)}
+            initialDisciplerId={discipleshipRequestResult.data?.discipler_id ?? ""}
           />
         </section>
       </details>

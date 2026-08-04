@@ -24,7 +24,11 @@ export type EditableMemberProfile = {
   baptized: boolean | null;
   married: boolean | null;
   spouseName: string;
+  hasDiscipler: boolean | null;
+  servesMinistry: boolean | null;
 };
+
+export type ProfileChoiceOption = { value: string; label: string };
 
 function choiceValue(value: boolean | null) {
   if (value === true) {
@@ -40,8 +44,16 @@ function choiceValue(value: boolean | null) {
 
 export default function ProfileForm({
   initialProfile,
+  ministries,
+  disciplers,
+  initialMinistryKeys,
+  initialDisciplerId,
 }: {
   initialProfile: EditableMemberProfile;
+  ministries: ProfileChoiceOption[];
+  disciplers: ProfileChoiceOption[];
+  initialMinistryKeys: string[];
+  initialDisciplerId: string;
 }) {
   const [state, formAction, isPending] = useActionState(
     updateMemberProfile,
@@ -53,6 +65,8 @@ export default function ProfileForm({
   const [married, setMarried] = useState(
     choiceValue(initialProfile.married),
   );
+  const [hasDiscipler, setHasDiscipler] = useState(choiceValue(initialProfile.hasDiscipler));
+  const [servesMinistry, setServesMinistry] = useState(choiceValue(initialProfile.servesMinistry));
 
   const today = new Date().toISOString().slice(0, 10);
   const currentMonth = today.slice(0, 7);
@@ -266,6 +280,35 @@ export default function ProfileForm({
                 required
               />
             </label>
+          ) : null}
+        </fieldset>
+
+        <fieldset className="family-profile-field-wide family-profile-role-choice">
+          <legend>Você tem discipulador?</legend>
+          <div className="family-profile-choices">
+            <label><input name="hasDiscipler" type="radio" value="sim" checked={hasDiscipler === "sim"} onChange={() => setHasDiscipler("sim")} required />Sim</label>
+            <label><input name="hasDiscipler" type="radio" value="nao" checked={hasDiscipler === "nao"} onChange={() => setHasDiscipler("nao")} required />Não</label>
+          </div>
+          {hasDiscipler === "sim" ? (
+            <label className="family-profile-conditional" htmlFor="profile-discipler">Quem é seu discipulador?
+              <select id="profile-discipler" name="disciplerId" defaultValue={initialDisciplerId} required>
+                <option value="">Escolha uma pessoa</option>
+                {disciplers.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}
+              </select>
+            </label>
+          ) : null}
+        </fieldset>
+
+        <fieldset className="family-profile-field-wide family-profile-role-choice">
+          <legend>Você já serve em algum ministério?</legend>
+          <div className="family-profile-choices">
+            <label><input name="servesMinistry" type="radio" value="sim" checked={servesMinistry === "sim"} onChange={() => setServesMinistry("sim")} required />Sim</label>
+            <label><input name="servesMinistry" type="radio" value="nao" checked={servesMinistry === "nao"} onChange={() => setServesMinistry("nao")} required />Não</label>
+          </div>
+          {servesMinistry === "sim" ? (
+            <div className="family-profile-ministry-options" aria-label="Ministérios em que você serve">
+              {ministries.map((item) => <label key={item.value}><input type="checkbox" name="ministryKeys" value={item.value} defaultChecked={initialMinistryKeys.includes(item.value)} />{item.label}</label>)}
+            </div>
           ) : null}
         </fieldset>
       </div>

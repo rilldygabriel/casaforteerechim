@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 export type MemberProfileActionState = {
   kind: "idle" | "success" | "error";
@@ -59,6 +60,10 @@ export async function updateMemberProfile(
   const baptized = parseChoice(formData.get("baptized"));
   const married = parseChoice(formData.get("married"));
   const spouseName = normalizeText(formData.get("spouseName"));
+  const hasDiscipler = parseChoice(formData.get("hasDiscipler"));
+  const servesMinistry = parseChoice(formData.get("servesMinistry"));
+  const disciplerId = normalizeText(formData.get("disciplerId"));
+  const ministryKeys = [...new Set(formData.getAll("ministryKeys").map((value) => normalizeText(value)).filter(Boolean))];
 
   const today = new Date().toISOString().slice(0, 10);
   const currentMonth = today.slice(0, 7);
@@ -167,6 +172,16 @@ export async function updateMemberProfile(
     };
   }
 
+  if (hasDiscipler === null || servesMinistry === null) {
+    return { kind: "error", message: "Responda sobre discipulado e ministérios.", earnedStar: null };
+  }
+  if (hasDiscipler && !/^[0-9a-f-]{36}$/i.test(disciplerId)) {
+    return { kind: "error", message: "Escolha quem é seu discipulador.", earnedStar: null };
+  }
+  if (servesMinistry && ministryKeys.length === 0) {
+    return { kind: "error", message: "Escolha pelo menos um ministério em que você serve.", earnedStar: null };
+  }
+
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -197,6 +212,39 @@ export async function updateMemberProfile(
     };
   }
 
+
+  const admin = getSupabaseServiceClient();
+  const [{ data: validMinistries }, { data: validDiscipler }] = await Promise.all([
+    ministryKeys.length
+      ? admin.from("ministries").select("key").in("key", ministryKeys).eq("active", true)
+      : Promise.resolve({ data: [] as { key: string }[] }),
+    hasDiscipler
+      ? admin.from("discipler_roles").select("member_id").eq("member_id", disciplerId).maybeSingle()
+      : Promise.resolve({ data: null as { member_id: string } | null }),
+  ]);
+  if (servesMinistry && (validMinistries?.length ?? 0) !== ministryKeys.length) {
+    return { kind: "error", message: "Um dos ministérios escolhidos não está disponível.", earnedStar: null };
+  }
+  if (hasDiscipler && (!validDiscipler || disciplerId === user.id)) {
+    return { kind: "error", message: "O discipulador escolhido não está disponível.", earnedStar: null };
+  }
+
+  await Promise.all([
+    admin.from("ministry_membership_requests").delete().eq("member_id", user.id),
+    admin.from("discipleship_requests").delete().eq("member_id", user.id),
+  ]);
+  const requestResults = await Promise.all([
+    servesMinistry
+      ? admin.from("ministry_membership_requests").insert(ministryKeys.map((ministryKey) => ({ member_id: user.id, ministry_key: ministryKey })))
+      : Promise.resolve({ error: null }),
+    hasDiscipler
+      ? admin.from("discipleship_requests").insert({ member_id: user.id, discipler_id: disciplerId })
+      : Promise.resolve({ error: null }),
+  ]);
+  if (requestResults.some((result) => result.error)) {
+    return { kind: "error", message: "Não foi possível enviar suas escolhas para aprovação.", earnedStar: null };
+  }
+
   const { data: savedProfile, error } = await supabase
     .from("member_profiles")
     .update({
@@ -211,6 +259,8 @@ export async function updateMemberProfile(
       baptized,
       married,
       spouse_name: married ? spouseName : "",
+      has_discipler: hasDiscipler,
+      serves_ministry: servesMinistry,
     })
     .eq("user_id", user.id)
     .select("profile_completed")
