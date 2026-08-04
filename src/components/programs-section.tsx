@@ -80,8 +80,14 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
           <article className="calendar-feature-card home-program-card" data-category={event.category} data-status={event.status} key={event.id}>
             <div className="calendar-feature-visual">
               <em>{formatEventWeekday(event.startDate, "short")}</em>
-              <span>{String(parseDateParts(event.startDate).day).padStart(2, "0")}</span>
-              <small>{formatEventDate(event.startDate, { month: "short" }).replace(".", "")}</small>
+              <span>{parseDateParts(event.startDate).day}</span>
+              <small>
+                {formatEventDate(event.startDate, {
+                  day: undefined,
+                  month: "long",
+                  year: "numeric",
+                })}
+              </small>
             </div>
             <div className="calendar-feature-copy">
               <p>{event.category}{event.recurring ? " · Recorrente" : ""}</p>
