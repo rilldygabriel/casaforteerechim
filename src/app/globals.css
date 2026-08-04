@@ -2233,6 +2233,57 @@ h1 strong {
 .family-notifications-list h2 { margin: 24px 0 12px; font-size: clamp(1.6rem, 4vw, 2.6rem); }
 .family-notifications-list p { margin: 0; color: #d3d5d0; line-height: 1.7; white-space: pre-wrap; }
 
+.family-announcement-interactions {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.family-announcement-reactions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.family-announcement-reactions button,
+.family-announcement-reactions > span,
+.family-announcement-comments summary {
+  color: var(--yellow);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.family-announcement-reactions button {
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 254, 21, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 254, 21, 0.04);
+  cursor: pointer;
+}
+
+.family-announcement-reactions button:disabled,
+.family-comment-form button:disabled { opacity: .55; cursor: wait; }
+
+.family-announcement-comments { margin-top: 16px; }
+.family-announcement-comments summary { width: fit-content; cursor: pointer; }
+.family-comment-list { display: grid; gap: 8px; margin-top: 16px; }
+.family-comment-list > article { padding: 15px 17px; border-radius: 14px; background: rgba(255,255,255,.045); }
+.family-comment-list article > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.family-comment-list strong { color: white; font-size: .84rem; }
+.family-comment-list time { color: var(--muted); font-size: .62rem; }
+.family-comment-list article p { margin-top: 9px; font-size: .88rem; }
+.family-comment-list article form { text-align: right; }
+.family-comment-list article button { padding: 0; border: 0; background: transparent; color: #ff9b9b; font-size: .62rem; font-weight: 800; cursor: pointer; }
+.family-comments-empty { padding: 14px 0; color: var(--muted) !important; font-size: .84rem; }
+.family-comment-form { display: grid; gap: 10px; margin-top: 14px; }
+.family-comment-form textarea { width: 100%; resize: vertical; padding: 13px 15px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: #090b09; color: white; font: inherit; line-height: 1.45; }
+.family-comment-form textarea:focus { border-color: var(--yellow); }
+.family-comment-form button { width: fit-content; min-height: 40px; padding: 0 17px; border: 0; border-radius: 999px; background: var(--yellow); color: #090a09; font-weight: 900; cursor: pointer; }
+
 .admin-announcements-layout {
   display: grid;
   max-width: 1180px;
