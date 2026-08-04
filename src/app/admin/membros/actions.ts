@@ -269,6 +269,39 @@ export async function updateMemberApproval(
   };
 }
 
+export async function reviewRoleRequest(formData: FormData) {
+  const requestType = String(formData.get("requestType") ?? "");
+  const memberId = String(formData.get("memberId") ?? "");
+  const referenceId = String(formData.get("referenceId") ?? "");
+  const decision = String(formData.get("decision") ?? "");
+  if (!UUID_PATTERN.test(memberId) || !["ministry", "discipleship"].includes(requestType) || !["approve", "reject"].includes(decision)) return;
+
+  const { supabase, user } = await getCurrentAdmin();
+  if (!user) return;
+  const now = new Date().toISOString();
+
+  if (requestType === "ministry") {
+    if (!/^[a-z0-9_]+$/.test(referenceId)) return;
+    if (decision === "approve") {
+      const { error } = await supabase.from("ministry_members").upsert({ ministry_key: referenceId, member_id: memberId, assigned_by: user.id }, { onConflict: "ministry_key,member_id" });
+      if (error) return;
+    }
+    await supabase.from("ministry_membership_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId).eq("ministry_key", referenceId);
+  } else {
+    if (!UUID_PATTERN.test(referenceId)) return;
+    if (decision === "approve") {
+      await supabase.from("discipleship_relationships").delete().eq("disciple_id", memberId);
+      const { error } = await supabase.from("discipleship_relationships").insert({ discipler_id: referenceId, disciple_id: memberId, assigned_by: user.id });
+      if (error) return;
+    }
+    await supabase.from("discipleship_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId);
+  }
+  revalidatePath("/admin/membros");
+  revalidatePath("/admin/lideranca/discipuladores");
+  revalidatePath("/admin/lideranca/ministerios");
+  revalidatePath("/familia");
+}
+
 export async function resendMemberInvite(
   _previousState: MemberInviteResendActionState,
   formData: FormData,

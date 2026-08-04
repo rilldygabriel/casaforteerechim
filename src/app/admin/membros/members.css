@@ -5,6 +5,20 @@
   margin-top: 28px;
 }
 
+.admin-role-requests { margin-top: 56px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255, 254, 21, 0.22); border-radius: 22px; background: #111311; }
+.admin-role-requests header > p { margin: 0 0 8px; color: #fffe15; font-size: .66rem; font-weight: 900; text-transform: uppercase; }
+.admin-role-requests h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.7rem); }
+.admin-role-requests-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.admin-role-requests-list article { padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: #090a09; }
+.admin-role-requests-list article > span { color: #fffe15; font-size: .6rem; font-weight: 900; text-transform: uppercase; }
+.admin-role-requests-list h3 { margin: 9px 0 5px; }
+.admin-role-requests-list p, .admin-role-requests-empty { color: #a9ada7; }
+.admin-role-request-actions form { display: flex; gap: 7px; margin-top: 16px; }
+.admin-role-request-actions input { display: none; }
+.admin-role-request-actions button { min-height: 39px; padding-inline: 14px; border: 1px solid #fffe15; border-radius: 999px; background: #fffe15; color: #090a09; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.admin-role-request-actions button:last-child { border-color: rgba(255,255,255,.2); background: transparent; color: white; }
+@media (max-width: 700px) { .admin-role-requests-list { grid-template-columns: 1fr; } }
+
 .admin-member-applications {
   margin-bottom: clamp(22px, 4vw, 42px);
 }
