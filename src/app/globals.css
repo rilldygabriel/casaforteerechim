@@ -6384,31 +6384,61 @@ a:focus-visible {
   scrollbar-width: thin;
 }
 
-.home-program-carousel article {
-  display: flex;
-  min-height: 360px;
+.home-program-carousel .home-program-card {
+  display: grid;
+  min-width: 0;
+  min-height: 350px;
   overflow: hidden;
-  flex-direction: column;
+  grid-template-rows: 120px 1fr;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
-  background: white;
-  color: #080908;
+  background: #131513;
+  color: white;
   scroll-snap-align: start;
-  box-shadow: 0 22px 52px rgba(255, 254, 21, 0.07);
+  box-shadow: 0 22px 52px color-mix(in srgb, var(--event-color) 8%, transparent);
 }
 
-.home-program-carousel h3 {
+.home-program-card[data-status="tentative"] {
+  opacity: 0.76;
+}
+
+.home-program-card .calendar-feature-visual {
+  padding: 21px;
+}
+
+.home-program-card .calendar-feature-visual::after {
+  inset: 13px;
+  border-radius: 14px;
+}
+
+.home-program-card .calendar-feature-visual span {
+  font-size: 3.7rem;
+}
+
+.home-program-card .calendar-feature-copy {
+  padding: 22px;
+}
+
+.home-program-carousel .home-program-card h3 {
   max-width: 280px;
-  margin: 12px 0 28px;
+  margin: 0;
   font-size: clamp(1.35rem, 2.2vw, 2rem);
   letter-spacing: -0.045em;
   line-height: 1.05;
 }
 
-.home-program-category {
-  color: #6c6f68;
-  font-size: 0.68rem;
+.home-program-card .calendar-feature-copy > a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  margin-top: auto;
+  padding-inline: 15px;
+  border: 1px solid var(--event-color);
+  border-radius: 999px;
+  color: white;
+  font-size: 0.62rem;
   font-weight: 900;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -6434,8 +6464,8 @@ a:focus-visible {
     padding-right: clamp(20px, 5vw, 72px);
   }
 
-  .home-program-carousel article {
-    min-height: 300px;
+  .home-program-carousel .home-program-card {
+    min-height: 330px;
   }
 }
 

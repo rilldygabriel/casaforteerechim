@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useRef } from "react";
-import { CHURCH_EVENTS, formatEventDate, formatEventWeekday, getSaoPauloDateKey } from "@/lib/calendar-events";
-
-function CalendarIcon() {
-  return <svg className="home-calendar-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="4.5" y="7.5" width="23" height="20" rx="4" /><path d="M10 4.5v6M22 4.5v6M4.5 13.5h23" /><path d="M10 18h3M19 18h3M10 23h3M19 23h3" /></svg>;
-}
+import { CHURCH_EVENTS, formatEventDate, formatEventTime, formatEventWeekday, getSaoPauloDateKey, parseDateParts } from "@/lib/calendar-events";
 
 function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   return <svg aria-hidden="true" className="home-icon" viewBox="0 0 20 20" fill="none" style={direction === "left" ? { transform: "rotate(180deg)" } : undefined}><path d="M4 10h12M11 5l5 5-5 5" /></svg>;
@@ -46,11 +42,17 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
 
       <div className="home-program-carousel" ref={carouselRef} tabIndex={0} aria-label="Próximas programações da Casa Forte">
         {events.map((event) => (
-          <article key={event.id}>
-            <div className="home-program-top"><span>{formatEventWeekday(event.startDate)} · {formatEventDate(event.startDate, { day: "2-digit", month: "long" })}</span><CalendarIcon /></div>
-            <div className="home-program-body">
-              <div><span className="home-program-category">{event.category}</span><h3>{event.title}</h3></div>
-              <strong>{event.startTime ?? "Em breve"}</strong>
+          <article className="calendar-feature-card home-program-card" data-category={event.category} data-status={event.status} key={event.id}>
+            <div className="calendar-feature-visual">
+              <em>{formatEventWeekday(event.startDate, "short")}</em>
+              <span>{String(parseDateParts(event.startDate).day).padStart(2, "0")}</span>
+              <small>{formatEventDate(event.startDate, { month: "short" }).replace(".", "")}</small>
+            </div>
+            <div className="calendar-feature-copy">
+              <p>{event.category}{event.recurring ? " · Recorrente" : ""}</p>
+              <h3>{event.title}</h3>
+              <strong>{formatEventTime(event)}</strong>
+              <Link href="/calendario">Ver no calendário</Link>
             </div>
           </article>
         ))}
