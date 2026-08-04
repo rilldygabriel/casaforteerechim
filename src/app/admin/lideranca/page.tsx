@@ -6,10 +6,10 @@ import { MINISTRIES } from "@/app/familia/servir/ministries";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import {
   addDiscipler,
-  addMinistryAssignment,
   removeDiscipler,
   removeMinistryAssignment,
 } from "./actions";
+import BulkAssignmentDialog from "./bulk-assignment-dialog";
 import "./leadership.css";
 
 export const metadata: Metadata = {
@@ -211,25 +211,42 @@ export default async function LeadershipAdminPage({
                 </summary>
 
                 <div className="leadership-ministry-content">
-                  <form action={addMinistryAssignment} className="leadership-add-form">
-                    <input type="hidden" name="ministryKey" value={ministry.key} />
-                    <label htmlFor={`${ministry.key}-member`}>Adicionar pessoa</label>
+                  <div className="leadership-bulk-actions">
                     <div>
-                      <select id={`${ministry.key}-member`} name="memberId" required>
-                        <option value="">Selecionar membro</option>
-                        {members.map((member) => (
-                          <option value={member.user_id} key={member.user_id}>
-                            {member.full_name || member.email}
-                          </option>
-                        ))}
-                      </select>
-                      <select name="role" aria-label="Função no ministério" required>
-                        <option value="member">Participante</option>
-                        <option value="leader">Líder</option>
-                      </select>
-                      <button type="submit">Salvar função</button>
+                      <span>Liderança</span>
+                      <strong>{ministryLeaders.length} selecionado(s)</strong>
+                      <BulkAssignmentDialog
+                        ministryKey={ministry.key}
+                        ministryLabel={ministry.label}
+                        role="leader"
+                        members={members.map((member) => ({
+                          userId: member.user_id,
+                          name: member.full_name,
+                          email: member.email,
+                        }))}
+                        selectedMemberIds={ministryLeaders.map(
+                          (assignment) => assignment.member_id,
+                        )}
+                      />
                     </div>
-                  </form>
+                    <div>
+                      <span>Participantes</span>
+                      <strong>{participants.length} selecionado(s)</strong>
+                      <BulkAssignmentDialog
+                        ministryKey={ministry.key}
+                        ministryLabel={ministry.label}
+                        role="member"
+                        members={members.map((member) => ({
+                          userId: member.user_id,
+                          name: member.full_name,
+                          email: member.email,
+                        }))}
+                        selectedMemberIds={participants.map(
+                          (assignment) => assignment.member_id,
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   <AssignmentGroup
                     title="Liderança"
