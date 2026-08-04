@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import PrayerForm from "@/components/prayer-form";
 import ProgramsSection from "@/components/programs-section";
@@ -530,6 +531,8 @@ export default function Home() {
           </article>
         </div>
       </section>
+
+      <BirthdayCarousel variant="public" />
 
       <footer className="home-footer">
         <Image
