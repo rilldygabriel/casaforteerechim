@@ -6,6 +6,7 @@ import {
   GALLERY_PHOTOS,
   getGalleryPhoto,
 } from "@/lib/gallery";
+import PhotoNavigation from "./photo-navigation";
 
 type PhotoPageProps = {
   params: Promise<{
@@ -43,6 +44,9 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
   if (!photo) {
     notFound();
   }
+  const photoIndex = GALLERY_PHOTOS.findIndex((item) => item.slug === photo.slug);
+  const previousPhoto = GALLERY_PHOTOS[(photoIndex - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length];
+  const nextPhoto = GALLERY_PHOTOS[(photoIndex + 1) % GALLERY_PHOTOS.length];
 
   return (
     <main className="photo-viewer-page">
@@ -69,6 +73,7 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
             priority
             sizes="100vw"
           />
+          <PhotoNavigation previousSlug={previousPhoto.slug} nextSlug={nextPhoto.slug} />
         </div>
         <figcaption>{photo.alt}</figcaption>
       </figure>
