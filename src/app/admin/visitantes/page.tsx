@@ -29,15 +29,34 @@ export default async function AdminVisitorsPage() {
     redirect("/admin/login");
   }
 
-  const { data: profile } = await supabase
-    .from("member_profiles")
-    .select("is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: ministryMember }, { data: ministryLeader }] =
+    await Promise.all([
+      supabase
+        .from("member_profiles")
+        .select("is_admin,approval_status")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("ministry_members")
+        .select("member_id")
+        .eq("member_id", user.id)
+        .eq("ministry_key", "connect_consolidacao")
+        .maybeSingle(),
+      supabase
+        .from("ministry_leaders")
+        .select("member_id")
+        .eq("member_id", user.id)
+        .eq("ministry_key", "connect_consolidacao")
+        .maybeSingle(),
+    ]);
 
-  if (!profile?.is_admin) {
-    await supabase.auth.signOut({ scope: "local" });
-    redirect("/admin/login?erro=sem-permissao");
+  const canManageVisitors = Boolean(
+    profile?.is_admin ||
+      (profile?.approval_status === "approved" && (ministryMember || ministryLeader)),
+  );
+
+  if (!canManageVisitors) {
+    redirect("/admin");
   }
 
   const { data, error } = await supabase
@@ -70,8 +89,8 @@ export default async function AdminVisitorsPage() {
         <h1>Visitantes</h1>
         <p>
           Consulte as fichas enviadas pelo site e registre o andamento de cada
-          acolhimento. Somente administradores autorizados podem ler ou
-          atualizar estas informações.
+          acolhimento. O acesso é reservado à administração e à equipe do
+          Connect Consolidação.
         </p>
       </section>
 
