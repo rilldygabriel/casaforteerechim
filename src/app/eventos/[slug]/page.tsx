@@ -19,7 +19,23 @@ async function getEvent(slug: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const event = await getEvent((await params).slug);
-  return event ? { title: event.title, description: event.description } : { title: "Evento não encontrado" };
+  if (!event) return { title: "Evento não encontrado" };
+  const description = event.slug === "pos-encontro-agosto-2026"
+    ? "Pós-Encontro · 15 de agosto de 2026 · das 16h às 21h. Faça sua inscrição."
+    : event.description;
+  return {
+    title: event.title,
+    description,
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      title: `${event.title} | Igreja Casa Forte Erechim`,
+      description,
+      url: `/eventos/${event.slug}`,
+      siteName: "Igreja Casa Forte Erechim",
+    },
+    twitter: { card: "summary_large_image", title: event.title, description },
+  };
 }
 
 function formatDate(date: string) { return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`)); }
