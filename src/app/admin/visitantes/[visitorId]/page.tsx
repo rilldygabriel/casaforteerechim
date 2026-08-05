@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
-import { getVisitorFollowupStep } from "@/lib/visitor-followup";
+import { getVisitorFollowupRoute, getVisitorFollowupStep } from "@/lib/visitor-followup";
 import FollowupStepCard from "./followup-step-card";
 import "./visitor-followup.css";
 
@@ -45,6 +45,7 @@ export default async function VisitorFollowupPage({ params }: { params: Promise<
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
   const completed = (steps ?? []).filter((step) => step.completed_at).length;
   const whatsapp = phoneDigits(visitor.telefone);
+  const route = getVisitorFollowupRoute(visitor.data_visita);
 
   return <main className="visitor-followup-page">
     <header className="visitor-followup-topbar"><Link href="/admin/visitantes">← Todos os visitantes</Link><Link href="/admin">Painel</Link></header>
@@ -54,15 +55,15 @@ export default async function VisitorFollowupPage({ params }: { params: Promise<
       <nav><a href={`tel:${whatsapp}`}>Ligar</a><a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer">Abrir WhatsApp</a></nav>
     </section>
     <section className="visitor-followup-progress">
-      <div><span>Acompanhamento compartilhado</span><strong>{completed} de {(steps ?? []).length} etapas concluídas</strong></div>
+      <div><span>{route.label}</span><strong>{completed} de {(steps ?? []).length} etapas concluídas</strong></div>
       <progress value={completed} max={(steps ?? []).length || 1} />
-      <p>Qualquer líder ou voluntário aprovado do Connect pode assumir e registrar cada contato. Pastores acompanham tudo pelo mesmo painel.</p>
+      <p><strong>{route.description}</strong> Qualquer líder ou voluntário aprovado do Connect pode assumir e registrar cada contato. Pastores acompanham tudo pelo mesmo painel.</p>
     </section>
     <section className="visitor-followup-timeline" aria-label="Etapas do acompanhamento">
-      {(steps ?? []).map((step) => {
-        const content = getVisitorFollowupStep(step.step_key);
+      {(steps ?? []).map((step, index) => {
+        const content = getVisitorFollowupStep(step.step_key, visitor.data_visita);
         const message = `Olá, ${visitor.nome}! Somos da Igreja Casa Forte. ${content.whatsappMessage}`;
-        return <FollowupStepCard key={step.id} stepId={step.id} visitorId={visitor.id} title={content.title} description={content.description}
+        return <FollowupStepCard key={step.id} stepNumber={index + 1} stepId={step.id} visitorId={visitor.id} title={content.title} description={content.description}
           dueLabel={new Date(`${step.due_date}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
           status={step.completed_at ? "completed" : step.due_date <= today ? "overdue" : "pending"}
           assignedName={step.assigned_to ? names.get(step.assigned_to) || "Equipe Connect" : null}

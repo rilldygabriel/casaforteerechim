@@ -10,6 +10,7 @@ import {
 const INITIAL: VisitorStepActionState = { kind: "idle", message: "" };
 
 type Props = {
+  stepNumber: number;
   stepId: number;
   visitorId: number;
   title: string;
@@ -37,7 +38,7 @@ export default function FollowupStepCard(props: Props) {
     <article className="visitor-step-card" data-status={props.status}>
       <header>
         <div>
-          <span>
+          <span>Etapa {props.stepNumber} · {" "}
             {props.status === "completed"
               ? "Concluída"
               : props.status === "overdue"

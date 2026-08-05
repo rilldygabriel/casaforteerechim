@@ -62,35 +62,32 @@ function normalizeWhatsAppPhone(value: string) {
   return null;
 }
 
-function nextWeekday(date: string, weekday: number, extraDays = 0) {
-  const [year, month, day] = date.split("-").map(Number);
-  const value = new Date(Date.UTC(year, month - 1, day));
-  const offset = (weekday - value.getUTCDay() + 7) % 7;
-  value.setUTCDate(value.getUTCDate() + offset + extraDays);
-  return value.toISOString().slice(0, 10);
-}
-
 function followupSteps(visitorId: number, visitDate: string) {
+  const [year, month, day] = visitDate.split("-").map(Number);
+  const visitWeekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  const offsets = visitWeekday === 3 ? [1, 4, 7, 10] : [1, 4, 6, 10];
+  const dateAfter = (days: number) =>
+    new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
   return [
     {
       visitor_id: visitorId,
       step_key: "monday_message",
-      due_date: nextWeekday(visitDate, 1),
+      due_date: dateAfter(offsets[0]),
     },
     {
       visitor_id: visitorId,
       step_key: "thursday_message",
-      due_date: nextWeekday(visitDate, 4),
+      due_date: dateAfter(offsets[1]),
     },
     {
       visitor_id: visitorId,
       step_key: "next_service_invite",
-      due_date: nextWeekday(visitDate, 6),
+      due_date: dateAfter(offsets[2]),
     },
     {
       visitor_id: visitorId,
       step_key: "following_week_contact",
-      due_date: nextWeekday(visitDate, 1, 7),
+      due_date: dateAfter(offsets[3]),
     },
   ];
 }

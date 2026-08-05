@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error: "Falha ao carregar etapas." }, { status: 503 });
 
   const visitorIds = [...new Set((steps ?? []).map((step) => step.visitor_id))];
-  const { data: visitors } = visitorIds.length ? await supabase.from("visitantes").select("id,nome").in("id", visitorIds) : { data: [] };
-  const visitorNames = new Map((visitors ?? []).map((visitor) => [visitor.id, visitor.nome]));
+  const { data: visitors } = visitorIds.length ? await supabase.from("visitantes").select("id,nome,data_visita").in("id", visitorIds) : { data: [] };
+  const visitorDetails = new Map((visitors ?? []).map((visitor) => [visitor.id, visitor]));
   const [{ data: members }, { data: leaders }, { data: admins }] = await Promise.all([
     supabase.from("ministry_members").select("member_id").eq("ministry_key", "connect_consolidacao"),
     supabase.from("ministry_leaders").select("member_id").eq("ministry_key", "connect_consolidacao"),
@@ -37,7 +37,9 @@ export async function GET(request: NextRequest) {
     let recipients = 0;
     for (const subscription of subscriptions ?? []) {
       try {
-        await webPush.sendNotification({ endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth_key } }, JSON.stringify({ title: "Acompanhamento pendente", body: `${visitorNames.get(step.visitor_id) || "Visitante"}: ${getVisitorFollowupStep(step.step_key)?.title || "contato"} ainda não foi registrada.`, tag: `visitor-followup-${step.id}-${today}`, url: `/admin/visitantes/${step.visitor_id}` }), { TTL: 86400, urgency: "high" });
+        const visitor = visitorDetails.get(step.visitor_id);
+        const stepTitle = getVisitorFollowupStep(step.step_key, visitor?.data_visita)?.title || "Contato";
+        await webPush.sendNotification({ endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth_key } }, JSON.stringify({ title: "Acompanhamento pendente", body: `${visitor?.nome || "Visitante"}: ${stepTitle} ainda não foi registrada.`, tag: `visitor-followup-${step.id}-${today}`, url: `/admin/visitantes/${step.visitor_id}` }), { TTL: 86400, urgency: "high" });
         await supabase.from("web_push_subscriptions").update({ last_success_at: new Date().toISOString(), failure_count: 0 }).eq("id", subscription.id);
         sent += 1; recipients += 1;
       } catch (pushError) {
