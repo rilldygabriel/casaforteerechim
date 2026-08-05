@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteTestimonial, saveTestimonial } from "@/app/testemunhos/actions";
+import TestimonialExcerpt from "@/components/testimonial-excerpt";
 
 export const metadata = { title: "Meus testemunhos", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export default async function MyTestimonialsPage({ searchParams }: { searchParam
         </form>
       </article>
       <aside className="my-testimonials"><p className="home-kicker">Meus testemunhos</p><h2>Publicados</h2>
-        {testimonials?.length ? testimonials.map((item) => <article key={item.id}><time>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(item.created_at))}</time><h3>{item.title}</h3><p>{item.body}</p><div><Link href={`/familia/testemunhos?editar=${item.id}`}>Editar</Link><form action={deleteTestimonial}><input type="hidden" name="testimonialId" value={item.id} /><button type="submit">Excluir</button></form></div></article>) : <p className="my-testimonials-empty">Você ainda não publicou nenhum testemunho.</p>}
+        {testimonials?.length ? testimonials.map((item) => <article key={item.id}><time>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(item.created_at))}</time><h3>{item.title}</h3><TestimonialExcerpt>{item.body}</TestimonialExcerpt><div><Link href={`/familia/testemunhos?editar=${item.id}`}>Editar</Link><form action={deleteTestimonial}><input type="hidden" name="testimonialId" value={item.id} /><button type="submit">Excluir</button></form></div></article>) : <p className="my-testimonials-empty">Você ainda não publicou nenhum testemunho.</p>}
       </aside>
     </section>
   </main>;

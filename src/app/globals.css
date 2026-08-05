@@ -3374,6 +3374,10 @@ a:focus-visible {
 .testimonial-card header time { color: var(--muted); font-size: .68rem; }
 .testimonial-card > h3 { margin: 27px 0 12px; font-size: clamp(1.55rem, 3vw, 2.25rem); letter-spacing: -.045em; }
 .testimonial-card > p { margin: 0; color: #c9cbc6; line-height: 1.72; white-space: pre-wrap; }
+.testimonial-excerpt > p { display: -webkit-box; overflow: hidden; margin: 0; color: #c9cbc6; line-height: 1.65; white-space: pre-wrap; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.testimonial-excerpt[data-expanded="true"] > p { display: block; overflow: visible; }
+.testimonial-excerpt > button { margin-top: 12px; padding: 0; border: 0; color: var(--yellow); background: transparent; font: inherit; font-size: .72rem; font-weight: 900; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.testimonial-card .testimonial-excerpt { margin-bottom: 4px; }
 
 .testimonial-interactions {
   margin-top: 28px;
@@ -3433,7 +3437,8 @@ a:focus-visible {
 .my-testimonials > article { padding: 20px 0; border-top: 1px solid rgba(255,255,255,.1); }
 .my-testimonials time { color: var(--yellow); font-size: .65rem; text-transform: uppercase; }
 .my-testimonials h3 { margin: 9px 0; font-size: 1.3rem; }
-.my-testimonials article > p { display: -webkit-box; overflow: hidden; margin: 0 0 16px; color: var(--muted); line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.my-testimonials .testimonial-excerpt { margin-bottom: 16px; }
+.my-testimonials .testimonial-excerpt > p { color: var(--muted); line-height: 1.55; }
 .my-testimonials article button { border: 1px solid rgba(255,120,120,.35); background: transparent; color: #ff9b9b; }
 .my-testimonials-empty { color: var(--muted); line-height: 1.6; }
 

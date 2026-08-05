@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import TestimonialInteractions, { type TestimonialComment } from "./testimonial-interactions";
+import TestimonialExcerpt from "./testimonial-excerpt";
 
 export default async function TestimonialsSection() {
   const supabase = await getSupabaseServerClient();
@@ -32,7 +33,7 @@ export default async function TestimonialsSection() {
       const photo = item.author_photo_path ? photoMap.get(item.author_photo_path) : null;
       return <article className="testimonial-card" key={item.id}>
         <header>{photo ? <Image src={photo} alt={`Foto de ${item.author_name}`} width={52} height={52} /> : <span aria-hidden="true">{item.author_name.slice(0, 1).toUpperCase()}</span>}<div><strong>{item.author_name}</strong><time>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "America/Sao_Paulo" }).format(new Date(item.created_at))}</time></div></header>
-        <h3>{item.title}</h3><p>{item.body}</p>
+        <h3>{item.title}</h3><TestimonialExcerpt>{item.body}</TestimonialExcerpt>
         <TestimonialInteractions testimonialId={item.id} currentUserId={user?.id ?? null} liked={itemLikes.some((like) => like.user_id === user?.id)} likeCount={itemLikes.length} comments={itemComments} />
       </article>;
     })}</div>
