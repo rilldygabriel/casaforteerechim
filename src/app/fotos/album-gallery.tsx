@@ -8,6 +8,7 @@ const PAGE_SIZE = 24;
 export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const active = activeIndex === null ? null : photos[activeIndex];
 
   useEffect(() => {
@@ -23,6 +24,29 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKey); };
   }, [activeIndex, photos.length]);
 
+  useEffect(() => {
+    if (!active) { setPhotoFile(null); return; }
+    let cancelled = false;
+    setPhotoFile(null);
+    fetch(`/api/fotos/download?id=${encodeURIComponent(active.id)}`)
+      .then((response) => response.ok ? response.blob() : Promise.reject())
+      .then((blob) => { if (!cancelled) setPhotoFile(new File([blob], active.filename, { type: blob.type || "image/jpeg" })); })
+      .catch(() => { if (!cancelled) setPhotoFile(null); });
+    return () => { cancelled = true; };
+  }, [active]);
+
+  function savePhoto() {
+    if (!active) return;
+    if (photoFile && navigator.canShare?.({ files: [photoFile] })) {
+      navigator.share({ files: [photoFile] }).catch(() => undefined);
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = `/api/fotos/download?id=${encodeURIComponent(active.id)}`;
+    link.download = active.filename;
+    link.click();
+  }
+
   return <>
     <section className="cult-album-grid" aria-label="Fotos do culto">
       {photos.slice(0, visible).map((photo, index) => <button key={photo.id} type="button" data-orientation={photo.orientation} onClick={() => setActiveIndex(index)} aria-label={`Abrir foto ${index + 1} de ${photos.length}`}>
@@ -35,7 +59,9 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
     {active ? <div className="cult-lightbox" role="dialog" aria-modal="true" aria-label={`Foto ${activeIndex! + 1} de ${photos.length}`} onClick={() => setActiveIndex(null)}>
       <div className="cult-lightbox-toolbar" onClick={(event) => event.stopPropagation()}>
         <span>{activeIndex! + 1} / {photos.length}</span>
-        <a href={`/api/fotos/download?id=${encodeURIComponent(active.id)}`} download={active.filename}>Baixar em alta qualidade ↓</a>
+        <button type="button" onClick={savePhoto} disabled={!photoFile}>
+          {photoFile ? "Salvar foto" : "Preparando foto…"}
+        </button>
       </div>
       <button className="cult-lightbox-close" type="button" onClick={() => setActiveIndex(null)} aria-label="Fechar foto">×</button>
       <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); setActiveIndex((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
