@@ -45,6 +45,10 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
     location: "Rua Aratiba, 1042 — Bairro Ipiranga",
     description: "Encontrão da Rede Teens em um endereço especial. Sexta-feira, às 19h.",
   }),
+  event("pos-encontro-agosto", "Pós-Encontro", "2026-08-15", "Encontros", {
+    startTime: "16:00",
+    endTime: "21:00",
+  }),
   event("vigilia-agosto", "Vigília de Oração", "2026-08-22", "Oração", {
     notes: "A programação de oração desta semana acontecerá na vigília de sábado, dia 22.",
   }),
