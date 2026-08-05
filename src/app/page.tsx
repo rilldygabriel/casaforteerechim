@@ -123,8 +123,8 @@ export default function Home() {
           <Link className="home-nav-filled" href="/familia">
             Área de membro
           </Link>
-          <Link className="home-nav-light" href="/biblia">
-            Bíblia
+          <Link className="home-nav-light" href="/eventos">
+            Inscrições
           </Link>
           <a
             className="home-nav-light"
