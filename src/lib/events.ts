@@ -15,6 +15,7 @@ export const REGISTRATION_STATUSES = [
   ["withdrew", "Desistiu"],
   ["baptized", "Batizado"],
   ["cancelled", "Cancelado"],
+  ["rejected", "Não elegível"],
 ] as const;
 
 export const EVENT_STATUSES = [["confirmed", "Confirmado"], ["tentative", "A confirmar"], ["cancelled", "Cancelado"]] as const;
@@ -23,6 +24,14 @@ export const REGISTRATION_STATUS_VALUES = REGISTRATION_STATUSES.map(([value]) =>
 export const EVENT_STATUS_VALUES = EVENT_STATUSES.map(([value]) => value);
 
 export type RegistrationInput = { fullName: string; phone: string; attendanceDuration: string; notes: string; consent: boolean };
+
+export function validatePostEncounterRegistration(input: { fullName: string; phone: string; completedEncounter: string }) {
+  if (input.fullName.trim().length < 3 || input.fullName.trim().length > 160) return "Informe seu nome completo.";
+  const phone = normalizePhone(input.phone);
+  if (phone.length < 10 || phone.length > 11) return "Informe um telefone ou WhatsApp válido com DDD.";
+  if (input.completedEncounter !== "yes" && input.completedEncounter !== "no") return "Informe se você fez o Encontro com Deus na Casa.";
+  return null;
+}
 
 export function normalizePhone(value: string) {
   let digits = value.replace(/\D/g, "");

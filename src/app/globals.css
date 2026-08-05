@@ -7553,3 +7553,12 @@ a:focus-visible {
     min-height: 245px;
   }
 }
+.event-eligibility { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; padding: 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 14px; }
+.event-eligibility legend { padding-inline: 7px; color: white; font-size: .78rem; font-weight: 850; }
+.event-eligibility label { display: flex !important; min-height: 46px; align-items: center; gap: 9px !important; padding: 10px 13px; border-radius: 11px; background: rgba(255,255,255,.05); cursor: pointer; }
+.event-eligibility input { width: 18px !important; height: 18px; margin: 0; accent-color: var(--yellow); }
+.event-registration-rejected { padding: 25px; border: 1px solid rgba(255,155,94,.35); border-radius: 18px; background: rgba(255,116,52,.07); }
+.event-registration-rejected > span { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; color: #111; background: #ff9b5e; font-size: 1.4rem; font-weight: 900; }
+.event-registration-rejected h2 { margin: 16px 0 9px; }
+.event-registration-rejected p { margin: 0; color: #d3d5cf; line-height: 1.6; }
+@media (max-width: 560px) { .event-eligibility { grid-template-columns: 1fr; } }

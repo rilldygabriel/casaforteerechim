@@ -40,6 +40,14 @@ export type ChurchEvent = {
 export const SHOW_INTERNAL_EVENTS = false;
 
 const SPECIAL_EVENTS: ChurchEvent[] = [
+  event("pos-encontro-agosto", "Pós-Encontro", "2026-08-15", "Encontros", {
+    startTime: "16:00",
+    endTime: "21:00",
+    location: "Igreja Casa Forte Erechim",
+    description: "Continuidade para quem participou do Encontro com Deus na Casa.",
+    registrationSlug: "pos-encontro-agosto-2026",
+    registrationLabel: "Inscrições abertas",
+  }),
   event("encontrao-teens-agosto", "Encontrão Rede Teens", "2026-08-14", "Rede Teens", {
     startTime: "19:00",
     location: "Rua Aratiba, 1042 — Bairro Ipiranga",
