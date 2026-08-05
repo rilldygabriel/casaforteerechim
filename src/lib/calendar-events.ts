@@ -40,8 +40,14 @@ export type ChurchEvent = {
 export const SHOW_INTERNAL_EVENTS = false;
 
 const SPECIAL_EVENTS: ChurchEvent[] = [
-  event("encontrao-teens-agosto", "Encontrão Rede Teens", "2026-08-15", "Rede Teens"),
-  event("vigilia-agosto", "Vigília de Oração", "2026-08-22", "Oração"),
+  event("encontrao-teens-agosto", "Encontrão Rede Teens", "2026-08-14", "Rede Teens", {
+    startTime: "19:00",
+    location: "Rua Aratiba, 1042 — Bairro Ipiranga",
+    description: "Encontrão da Rede Teens em um endereço especial. Sexta-feira, às 19h.",
+  }),
+  event("vigilia-agosto", "Vigília de Oração", "2026-08-22", "Oração", {
+    notes: "A programação de oração desta semana acontecerá na vigília de sábado, dia 22.",
+  }),
   event("rede-teens-agosto", "Rede Teens", "2026-08-29", "Rede Teens"),
   event("seminario-intercessao", "Seminário de Intercessão e Oração", "2026-09-05", "Seminários", { status: "tentative" }),
   event("rede-mulheres-setembro", "Rede de Mulheres", "2026-09-11", "Mulheres"),
@@ -164,7 +170,12 @@ function createRecurringEvents() {
       }
 
       if (currentWeekday === 5) {
-        events.push(recurringEvent(`oracao-${currentDate}`, "1 Hora de Oração e Intercessão", currentDate, "19:30", "Oração"));
+        const prayerEvent = recurringEvent(`oracao-${currentDate}`, "1 Hora de Oração e Intercessão", currentDate, "19:30", "Oração");
+        if (currentDate === "2026-08-21") {
+          prayerEvent.status = "cancelled";
+          prayerEvent.notes = "Não haverá oração nesta sexta-feira. A programação será a Vigília de Oração no sábado, dia 22.";
+        }
+        events.push(prayerEvent);
       }
     }
   }
