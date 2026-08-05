@@ -4,8 +4,6 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SUPABASE_URL = "https://fjwkfpwraipxmcjlwssv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_OX9MFnLc_trBAs1dmjH0Gw_UDZOhl6r";
 const WHATSAPP_GRAPH_API_VERSION =
   process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0";
 const WHATSAPP_PHONE_NUMBER_ID =
@@ -62,6 +60,39 @@ function normalizeWhatsAppPhone(value: string) {
   if (digits.length === 10 || digits.length === 11) return `55${digits}`;
   if (digits.startsWith("55") && (digits.length === 12 || digits.length === 13)) return digits;
   return null;
+}
+
+function nextWeekday(date: string, weekday: number, extraDays = 0) {
+  const [year, month, day] = date.split("-").map(Number);
+  const value = new Date(Date.UTC(year, month - 1, day));
+  const offset = (weekday - value.getUTCDay() + 7) % 7;
+  value.setUTCDate(value.getUTCDate() + offset + extraDays);
+  return value.toISOString().slice(0, 10);
+}
+
+function followupSteps(visitorId: number, visitDate: string) {
+  return [
+    {
+      visitor_id: visitorId,
+      step_key: "monday_message",
+      due_date: nextWeekday(visitDate, 1),
+    },
+    {
+      visitor_id: visitorId,
+      step_key: "thursday_message",
+      due_date: nextWeekday(visitDate, 4),
+    },
+    {
+      visitor_id: visitorId,
+      step_key: "next_service_invite",
+      due_date: nextWeekday(visitDate, 6),
+    },
+    {
+      visitor_id: visitorId,
+      step_key: "following_week_contact",
+      due_date: nextWeekday(visitDate, 1, 7),
+    },
+  ];
 }
 
 async function getNotificationRecipients() {
@@ -226,24 +257,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/visitantes`, {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
+    const service = getSupabaseServiceClient();
+    const { data: visitor, error: visitorError } = await service
+      .from("visitantes")
+      .insert(payload)
+      .select("id,data_visita")
+      .single();
 
-    if (!response.ok) {
-      const details = await response.text();
-      console.error("Supabase visitor insert failed", response.status, details);
+    if (visitorError || !visitor) {
+      console.error("Supabase visitor insert failed", visitorError?.code);
       return NextResponse.json(
         { error: "Não foi possível salvar o cadastro." },
         { status: 502 },
       );
+    }
+
+    const { error: stepsError } = await service
+      .from("visitor_followup_steps")
+      .insert(followupSteps(visitor.id, visitor.data_visita));
+    if (stepsError) {
+      console.error("Visitor follow-up steps insert failed", {
+        visitorId: visitor.id,
+        errorCode: stepsError.code,
+      });
     }
 
     await notifyWhatsApp(payload);

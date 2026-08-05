@@ -19,6 +19,19 @@
   letter-spacing: -0.025em;
 }
 
+.admin-visitor-name-link { text-decoration: none; }
+.admin-visitor-name-link:hover { color: #fffe15; }
+.admin-overdue-badge, .admin-pending-badge {
+  display: inline-flex; min-height: 28px; align-items: center; padding-inline: 10px;
+  border-radius: 999px; font-size: .58rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+}
+.admin-overdue-badge { color: #fff; background: #b9342d; }
+.admin-pending-badge { color: #fffe15; border: 1px solid rgba(255,254,21,.45); }
+@media (max-width: 560px) {
+  .admin-pending-badge { display: none; }
+  .admin-inbox-summary-actions { gap: 7px; }
+}
+
 .admin-inbox-summary-actions {
   display: inline-flex;
   flex: 0 0 auto;

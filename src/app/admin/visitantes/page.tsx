@@ -59,10 +59,23 @@ export default async function AdminVisitorsPage() {
     redirect("/admin");
   }
 
-  const { data, error } = await supabase
-    .from("visitantes")
-    .select(VISITOR_FIELDS)
-    .order("created_at", { ascending: false });
+  const [{ data, error }, { data: followupSteps }] = await Promise.all([
+    supabase.from("visitantes").select(VISITOR_FIELDS).order("created_at", { ascending: false }),
+    supabase.from("visitor_followup_steps").select("visitor_id,due_date,completed_at"),
+  ]);
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date());
+  const followupSummary = Object.fromEntries(
+    (data ?? []).map((visitor) => {
+      const steps = (followupSteps ?? []).filter((step) => step.visitor_id === visitor.id);
+      return [visitor.id, {
+        completed: steps.filter((step) => step.completed_at).length,
+        pending: steps.filter((step) => !step.completed_at).length,
+        overdue: steps.filter((step) => !step.completed_at && step.due_date <= today).length,
+      }];
+    }),
+  );
 
   return (
     <main className="admin-visitors-page">
@@ -97,6 +110,7 @@ export default async function AdminVisitorsPage() {
       <VisitorsList
         visitors={(data ?? []) as VisitorRecord[]}
         hasLoadError={Boolean(error)}
+        followupSummary={followupSummary}
       />
     </main>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import {
   markVisitorAsOpened,
@@ -41,6 +42,7 @@ export type VisitorRecord = {
 type VisitorsListProps = {
   visitors: VisitorRecord[];
   hasLoadError: boolean;
+  followupSummary: Record<number, { completed: number; pending: number; overdue: number }>;
 };
 
 const STATUS_LABELS: Record<VisitorRecord["status_acompanhamento"], string> = {
@@ -127,6 +129,7 @@ function phoneDigits(value: string) {
 export default function VisitorsList({
   visitors,
   hasLoadError,
+  followupSummary,
 }: VisitorsListProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"todos" | VisitorRecord["status_acompanhamento"]>(
@@ -165,6 +168,10 @@ export default function VisitorsList({
   const unreadVisitors = visitors.filter(
     (visitor) => !openedVisitorIds.has(visitor.id),
   ).length;
+  const overdueSteps = Object.values(followupSummary).reduce(
+    (total, summary) => total + summary.overdue,
+    0,
+  );
 
   function handleOpen(visitorId: number, isOpen: boolean) {
     if (!isOpen || openedVisitorIds.has(visitorId)) {
@@ -209,9 +216,9 @@ export default function VisitorsList({
           <p>fichas para ler</p>
         </article>
         <article>
-          <span>Prioridade</span>
-          <strong>{followUpRequests}</strong>
-          <p>pediram acompanhamento</p>
+          <span>Contatos atrasados</span>
+          <strong>{overdueSteps}</strong>
+          <p>etapas precisam de atenção</p>
         </article>
       </section>
 
@@ -275,6 +282,7 @@ export default function VisitorsList({
           <div className="admin-visitors-list">
             {filteredVisitors.map((visitor) => {
               const whatsappNumber = phoneDigits(visitor.telefone);
+              const summary = followupSummary[visitor.id];
 
               return (
                 <details
@@ -285,8 +293,21 @@ export default function VisitorsList({
                   }
                 >
                   <summary>
-                    <span className="admin-inbox-name">{visitor.nome}</span>
+                    <Link
+                      className="admin-inbox-name admin-visitor-name-link"
+                      href={`/admin/visitantes/${visitor.id}`}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {visitor.nome}
+                    </Link>
                     <span className="admin-inbox-summary-actions">
+                      {summary?.overdue ? (
+                        <strong className="admin-overdue-badge">
+                          {summary.overdue} {summary.overdue === 1 ? "atraso" : "atrasos"}
+                        </strong>
+                      ) : summary?.pending ? (
+                        <strong className="admin-pending-badge">{summary.pending} pendentes</strong>
+                      ) : null}
                       {!openedVisitorIds.has(visitor.id) ? (
                         <strong className="admin-unread-badge">Novo</strong>
                       ) : null}
@@ -359,6 +380,9 @@ export default function VisitorsList({
                   <footer>
                     <small>Recebido em {formatCreatedAt(visitor.created_at)}</small>
                     <div>
+                      <Link href={`/admin/visitantes/${visitor.id}`}>
+                        Abrir acompanhamento
+                      </Link>
                       <a href={`tel:${phoneDigits(visitor.telefone)}`}>
                         Ligar
                       </a>

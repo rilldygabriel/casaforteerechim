@@ -42,6 +42,7 @@ export default async function AdminPage() {
   }
 
   let pendingServeRequests = 0;
+  let overdueVisitorSteps = 0;
   if (ministryCount > 0) {
     const leaderKeys = (leaderResult.data ?? []).map(
       ({ ministry_key }) => ministry_key,
@@ -53,6 +54,11 @@ export default async function AdminPage() {
       .in("ministry_key", leaderKeys)
       .eq("status", "pending");
     pendingServeRequests = count ?? 0;
+  }
+  if (canManageVisitors) {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+    const { count } = await supabase.from("visitor_followup_steps").select("id", { count: "exact", head: true }).lte("due_date", today).is("completed_at", null);
+    overdueVisitorSteps = count ?? 0;
   }
 
   async function signOut() {
@@ -83,7 +89,7 @@ export default async function AdminPage() {
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
           <Module number="02" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
           <Module number="03" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
-          <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" />
+          <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />
           <Module number="05" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
           <Module number="06" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
           <Module number="07" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
@@ -92,7 +98,7 @@ export default async function AdminPage() {
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
         {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" notice={pendingServeRequests > 0 ? `${pendingServeRequests} ${pendingServeRequests === 1 ? "novo pedido" : "novos pedidos"} para analisar` : undefined} />}
-        {!isAdmin && canManageVisitors && <Module number={isDiscipler && ministryCount > 0 ? "03" : isDiscipler || ministryCount > 0 ? "02" : "01"} href="/admin/visitantes" title="Visitantes" copy="Acolha as pessoas que preencheram o cadastro de visitante." action="Acessar visitantes" />}
+        {!isAdmin && canManageVisitors && <Module number={isDiscipler && ministryCount > 0 ? "03" : isDiscipler || ministryCount > 0 ? "02" : "01"} href="/admin/visitantes" title="Visitantes" copy="Acolha as pessoas que preencheram o cadastro de visitante." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />}
       </section>
       <AdminCalendarTicker />
     </main>
