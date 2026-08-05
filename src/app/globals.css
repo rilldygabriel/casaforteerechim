@@ -1755,6 +1755,33 @@ h1 strong {
   font-weight: 780;
 }
 
+.family-profile-grid .family-birth-date {
+  gap: 8px;
+  padding: 0;
+  border: 0;
+}
+
+.family-birth-date legend {
+  padding: 0;
+}
+
+.family-birth-date > div {
+  display: grid;
+  grid-template-columns: minmax(72px, .7fr) minmax(120px, 1.35fr) minmax(88px, .9fr);
+  gap: 8px;
+}
+
+@media (max-width: 420px) {
+  .family-birth-date > div {
+    grid-template-columns: 72px minmax(112px, 1fr) 88px;
+    gap: 6px;
+  }
+
+  .family-birth-date select {
+    padding-inline: 8px;
+  }
+}
+
 .family-profile-choices {
   display: flex;
   flex-wrap: wrap;

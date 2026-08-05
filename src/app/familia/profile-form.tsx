@@ -42,6 +42,11 @@ function choiceValue(value: boolean | null) {
   return "";
 }
 
+function birthDateParts(value: string) {
+  const [year = "", month = "", day = ""] = value.split("-");
+  return { year, month, day };
+}
+
 export default function ProfileForm({
   initialProfile,
   ministries,
@@ -67,10 +72,28 @@ export default function ProfileForm({
   );
   const [hasDiscipler, setHasDiscipler] = useState(choiceValue(initialProfile.hasDiscipler));
   const [servesMinistry, setServesMinistry] = useState(choiceValue(initialProfile.servesMinistry));
+  const [birthDate, setBirthDate] = useState(() => birthDateParts(initialProfile.birthDate));
 
   const today = new Date().toISOString().slice(0, 10);
   const currentMonth = today.slice(0, 7);
-  const currentYear = today.slice(0, 4);
+  const currentYear = Number(today.slice(0, 4));
+  const selectedYear = Number(birthDate.year || currentYear);
+  const selectedMonth = Number(birthDate.month || 1);
+  const daysInSelectedMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+  const birthDateValue = birthDate.year && birthDate.month && birthDate.day
+    ? `${birthDate.year}-${birthDate.month}-${birthDate.day}`
+    : "";
+
+  function updateBirthDate(part: "day" | "month" | "year", value: string) {
+    setBirthDate((current) => {
+      const next = { ...current, [part]: value };
+      const year = Number(next.year || currentYear);
+      const month = Number(next.month || 1);
+      const maximumDay = new Date(year, month, 0).getDate();
+      if (Number(next.day) > maximumDay) next.day = String(maximumDay).padStart(2, "0");
+      return next;
+    });
+  }
 
   return (
     <form className="family-profile-form" action={formAction}>
@@ -113,18 +136,25 @@ export default function ProfileForm({
           />
         </label>
 
-        <label htmlFor="profile-birth-date">
-          Data de nascimento
-          <input
-            id="profile-birth-date"
-            name="birthDate"
-            type="date"
-            min="1900-01-01"
-            max={today}
-            defaultValue={initialProfile.birthDate}
-            required
-          />
-        </label>
+        <fieldset className="family-birth-date">
+          <legend>Data de nascimento</legend>
+          <input name="birthDate" type="hidden" value={birthDateValue} />
+          <div>
+            <select aria-label="Dia de nascimento" value={birthDate.day} onChange={(event) => updateBirthDate("day", event.target.value)} required>
+              <option value="">Dia</option>
+              {Array.from({ length: daysInSelectedMonth }, (_, index) => String(index + 1).padStart(2, "0")).map((day) => <option value={day} key={day}>{day}</option>)}
+            </select>
+            <select aria-label="Mês de nascimento" value={birthDate.month} onChange={(event) => updateBirthDate("month", event.target.value)} required>
+              <option value="">Mês</option>
+              {[["01", "Janeiro"], ["02", "Fevereiro"], ["03", "Março"], ["04", "Abril"], ["05", "Maio"], ["06", "Junho"], ["07", "Julho"], ["08", "Agosto"], ["09", "Setembro"], ["10", "Outubro"], ["11", "Novembro"], ["12", "Dezembro"]].map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+            </select>
+            <select aria-label="Ano de nascimento" value={birthDate.year} onChange={(event) => updateBirthDate("year", event.target.value)} required>
+              <option value="">Ano</option>
+              {Array.from({ length: currentYear - 1899 }, (_, index) => String(currentYear - index)).map((year) => <option value={year} key={year}>{year}</option>)}
+            </select>
+          </div>
+          <small>Escolha o dia, o mês e o ano.</small>
+        </fieldset>
 
         <label className="family-profile-field-wide" htmlFor="profile-address">
           Endereço completo
