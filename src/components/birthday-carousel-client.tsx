@@ -27,8 +27,17 @@ export default function BirthdayCarouselClient({
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const today = trackRef.current?.querySelector<HTMLElement>("[data-today='true']");
-    today?.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+    const track = trackRef.current;
+    const today = track?.querySelector<HTMLElement>("[data-today='true']");
+    if (!track || !today) return;
+
+    const centeredPosition =
+      today.offsetLeft - (track.clientWidth - today.offsetWidth) / 2;
+    track.scrollTo({
+      left: Math.max(0, centeredPosition),
+      top: 0,
+      behavior: "auto",
+    });
   }, []);
 
   function move(direction: -1 | 1) {
