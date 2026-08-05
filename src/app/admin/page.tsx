@@ -87,13 +87,14 @@ export default async function AdminPage() {
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
-          <Module number="02" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
-          <Module number="03" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
-          <Module number="04" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />
-          <Module number="05" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
-          <Module number="06" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
-          <Module number="07" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
-          <Module number="08" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie eventos, acompanhe participantes, vagas e cada etapa das inscrições." action="Gerenciar eventos" />
+          {isDiscipler && <Module number="02" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu cuidado pessoal." action="Abrir meus discípulos" />}
+          <Module number="03" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
+          <Module number="04" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
+          <Module number="05" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />
+          <Module number="06" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
+          <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
+          <Module number="08" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
+          <Module number="09" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie eventos, acompanhe participantes, vagas e cada etapa das inscrições." action="Gerenciar eventos" />
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
