@@ -36,8 +36,8 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
       <div className="cult-lightbox-toolbar" onClick={(event) => event.stopPropagation()}>
         <span>{activeIndex! + 1} / {photos.length}</span>
         <a href={`/api/fotos/download?id=${encodeURIComponent(active.id)}`} download={active.filename}>Baixar em alta qualidade ↓</a>
-        <button type="button" onClick={() => setActiveIndex(null)} aria-label="Fechar foto">×</button>
       </div>
+      <button className="cult-lightbox-close" type="button" onClick={() => setActiveIndex(null)} aria-label="Fechar foto">×</button>
       <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); setActiveIndex((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
       <img src={cultPhotoPreview(active.id, 2200)} alt={`Culto de domingo na Casa Forte — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} />
       <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); setActiveIndex((activeIndex! + 1) % photos.length); }}>›</button>
