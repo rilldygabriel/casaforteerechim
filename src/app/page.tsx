@@ -5,7 +5,7 @@ import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import TestimonialsSection from "@/components/testimonials-section";
-import { GALLERY_PHOTOS, getPhotoHref } from "@/lib/gallery";
+import { GALLERY_PHOTOS } from "@/lib/gallery";
 
 // Mantém as datas das próximas programações atualizadas sem exigir um novo deploy.
 export const revalidate = 300;
@@ -65,7 +65,6 @@ const PHOTO_ARCHIVE_FOLDERS = [
     url: "https://drive.google.com/drive/folders/1-fH9xXpUwmSMueDmlhB1uD0-PtGAJOaZ",
   },
 ] as const;
-const LATEST_PHOTOS_DRIVE_URL = PHOTO_ARCHIVE_FOLDERS[0].url;
 const PASTOR_RILLDY_WHATSAPP_URL =
   "https://wa.me/5554993217227?text=Ol%C3%A1%2C%20Pastor%20Rilldy%21";
 const PASTORA_LISI_WHATSAPP_URL =
@@ -250,7 +249,7 @@ export default function Home() {
           {GALLERY_PHOTOS.map((photo) => (
             <Link
               className={photo.className}
-              href={getPhotoHref(photo.slug)}
+              href="/fotos"
               key={photo.slug}
               aria-label={`Abrir foto: ${photo.alt}`}
             >
@@ -263,15 +262,13 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        <a
+        <Link
           className="home-gallery-download"
-          href={LATEST_PHOTOS_DRIVE_URL}
-          target="_blank"
-          rel="noreferrer"
+          href="/fotos"
         >
-          Baixe aqui as suas fotos
+          Ver todas as fotos e baixar em alta qualidade
           <ArrowIcon />
-        </a>
+        </Link>
       </section>
 
       <section
