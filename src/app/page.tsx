@@ -18,10 +18,11 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
-const LATEST_MESSAGE_TITLE = "DOMINGO NA CASA";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/live/I2A1-xY1QQE";
+// Este destaque sempre usa o vídeo publicado somente como Palavra, não o culto completo.
+const LATEST_MESSAGE_TITLE = "SALVAÇÃO X TRANSFORMAÇÃO";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=LPDWy4ecbKs";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/I2A1-xY1QQE?rel=0";
+  "https://www.youtube-nocookie.com/embed/LPDWy4ecbKs?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
@@ -279,7 +280,7 @@ export default function Home() {
       >
         <div className="home-message-copy">
           <p className="home-kicker">Palavra que transforma</p>
-          <h2 id="message-title">Assista à mensagem do último culto</h2>
+          <h2 id="message-title">Assista à última Palavra da Casa</h2>
           <p>{LATEST_MESSAGE_TITLE}</p>
           <a href={LATEST_MESSAGE_URL} target="_blank" rel="noreferrer">
             Abrir no YouTube
