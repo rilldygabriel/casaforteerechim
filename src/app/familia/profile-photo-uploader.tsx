@@ -230,6 +230,13 @@ export function ProfilePhotoUploader({
 
   const loading = status.kind === "loading";
 
+  function openProfile() {
+    const profileDetails = document.getElementById("meu-perfil") as HTMLDetailsElement | null;
+    if (!profileDetails) return;
+    profileDetails.open = true;
+    profileDetails.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <div className="family-photo-editor">
       <div className="family-photo-frame">
@@ -264,6 +271,9 @@ export function ProfilePhotoUploader({
           : photoUrl
             ? "Trocar foto"
             : "Adicionar foto"}
+      </button>
+      <button className="family-view-profile" type="button" onClick={openProfile}>
+        Ver meu perfil
       </button>
       {status.message ? (
         <p

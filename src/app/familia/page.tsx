@@ -337,6 +337,7 @@ export default async function Familia() {
       <BirthdayCarousel variant="family" />
 
       <details
+        id="meu-perfil"
         className="family-profile-details"
         data-complete={hasProfileStar}
         open={!hasProfileStar}

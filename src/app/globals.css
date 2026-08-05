@@ -1499,6 +1499,16 @@ h1 strong {
   opacity: 0.65;
 }
 
+.family-photo-editor .family-view-profile {
+  min-height: 30px;
+  margin-top: -4px;
+  padding-inline: 12px;
+  border-color: rgba(255, 254, 21, 0.38);
+  color: var(--yellow);
+  background: rgba(255, 254, 21, 0.06);
+  font-size: 0.58rem;
+}
+
 .family-photo-status {
   min-height: 2.6em;
   margin: 0;
