@@ -2242,6 +2242,35 @@ h1 strong {
     width: 100%;
   }
 
+  .family-permissions-heading,
+  .family-discipler-choice > header {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .family-permissions-heading .section-eyebrow,
+  .family-discipler-choice > header .section-eyebrow {
+    justify-content: center;
+  }
+
+  .family-location-checkin,
+  .family-permissions-grid .family-location-checkin {
+    align-items: center;
+    text-align: center;
+  }
+
+  .family-location-checkin > div {
+    justify-items: center;
+  }
+
+  .family-location-checkin button {
+    width: 100%;
+  }
+
+  .family-discipler-choice > header > p:last-child {
+    margin-inline: auto;
+  }
+
   .family-birthday-card {
     text-align: center;
   }
