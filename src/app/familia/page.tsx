@@ -10,6 +10,7 @@ import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
 import PushNotifications from "./push-notifications";
+import { requestDiscipler } from "./discipleship-actions";
 
 const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
@@ -127,7 +128,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function Familia() {
+export default async function Familia({
+  searchParams,
+}: {
+  searchParams: Promise<{ sucesso?: string; erro?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -235,16 +241,40 @@ export default async function Familia() {
   const unreadNotifications = (announcements ?? []).filter((item) => !readAnnouncementIds.has(item.id)).length;
   let signedPhotoUrl: string | null = null;
   const service = getSupabaseServiceClient();
-  const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult] = await Promise.all([
+  const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult, activeRelationshipResult] = await Promise.all([
     service.from("ministries").select("key,name").eq("active", true).order("sort_order"),
-    service.from("discipler_roles").select("member_id"),
+    service.from("discipler_roles").select("member_id,available_for_member_choice"),
     service.from("ministry_membership_requests").select("ministry_key").eq("member_id", user.id),
-    service.from("discipleship_requests").select("discipler_id").eq("member_id", user.id).maybeSingle(),
+    service.from("discipleship_requests").select("discipler_id,status").eq("member_id", user.id).maybeSingle(),
+    service.from("discipleship_relationships").select("id,discipler_id").eq("disciple_id", user.id).is("ended_at", null).maybeSingle(),
   ]);
   const disciplerIds = (disciplerRolesResult.data ?? []).map((item) => item.member_id).filter((id) => id !== user.id);
+  const availableDisciplerIds = new Set(
+    (disciplerRolesResult.data ?? [])
+      .filter((item) => item.available_for_member_choice && item.member_id !== user.id)
+      .map((item) => item.member_id),
+  );
   const { data: disciplerProfiles } = disciplerIds.length
-    ? await service.from("member_profiles").select("user_id,full_name").in("user_id", disciplerIds).order("full_name")
-    : { data: [] as { user_id: string; full_name: string }[] };
+    ? await service.from("member_profiles").select("user_id,full_name,photo_url").in("user_id", disciplerIds).eq("approval_status", "approved").order("full_name")
+    : { data: [] as { user_id: string; full_name: string; photo_url: string | null }[] };
+  const disciplerPhotoUrls = new Map<string, string>();
+  await Promise.all(
+    (disciplerProfiles ?? []).map(async (discipler) => {
+      if (!discipler.photo_url) return;
+      const { data } = await service.storage
+        .from("member-profile-photos")
+        .createSignedUrl(discipler.photo_url, 60 * 60);
+      if (data?.signedUrl) disciplerPhotoUrls.set(discipler.user_id, data.signedUrl);
+    }),
+  );
+  const disciplerById = new Map((disciplerProfiles ?? []).map((item) => [item.user_id, item]));
+  const activeDiscipler = activeRelationshipResult.data
+    ? disciplerById.get(activeRelationshipResult.data.discipler_id) ?? null
+    : null;
+  const pendingDiscipler = discipleshipRequestResult.data?.status === "pending"
+    ? disciplerById.get(discipleshipRequestResult.data.discipler_id) ?? null
+    : null;
+  const availableDisciplers = (disciplerProfiles ?? []).filter((item) => availableDisciplerIds.has(item.user_id));
 
   if (profile.photo_url) {
     const { data: signedPhoto } = await supabase.storage
@@ -521,7 +551,68 @@ export default async function Familia() {
           <PushNotifications />
         </div>
       </section>
+
+      <section id="escolher-discipulador" className="family-discipler-choice" aria-labelledby="family-discipler-choice-title">
+        <header>
+          <p className="section-eyebrow"><span aria-hidden="true" />Caminhar acompanhado</p>
+          <h2 id="family-discipler-choice-title">Quero ser discipulado</h2>
+          <p>Se você ainda não tem discipulador, escolha uma das pessoas disponíveis para caminhar com você.</p>
+        </header>
+
+        {(params.sucesso || params.erro) && (
+          <p className="family-discipler-feedback" data-kind={params.erro ? "error" : "success"} role="status">
+            {params.erro ?? params.sucesso}
+          </p>
+        )}
+
+        {activeRelationshipResult.data ? (
+          <article className="family-current-discipler">
+            <DisciplerPhoto name={activeDiscipler?.full_name ?? "Seu discipulador"} url={disciplerPhotoUrls.get(activeRelationshipResult.data.discipler_id)} />
+            <div>
+              <span>Meu discipulador</span>
+              <h3>{activeDiscipler?.full_name ?? "Discipulador cadastrado"}</h3>
+              <p>Seu vínculo está ativo. Para trocar, o discipulador atual precisa primeiro liberar você no painel dele. O histórico pastoral não será apagado.</p>
+            </div>
+          </article>
+        ) : pendingDiscipler ? (
+          <article className="family-current-discipler is-pending">
+            <DisciplerPhoto name={pendingDiscipler.full_name} url={disciplerPhotoUrls.get(pendingDiscipler.user_id)} />
+            <div>
+              <span>Escolha enviada</span>
+              <h3>{pendingDiscipler.full_name}</h3>
+              <p>Sua solicitação está aguardando a validação do Pastor Rilldy ou da Pastora Lise.</p>
+            </div>
+          </article>
+        ) : availableDisciplers.length > 0 ? (
+          <div className="family-discipler-grid">
+            {availableDisciplers.map((discipler) => (
+              <article key={discipler.user_id}>
+                <DisciplerPhoto name={discipler.full_name} url={disciplerPhotoUrls.get(discipler.user_id)} />
+                <h3>{discipler.full_name}</h3>
+                <form action={requestDiscipler}>
+                  <input type="hidden" name="disciplerId" value={discipler.user_id} />
+                  <button type="submit">Escolher discipulador</button>
+                </form>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="family-discipler-empty">No momento, nenhum discipulador foi liberado para receber novos acompanhamentos. A liderança atualizará esta lista assim que houver disponibilidade.</p>
+        )}
+      </section>
     </main>
+  );
+}
+
+function DisciplerPhoto({ name, url }: { name: string; url?: string }) {
+  return (
+    <div className="family-discipler-photo">
+      {url ? (
+        <Image src={url} alt={`Foto de ${name}`} width={112} height={112} sizes="112px" />
+      ) : (
+        <span aria-hidden="true">{name.trim().charAt(0).toUpperCase() || "C"}</span>
+      )}
+    </div>
   );
 }
 

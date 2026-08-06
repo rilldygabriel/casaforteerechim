@@ -301,10 +301,18 @@ export async function reviewRoleRequest(
   } else {
     if (!UUID_PATTERN.test(referenceId)) return { kind: "error", message: "O discipulador informado é inválido." };
     if (decision === "approve") {
-      const { error: deleteError } = await supabase.from("discipleship_relationships").delete().eq("disciple_id", memberId);
-      if (deleteError) return { kind: "error", message: "Não foi possível atualizar o discipulador desta pessoa." };
+      const { data: activeRelationship } = await supabase
+        .from("discipleship_relationships")
+        .select("id")
+        .eq("disciple_id", memberId)
+        .is("ended_at", null)
+        .maybeSingle();
+      if (activeRelationship) {
+        return { kind: "error", message: "Esta pessoa já possui discipulador. O vínculo anterior precisa ser liberado antes da troca." };
+      }
       const { error } = await supabase.from("discipleship_relationships").insert({ discipler_id: referenceId, disciple_id: memberId, assigned_by: user.id });
       if (error) return { kind: "error", message: "Não foi possível vincular o discipulador. Tente novamente." };
+      await supabase.from("member_profiles").update({ has_discipler: true }).eq("user_id", memberId);
     }
     const { error: requestError } = await supabase.from("discipleship_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId);
     if (requestError) return { kind: "error", message: "O vínculo foi salvo, mas o pedido não foi concluído. Atualize e tente novamente." };

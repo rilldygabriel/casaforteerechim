@@ -66,6 +66,36 @@ function revalidateLeadership() {
   revalidatePath("/familia/lideranca");
 }
 
+export async function setDisciplerAvailability(formData: FormData) {
+  const memberId = String(formData.get("memberId") ?? "");
+  const available = String(formData.get("available") ?? "") === "true";
+  const { supabase, user } = await getCurrentAdmin();
+
+  if (!user || !UUID_PATTERN.test(memberId)) {
+    redirectWithMessage("discipuladores", "erro", "Ação não autorizada.");
+  }
+
+  const { data, error } = await supabase
+    .from("discipler_roles")
+    .update({ available_for_member_choice: available })
+    .eq("member_id", memberId)
+    .select("member_id")
+    .maybeSingle();
+
+  if (error || !data) {
+    redirectWithMessage("discipuladores", "erro", "Não foi possível alterar a disponibilidade agora.");
+  }
+
+  revalidateLeadership();
+  redirectWithMessage(
+    "discipuladores",
+    "sucesso",
+    available
+      ? "Discipulador disponível para novos acompanhamentos."
+      : "Discipulador retirado da escolha dos membros.",
+  );
+}
+
 export async function addDisciple(formData: FormData) {
   const disciplerId = String(formData.get("disciplerId") ?? "");
   const discipleId = String(formData.get("discipleId") ?? "");

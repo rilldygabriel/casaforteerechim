@@ -22,7 +22,7 @@ export default async function MyDisciplesPage() {
   if (!profile || (!profile.is_admin && profile.approval_status !== "approved")) redirect("/familia");
   if (!profile.is_admin && !role) redirect("/admin");
 
-  const { data: relationships } = await supabase.from("discipleship_relationships").select("id,disciple_id").eq("discipler_id", user.id).order("created_at");
+  const { data: relationships } = await supabase.from("discipleship_relationships").select("id,disciple_id").eq("discipler_id", user.id).is("ended_at", null).order("created_at");
   const relationshipIds = (relationships ?? []).map((item) => item.id);
   const { data: sessions } = relationshipIds.length ? await supabase.from("discipleship_sessions").select("relationship_id,meeting_date").in("relationship_id", relationshipIds).order("meeting_date", { ascending: false }) : { data: [] };
   const service = getSupabaseServiceClient();

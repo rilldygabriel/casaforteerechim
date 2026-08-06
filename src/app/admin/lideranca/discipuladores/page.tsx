@@ -6,6 +6,7 @@ import {
   addDiscipler,
   removeDisciple,
   removeDiscipler,
+  setDisciplerAvailability,
 } from "../actions";
 import { getLeadershipAdmin, type MemberOption } from "../shared";
 import "../leadership.css";
@@ -56,10 +57,11 @@ export default async function DisciplersPage({
         .select("user_id,full_name,email")
         .eq("approval_status", "approved")
         .order("full_name"),
-      supabase.from("discipler_roles").select("member_id"),
+      supabase.from("discipler_roles").select("member_id,available_for_member_choice"),
       supabase
         .from("discipleship_relationships")
         .select("id,discipler_id,disciple_id")
+        .is("ended_at", null)
         .order("created_at"),
       supabase
         .from("discipleship_sessions")
@@ -70,6 +72,11 @@ export default async function DisciplersPage({
   const members = (membersResult.data ?? []) as MemberOption[];
   const memberById = new Map(members.map((member) => [member.user_id, member]));
   const disciplerIds = (disciplersResult.data ?? []).map((item) => item.member_id);
+  const availableDisciplerIds = new Set(
+    (disciplersResult.data ?? [])
+      .filter((item) => item.available_for_member_choice)
+      .map((item) => item.member_id),
+  );
   const relationships = (relationshipsResult.data ?? []) as Relationship[];
   const sessions = (sessionsResult.data ?? []) as Session[];
   const assignedDiscipleIds = new Set(relationships.map((item) => item.disciple_id));
@@ -136,11 +143,21 @@ export default async function DisciplersPage({
             <details className="discipler-management-card" key={disciplerId} open={disciplerIds.length === 1}>
               <summary>
                 <div><span>Discipulador(a)</span><h2>{discipler.full_name || discipler.email}</h2></div>
-                <strong>{disciples.length} {disciples.length === 1 ? "discípulo" : "discípulos"}</strong>
+                <strong>
+                  {availableDisciplerIds.has(disciplerId) ? "Disponível aos membros · " : ""}
+                  {disciples.length} {disciples.length === 1 ? "discípulo" : "discípulos"}
+                </strong>
               </summary>
               <div className="discipler-management-content">
                 <div className="discipler-management-tools">
                   <Link href={`/admin/membros/${disciplerId}`}>Abrir ficha do discipulador</Link>
+                  <form action={setDisciplerAvailability}>
+                    <input type="hidden" name="memberId" value={disciplerId} />
+                    <input type="hidden" name="available" value={availableDisciplerIds.has(disciplerId) ? "false" : "true"} />
+                    <button type="submit">
+                      {availableDisciplerIds.has(disciplerId) ? "Retirar da escolha dos membros" : "Disponibilizar para novos discípulos"}
+                    </button>
+                  </form>
                   <form action={removeDiscipler}><input type="hidden" name="memberId" value={disciplerId} /><button type="submit">Remover função</button></form>
                 </div>
 

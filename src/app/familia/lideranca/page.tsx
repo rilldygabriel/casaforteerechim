@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { MINISTRIES } from "@/app/familia/servir/ministries";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { releaseDisciple } from "./actions";
 import "./leadership.css";
 
 export const metadata: Metadata = {
@@ -44,7 +45,12 @@ function daysSince(date: string | undefined) {
   );
 }
 
-export default async function FamilyLeadershipPage() {
+export default async function FamilyLeadershipPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sucesso?: string; erro?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -109,6 +115,7 @@ export default async function FamilyLeadershipPage() {
       .from("discipleship_relationships")
       .select("id,disciple_id")
       .eq("discipler_id", user.id)
+      .is("ended_at", null)
       .order("created_at");
     discipleRelationships = (relationships ?? []) as DiscipleRelationship[];
 
@@ -218,6 +225,12 @@ export default async function FamilyLeadershipPage() {
         </p>
       </section>
 
+      {(params.sucesso || params.erro) && (
+        <p className="family-leadership-feedback" data-kind={params.erro ? "error" : "success"} role="status">
+          {params.erro ?? params.sucesso}
+        </p>
+      )}
+
       <section className="family-leadership-grid">
         {isDiscipler && (
           <article className="family-leadership-role-card is-featured">
@@ -259,23 +272,28 @@ export default async function FamilyLeadershipPage() {
               const latestDate = latestSessionByRelationship.get(relationship.id);
               const elapsed = daysSince(latestDate);
               return (
-                <Link
-                  className="family-disciple-card"
-                  href={`/familia/lideranca/discipulos/${relationship.id}`}
-                  key={relationship.id}
-                  data-attention={elapsed === null || elapsed >= 30}
-                >
-                  <span>Discípulo(a)</span>
-                  <h3>{disciple?.full_name || "Membro da Família"}</h3>
-                  <strong>
-                    {elapsed === null
-                      ? "Sem discipulado registrado"
-                      : elapsed === 0
-                        ? "Discipulado realizado hoje"
-                        : `Último discipulado há ${elapsed} ${elapsed === 1 ? "dia" : "dias"}`}
-                  </strong>
-                  <small>Abrir acompanhamento →</small>
-                </Link>
+                <article className="family-disciple-card" key={relationship.id} data-attention={elapsed === null || elapsed >= 30}>
+                  <Link href={`/familia/lideranca/discipulos/${relationship.id}`}>
+                    <span>Discípulo(a)</span>
+                    <h3>{disciple?.full_name || "Membro da Família"}</h3>
+                    <strong>
+                      {elapsed === null
+                        ? "Sem discipulado registrado"
+                        : elapsed === 0
+                          ? "Discipulado realizado hoje"
+                          : `Último discipulado há ${elapsed} ${elapsed === 1 ? "dia" : "dias"}`}
+                    </strong>
+                    <small>Abrir acompanhamento →</small>
+                  </Link>
+                  <form action={releaseDisciple}>
+                    <input type="hidden" name="relationshipId" value={relationship.id} />
+                    <label>
+                      <input type="checkbox" required />
+                      Confirmo a liberação deste discípulo
+                    </label>
+                    <button type="submit">Liberar para novo discipulador</button>
+                  </form>
+                </article>
               );
             })}
           </div>
