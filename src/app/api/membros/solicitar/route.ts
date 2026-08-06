@@ -23,6 +23,7 @@ type MemberApplicationPayload = {
   fullName?: unknown;
   email?: unknown;
   phone?: unknown;
+  gender?: unknown;
 };
 
 type MemberRegistrationResult = {
@@ -87,12 +88,14 @@ function memberNotification(payload: {
   fullName: string;
   email: string;
   phone: string;
+  gender: string;
 }) {
   return [
     "NOVO MEMBRO — ÁREA DA FAMÍLIA",
     `Nome: ${clean(payload.fullName, 160)}`,
     `WhatsApp: ${clean(payload.phone, 40)}`,
     `E-mail: ${clean(payload.email, 254)}`,
+    `Sexo: ${payload.gender === "masculino" ? "Masculino" : "Feminino"}`,
     "Cadastro concluído e convite enviado por e-mail.",
   ].join(" | ");
 }
@@ -102,6 +105,7 @@ async function notifyWhatsApp(
     fullName: string;
     email: string;
     phone: string;
+    gender: string;
   },
   requestId: string,
 ) {
@@ -267,6 +271,7 @@ export async function POST(request: NextRequest) {
   const fullName = text(body.fullName);
   const email = text(body.email).toLowerCase();
   const phone = text(body.phone);
+  const gender = text(body.gender).toLowerCase();
   const phoneDigits = phone.replace(/\D/g, "");
 
   const invalid =
@@ -277,7 +282,8 @@ export async function POST(request: NextRequest) {
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
     phone.length > 30 ||
     phoneDigits.length < 10 ||
-    phoneDigits.length > 15;
+    phoneDigits.length > 15 ||
+    !["masculino", "feminino"].includes(gender);
 
   if (invalid) {
     return jsonResponse(false, 400);
@@ -309,6 +315,7 @@ export async function POST(request: NextRequest) {
         fullName,
         email,
         phone,
+        gender,
         fingerprint: await fingerprint(request),
       }),
       cache: "no-store",
@@ -327,7 +334,7 @@ export async function POST(request: NextRequest) {
         .json()
         .catch(() => null)) as MemberRegistrationResult | null;
 
-      await notifyWhatsApp({ fullName, email, phone }, requestId);
+      await notifyWhatsApp({ fullName, email, phone, gender }, requestId);
 
       if (registration?.inviteUrl) {
         await notifyMemberInviteWhatsApp(

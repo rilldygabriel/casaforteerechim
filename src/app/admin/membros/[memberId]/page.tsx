@@ -18,7 +18,7 @@ const VERCEL_TEAM_ID = "team_Pw24QkatuwWyFJiYuYCKi12Z";
 const VERCEL_PROJECT_ID = "prj_My9r71EBQYchsF5T97S35WFXV8Kg";
 
 const MEMBER_DETAIL_FIELDS =
-  "user_id,email,full_name,phone,instagram,birth_date,address,church_since_month,jesus_year,attended_other_church,previous_church_name,previous_ministry,baptized,married,spouse_name,ministries,photo_url,profile_completed,is_admin,approval_status,church_status,created_at,updated_at,approved_at" as const;
+  "user_id,email,full_name,phone,instagram,birth_date,gender,address,church_since_month,jesus_year,attended_other_church,previous_church_name,previous_ministry,baptized,married,spouse_name,ministries,photo_url,profile_completed,is_admin,approval_status,church_status,created_at,updated_at,approved_at" as const;
 
 const APPROVAL_LABELS: Record<string, string> = {
   pending: "Aguardando",
@@ -363,6 +363,13 @@ export default async function AdminMemberProfilePage({
             </ProfileField>
             <ProfileField label="Data de nascimento">
               {formatDateOnly(member.birth_date)}
+            </ProfileField>
+            <ProfileField label="Sexo">
+              {member.gender === "masculino"
+                ? "Masculino"
+                : member.gender === "feminino"
+                  ? "Feminino"
+                  : "Não informado"}
             </ProfileField>
             <ProfileField label="Estado civil">
               {member.married === null

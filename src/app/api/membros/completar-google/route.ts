@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  let body: { fullName?: unknown; phone?: unknown };
+  let body: { fullName?: unknown; phone?: unknown; gender?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -28,12 +28,14 @@ export async function POST(request: Request) {
       : "";
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const phoneDigits = phone.replace(/\D/g, "");
+  const gender = typeof body.gender === "string" ? body.gender.trim().toLowerCase() : "";
 
   if (
     fullName.length < 3 ||
     fullName.length > 160 ||
     phoneDigits.length < 10 ||
-    phoneDigits.length > 15
+    phoneDigits.length > 15 ||
+    !["masculino", "feminino"].includes(gender)
   ) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
   const service = getSupabaseServiceClient();
   const { error } = await service
     .from("member_profiles")
-    .update({ full_name: fullName, phone })
+    .update({ full_name: fullName, phone, gender })
     .eq("user_id", user.id);
 
   if (error) {

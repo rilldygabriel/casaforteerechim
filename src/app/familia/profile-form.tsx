@@ -16,6 +16,7 @@ export type EditableMemberProfile = {
   fullName: string;
   phone: string;
   birthDate: string;
+  gender: string | null;
   address: string;
   churchSinceMonth: string;
   jesusYear: number | null;
@@ -154,6 +155,20 @@ export default function ProfileForm({
             </select>
           </div>
           <small>Escolha o dia, o mês e o ano.</small>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sexo</legend>
+          <div className="family-profile-choices">
+            <label>
+              <input name="gender" type="radio" value="masculino" defaultChecked={initialProfile.gender === "masculino"} required />
+              Masculino
+            </label>
+            <label>
+              <input name="gender" type="radio" value="feminino" defaultChecked={initialProfile.gender === "feminino"} required />
+              Feminino
+            </label>
+          </div>
         </fieldset>
 
         <label className="family-profile-field-wide" htmlFor="profile-address">

@@ -9,6 +9,7 @@ export default function CompleteGoogleSignupForm({
 }) {
   const [fullName, setFullName] = useState(initialName);
   const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -29,13 +30,18 @@ export default function CompleteGoogleSignupForm({
       return;
     }
 
+    if (gender !== "masculino" && gender !== "feminino") {
+      setError("Escolha masculino ou feminino.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch("/api/membros/completar-google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName: normalizedName, phone }),
+        body: JSON.stringify({ fullName: normalizedName, phone, gender }),
       });
 
       if (!response.ok) {
@@ -62,6 +68,14 @@ export default function CompleteGoogleSignupForm({
         onChange={(event) => setFullName(event.target.value)}
         required
       />
+
+      <fieldset>
+        <legend>Sexo</legend>
+        <div className="family-profile-choices">
+          <label><input type="radio" name="gender" value="masculino" checked={gender === "masculino"} onChange={() => setGender("masculino")} required />Masculino</label>
+          <label><input type="radio" name="gender" value="feminino" checked={gender === "feminino"} onChange={() => setGender("feminino")} required />Feminino</label>
+        </div>
+      </fieldset>
 
       <label htmlFor="google-member-phone">WhatsApp</label>
       <input

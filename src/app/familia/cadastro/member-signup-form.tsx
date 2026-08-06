@@ -9,6 +9,7 @@ export default function MemberSignupForm() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,11 @@ export default function MemberSignupForm() {
       return;
     }
 
+    if (gender !== "masculino" && gender !== "feminino") {
+      setError("Escolha masculino ou feminino.");
+      return;
+    }
+
     setLoading(true);
     let response: Response;
 
@@ -45,6 +51,7 @@ export default function MemberSignupForm() {
           fullName: normalizedName,
           email: normalizedEmail,
           phone: normalizedPhone,
+          gender,
         }),
       });
     } catch {
@@ -176,6 +183,20 @@ export default function MemberSignupForm() {
                 required
               />
             </label>
+
+            <fieldset className="family-signup-field-wide">
+              <legend>Sexo</legend>
+              <div className="family-profile-choices">
+                <label>
+                  <input type="radio" name="gender" value="masculino" checked={gender === "masculino"} onChange={() => setGender("masculino")} required />
+                  Masculino
+                </label>
+                <label>
+                  <input type="radio" name="gender" value="feminino" checked={gender === "feminino"} onChange={() => setGender("feminino")} required />
+                  Feminino
+                </label>
+              </div>
+            </fieldset>
           </div>
 
           {error ? (

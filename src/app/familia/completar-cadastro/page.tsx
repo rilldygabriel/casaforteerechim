@@ -24,11 +24,14 @@ export default async function CompleteGoogleSignupPage() {
 
   const { data: profile } = await supabase
     .from("member_profiles")
-    .select("full_name,phone")
+    .select("full_name,phone,gender")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (profile?.phone?.replace(/\D/g, "").length >= 10) {
+  if (
+    profile?.phone?.replace(/\D/g, "").length >= 10 &&
+    (profile?.gender === "masculino" || profile?.gender === "feminino")
+  ) {
     redirect("/familia");
   }
 

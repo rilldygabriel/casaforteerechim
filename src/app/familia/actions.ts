@@ -47,6 +47,7 @@ export async function updateMemberProfile(
   const phone = normalizeText(formData.get("phone"));
   const phoneDigits = phone.replace(/\D/g, "");
   const birthDate = normalizeText(formData.get("birthDate"));
+  const gender = normalizeText(formData.get("gender")).toLowerCase();
   const address = normalizeText(formData.get("address"));
   const churchSinceMonth = normalizeText(formData.get("churchSinceMonth"));
   const jesusYearValue = normalizeText(formData.get("jesusYear"));
@@ -93,6 +94,14 @@ export async function updateMemberProfile(
     return {
       kind: "error",
       message: "Informe uma data de nascimento válida.",
+      earnedStar: null,
+    };
+  }
+
+  if (gender !== "masculino" && gender !== "feminino") {
+    return {
+      kind: "error",
+      message: "Escolha masculino ou feminino.",
       earnedStar: null,
     };
   }
@@ -251,6 +260,7 @@ export async function updateMemberProfile(
       full_name: fullName,
       phone,
       birth_date: birthDate,
+      gender,
       address,
       church_since_month: `${churchSinceMonth}-01`,
       jesus_year: jesusYear,

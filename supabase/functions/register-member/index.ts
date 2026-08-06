@@ -146,6 +146,7 @@ Deno.serve(async (request: Request) => {
   let fullName = "";
   let email = "";
   let phone = "";
+  let gender = "";
   let fingerprint = "";
 
   try {
@@ -153,6 +154,7 @@ Deno.serve(async (request: Request) => {
     fullName = normalize(body.fullName);
     email = normalize(body.email).toLowerCase();
     phone = normalize(body.phone);
+    gender = normalize(body.gender).toLowerCase();
     fingerprint = normalize(body.fingerprint).toLowerCase();
   } catch {
     return jsonResponse(false, 400, "invalid_request");
@@ -168,6 +170,7 @@ Deno.serve(async (request: Request) => {
     phone.length > 30 ||
     phoneDigits.length < 10 ||
     phoneDigits.length > 15 ||
+    !["masculino", "feminino"].includes(gender) ||
     !FINGERPRINT_PATTERN.test(fingerprint)
   ) {
     return jsonResponse(false, 400, "invalid_request");
@@ -202,7 +205,7 @@ Deno.serve(async (request: Request) => {
 
   const { data: existingApplication, error: lookupError } = await supabase
     .from("member_applications")
-    .select("id,full_name,email,phone,status,auth_user_id,updated_at")
+    .select("id,full_name,email,phone,gender,status,auth_user_id,updated_at")
     .eq("email", email)
     .maybeSingle();
 
@@ -228,10 +231,11 @@ Deno.serve(async (request: Request) => {
         full_name: fullName,
         email,
         phone,
+        gender,
         status: "pending",
         request_fingerprint: fingerprint,
       })
-      .select("id,full_name,email,phone,status,auth_user_id,updated_at")
+      .select("id,full_name,email,phone,gender,status,auth_user_id,updated_at")
       .single();
 
     if (error || !data) {
@@ -250,11 +254,12 @@ Deno.serve(async (request: Request) => {
       .update({
         full_name: fullName,
         phone,
+        gender,
         request_fingerprint: fingerprint,
         updated_at: nowIso,
       })
       .eq("id", application.id)
-      .select("id,full_name,email,phone,status,auth_user_id,updated_at")
+      .select("id,full_name,email,phone,gender,status,auth_user_id,updated_at")
       .single();
 
     if (error || !data) {
@@ -280,7 +285,7 @@ Deno.serve(async (request: Request) => {
     const result = await supabase.auth.admin.generateLink({
       type: "invite",
       email,
-      options: { data: { full_name: fullName, phone } },
+      options: { data: { full_name: fullName, phone, gender } },
     });
     linkData = result.data;
     linkError = result.error;
@@ -329,6 +334,7 @@ Deno.serve(async (request: Request) => {
     .update({
       full_name: fullName,
       phone,
+      gender,
       is_admin: false,
       approval_status: "approved",
       church_status: "membro",
