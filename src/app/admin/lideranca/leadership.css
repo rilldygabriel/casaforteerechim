@@ -15,9 +15,137 @@
 .leadership-tabs,
 .leadership-panel,
 .leadership-ministries,
+.discipler-visibility-panel,
 .leadership-feedback {
   width: min(100%, 1180px);
   margin-inline: auto;
+}
+
+.discipler-visibility-panel {
+  margin-top: 16px;
+  padding: clamp(22px, 4vw, 40px);
+  border: 1px solid rgba(255, 254, 21, 0.28);
+  border-radius: 24px;
+  background: radial-gradient(circle at 94% 6%, rgba(255, 254, 21, 0.1), transparent 30%), #0e100e;
+}
+
+.discipler-visibility-panel > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.discipler-visibility-panel > header span {
+  color: #fffe15;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.discipler-visibility-panel > header h2 {
+  max-width: 760px;
+  margin: 9px 0 10px;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+}
+
+.discipler-visibility-panel > header p {
+  max-width: 760px;
+  margin: 0;
+  color: #979c95;
+  line-height: 1.55;
+}
+
+.discipler-visibility-panel > header > strong {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: #090a09;
+  background: #fffe15;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.discipler-visibility-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.discipler-visibility-grid > article {
+  display: grid;
+  justify-items: center;
+  padding: 20px 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  text-align: center;
+  background: #090a09;
+}
+
+.discipler-visibility-grid > article[data-available="true"] {
+  border-color: rgba(255, 254, 21, 0.55);
+  background: rgba(255, 254, 21, 0.045);
+}
+
+.discipler-visibility-photo {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid #fffe15;
+  border-radius: 50%;
+  color: #fffe15;
+  background: #171a16;
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.discipler-visibility-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.discipler-visibility-grid h3 {
+  margin: 13px 0 4px;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.discipler-visibility-grid small {
+  min-height: 34px;
+  color: #8f938e;
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.discipler-visibility-grid form {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.discipler-visibility-grid button {
+  width: 100%;
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  color: #090a09;
+  background: #fffe15;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.discipler-visibility-grid article[data-available="true"] button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #d8dbd5;
+  background: transparent;
 }
 
 .leadership-tabs {
@@ -652,4 +780,23 @@
   .discipler-management-card > summary { display: flex; }
   .disciple-admin-card { grid-template-columns: 1fr; }
   .disciple-admin-actions { display: flex; }
+
+  .discipler-visibility-panel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .discipler-visibility-panel > header > strong {
+    align-self: flex-start;
+  }
+
+  .discipler-visibility-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .discipler-visibility-grid {
+    grid-template-columns: 1fr;
+  }
 }

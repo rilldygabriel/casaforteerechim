@@ -9,6 +9,7 @@ import {
   setDisciplerAvailability,
 } from "../actions";
 import { getLeadershipAdmin, type MemberOption } from "../shared";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import "../leadership.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,10 @@ type Relationship = {
 type Session = {
   relationship_id: string;
   meeting_date: string;
+};
+
+type DisciplerMember = MemberOption & {
+  photo_url: string | null;
 };
 
 function daysSince(date: string | undefined) {
@@ -54,7 +59,7 @@ export default async function DisciplersPage({
     await Promise.all([
       supabase
         .from("member_profiles")
-        .select("user_id,full_name,email")
+        .select("user_id,full_name,email,photo_url")
         .eq("approval_status", "approved")
         .order("full_name"),
       supabase.from("discipler_roles").select("member_id,available_for_member_choice"),
@@ -69,7 +74,7 @@ export default async function DisciplersPage({
         .order("meeting_date", { ascending: false }),
     ]);
 
-  const members = (membersResult.data ?? []) as MemberOption[];
+  const members = (membersResult.data ?? []) as DisciplerMember[];
   const memberById = new Map(members.map((member) => [member.user_id, member]));
   const disciplerIds = (disciplersResult.data ?? []).map((item) => item.member_id);
   const availableDisciplerIds = new Set(
@@ -86,6 +91,18 @@ export default async function DisciplersPage({
       latestSessionByRelationship.set(session.relationship_id, session.meeting_date);
     }
   }
+  const service = getSupabaseServiceClient();
+  const disciplerPhotoUrls = new Map<string, string>();
+  await Promise.all(
+    members
+      .filter((member) => disciplerIds.includes(member.user_id) && member.photo_url)
+      .map(async (member) => {
+        const { data } = await service.storage
+          .from("member-profile-photos")
+          .createSignedUrl(member.photo_url!, 60 * 60);
+        if (data?.signedUrl) disciplerPhotoUrls.set(member.user_id, data.signedUrl);
+      }),
+  );
 
   return (
     <main className="admin-visitors-page leadership-admin-page">
@@ -112,6 +129,48 @@ export default async function DisciplersPage({
           {params.erro ?? params.sucesso}
         </p>
       )}
+
+      <section className="discipler-visibility-panel" aria-labelledby="discipler-visibility-title">
+        <header>
+          <div>
+            <span>Exibição na Área da Família</span>
+            <h2 id="discipler-visibility-title">Quem aparecerá em “Quero ser discipulado”</h2>
+            <p>
+              Todos os discipuladores continuam aparecendo no cadastro completo do membro.
+              Aqui você escolhe somente quem está disponível para receber novos discípulos no card com fotos.
+            </p>
+          </div>
+          <strong>{availableDisciplerIds.size} disponíveis</strong>
+        </header>
+
+        <div className="discipler-visibility-grid">
+          {disciplerIds.map((disciplerId) => {
+            const discipler = memberById.get(disciplerId);
+            if (!discipler) return null;
+            const isAvailable = availableDisciplerIds.has(disciplerId);
+            const name = discipler.full_name || discipler.email;
+
+            return (
+              <article key={`visibility-${disciplerId}`} data-available={isAvailable}>
+                <div className="discipler-visibility-photo">
+                  {disciplerPhotoUrls.get(disciplerId) ? (
+                    <Image src={disciplerPhotoUrls.get(disciplerId)!} alt={`Foto de ${name}`} width={96} height={96} sizes="96px" />
+                  ) : (
+                    <span aria-hidden="true">{name.trim().charAt(0).toUpperCase() || "C"}</span>
+                  )}
+                </div>
+                <h3>{name}</h3>
+                <small>{isAvailable ? "Aparece para os membros" : "Oculto do card de escolha"}</small>
+                <form action={setDisciplerAvailability}>
+                  <input type="hidden" name="memberId" value={disciplerId} />
+                  <input type="hidden" name="available" value={isAvailable ? "false" : "true"} />
+                  <button type="submit">{isAvailable ? "Retirar da lista" : "Colocar na lista"}</button>
+                </form>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="leadership-panel" aria-labelledby="discipler-title">
         <header>
@@ -151,13 +210,6 @@ export default async function DisciplersPage({
               <div className="discipler-management-content">
                 <div className="discipler-management-tools">
                   <Link href={`/admin/membros/${disciplerId}`}>Abrir ficha do discipulador</Link>
-                  <form action={setDisciplerAvailability}>
-                    <input type="hidden" name="memberId" value={disciplerId} />
-                    <input type="hidden" name="available" value={availableDisciplerIds.has(disciplerId) ? "false" : "true"} />
-                    <button type="submit">
-                      {availableDisciplerIds.has(disciplerId) ? "Retirar da escolha dos membros" : "Disponibilizar para novos discípulos"}
-                    </button>
-                  </form>
                   <form action={removeDiscipler}><input type="hidden" name="memberId" value={disciplerId} /><button type="submit">Remover função</button></form>
                 </div>
 
