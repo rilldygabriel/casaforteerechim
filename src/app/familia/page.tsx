@@ -608,7 +608,7 @@ function DisciplerPhoto({ name, url }: { name: string; url?: string }) {
   return (
     <div className="family-discipler-photo">
       {url ? (
-        <Image src={url} alt={`Foto de ${name}`} width={112} height={112} sizes="112px" />
+        <Image src={url} alt={`Foto de ${name}`} width={64} height={64} sizes="64px" />
       ) : (
         <span aria-hidden="true">{name.trim().charAt(0).toUpperCase() || "C"}</span>
       )}

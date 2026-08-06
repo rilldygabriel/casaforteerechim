@@ -503,7 +503,7 @@ h1 strong {
 
 .family-discipler-choice {
   margin-top: 16px;
-  padding: clamp(26px, 5vw, 48px);
+  padding: clamp(22px, 3.5vw, 34px);
   border: 1px solid rgba(255, 254, 21, 0.28);
   border-radius: 22px;
   background:
@@ -513,7 +513,7 @@ h1 strong {
 
 .family-discipler-choice > header h2 {
   margin: 10px 0 12px;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(1.8rem, 4vw, 3rem);
   letter-spacing: -0.055em;
 }
 
@@ -543,15 +543,16 @@ h1 strong {
 
 .family-discipler-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 28px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
 }
 
 .family-discipler-grid > article {
   display: grid;
   justify-items: center;
-  padding: 22px 16px 18px;
+  min-height: 196px;
+  padding: 14px 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   text-align: center;
@@ -560,8 +561,8 @@ h1 strong {
 
 .family-discipler-photo {
   display: grid;
-  width: 92px;
-  height: 92px;
+  width: 64px;
+  height: 64px;
   place-items: center;
   overflow: hidden;
   border: 2px solid var(--yellow);
@@ -577,13 +578,13 @@ h1 strong {
 
 .family-discipler-photo > span {
   color: var(--yellow);
-  font-size: 2rem;
+  font-size: 1.45rem;
   font-weight: 900;
 }
 
 .family-discipler-grid h3 {
-  margin: 14px 0 16px;
-  font-size: 1.05rem;
+  margin: 10px 0 12px;
+  font-size: 0.88rem;
   line-height: 1.25;
 }
 
@@ -594,15 +595,15 @@ h1 strong {
 
 .family-discipler-grid button {
   width: 100%;
-  min-height: 44px;
-  padding: 8px 12px;
+  min-height: 38px;
+  padding: 7px 9px;
   border: 0;
   border-radius: 999px;
   color: #090a09;
   background: var(--yellow);
   cursor: pointer;
   font: inherit;
-  font-size: 0.61rem;
+  font-size: 0.55rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2369,11 +2370,6 @@ h1 strong {
   }
 }
 
-@media (max-width: 470px) {
-  .family-discipler-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Central de mensagens da Área da Família */
 .family-notifications-page,
