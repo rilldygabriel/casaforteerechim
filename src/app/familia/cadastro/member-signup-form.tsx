@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import GoogleAuthButton from "../google-auth-button";
 
 export default function MemberSignupForm() {
   const [fullName, setFullName] = useState("");
@@ -121,10 +122,16 @@ export default function MemberSignupForm() {
         </p>
         <h1 id="member-signup-title">Quero fazer parte.</h1>
         <p>
-          Preencha seus dados e enviaremos imediatamente o convite para você
-          criar sua senha e entrar na Área da Família. Você terá 24 horas para
-          confirmar o e-mail.
+          Use sua conta Google para fazer o cadastro rapidamente ou preencha os
+          dados abaixo para receber o convite por e-mail.
         </p>
+
+        <GoogleAuthButton mode="signup" />
+        <div className="family-auth-divider" aria-hidden="true">
+          <span />
+          <small>ou cadastre com e-mail</small>
+          <span />
+        </div>
 
         <form onSubmit={handleSignup} className="admin-auth-form">
           <div className="family-signup-grid">

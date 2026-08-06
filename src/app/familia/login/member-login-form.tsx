@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import GoogleAuthButton from "../google-auth-button";
 
 type MemberLoginFormProps = {
   initialError?: string;
@@ -70,9 +71,16 @@ export default function MemberLoginForm({
         </p>
         <h1 id="member-login-title">Entre em casa.</h1>
         <p>
-          Use seu e-mail e senha. O conteúdo da Família é liberado depois da
-          aprovação do seu cadastro.
+          Entre com sua conta Google ou use seu e-mail e senha. O conteúdo da
+          Família é liberado depois da aprovação do seu cadastro.
         </p>
+
+        <GoogleAuthButton mode="login" />
+        <div className="family-auth-divider" aria-hidden="true">
+          <span />
+          <small>ou entre com e-mail</small>
+          <span />
+        </div>
 
         <form onSubmit={handleLogin} className="admin-auth-form">
           <label htmlFor="member-email">E-mail</label>

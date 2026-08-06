@@ -169,6 +169,10 @@ export default async function Familia() {
     );
   }
 
+  if (profile.phone.replace(/\D/g, "").length < 10) {
+    redirect("/familia/completar-cadastro");
+  }
+
   if (!canAccess) {
     const rejected = profile.approval_status === "rejected";
 
