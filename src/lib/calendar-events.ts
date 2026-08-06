@@ -146,10 +146,10 @@ function createRecurringEvents() {
           const withBaptism = currentDate === "2026-09-13" || currentDate === "2026-12-13";
           const ceiaEvent = recurringEvent(
               `ceia-${currentDate}`,
-              withBaptism ? "Batismo nas Águas" : "Culto de Ceia",
+              withBaptism ? "Batismo nas Águas" : "Ceia do Senhor",
               currentDate,
               "19:00",
-              "Ceia e Batismo",
+              withBaptism ? "Ceia e Batismo" : "Cultos",
             );
           if (withBaptism) {
             ceiaEvent.featured = true;
