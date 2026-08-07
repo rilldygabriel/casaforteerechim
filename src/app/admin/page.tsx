@@ -95,6 +95,7 @@ export default async function AdminPage() {
           <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
           <Module number="08" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
           <Module number="09" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie eventos, acompanhe participantes, vagas e cada etapa das inscrições." action="Gerenciar eventos" />
+          <Module number="10" href="/admin/financeiro" title="Financeiro" copy="Acompanhe contas, pagamentos, resumo mensal e entradas dos extratos." action="Abrir financeiro" />
         </>}
 
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
