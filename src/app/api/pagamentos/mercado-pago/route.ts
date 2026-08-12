@@ -1,4 +1,4 @@
-import { createMercadoPagoCheckout, isMercadoPagoConfigured } from "@/lib/mercado-pago";
+import { createMercadoPagoBrickPayment, isMercadoPagoBrickConfigured, synchronizeMercadoPagoPayment } from "@/lib/mercado-pago";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -13,13 +13,14 @@ function amountInCents(value: unknown) {
 }
 
 export async function POST(request: Request) {
-  if (!isMercadoPagoConfigured()) return Response.json({ error: "O checkout está sendo ativado. Tente novamente em instantes." }, { status: 503 });
+  if (!isMercadoPagoBrickConfigured()) return Response.json({ error: "O pagamento dentro do site está sendo ativado. Tente novamente em instantes." }, { status: 503 });
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const paymentId = String(body.requestId ?? "");
   const payerName = String(body.name ?? "").trim();
   const titheCents = amountInCents(body.tithe);
   const firstfruitsCents = amountInCents(body.firstfruits);
   const offeringCents = amountInCents(body.offering);
+  const formData = body.formData && typeof body.formData === "object" && !Array.isArray(body.formData) ? body.formData as Record<string, unknown> : {};
   const amountCents = titheCents + firstfruitsCents + offeringCents;
   if (!UUID.test(paymentId)) return Response.json({ error: "Solicitação de pagamento inválida." }, { status: 400 });
   if (payerName.length < 2 || payerName.length > 160) return Response.json({ error: "Informe seu nome." }, { status: 400 });
@@ -46,27 +47,27 @@ export async function POST(request: Request) {
   });
   if (insertError?.code !== "23505" && insertError) return Response.json({ error: "Não foi possível iniciar a contribuição." }, { status: 500 });
 
+  let providerPaymentCreated = false;
   try {
-    const checkout = await createMercadoPagoCheckout({
+    const payment = await createMercadoPagoBrickPayment({
       paymentId,
-      purpose: "contribution",
       amountCents,
       payerName,
-      payerEmail,
-      payerPhone: null,
-      allocations: { tithe: titheCents, firstfruits: firstfruitsCents, offering: offeringCents },
-      returnPath: "/generosidade",
+      formData,
     });
+    providerPaymentCreated = true;
     await service.from("mercado_pago_payments").update({
-      provider_preference_id: checkout.preferenceId,
-      checkout_url: checkout.checkoutUrl,
-      status: "pending",
+      provider_payment_id: payment.providerPaymentId,
+      payment_method_id: payment.paymentMethodId,
+      status: payment.status,
+      status_detail: payment.statusDetail || null,
       updated_at: new Date().toISOString(),
     }).eq("id", paymentId);
-    return Response.json({ ok: true, checkoutUrl: checkout.checkoutUrl });
+    await synchronizeMercadoPagoPayment(payment.providerPaymentId);
+    return Response.json({ ok: true, paymentId, ...payment });
   } catch (error) {
     console.error("mercado_pago_checkout_error", error instanceof Error ? error.message : "unknown");
-    await service.from("mercado_pago_payments").delete().eq("id", paymentId).eq("status", "created");
-    return Response.json({ error: "Não foi possível abrir o Mercado Pago agora. Tente novamente." }, { status: 502 });
+    if (!providerPaymentCreated) await service.from("mercado_pago_payments").delete().eq("id", paymentId).eq("status", "created");
+    return Response.json({ error: error instanceof Error && !/Mercado Pago respondeu/.test(error.message) ? error.message : "Não foi possível processar pelo Mercado Pago agora. Confira os dados e tente novamente." }, { status: 502 });
   }
 }

@@ -12,6 +12,7 @@
     "test:events": "node --experimental-strip-types --test scripts/events.test.mjs"
   },
   "dependencies": {
+    "@mercadopago/sdk-react": "1.0.7",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "@vercel/oidc": "3.8.1",

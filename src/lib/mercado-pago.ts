@@ -33,6 +33,10 @@ export function isMercadoPagoConfigured() {
   return Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN?.trim());
 }
 
+export function isMercadoPagoBrickConfigured() {
+  return isMercadoPagoConfigured() && Boolean(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY?.trim());
+}
+
 async function mercadoPagoFetch(path: string, init: RequestInit = {}) {
   const url = new URL(path, API_URL);
   if (url.origin !== API_URL) throw new Error("Endereço inesperado do Mercado Pago.");
@@ -49,6 +53,63 @@ async function mercadoPagoFetch(path: string, init: RequestInit = {}) {
   const result = object(await response.json().catch(() => ({})));
   if (!response.ok) throw new Error(text(result.message) || `Mercado Pago respondeu ${response.status}.`);
   return result;
+}
+
+export async function createMercadoPagoBrickPayment(input: {
+  paymentId: string;
+  amountCents: number;
+  payerName: string;
+  formData: Json;
+}) {
+  const payer = object(input.formData.payer);
+  const identification = object(payer.identification);
+  const email = text(payer.email).toLowerCase();
+  const paymentMethodId = text(input.formData.payment_method_id);
+  const token = text(input.formData.token);
+  const issuerId = text(input.formData.issuer_id);
+  const installments = Math.max(1, Math.min(12, Math.trunc(number(input.formData.installments) || 1)));
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Informe um e-mail válido no pagamento.");
+  if (!paymentMethodId || (paymentMethodId !== "pix" && !token)) throw new Error("Dados de pagamento incompletos.");
+  const nameParts = input.payerName.trim().split(/\s+/);
+  const body: Json = {
+    transaction_amount: input.amountCents / 100,
+    description: "Contribuição · Igreja Casa Forte",
+    payment_method_id: paymentMethodId,
+    external_reference: input.paymentId,
+    notification_url: `${SITE_URL}/api/webhooks/mercado-pago`,
+    statement_descriptor: "CASA FORTE",
+    payer: {
+      email,
+      first_name: nameParts[0] || input.payerName,
+      last_name: nameParts.slice(1).join(" ") || undefined,
+      ...(text(identification.type) && text(identification.number) ? {
+        identification: { type: text(identification.type), number: text(identification.number).replace(/\D/g, "") },
+      } : {}),
+    },
+    metadata: { purpose: "contribution" },
+  };
+  if (token) {
+    body.token = token;
+    body.installments = installments;
+    if (issuerId) body.issuer_id = issuerId;
+  }
+  const result = await mercadoPagoFetch("/v1/payments", {
+    method: "POST",
+    headers: { "X-Idempotency-Key": input.paymentId },
+    body: JSON.stringify(body),
+  });
+  const transactionData = object(object(result.point_of_interaction).transaction_data);
+  const providerPaymentId = String(result.id ?? "").trim();
+  if (!/^\d+$/.test(providerPaymentId)) throw new Error("O Mercado Pago não confirmou a criação do pagamento.");
+  return {
+    providerPaymentId,
+    status: mapPaymentStatus(text(result.status)),
+    statusDetail: text(result.status_detail),
+    paymentMethodId,
+    qrCode: text(transactionData.qr_code),
+    qrCodeBase64: text(transactionData.qr_code_base64),
+    ticketUrl: text(transactionData.ticket_url),
+  };
 }
 
 function titleForPurpose(purpose: PaymentPurpose, eventTitle?: string) {
