@@ -141,6 +141,9 @@ export default function Home() {
           >
             Fale conosco
           </a>
+          <Link className="home-nav-filled" href="/generosidade">
+            Generosidade
+          </Link>
           <Link className="home-nav-filled" href="/admin">
             Painel
           </Link>
