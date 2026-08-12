@@ -8493,3 +8493,80 @@ html[data-theme="light"] :is(.admin-auth-card,.calendar-feature-card,.calendar-d
   .theme-toggle-floating { top: calc(env(safe-area-inset-top, 0px) + 18px); right: 18px; }
   body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 58px; }
 }
+
+/* Acessos principais da Família: alternância clara e amarela */
+.family-leadership-access.family-access-light,
+html[data-theme="light"] .family-leadership-access.family-access-light {
+  border-color: rgba(21, 22, 19, 0.16);
+  background: #fafaf6 !important;
+  background-image: radial-gradient(circle at 94% 8%, rgba(255, 254, 21, 0.34), transparent 25%) !important;
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.18), inset 0 1px 0 #fff;
+  color: #11120f;
+}
+
+.family-leadership-access.family-access-light h2,
+html[data-theme="light"] .family-leadership-access.family-access-light h2 {
+  color: #11120f;
+}
+
+.family-leadership-access.family-access-light p:not(.section-eyebrow),
+html[data-theme="light"] .family-leadership-access.family-access-light p:not(.section-eyebrow) {
+  color: #4c4d47;
+}
+
+.family-leadership-access.family-access-light .section-eyebrow,
+html[data-theme="light"] .family-leadership-access.family-access-light .section-eyebrow {
+  color: #31322d !important;
+}
+
+.family-leadership-access.family-access-light .section-eyebrow > span {
+  background: #d9d900;
+}
+
+.family-leadership-access.family-access-light > a,
+html[data-theme="light"] .family-leadership-access.family-access-light > a {
+  color: #11120f;
+  background: var(--yellow);
+  box-shadow: 0 10px 24px rgba(181, 181, 0, 0.24);
+}
+
+.family-leadership-access.family-access-yellow,
+html[data-theme="light"] .family-leadership-access.family-access-yellow {
+  border-color: rgba(255, 255, 255, 0.48);
+  background: var(--yellow) !important;
+  background-image: radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.46), transparent 25%) !important;
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  color: #10110e;
+}
+
+.family-leadership-access.family-access-yellow h2,
+html[data-theme="light"] .family-leadership-access.family-access-yellow h2 {
+  color: #10110e;
+}
+
+.family-leadership-access.family-access-yellow p:not(.section-eyebrow),
+html[data-theme="light"] .family-leadership-access.family-access-yellow p:not(.section-eyebrow) {
+  color: #292a25;
+}
+
+.family-leadership-access.family-access-yellow .section-eyebrow,
+html[data-theme="light"] .family-leadership-access.family-access-yellow .section-eyebrow {
+  color: #10110e !important;
+}
+
+.family-leadership-access.family-access-yellow .section-eyebrow > span {
+  background: #fff;
+}
+
+.family-leadership-access.family-access-yellow > a,
+html[data-theme="light"] .family-leadership-access.family-access-yellow > a {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  background: #10110e;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+}
+
+.family-leadership-access.family-access-light > a:hover,
+.family-leadership-access.family-access-yellow > a:hover {
+  transform: translateY(-2px);
+}

@@ -13,7 +13,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import { requestDiscipler } from "./discipleship-actions";
 
 const GROUP_URL =
-  "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
+  "https://chat.whatsapp.com/H5SH31KKmeZ6YHyV5WiAk2?mode=gi_t";
 const PASTOR_URL = "https://wa.me/5554992640253";
 
 function hasText(value: string | null | undefined, minimumLength: number) {
@@ -332,7 +332,7 @@ export default async function Familia({
       </section>
 
       {hasLeadershipArea && (
-        <section className="family-leadership-access">
+        <section className="family-leadership-access family-access-light">
           <div>
             <p className="section-eyebrow">
               <span aria-hidden="true" />
@@ -350,7 +350,7 @@ export default async function Familia({
         </section>
       )}
 
-      <section className="family-leadership-access family-discipleship-access">
+      <section className="family-leadership-access family-discipleship-access family-access-yellow">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />Minha caminhada</p>
           <h2>Meus discipulados</h2>
@@ -359,7 +359,16 @@ export default async function Familia({
         <Link href="/familia/meus-discipulados">Abrir meus discipulados</Link>
       </section>
 
-      <section className="family-leadership-access family-calendar-access">
+      <section className="family-leadership-access family-group-access family-access-light">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />Comunidade da Casa</p>
+          <h2>Grupo de membros da Casa</h2>
+          <p>Entre no grupo oficial para receber avisos e permanecer conectado com a Família Casa Forte.</p>
+        </div>
+        <a href={GROUP_URL} target="_blank" rel="noreferrer">Entrar no grupo</a>
+      </section>
+
+      <section className="family-leadership-access family-calendar-access family-access-yellow">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />Programação da Casa</p>
           <h2>Calendário dinâmico</h2>
@@ -368,7 +377,7 @@ export default async function Familia({
         <Link href="/calendario">Abrir calendário</Link>
       </section>
 
-      <section className="family-leadership-access family-generosity-access">
+      <section className="family-leadership-access family-generosity-access family-access-light">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />Generosidade</p>
           <h2>Generosidade</h2>
@@ -377,7 +386,7 @@ export default async function Familia({
         <Link href="/generosidade">Contribuir agora</Link>
       </section>
 
-      <section className="family-leadership-access family-testimonials-access">
+      <section className="family-leadership-access family-testimonials-access family-access-yellow">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />O que Deus tem feito</p>
           <h2>Meus testemunhos</h2>
