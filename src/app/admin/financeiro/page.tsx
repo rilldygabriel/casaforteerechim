@@ -43,7 +43,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonthKey();
   const range = monthRange(month);
   const service = getSupabaseServiceClient();
-  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }, { data: monthlyOnlineContributions }] = await Promise.all([
+  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }, { data: monthlyOnlineContributions }, { data: ledgerEntries }] = await Promise.all([
     service.from("finance_payables").select("id,description,vendor,category,due_date,amount_cents,status,payment_date,notes").order("status").order("due_date"),
     service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source").order("transaction_date", { ascending: false }).limit(30),
     service.from("finance_income_entries").select("amount_cents").gte("transaction_date", range.start).lt("transaction_date", range.end),
@@ -52,6 +52,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
     service.from("finance_service_income_records").select("id,service_date,cash_cents,pix_cents,counted_by,created_at").gte("service_date", range.start).lt("service_date", range.end).order("service_date", { ascending: false }).order("created_at", { ascending: false }),
     service.from("mercado_pago_payments").select("id,purpose,payer_name,amount_cents,tithe_cents,offering_cents,firstfruits_cents,status,payment_method_id,payment_type_id,approved_at,created_at").order("created_at", { ascending: false }).limit(40),
     service.from("mercado_pago_payments").select("amount_cents,tithe_cents,offering_cents,firstfruits_cents").eq("purpose", "contribution").eq("status", "approved").gte("approved_at", `${range.start}T03:00:00.000Z`).lt("approved_at", `${range.end}T03:00:00.000Z`),
+    service.from("finance_ledger_entries").select("id,transaction_date,description,category,account_name,amount_cents,direction,source").gte("transaction_date", range.start).lt("transaction_date", range.end).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }),
   ]);
   const allPayables = payables ?? [];
   const dueInMonth = allPayables.filter((item) => item.due_date >= range.start && item.due_date < range.end);
@@ -71,6 +72,8 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
     offering: totals.offering + Number(payment.offering_cents),
     total: totals.total + Number(payment.amount_cents),
   }), { tithe: 0, firstfruits: 0, offering: 0, total: 0 });
+  const ledgerCredits = (ledgerEntries ?? []).filter((entry) => entry.direction === "credit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
+  const ledgerDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
 
   return (
     <main className="finance-page">
@@ -88,6 +91,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
         <a href="#mercado-pago">Mercado Pago</a>
         <a href="#entradas-de-culto">Entradas de culto</a>
         <a href="#contas-a-pagar">Contas a pagar</a>
+        <a href="#historico-financeiro">Histórico</a>
         <a href="#open-finance">Open Finance</a>
       </nav>
 
@@ -129,6 +133,20 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
         <Summary label="Contas do mês" value={totalDue} detail={`${dueInMonth.length} conta(s) com vencimento`} />
         <Summary label="Já pago" value={paidDue} detail="Das contas que vencem neste mês" />
         <Summary label="Falta pagar" value={pending} detail={`${dueInMonth.filter((item) => item.status === "pending").length} conta(s) pendente(s)`} warning={pending > 0} />
+      </section>
+
+      <section className="finance-ledger-section" id="historico-financeiro">
+        <header>
+          <div><span>Histórico completo</span><h2>Entradas e saídas</h2><p>Lançamentos importados e discriminados do controle financeiro da igreja.</p></div>
+          <div className="finance-ledger-totals"><article><span>Entradas</span><strong>{money.format(ledgerCredits / 100)}</strong></article><article><span>Saídas</span><strong>{money.format(ledgerDebits / 100)}</strong></article><article data-negative={ledgerCredits - ledgerDebits < 0}><span>Resultado</span><strong>{money.format((ledgerCredits - ledgerDebits) / 100)}</strong></article></div>
+        </header>
+        <div className="finance-ledger-list">{(ledgerEntries ?? []).length ? (ledgerEntries ?? []).map((entry) => (
+          <article key={entry.id} data-direction={entry.direction}>
+            <time>{formatDate(entry.transaction_date)}</time>
+            <div><strong>{entry.description}</strong><small>{[entry.category, entry.account_name, entry.source === "mobills" ? "Mobills" : entry.source].filter(Boolean).join(" · ")}</small></div>
+            <b>{entry.direction === "credit" ? "+" : "−"}{money.format(Number(entry.amount_cents) / 100)}</b>
+          </article>
+        )) : <p className="finance-empty">Nenhuma movimentação neste mês. Escolha outro mês acima para consultar o histórico.</p>}</div>
       </section>
 
       <section className="finance-open-finance-panel" id="open-finance">
