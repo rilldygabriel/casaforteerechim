@@ -32,7 +32,9 @@ export async function GET(request: Request) {
   const url = new URL(
     `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${accountId}/message_templates`,
   );
-  url.searchParams.set("name", "notificacao_site_casa_forte");
+  if (new URL(request.url).searchParams.get("all") !== "1") {
+    url.searchParams.set("name", "notificacao_site_casa_forte");
+  }
   url.searchParams.set("fields", "name,status,category,language,components");
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
