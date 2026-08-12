@@ -6,22 +6,22 @@ import { financeFingerprint, parseCurrencyToCents, saoPauloDateKey, type Stateme
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
-async function requireAdmin() {
+async function requireFinanceAccess() {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
-  const { data: profile } = await supabase.from("member_profiles").select("is_admin").eq("user_id", user.id).maybeSingle();
-  if (!profile?.is_admin) redirect("/admin");
-  return user;
+  const { data: profile } = await supabase.from("member_profiles").select("full_name,is_admin,can_manage_finance").eq("user_id", user.id).maybeSingle();
+  if (!profile?.is_admin && !profile?.can_manage_finance) redirect("/admin");
+  return { user, displayName: profile.full_name?.trim() || user.email || "Equipe financeira" };
 }
 
-function messageRedirect(kind: "ok" | "error", message: string, month = "") {
+function messageRedirect(kind: "ok" | "error", message: string, month = ""): never {
   const monthParam = /^\d{4}-\d{2}$/.test(month) ? `month=${month}&` : "";
   redirect(`/admin/financeiro?${monthParam}${kind}=${encodeURIComponent(message)}`);
 }
 
 export async function createPayable(formData: FormData) {
-  const user = await requireAdmin();
+  const { user } = await requireFinanceAccess();
   const description = String(formData.get("description") ?? "").trim();
   const vendor = String(formData.get("vendor") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
@@ -48,8 +48,40 @@ export async function createPayable(formData: FormData) {
   messageRedirect("ok", "Conta adicionada com sucesso.", month);
 }
 
+export async function createServiceIncome(formData: FormData) {
+  const { user, displayName } = await requireFinanceAccess();
+  const serviceDate = String(formData.get("serviceDate") ?? "").trim();
+  const cashCents = parseCurrencyToCents(String(formData.get("cashAmount") ?? "0"));
+  const pixCents = parseCurrencyToCents(String(formData.get("pixAmount") ?? "0"));
+  const month = String(formData.get("returnMonth") ?? "");
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(serviceDate) ||
+    cashCents < 0 ||
+    pixCents < 0 ||
+    (cashCents === 0 && pixCents === 0)
+  ) {
+    messageRedirect("error", "Informe a data e ao menos um valor recebido em Pix ou dinheiro.", month);
+  }
+
+  const service = getSupabaseServiceClient();
+  const { error } = await service.from("finance_service_income_records").insert({
+    service_date: serviceDate,
+    service_name: "Culto",
+    cash_cents: cashCents,
+    pix_cents: pixCents,
+    counted_by: [displayName],
+    created_by: user.id,
+  });
+
+  if (error) messageRedirect("error", "Não foi possível salvar a entrada deste culto.", month);
+
+  revalidatePath("/admin/financeiro");
+  messageRedirect("ok", "Entrada de culto cadastrada com sucesso.", month);
+}
+
 export async function togglePayableStatus(formData: FormData) {
-  await requireAdmin();
+  await requireFinanceAccess();
   const id = String(formData.get("id") ?? "");
   const nextStatus = String(formData.get("nextStatus") ?? "");
   const month = String(formData.get("returnMonth") ?? "");
@@ -75,7 +107,7 @@ export async function saveStatementEntries(
   _previous: StatementSaveState,
   formData: FormData,
 ): Promise<StatementSaveState> {
-  const user = await requireAdmin();
+  const { user } = await requireFinanceAccess();
   const importId = String(formData.get("importId") ?? "");
   let entries: StatementEntry[] = [];
   try {

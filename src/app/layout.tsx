@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import ScrollToTop from "@/components/scroll-to-top";
+import ThemeToggle from "@/components/theme-toggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -73,8 +74,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={GeistSans.variable}>
+    <html lang="pt-BR" className={GeistSans.variable} data-theme="dark" suppressHydrationWarning>
       <head>
+        <script id="casa-forte-theme" src="/theme-init.js" suppressHydrationWarning />
         <script
           dangerouslySetInnerHTML={{
             __html:
@@ -84,6 +86,7 @@ export default function RootLayout({
       </head>
       <body>
         <ScrollToTop />
+        <ThemeToggle floating />
         {children}
       </body>
     </html>

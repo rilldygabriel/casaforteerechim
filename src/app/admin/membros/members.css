@@ -5,17 +5,17 @@
   margin-top: 28px;
 }
 
-.admin-role-requests { margin-top: 56px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255, 254, 21, 0.22); border-radius: 22px; background: #111311; }
-.admin-role-requests header > p { margin: 0 0 8px; color: #fffe15; font-size: .66rem; font-weight: 900; text-transform: uppercase; }
+.admin-role-requests { margin-top: 56px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255, 254, 21, 0.22); border-radius: 22px; background: var(--surface-3); }
+.admin-role-requests header > p { margin: 0 0 8px; color: var(--accent); font-size: .66rem; font-weight: 900; text-transform: uppercase; }
 .admin-role-requests h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.7rem); }
 .admin-role-requests-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
-.admin-role-requests-list article { padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: #090a09; }
-.admin-role-requests-list article > span { color: #fffe15; font-size: .6rem; font-weight: 900; text-transform: uppercase; }
+.admin-role-requests-list article { padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: var(--surface-0); }
+.admin-role-requests-list article > span { color: var(--accent); font-size: .6rem; font-weight: 900; text-transform: uppercase; }
 .admin-role-requests-list h3 { margin: 9px 0 5px; }
 .admin-role-requests-list p, .admin-role-requests-empty { color: #a9ada7; }
 .admin-role-request-actions form { display: flex; gap: 7px; margin-top: 16px; }
 .admin-role-request-actions input { display: none; }
-.admin-role-request-actions button { min-height: 39px; padding-inline: 14px; border: 1px solid #fffe15; border-radius: 999px; background: #fffe15; color: #090a09; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.admin-role-request-actions button { min-height: 39px; padding-inline: 14px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent); color: var(--surface-0); font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
 .admin-role-request-actions button:last-child { border-color: rgba(255,255,255,.2); background: transparent; color: white; }
 .admin-role-request-actions button:disabled { cursor: wait; opacity: .62; }
 .admin-role-request-actions [role="status"] { margin: 10px 0 0; color: #9be7b4; font-size: .7rem; line-height: 1.4; }
@@ -32,7 +32,7 @@
   border-radius: 22px;
   background:
     linear-gradient(145deg, rgba(255, 254, 21, 0.025), transparent 38%),
-    #121412;
+    var(--surface-4);
 }
 
 .admin-member-card > header {
@@ -43,7 +43,7 @@
 }
 
 .admin-member-card > header div > span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.11em;
@@ -69,7 +69,7 @@
 
 .admin-member-name-link:hover,
 .admin-member-name-link:focus-visible {
-  color: #fffe15;
+  color: var(--accent);
   text-decoration-color: currentColor;
 }
 
@@ -83,7 +83,7 @@
 .admin-member-open-profile {
   display: inline-flex;
   margin-top: 12px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.67rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -97,7 +97,7 @@
   padding-inline: 12px;
   border: 1px solid rgba(255, 254, 21, 0.28);
   border-radius: 999px;
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.08);
   font-size: 0.62rem;
   letter-spacing: 0.08em;
@@ -187,8 +187,8 @@
   padding-inline: 20px;
   border: 0;
   border-radius: 999px;
-  color: #080908;
-  background: #fffe15;
+  color: var(--background);
+  background: var(--accent);
   font: inherit;
   font-size: 0.7rem;
   font-weight: 900;
@@ -207,7 +207,7 @@
 
 .admin-member-approval button[data-action="rejected"] {
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #f7f7f2;
+  color: var(--foreground);
   background: transparent;
 }
 
@@ -244,7 +244,7 @@
       rgba(255, 254, 21, 0.12),
       transparent 33%
     ),
-    #111311;
+    var(--surface-3);
 }
 
 .admin-member-detail-photo {
@@ -256,7 +256,7 @@
   overflow: hidden;
   border: 2px solid rgba(255, 254, 21, 0.52);
   border-radius: 50%;
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.07);
   font-size: 3rem;
   font-weight: 900;
@@ -308,7 +308,7 @@
 .admin-member-detail-badges strong[data-status="approved"],
 .admin-member-detail-badges strong[data-earned="true"] {
   border-color: rgba(255, 254, 21, 0.32);
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.07);
 }
 
@@ -328,7 +328,7 @@
   padding: clamp(24px, 4vw, 42px);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 28px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .admin-member-detail-card > header {
@@ -337,7 +337,7 @@
 }
 
 .admin-member-detail-card > header span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.11em;
@@ -388,20 +388,20 @@
 }
 
 .admin-member-detail-card dd a {
-  color: #fffe15;
+  color: var(--accent);
   text-decoration: underline;
   text-decoration-color: rgba(255, 254, 21, 0.38);
   text-underline-offset: 4px;
 }
 
 .admin-password-reset-actions { display: grid; gap: 16px; margin-top: 24px; padding: 20px; border: 1px solid rgba(255,254,21,.26); border-radius: 16px; background: rgba(255,254,21,.04); }
-.admin-password-reset-actions span { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.admin-password-reset-actions span { color: var(--accent); font-size: .62rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
 .admin-password-reset-actions h3 { margin: 8px 0 5px; font-size: 1.35rem; }
 .admin-password-reset-actions p { margin: 0; color: #a9ada7; font-size: .76rem; line-height: 1.5; }
 .admin-password-reset-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-.admin-password-reset-buttons button { min-height: 42px; padding-inline: 16px; border: 0; border-radius: 999px; color: #090a09; background: #fffe15; cursor: pointer; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; }
+.admin-password-reset-buttons button { min-height: 42px; padding-inline: 16px; border: 0; border-radius: 999px; color: var(--surface-0); background: var(--accent); cursor: pointer; font: inherit; font-size: .62rem; font-weight: 900; text-transform: uppercase; }
 .admin-password-reset-buttons form:last-child button { border: 1px solid rgba(255,255,255,.2); color: #fff; background: transparent; }
-.admin-password-reset-buttons button.is-primary { border: 0; color: #090a09; background: #fffe15; }
+.admin-password-reset-buttons button.is-primary { border: 0; color: var(--surface-0); background: var(--accent); }
 .admin-password-reset-buttons button:disabled { cursor: wait; opacity: .55; }
 .admin-password-reset-actions > [role="status"][data-kind="success"] { color: #9be7b4; }
 .admin-password-reset-actions > [role="status"][data-kind="error"] { color: #ffb4a7; }
@@ -491,12 +491,12 @@
       rgba(255, 254, 21, 0.1),
       transparent 42%
     ),
-    #0e100e;
+    var(--surface-1);
 }
 
 .admin-member-summary > p:first-child {
   margin: 0;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.11em;
@@ -537,7 +537,7 @@
 
 .admin-member-summary dd {
   margin: 0;
-  color: #fffe15;
+  color: var(--accent);
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 4vw, 3.5rem);
   font-weight: 900;
@@ -562,7 +562,7 @@
   padding: clamp(20px, 3vw, 34px);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 28px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .admin-member-directory-header {
@@ -604,8 +604,8 @@
   border: 1px solid rgba(255, 255, 255, 0.17);
   border-radius: 14px;
   outline: 0;
-  color: #f7f7f2;
-  background: #080908;
+  color: var(--foreground);
+  background: var(--background);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
@@ -614,7 +614,7 @@
 }
 
 .admin-member-directory-header select:focus {
-  border-color: #fffe15;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(255, 254, 21, 0.11);
 }
 
@@ -645,9 +645,9 @@
 }
 
 .admin-member-verification-tabs button[aria-pressed="true"] {
-  border-color: #fffe15;
-  color: #080908;
-  background: #fffe15;
+  border-color: var(--accent);
+  color: var(--background);
+  background: var(--accent);
 }
 
 .admin-member-verification-tabs button span {
@@ -657,8 +657,8 @@
   place-items: center;
   padding-inline: 6px;
   border-radius: 999px;
-  color: #080908;
-  background: #f7f7f2;
+  color: var(--background);
+  background: var(--foreground);
   font-size: 0.63rem;
 }
 
@@ -698,7 +698,7 @@
 .admin-member-directory-profile:hover,
 .admin-member-directory-profile:focus-visible {
   padding-inline: 18px;
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.04);
   outline: 0;
 }
@@ -753,7 +753,7 @@
 
 .admin-member-directory-badges em[data-status="complete"] {
   border-color: rgba(255, 254, 21, 0.28);
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.06);
 }
 
@@ -765,7 +765,7 @@
 }
 
 .admin-member-directory-profile > span:last-child {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 1.25rem;
 }
 
@@ -782,7 +782,7 @@
   padding-inline: 14px;
   border: 1px solid rgba(255, 254, 21, 0.5);
   border-radius: 999px;
-  color: #fffe15;
+  color: var(--accent);
   background: rgba(255, 254, 21, 0.06);
   font: inherit;
   font-size: 0.62rem;
@@ -795,8 +795,8 @@
 
 .admin-member-resend button:hover,
 .admin-member-resend button:focus-visible {
-  color: #080908;
-  background: #fffe15;
+  color: var(--background);
+  background: var(--accent);
   outline: 0;
 }
 

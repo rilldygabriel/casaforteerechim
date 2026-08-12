@@ -19,8 +19,10 @@
     "geist": "^1.7.2",
     "linkedom": "0.18.12",
     "next": "16.2.11",
+    "pluggy-js": "0.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-pluggy-connect": "2.12.0",
     "sharp": "0.34.5",
     "web-push": "3.6.7"
   },

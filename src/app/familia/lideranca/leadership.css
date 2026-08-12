@@ -32,9 +32,10 @@
   gap: 10px;
   color: inherit;
 }
+.family-disciple-request-notice{justify-self:start;padding:7px 10px;border-radius:999px;color:var(--surface-0);background:var(--accent);font-size:.57rem;font-style:normal;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
 
 .family-disciple-card > a > span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -59,7 +60,7 @@
 .family-disciple-card form input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #fffe15;
+  accent-color: var(--accent);
 }
 
 .family-disciple-card button {
@@ -82,12 +83,12 @@
   padding: clamp(24px, 4vw, 40px);
   border: 1px solid rgba(255, 254, 21, 0.25);
   border-radius: 22px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .family-discipleship-section > header span,
 .family-disciple-card > span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -119,7 +120,7 @@
   padding: 22px;
   border: 1px solid rgba(139, 230, 164, 0.25);
   border-radius: 17px;
-  color: #f5f5ef;
+  color: var(--foreground);
   background: rgba(62, 143, 86, 0.06);
 }
 
@@ -140,7 +141,7 @@
 
 .family-disciple-card small {
   margin-top: 12px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.65rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -178,20 +179,20 @@
   padding: clamp(24px, 4vw, 36px);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 22px;
-  background: #121412;
+  background: var(--surface-4);
 }
 
 .family-leadership-role-card.is-featured {
   border-color: rgba(255, 254, 21, 0.35);
   background:
     radial-gradient(circle at 90% 10%, rgba(255, 254, 21, 0.12), transparent 34%),
-    #121412;
+    var(--surface-4);
 }
 
 .family-leadership-role-card > span,
 .family-leadership-teams > header span,
 .family-leadership-teams article > div span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.64rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -216,7 +217,7 @@
   padding: clamp(24px, 4vw, 40px);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 22px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .family-leadership-teams > header {
@@ -237,7 +238,7 @@
   padding: 16px;
   border: 1px solid rgba(255, 254, 21, 0.7);
   border-radius: 16px;
-  color: #f7f7f2;
+  color: var(--foreground);
   background: rgba(255, 254, 21, 0.06);
 }
 
@@ -248,8 +249,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   font-size: 1.15rem;
 }
 
@@ -262,7 +263,7 @@
 .family-leadership-request-alert small {
   display: block;
   margin-top: 5px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.64rem;
 }
 
@@ -306,8 +307,8 @@
   justify-content: center;
   margin-top: 16px;
   border-radius: 999px;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.06em;

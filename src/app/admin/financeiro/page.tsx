@@ -4,7 +4,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { isOpenFinanceConfigured } from "@/lib/open-finance";
 import { createPayable, togglePayableStatus } from "./actions";
+import OpenFinanceConnect from "./open-finance-connect";
+import ServiceIncomeForm from "./service-income-form";
 import StatementAnalyzer from "./statement-analyzer";
 import "./finance.css";
 
@@ -32,16 +35,20 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
-  const { data: profile } = await supabase.from("member_profiles").select("full_name,is_admin").eq("user_id", user.id).maybeSingle();
-  if (!profile?.is_admin) redirect("/admin");
+  const { data: profile } = await supabase.from("member_profiles").select("full_name,is_admin,can_manage_finance").eq("user_id", user.id).maybeSingle();
+  if (!profile?.is_admin && !profile?.can_manage_finance) redirect("/admin");
 
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonthKey();
   const range = monthRange(month);
   const service = getSupabaseServiceClient();
-  const [{ data: payables }, { data: incomeEntries }] = await Promise.all([
+  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }] = await Promise.all([
     service.from("finance_payables").select("id,description,vendor,category,due_date,amount_cents,status,payment_date,notes").order("status").order("due_date"),
     service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source").order("transaction_date", { ascending: false }).limit(30),
+    service.from("finance_income_entries").select("amount_cents").gte("transaction_date", range.start).lt("transaction_date", range.end),
+    service.from("finance_bank_connections").select("id,institution_name,status,last_synced_at").order("created_at"),
+    service.from("finance_bank_accounts").select("id,connection_id,name,current_balance_cents,currency_code").order("name"),
+    service.from("finance_service_income_records").select("id,service_date,cash_cents,pix_cents,counted_by,created_at").gte("service_date", range.start).lt("service_date", range.end).order("service_date", { ascending: false }).order("created_at", { ascending: false }),
   ]);
   const allPayables = payables ?? [];
   const dueInMonth = allPayables.filter((item) => item.due_date >= range.start && item.due_date < range.end);
@@ -50,6 +57,11 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const paidDue = dueInMonth.filter((item) => item.status === "paid").reduce((sum, item) => sum + Number(item.amount_cents), 0);
   const spent = paidInMonth.reduce((sum, item) => sum + Number(item.amount_cents), 0);
   const pending = dueInMonth.filter((item) => item.status === "pending").reduce((sum, item) => sum + Number(item.amount_cents), 0);
+  const received = (monthlyIncome ?? []).reduce((sum, item) => sum + Number(item.amount_cents), 0);
+  const connectionNames = new Map((bankConnections ?? []).map((connection) => [connection.id, connection.institution_name]));
+  const serviceIncomeInMonth = serviceIncomeRecords ?? [];
+  const serviceCashTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.cash_cents), 0);
+  const servicePixTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.pix_cents), 0);
 
   return (
     <main className="finance-page">
@@ -63,6 +75,12 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
         <p>Contas, pagamentos e entradas da Casa reunidos em um único lugar.</p>
       </section>
 
+      <nav className="finance-section-nav" aria-label="Áreas do financeiro">
+        <a href="#entradas-de-culto">Entradas de culto</a>
+        <a href="#contas-a-pagar">Contas a pagar</a>
+        <a href="#open-finance">Open Finance</a>
+      </nav>
+
       <form className="finance-month-filter" method="get">
         <label>Mês do resumo <input name="month" type="month" defaultValue={month} /></label>
         <button type="submit">Ver mês</button>
@@ -70,14 +88,42 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       {params.ok ? <p className="finance-flash success">{params.ok}</p> : null}
       {params.error ? <p className="finance-flash error">{params.error}</p> : null}
 
+      <section className="finance-service-income-panel" id="entradas-de-culto">
+        <header className="finance-service-income-heading">
+          <div><span>Entradas de culto</span><h2>Contagem das ofertas</h2><p>Informe somente a data e os valores recebidos. O responsável será identificado automaticamente pelo login.</p></div>
+          <div className="finance-service-totals"><article><span>Dinheiro no mês</span><strong>{money.format(serviceCashTotal / 100)}</strong></article><article><span>Pix no mês</span><strong>{money.format(servicePixTotal / 100)}</strong></article><article><span>Total dos cultos</span><strong>{money.format((serviceCashTotal + servicePixTotal) / 100)}</strong></article></div>
+        </header>
+        <ServiceIncomeForm month={month} />
+        <div className="finance-service-history">
+          <header><div><span>Histórico</span><h3>Entradas cadastradas</h3></div><strong>{serviceIncomeRecords?.length ?? 0} registro(s)</strong></header>
+          <div className="finance-service-records">{(serviceIncomeRecords ?? []).length ? (serviceIncomeRecords ?? []).map((record) => {
+            const pixTotal = Number(record.pix_cents);
+            return <article key={record.id}>
+              <header><div><time>{formatDate(record.service_date)}</time><h4>Entrada do culto</h4></div><strong>{money.format((Number(record.cash_cents) + pixTotal) / 100)}</strong></header>
+              <dl><div><dt>Dinheiro</dt><dd>{money.format(Number(record.cash_cents) / 100)}</dd></div><div><dt>Pix</dt><dd>{money.format(pixTotal / 100)}</dd></div></dl>
+              <p><b>Contagem feita por:</b> {record.counted_by.join(", ")}</p>
+            </article>;
+          }) : <p className="finance-empty">Nenhuma entrada de culto cadastrada ainda.</p>}</div>
+        </div>
+      </section>
+
       <section className="finance-summary" aria-label="Resumo financeiro mensal">
+        <Summary label="Entradas no mês" value={received} detail={`${monthlyIncome?.length ?? 0} recebimento(s) confirmado(s)`} />
         <Summary label="Gasto no mês" value={spent} detail="Pagamentos realizados neste mês" />
         <Summary label="Contas do mês" value={totalDue} detail={`${dueInMonth.length} conta(s) com vencimento`} />
         <Summary label="Já pago" value={paidDue} detail="Das contas que vencem neste mês" />
         <Summary label="Falta pagar" value={pending} detail={`${dueInMonth.filter((item) => item.status === "pending").length} conta(s) pendente(s)`} warning={pending > 0} />
       </section>
 
-      <section className="finance-create-panel">
+      <section className="finance-open-finance-panel" id="open-finance">
+        <div className="finance-open-finance-copy"><span>Open Finance</span><h2>Contas e entradas automáticas</h2><p>Conecte as contas de recebimento em modo somente leitura. O site importa saldos e créditos sem guardar senha bancária.</p></div>
+        <OpenFinanceConnect configured={isOpenFinanceConfigured()} hasConnections={Boolean(bankConnections?.length)} />
+        {(bankAccounts ?? []).length ? <div className="finance-bank-accounts">{(bankAccounts ?? []).map((account) => (
+          <article key={account.id}><span>{connectionNames.get(account.connection_id) || "Instituição"}</span><strong>{account.name}</strong><b>{account.current_balance_cents === null ? "Saldo indisponível" : money.format(Number(account.current_balance_cents) / 100)}</b></article>
+        ))}</div> : <p className="finance-open-finance-empty">Nenhuma conta bancária conectada ainda.</p>}
+      </section>
+
+      <section className="finance-create-panel" id="contas-a-pagar">
         <div><span>Nova conta</span><h2>Cadastrar conta a pagar</h2><p>Informe os dados principais. Depois, dê o aceite no card quando o pagamento for feito.</p></div>
         <form action={createPayable}>
           <input type="hidden" name="returnMonth" value={month} />
@@ -117,7 +163,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-income-section">
         <header><div><span>Entradas confirmadas</span><h2>Últimos lançamentos</h2></div></header>
         <div>{(incomeEntries ?? []).length ? (incomeEntries ?? []).map((entry) => (
-          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}</strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
+          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
         )) : <p className="finance-empty">As entradas identificadas nos extratos aparecerão aqui.</p>}</div>
       </section>
     </main>

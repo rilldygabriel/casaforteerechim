@@ -3,8 +3,8 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 12% 3%, rgba(255, 254, 21, 0.09), transparent 24%),
-    #080908;
-  color: #f7f7f2;
+    var(--background);
+  color: var(--foreground);
 }
 
 .bible-site-header,
@@ -42,7 +42,7 @@
   padding-inline: 20px;
   border: 1px solid rgba(255, 254, 21, 0.4);
   border-radius: 999px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -55,9 +55,9 @@
 }
 
 .bible-back-link:hover {
-  border-color: #fffe15;
-  background: #fffe15;
-  color: #080908;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--background);
   transform: translateY(-2px);
 }
 
@@ -67,7 +67,7 @@
 
 .bible-kicker {
   margin: 0 0 18px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.67rem;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -97,7 +97,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 30px;
-  background: #111311;
+  background: var(--surface-3);
   box-shadow: 0 35px 100px rgba(0, 0, 0, 0.24);
 }
 
@@ -138,7 +138,7 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 13px;
   outline: none;
-  background: #090a09;
+  background: var(--surface-0);
   color: white;
   font: inherit;
   transition:
@@ -156,7 +156,7 @@
 
 .bible-reference-search input:focus,
 .bible-selectors select:focus {
-  border-color: #fffe15;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(255, 254, 21, 0.13);
 }
 
@@ -165,10 +165,10 @@
 .bible-passage-error button,
 .bible-unavailable button {
   min-height: 54px;
-  border: 1px solid #fffe15;
+  border: 1px solid var(--accent);
   border-radius: 13px;
-  background: #fffe15;
-  color: #080908;
+  background: var(--accent);
+  color: var(--background);
   cursor: pointer;
   font: inherit;
   font-size: 0.7rem;
@@ -212,8 +212,8 @@
   appearance: none;
   padding: 0 42px 0 15px;
   background-image:
-    linear-gradient(45deg, transparent 50%, #fffe15 50%),
-    linear-gradient(135deg, #fffe15 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
   background-position:
     calc(100% - 18px) 23px,
     calc(100% - 13px) 23px;
@@ -235,7 +235,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 13px;
-  background: #090a09;
+  background: var(--surface-0);
 }
 
 .bible-font-controls button {
@@ -243,7 +243,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.78rem;
 }
 
@@ -310,7 +310,7 @@
   place-items: center;
   border: 1px solid rgba(255, 254, 21, 0.35);
   border-radius: 50%;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.7rem;
   font-weight: 900;
 }
@@ -334,7 +334,7 @@
   width: 36px;
   height: 36px;
   border: 3px solid rgba(255, 255, 255, 0.14);
-  border-top-color: #fffe15;
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: bible-spin 750ms linear infinite;
 }
@@ -354,7 +354,7 @@
   width: min(100%, 72ch);
   max-width: none;
   margin: 36px auto 0;
-  color: #f7f7f2;
+  color: var(--foreground);
 }
 
 .bible-scripture .yv-v {
@@ -382,7 +382,7 @@
 }
 
 .bible-scripture .yv-v.yv-v-selected .yv-vlbl {
-  color: #fffe15;
+  color: var(--accent);
 }
 
 .bible-scripture table {
@@ -416,7 +416,7 @@
 }
 
 .bible-selection-actions p strong {
-  color: #fffe15;
+  color: var(--accent);
 }
 
 .bible-selection-actions > div {
@@ -427,10 +427,10 @@
 .bible-selection-actions button {
   min-height: 46px;
   padding-inline: 17px;
-  border: 1px solid #fffe15;
+  border: 1px solid var(--accent);
   border-radius: 11px;
-  background: #fffe15;
-  color: #080908;
+  background: var(--accent);
+  color: var(--background);
   cursor: pointer;
   font: inherit;
   font-size: 0.66rem;
@@ -477,9 +477,9 @@
 }
 
 .bible-chapter-navigation button:hover:not(:disabled) {
-  border-color: #fffe15;
+  border-color: var(--accent);
   background: rgba(255, 254, 21, 0.06);
-  color: #fffe15;
+  color: var(--accent);
 }
 
 .bible-translation-credits {
@@ -492,7 +492,7 @@
 
 .bible-credit-label {
   margin: 0 0 10px !important;
-  color: #fffe15 !important;
+  color: var(--accent) !important;
   font-size: 0.62rem !important;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -532,7 +532,7 @@
   padding-inline: 18px;
   border: 1px solid rgba(255, 254, 21, 0.38);
   border-radius: 999px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -572,7 +572,7 @@
 }
 
 .bible-unavailable > span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.15em;
@@ -612,7 +612,7 @@
 }
 
 .bible-site-footer a {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.69rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -620,7 +620,7 @@
 }
 
 .bible-page :is(button, a, input, select):focus-visible {
-  outline: 3px solid #fffe15;
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 

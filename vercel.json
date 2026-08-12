@@ -3,6 +3,8 @@
   "framework": "nextjs",
   "installCommand": "npm ci",
   "crons": [
-    { "path": "/api/cron/visitor-followup-alerts", "schedule": "0 21 * * *" }
+    { "path": "/api/cron/visitor-followup-alerts", "schedule": "0 21 * * *" },
+    { "path": "/api/cron/open-finance-sync", "schedule": "0 9 * * *" },
+    { "path": "/api/cron/discipleship-reminders", "schedule": "*/15 * * * *" }
   ]
 }

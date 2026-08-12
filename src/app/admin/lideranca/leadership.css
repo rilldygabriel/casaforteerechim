@@ -26,7 +26,7 @@
   padding: clamp(22px, 4vw, 40px);
   border: 1px solid rgba(255, 254, 21, 0.28);
   border-radius: 24px;
-  background: radial-gradient(circle at 94% 6%, rgba(255, 254, 21, 0.1), transparent 30%), #0e100e;
+  background: radial-gradient(circle at 94% 6%, rgba(255, 254, 21, 0.1), transparent 30%), var(--surface-1);
 }
 
 .discipler-visibility-panel > header {
@@ -37,7 +37,7 @@
 }
 
 .discipler-visibility-panel > header span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -62,8 +62,8 @@
   flex: 0 0 auto;
   padding: 10px 14px;
   border-radius: 999px;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   font-size: 0.68rem;
   text-transform: uppercase;
 }
@@ -82,7 +82,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   text-align: center;
-  background: #090a09;
+  background: var(--surface-0);
 }
 
 .discipler-visibility-grid > article[data-available="true"] {
@@ -96,10 +96,10 @@
   height: 84px;
   place-items: center;
   overflow: hidden;
-  border: 2px solid #fffe15;
+  border: 2px solid var(--accent);
   border-radius: 50%;
-  color: #fffe15;
-  background: #171a16;
+  color: var(--accent);
+  background: var(--surface-3);
   font-size: 1.8rem;
   font-weight: 900;
 }
@@ -133,8 +133,8 @@
   min-height: 40px;
   border: 0;
   border-radius: 999px;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   cursor: pointer;
   font: inherit;
   font-size: 0.6rem;
@@ -154,7 +154,7 @@
   padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .leadership-tabs a {
@@ -173,8 +173,8 @@
 }
 
 .leadership-tabs a[aria-current="page"] {
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
 }
 
 .leadership-tabs span {
@@ -184,7 +184,7 @@
   place-items: center;
   padding-inline: 6px;
   border-radius: 999px;
-  color: #090a09;
+  color: var(--surface-0);
   background: #f4f4ef;
   font-size: 0.62rem;
 }
@@ -210,7 +210,7 @@
   margin-top: 16px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 24px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .leadership-panel {
@@ -228,7 +228,7 @@
 
 .leadership-panel > header span,
 .leadership-ministry-card summary span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -273,8 +273,8 @@
   padding-inline: 13px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
-  color: #f5f5ef;
-  background: #080908;
+  color: var(--foreground);
+  background: var(--background);
   font: inherit;
   font-size: 0.78rem;
 }
@@ -286,8 +286,8 @@
   padding-inline: 16px;
   border: 0;
   border-radius: 999px;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   cursor: pointer;
   font: inherit;
   font-size: 0.64rem;
@@ -308,7 +308,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 24px;
-  background: #0e100e;
+  background: var(--surface-1);
 }
 
 .discipler-management-card > summary {
@@ -323,18 +323,18 @@
 }
 
 .discipler-management-card > summary::-webkit-details-marker { display: none; }
-.discipler-management-card > summary span { color: #fffe15; font-size: 0.62rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.discipler-management-card > summary span { color: var(--accent); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .discipler-management-card > summary h2 { margin: 8px 0 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -0.05em; }
 .discipler-management-card > summary > strong { color: #a8aca6; font-size: 0.72rem; }
 .discipler-management-content { padding: 24px 28px 28px; border-top: 1px solid rgba(255,255,255,.1); }
 .discipler-management-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-.discipler-management-tools a, .disciple-admin-actions > a { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.discipler-management-tools a, .disciple-admin-actions > a { color: var(--accent); font-size: .62rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
 .discipler-management-tools button, .disciple-admin-actions button { min-height: 36px; padding-inline: 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #d7dad4; background: transparent; cursor: pointer; font: inherit; font-size: .57rem; font-weight: 900; text-transform: uppercase; }
 .discipler-add-disciple { margin-top: 22px; padding: 20px; border: 1px solid rgba(255,254,21,.2); border-radius: 17px; background: rgba(255,254,21,.035); }
 .disciple-admin-grid { display: grid; gap: 10px; margin-top: 18px; }
 .disciple-admin-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 18px; border: 1px solid rgba(139,230,164,.2); border-radius: 16px; background: rgba(62,143,86,.045); }
 .disciple-admin-card[data-attention="true"] { border-color: rgba(255,254,21,.3); background: rgba(255,254,21,.04); }
-.disciple-admin-card span { color: #fffe15; font-size: .59rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.disciple-admin-card span { color: var(--accent); font-size: .59rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .disciple-admin-card h3 { margin: 7px 0 0; font-size: 1.25rem; }
 .disciple-admin-card p { margin: 6px 0 0; color: #979c95; font-size: .72rem; }
 .disciple-admin-actions { display: flex; align-items: center; gap: 12px; }
@@ -363,13 +363,13 @@
 
 .leadership-profile-link {
   min-width: 0;
-  color: #f5f5ef;
+  color: var(--foreground);
   text-decoration: none;
 }
 
 .leadership-profile-link:hover,
 .leadership-profile-link:focus-visible {
-  color: #fffe15;
+  color: var(--accent);
 }
 
 .leadership-profile-link small {
@@ -458,7 +458,7 @@
 }
 
 .leadership-bulk-actions span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.09em;
@@ -475,8 +475,8 @@
   margin-top: 4px;
   border: 0;
   border-radius: 999px;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
   cursor: pointer;
   font: inherit;
   font-size: 0.64rem;
@@ -492,8 +492,8 @@
   overflow: hidden;
   border: 1px solid rgba(255, 254, 21, 0.28);
   border-radius: 24px;
-  color: #f5f5ef;
-  background: #101210;
+  color: var(--foreground);
+  background: var(--surface-2);
   box-shadow: 0 30px 100px rgba(0, 0, 0, 0.72);
 }
 
@@ -522,7 +522,7 @@
 }
 
 .leadership-bulk-dialog header span {
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.09em;
@@ -546,7 +546,7 @@
   flex: 0 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.17);
   border-radius: 50%;
-  color: #f5f5ef;
+  color: var(--foreground);
   background: transparent;
   cursor: pointer;
   font: inherit;
@@ -599,14 +599,14 @@
 
 .leadership-bulk-option > a:hover,
 .leadership-bulk-option > a:focus-visible {
-  border-color: #fffe15;
-  color: #fffe15;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .leadership-bulk-options input {
   width: 20px;
   height: 20px;
-  accent-color: #fffe15;
+  accent-color: var(--accent);
 }
 
 .leadership-bulk-options strong,
@@ -646,8 +646,8 @@
 
 .leadership-dialog-save {
   border: 0;
-  color: #090a09;
-  background: #fffe15;
+  color: var(--surface-0);
+  background: var(--accent);
 }
 
 .leadership-assignment-group {
@@ -659,7 +659,7 @@
 
 .leadership-assignment-group h3 {
   margin: 0 0 14px;
-  color: #fffe15;
+  color: var(--accent);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;

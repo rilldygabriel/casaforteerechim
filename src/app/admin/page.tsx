@@ -16,7 +16,7 @@ export default async function AdminPage() {
   if (!user) redirect("/admin/login");
 
   const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult] = await Promise.all([
-    supabase.from("member_profiles").select("full_name,is_admin,approval_status").eq("user_id", user.id).maybeSingle(),
+    supabase.from("member_profiles").select("full_name,is_admin,approval_status,can_manage_finance").eq("user_id", user.id).maybeSingle(),
     supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
     supabase.from("ministry_leaders").select("ministry_key").eq("member_id", user.id),
     supabase
@@ -28,6 +28,7 @@ export default async function AdminPage() {
   ]);
 
   const isAdmin = Boolean(profile?.is_admin);
+  const canManageFinance = Boolean(profile?.can_manage_finance);
   const isDiscipler = Boolean(disciplerResult.data);
   const ministryCount = leaderResult.data?.length ?? 0;
   const leadsConnect = Boolean(
@@ -37,7 +38,7 @@ export default async function AdminPage() {
   const canManageVisitors = isAdmin || leadsConnect || isConnectMember;
   const isApproved = profile?.approval_status === "approved";
 
-  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && ministryCount === 0 && !isConnectMember)))) {
+  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && ministryCount === 0 && !isConnectMember && !canManageFinance)))) {
     redirect("/familia");
   }
 
@@ -101,6 +102,7 @@ export default async function AdminPage() {
         {!isAdmin && isDiscipler && <Module number="01" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu discipulado." action="Abrir meus discípulos" />}
         {!isAdmin && ministryCount > 0 && <Module number={isDiscipler ? "02" : "01"} href="/admin/meu-ministerio" title={ministryCount === 1 ? "Meu ministério" : "Meus ministérios"} copy="Veja as pessoas que servem nas áreas sob sua liderança." action="Abrir minha equipe" notice={pendingServeRequests > 0 ? `${pendingServeRequests} ${pendingServeRequests === 1 ? "novo pedido" : "novos pedidos"} para analisar` : undefined} />}
         {!isAdmin && canManageVisitors && <Module number={isDiscipler && ministryCount > 0 ? "03" : isDiscipler || ministryCount > 0 ? "02" : "01"} href="/admin/visitantes" title="Visitantes" copy="Acolha as pessoas que preencheram o cadastro de visitante." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />}
+        {!isAdmin && canManageFinance && <Module number="F" href="/admin/financeiro" title="Financeiro" copy="Registre entradas de culto, contas, pagamentos e confira os resumos financeiros." action="Abrir financeiro" />}
       </section>
       <AdminCalendarTicker />
     </main>

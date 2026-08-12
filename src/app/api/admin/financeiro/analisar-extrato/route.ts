@@ -49,8 +49,8 @@ export async function POST(request: Request) {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return json("Sua sessão expirou.", 401);
-  const { data: profile } = await supabase.from("member_profiles").select("is_admin").eq("user_id", user.id).maybeSingle();
-  if (!profile?.is_admin) return json("Acesso restrito aos administradores.", 403);
+  const { data: profile } = await supabase.from("member_profiles").select("is_admin,can_manage_finance").eq("user_id", user.id).maybeSingle();
+  if (!profile?.is_admin && !profile?.can_manage_finance) return json("Acesso restrito à equipe financeira.", 403);
 
   const formData = await request.formData();
   const file = formData.get("statement");

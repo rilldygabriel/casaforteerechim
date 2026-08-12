@@ -10,6 +10,7 @@ import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
 import PushNotifications from "./push-notifications";
+import ThemeToggle from "@/components/theme-toggle";
 import { requestDiscipler } from "./discipleship-actions";
 
 const GROUP_URL =
@@ -350,6 +351,15 @@ export default async function Familia({
         </section>
       )}
 
+      <section className="family-leadership-access family-discipleship-access">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />Minha caminhada</p>
+          <h2>Meus discipulados</h2>
+          <p>Veja seu último encontro, confirme novos horários ou avise que precisa de discipulado.</p>
+        </div>
+        <Link href="/familia/meus-discipulados">Abrir meus discipulados</Link>
+      </section>
+
       <section className="family-leadership-access family-calendar-access">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />Programação da Casa</p>
@@ -635,6 +645,7 @@ function FamilyHeader({
         />
       </Link>
       <div className="family-header-actions">
+        <ThemeToggle />
         <Link className="family-notification-link" href="/familia/notificacoes" aria-label={`Notificações${unreadNotifications ? `, ${unreadNotifications} não lidas` : ""}`}>
           <span aria-hidden="true">●</span>
           <strong>Mensagens</strong>

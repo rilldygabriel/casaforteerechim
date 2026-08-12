@@ -1,30 +1,31 @@
 .role-panel-list { display: grid; gap: 14px; width: min(100%, 1120px); margin: 20px auto 0; }
-.role-panel-card { padding: clamp(22px, 4vw, 36px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: #101210; }
+.role-panel-card { padding: clamp(22px, 4vw, 36px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: var(--surface-2); }
 .role-panel-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
-.role-panel-card header span { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.role-panel-card header span { color: var(--accent); font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
 .role-panel-card h2 { margin: 9px 0 0; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.05em; }
 .role-panel-card header strong { color: #a4a9a2; font-size: .74rem; }
 .role-panel-people { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 20px; }
-.role-panel-person { display: grid; gap: 7px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 15px; color: #f5f5ef; background: rgba(255,255,255,.025); }
-.role-panel-person span { color: #fffe15; font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.role-panel-person { display: grid; gap: 7px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 15px; color: var(--foreground); background: rgba(255,255,255,.025); }
+.role-panel-person em { justify-self: start; padding: 6px 9px; border-radius: 999px; color: var(--surface-0); background: var(--accent); font-size: .55rem; font-style: normal; font-weight: 900; text-transform: uppercase; }
+.role-panel-person span { color: var(--accent); font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .role-panel-person h3 { margin: 4px 0; font-size: 1.25rem; }
 .role-panel-person p { margin: 0; color: #949990; font-size: .74rem; }
-.role-panel-person strong { margin-top: 8px; color: #fffe15; font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; }
+.role-panel-person strong { margin-top: 8px; color: var(--accent); font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; }
 .role-panel-empty { color: #959a93; }
-.role-panel-requests { width: min(100%, 1120px); margin: 22px auto 0; padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: #101210; }
+.role-panel-requests { width: min(100%, 1120px); margin: 22px auto 0; padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: var(--surface-2); }
 .role-panel-requests[data-has-pending="true"] { border-color: rgba(255,254,21,.7); box-shadow: 0 18px 48px rgba(255,254,21,.07); }
 .role-panel-requests > header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
-.role-panel-requests > header span { color: #fffe15; font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.role-panel-requests > header span { color: var(--accent); font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
 .role-panel-requests h2 { margin: 8px 0 0; font-size: clamp(1.7rem, 4vw, 2.8rem); letter-spacing: -.045em; }
-.role-panel-requests > header strong { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: #fffe15; color: #090a09; font-size: 1.2rem; }
+.role-panel-requests > header strong { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: var(--accent); color: var(--surface-0); font-size: 1.2rem; }
 .role-panel-requests > .role-panel-empty { margin: 22px 0 0; }
 .role-panel-request-list { display: grid; gap: 10px; margin-top: 20px; }
 .role-panel-request-list > article { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: rgba(255,255,255,.025); }
-.role-panel-request-list span { color: #fffe15; font-size: .6rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.role-panel-request-list span { color: var(--accent); font-size: .6rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .role-panel-request-list h3 { margin: 7px 0 4px; font-size: 1.4rem; }
 .role-panel-request-list p, .role-panel-request-list time { display: block; margin: 0; color: #a4a9a2; font-size: .74rem; }
 .role-panel-request-list time { margin-top: 5px; }
 .role-panel-request-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.role-panel-request-actions button { min-height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: #fffe15; color: #090a09; font: inherit; font-size: .64rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
-.role-panel-request-actions button.is-secondary { border: 1px solid rgba(255,255,255,.18); background: transparent; color: #f5f5ef; }
+.role-panel-request-actions button { min-height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--accent); color: var(--surface-0); font: inherit; font-size: .64rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.role-panel-request-actions button.is-secondary { border: 1px solid rgba(255,255,255,.18); background: transparent; color: var(--foreground); }
 @media (max-width: 720px) { .role-panel-card > header { flex-direction: column; } .role-panel-people { grid-template-columns: 1fr; } .role-panel-request-list > article { align-items: stretch; flex-direction: column; } .role-panel-request-actions, .role-panel-request-actions form, .role-panel-request-actions button { width: 100%; } }

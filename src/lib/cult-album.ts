@@ -1,389 +1,173 @@
 export type CultPhoto = { id: string; filename: string; orientation: "horizontal" | "vertical" };
 
+export const LATEST_CULT_TITLE = "Culto de Domingo";
+export const LATEST_CULT_DATE_LABEL = "09 de agosto";
+export const LATEST_CULT_DATE_SHORT = "09/08";
+export const LATEST_CULT_SOURCE_FOLDERS = [
+  "https://drive.google.com/drive/folders/1tyA7vyJ6xOy4Vmxc-FG0r2RK1mVhR7ZY",
+  "https://drive.google.com/drive/folders/1x0k5n4l-DQhEef1BK6z1Yuzgzqc9BnAm",
+] as const;
+
 export const LATEST_CULT_ALBUM = [
-  {
-    "id": "1PQIS3ZcSzNHcLSNwVQxixT_xJ32-ZJRs",
-    "filename": "7H0A2073.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1dntK9UxK8LEk_1RNNHFEKcgPHbwhijOw",
-    "filename": "7H0A2137.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1oT0iIZta3HKWnGRBaJ2x2gC7i86njs3n",
-    "filename": "7H0A2141.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1hsw2o8Vp4zk_p_JFYDHxvhbUMQRyGVR9",
-    "filename": "7H0A2155.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1a77nUbI0Ipi9QTcjdRo86p_uIidw_QoG",
-    "filename": "7H0A2166.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "17oScWPiuqAs5y3YmDDKTbdWydDCcOREz",
-    "filename": "7H0A2173.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1GA_PUPgp0WQdZ00ZLnZvdwNQiIj-5NKP",
-    "filename": "7H0A2209.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1J_jJLVdoH_b2YvnG4bSBOIfU-j6X5lHQ",
-    "filename": "7H0A2239.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1dhHnQ8TGsk6OBwNaWnb4-kjWxp5_cQxT",
-    "filename": "7H0A2254.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1L_Q9e8hXc-CFw7et5lIWJoESBtQOOHeK",
-    "filename": "7H0A2307.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1oq9CbvXkDnSSoqM7_9uVsQ2tfaTPIlos",
-    "filename": "7H0A2385.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1okR0Ifci23xy7e_vDJkqZgcGndSZ104k",
-    "filename": "7H0A2426.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1x051gaSf3vuMU0jff4mzYRRXQD0xMjGE",
-    "filename": "7H0A2436.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1fky6qUBPk7F0wMRZeA7qmuu5GoOvHP5r",
-    "filename": "7H0A2438.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "111mIsyw78aPAC3fXIj9vhk1UtPHStEwR",
-    "filename": "7H0A2462.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1awhaHzI2L6AAkTASNjdWm3UIZ-A6F4kw",
-    "filename": "7H0A2480.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1pzSPHkL37WusZatBrnA0i4V2drL9j68u",
-    "filename": "7H0A2525.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1mwQBTR_YHcZwq78SCM8sjJKR7Hq04eOO",
-    "filename": "7H0A2541.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1SsVFV_ipgzP0ARxe56Z4VoQTPTzpX3ga",
-    "filename": "7H0A2550.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1vvdp4mH2OdX4QeIxNg8fJFuNvcBkDcHH",
-    "filename": "7H0A2557.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1T1S0BO7huRzK8E-qyxDhF-avcXVuDQAK",
-    "filename": "7H0A2582.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1IdRdBzaUUoGC3cdMerT8bFSR8AbxnDBy",
-    "filename": "7H0A2583.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1SpQMHTJLKTuuEuIbySw2f-AlVERB5E_N",
-    "filename": "7H0A2599.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "16RyPoaea-d413_UPHXrso0v1cn9mIGRi",
-    "filename": "7H0A2609.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1uUeL7lPnhG7Q0kANslrP6sBVsbMeHLdT",
-    "filename": "7H0A2614.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1tYWRgJ2RDa46JJ0LXcsn3UoRtnql3Hmn",
-    "filename": "7H0A2618.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1ag1uA_3q69SnhtZ_F1kI53ut0QcZDdjs",
-    "filename": "7H0A2625.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1L3R_o9txW9dPEuH-2uhgLj10m9dPaQC5",
-    "filename": "7H0A2640.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1VkU-LmhAj6UKnutD6H_rW4X4fMgydbxC",
-    "filename": "7H0A2648.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1ae6J4_k3RqECIHOViYLL7jChrHCgyhDd",
-    "filename": "7H0A2670.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1tQU-zYbpImzdRyyXSKmTypE9wxceYCNv",
-    "filename": "7H0A2680.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1RqeqV5bsw7aQUG1JMAkcNM1wdMRqbtiV",
-    "filename": "7H0A2683.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "157x9CgEOi1XOGUOPoPBcdAxxd46Cc9F0",
-    "filename": "7H0A2689.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "14bVfc817wxWSDr_IANyP2UEtGB0JZUIb",
-    "filename": "7H0A2714.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1_8kRq9Z3nqqa4jiJhn-hQam_LupGe7zm",
-    "filename": "7H0A2723.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "18IriQNFJprbCr3TstAZS1FLftChBTygk",
-    "filename": "7H0A2728.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1mTHfbZE4KjH6ZWlZTFOAlJHRhL75wPGU",
-    "filename": "7H0A2747.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1JTT7__5p2gSSXR-VZ1wql5Nf9FsffxcP",
-    "filename": "7H0A2754.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1lsJm2IltAvQk_7EGuK_Rx3UMrupLFFLK",
-    "filename": "7H0A2838.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1KIdivc--i6r9QmZoqdDcsfjMT77abLKY",
-    "filename": "7H0A2846.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1XWjqEWHwq_ZZR8EQXUfIWhsIdXLVumC_",
-    "filename": "7H0A2868.jpg",
-    "orientation": "horizontal"
-  },
-  {
-    "id": "1jzyw8mu8dWugnP6GBcAAA7mMqY7j4FFD",
-    "filename": "7H0A2287.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1HCW8JOF-fOe2VQoMmDVxZZWQ9mwdVUzc",
-    "filename": "7H0A2300.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1NgBtVLd1RfA45WNEWdslKmGpGHnHEphV",
-    "filename": "7H0A2316.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "12_815DA7iu2KE5N49PeLzUvzr2DbFXyM",
-    "filename": "7H0A2328.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1-KUwy5CurT4CCOOHtpU_UAGM72oorCmF",
-    "filename": "7H0A2332.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1GBki_23RUOwYKHAqll-dYCr4O_tEERh9",
-    "filename": "7H0A2350.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "15FtYqqSQnSeuHdxJlfambPWb9Z4mT8z2",
-    "filename": "7H0A2366.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "16mPq_S7Mr0HJWOMb6npZIPn8SZ11rdC3",
-    "filename": "7H0A2399.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1QilI3lplfuDlec5Tv1b1jZM8AmzCVpxA",
-    "filename": "7H0A2405.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1LKDKhT8eA4rlaHIAl_ZgpylpGhq1-rHj",
-    "filename": "7H0A2407.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1jOeHroEG0V14tmOGoKpJ71MVxfpBzHM2",
-    "filename": "7H0A2414.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1YptgcEauyR9gLxM3Nip58WJ3sWX3Rk4o",
-    "filename": "7H0A2421.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "14dyDHL3We_OztaNr_pIDnoejX7YRlYK_",
-    "filename": "7H0A2471.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1eXdA8k1pAjOrlKcSeG2YNaUw4Fnn4WZI",
-    "filename": "7H0A2475.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1wDUphn6Q9pm2NNNanPiHvb0WXYyJwvtE",
-    "filename": "7H0A2492.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1E7XxlE9kh16Aeqmi_RbGD7DPHxbsaafF",
-    "filename": "7H0A2507.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1ouB1W3dxxLjqZcHEPZeMC1iVCbh-dy-c",
-    "filename": "7H0A2511.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "19H7uIQAem-PO279UTIc-2bachKS-Qxc-",
-    "filename": "7H0A2516.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1wWDxWXDkIMWUstNaQaPxr5Nt5F5aI_l_",
-    "filename": "7H0A2560.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1IYBSHzHWEjKJ6yAH09i4GQ2zz5ozccZh",
-    "filename": "7H0A2588.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1KyhkGZbaWIPN5-qesx7EXPywxOQOccQi",
-    "filename": "7H0A2634.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1xbwNEIdd3ith7YYXuaU0k2tLsYzfLo8C",
-    "filename": "7H0A2651.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1K54u8n1gdApAS2UDK9wnxoQBTePhnDFh",
-    "filename": "7H0A2661.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1Uo_XGp4hEVL4iMLvH6t3udFAcu7YG_W5",
-    "filename": "7H0A2667.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1UxXwZk9iGaDSZjA98EC3TVHNal8Ds_A1",
-    "filename": "7H0A2694.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1_GnCNoTYTJ7K8w9kC9wThQIBVgridOx5",
-    "filename": "7H0A2698.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1JeMfXQFjCp6QQEgNp1OkN42vlUWWDWCz",
-    "filename": "7H0A2703.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1ggO2quGLkRaujaydz7AmbdSnuHap2sz4",
-    "filename": "7H0A2718.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "16Qi0msyRm4RS0g-Au1tuLuBUb0NsBrmE",
-    "filename": "7H0A2739.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "16dtCSQgifvYiqn-QBqW6LPVQLBub6sEV",
-    "filename": "7H0A2742.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1gVY_nU4oz43jukrUjduLk-iDBXDk4yd8",
-    "filename": "7H0A2759.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1fIIFFMt2jHDZh7WyOH9ntrrTgk262j76",
-    "filename": "7H0A2761.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1YYxaJZUXOUtZXle7cPeyenaAvjZeAPOq",
-    "filename": "7H0A2784.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1VfGQJkNGaXEuxWKfMjhuFYGNDYCEIjX4",
-    "filename": "7H0A2790.jpg",
-    "orientation": "vertical"
-  },
-  {
-    "id": "1qTYwgVVbxWjpM-5zqTFNld-E1NS8Aivm",
-    "filename": "7H0A2797.jpg",
-    "orientation": "vertical"
-  }
+  { id: "1h25k0WfYIID0tBhsCsCP6d_EsA8jRqdp", filename: "3J7A0009.jpg", orientation: "vertical" },
+  { id: "1HKLxuAImnLqeeyj10akJf5ntB4QKseyn", filename: "3J7A0014.jpg", orientation: "vertical" },
+  { id: "1rspT-jwQYBO6Pz6XEDIgzyXrVEaArm8s", filename: "3J7A0017.jpg", orientation: "vertical" },
+  { id: "1Wt5OLQPwPbCeSAbNT5PwoB2-zNhrpAdB", filename: "3J7A0021.jpg", orientation: "vertical" },
+  { id: "1rV_oGPgJVOBZ6mxBkvpoO2jnzzM_4Awc", filename: "3J7A0033.jpg", orientation: "vertical" },
+  { id: "1XW3Av2v83jum3qCLPbUShv4rUC4nfQ6P", filename: "3J7A0035.jpg", orientation: "vertical" },
+  { id: "1WnnwB25b-70s_LRjbhb6wpXl4JQtDixb", filename: "3J7A0042.jpg", orientation: "vertical" },
+  { id: "1zeDszPVCqjpaBpySkJOg990E96KXNEdd", filename: "3J7A0045.jpg", orientation: "horizontal" },
+  { id: "1jLijPIxGpagVxcDXWJ2zrJkRaepgitd-", filename: "3J7A0055.jpg", orientation: "horizontal" },
+  { id: "1tWgNowaGs5OdN-wb4brqN_0VsnIwvjXf", filename: "3J7A0060.jpg", orientation: "vertical" },
+  { id: "1ulLGBRcRi7SKRQ2KmQI9eMXW5hE-g7TQ", filename: "3J7A0062.jpg", orientation: "vertical" },
+  { id: "15ukwvGq9OF2pRwTc62tCp43dSO8Wu7E2", filename: "3J7A0069.jpg", orientation: "horizontal" },
+  { id: "1G6ZAeWAx84BOvdF0axgQOSI1B-BrWmOo", filename: "3J7A0074.jpg", orientation: "vertical" },
+  { id: "1U7uWzUmk5gX58y1H5_IZThzQRjHLtU03", filename: "3J7A0085.jpg", orientation: "horizontal" },
+  { id: "10aApGnhXzRAyq8SdtwOsHIB32ywra4X0", filename: "3J7A0088.jpg", orientation: "vertical" },
+  { id: "1qISprpXFc3iovjMhJA-AVpMpBljYG0aX", filename: "3J7A0091.jpg", orientation: "vertical" },
+  { id: "1o2amXVv_McFuQZxbZujtVa9702AzvSPQ", filename: "3J7A0095.jpg", orientation: "vertical" },
+  { id: "1Na3z1enyqRqAugi7FgFqP6rS8E9HoJkM", filename: "3J7A0098.jpg", orientation: "vertical" },
+  { id: "1SMTAmvOjsaKyqZu8rog5ENY8O-fIZMXU", filename: "3J7A0104.jpg", orientation: "vertical" },
+  { id: "19_hXoRDlUCZyS3IYTV2GA9XuTGtDEQnZ", filename: "3J7A0108.jpg", orientation: "vertical" },
+  { id: "1ASfXnn3MnGpcSnK-MBxcPomc00WnxqQQ", filename: "3J7A0124.jpg", orientation: "vertical" },
+  { id: "1kRkaXy2tYmBwi2IDwcWCfQwG61947iSu", filename: "3J7A0132.jpg", orientation: "vertical" },
+  { id: "1vLVEGy3Zg7dW4lVzAg-MfJ2l39qfm65_", filename: "3J7A0134.jpg", orientation: "vertical" },
+  { id: "1db5CVBq9MkyGdt1jklr67K7HP2Tye0pG", filename: "3J7A0141.jpg", orientation: "vertical" },
+  { id: "1n7Hq2DNLG-ohfyC6kYeMiyvO_arVpCiY", filename: "3J7A0147.jpg", orientation: "vertical" },
+  { id: "1ni80c4kaJuvmrHiyh_4SXdmxX-vb00yT", filename: "3J7A0149.jpg", orientation: "vertical" },
+  { id: "1rbz2BYxqW7332DMsxANw_uUylKU8p0h0", filename: "3J7A0151.jpg", orientation: "horizontal" },
+  { id: "1Or_6280CpEiL42s4sRoyNMAhuuKmrPKi", filename: "3J7A0156.jpg", orientation: "vertical" },
+  { id: "1zDVuC4ZS1Ozn7AnzNjCufLFexs_p1k3_", filename: "3J7A0164.jpg", orientation: "vertical" },
+  { id: "1jgAuQD0rnbxt9GbiUNELRt1Nbk9cEV4v", filename: "3J7A0166.jpg", orientation: "vertical" },
+  { id: "1LUaKSq80qmn9NdXIAtplbQwvZ78bCl-B", filename: "3J7A0167.jpg", orientation: "vertical" },
+  { id: "1CZ3vSE-vnpC-SsCdg91Mvecyy2UhRKZS", filename: "3J7A0169.jpg", orientation: "vertical" },
+  { id: "1ycVhSI01kWvwmXDkekw9882Pu4MVqWkH", filename: "3J7A0172.jpg", orientation: "horizontal" },
+  { id: "1tQpFneEWoeGcjMz0tgdcr-FP93DidW6A", filename: "3J7A0175.jpg", orientation: "vertical" },
+  { id: "1vd8gYPrrjAk42oXvt1pyWVIaf4SVzu9C", filename: "3J7A0188.jpg", orientation: "vertical" },
+  { id: "1kXKEWpF0NDDdMdSZhM7eC9XdptIUyYVL", filename: "3J7A0191.jpg", orientation: "vertical" },
+  { id: "1AOzGgSoLKcZ84RIi8zSs4mR_0Y5-l_us", filename: "3J7A0195.jpg", orientation: "horizontal" },
+  { id: "1oZANrPwxZuBKrxgup-3hMZzsIhIdtTyw", filename: "3J7A0206.jpg", orientation: "vertical" },
+  { id: "1poB9489huO0s63yfN6TdjkXi2FE3KTCJ", filename: "3J7A0210.jpg", orientation: "vertical" },
+  { id: "13fFuTuwxC1fZJZC0ZkKYvezhzIpaSO7Y", filename: "3J7A0216.jpg", orientation: "vertical" },
+  { id: "1xCtPwKEP06HwJZr-UbBMOJqEwO-BmPF-", filename: "3J7A0227.jpg", orientation: "vertical" },
+  { id: "1tXDMAykNStZvZ4OoEghNkaxTPnjrJkBE", filename: "3J7A0231.jpg", orientation: "vertical" },
+  { id: "1dtMuc6TsECxRfeJmsLb5TOpv2zSqv2l6", filename: "3J7A0235.jpg", orientation: "vertical" },
+  { id: "15xG_At3Z3jX1aYyr81DE0zYq1ZGmf0Vp", filename: "3J7A0236.jpg", orientation: "vertical" },
+  { id: "1yTaVv0s8_aaachSsosT4Tc6ooEYpisHG", filename: "3J7A0242.jpg", orientation: "vertical" },
+  { id: "1YPDzETdqfmbm2mywxi55W5M78qFQl0vx", filename: "3J7A0245.jpg", orientation: "vertical" },
+  { id: "1faf2LFC7qpjlAHRtSyr-lP1sAm21nx28", filename: "3J7A0253.jpg", orientation: "vertical" },
+  { id: "1k-hvx9RaBGjV3k2Ee5QC5NvRoTERRaUX", filename: "3J7A0260.jpg", orientation: "horizontal" },
+  { id: "1ZYx-txQkSfBSjI2kXiNqtrhrR2-6WpST", filename: "3J7A0265.jpg", orientation: "vertical" },
+  { id: "14EeEkdMPueF_2larB_3OfF24s81880Mt", filename: "3J7A0274.jpg", orientation: "vertical" },
+  { id: "1xFvziDNUudqFayMXSpjGtElpuV04E7vg", filename: "3J7A0280.jpg", orientation: "vertical" },
+  { id: "19Ccqft-EzWlaY2Gt6JgYvw6r0jsQ8d7G", filename: "3J7A0284.jpg", orientation: "vertical" },
+  { id: "1cWGO4GlUCcOJa20bmv-q2IkIaXtDH79X", filename: "3J7A0297.jpg", orientation: "horizontal" },
+  { id: "18_-ieh7N1Yn0Qd9NFWzuYAPTL8wFrVDw", filename: "3J7A0301.jpg", orientation: "vertical" },
+  { id: "1XGCRgoae3dJ2NCLyGjYUcK8h_DvEmhqz", filename: "3J7A0305.jpg", orientation: "vertical" },
+  { id: "1uBGsZsgKNQADVj6RJVPxTMJudIqXp-Iq", filename: "3J7A0310.jpg", orientation: "vertical" },
+  { id: "1Z6iLQ-zYXvM4X8r6Pz5LrnXyc4F2BC2x", filename: "3J7A0312.jpg", orientation: "vertical" },
+  { id: "1hhe5T6hxzCd-nRXp78BfedoUB-SgK00z", filename: "3J7A0322.jpg", orientation: "vertical" },
+  { id: "1Z2RgsjdxiMgenKwY3pUfryVxuW3NKyJ6", filename: "3J7A0329.jpg", orientation: "vertical" },
+  { id: "1WfSB3OoyV823iKIw2M5OARQ5o2oT1O1Y", filename: "3J7A0342.jpg", orientation: "vertical" },
+  { id: "1duV2J0vAO7U_XhRSqOqo1A24eqlpGeRc", filename: "3J7A0343.jpg", orientation: "vertical" },
+  { id: "16Cd9lgkt4Ifggw_zh8HsM_IWxaQbluTL", filename: "3J7A0351.jpg", orientation: "vertical" },
+  { id: "1Jozx6ImuIOKZoWHkQuOoj8OTSAYK-gmP", filename: "3J7A0356.jpg", orientation: "vertical" },
+  { id: "12V5hkwZKJNo-9o0BvR1t_b-qjo6ADc-A", filename: "3J7A0368.jpg", orientation: "vertical" },
+  { id: "1WnGX-_JZUYXWHSQrhU5gYaD7godpFaUk", filename: "3J7A0379.jpg", orientation: "vertical" },
+  { id: "1gPSfcZDE5UrCSQf5QPWefng7Yfoq11NN", filename: "3J7A0382.jpg", orientation: "vertical" },
+  { id: "10Dsnmf9nQy4sXwlUWRbLCDYrjaLBMHCH", filename: "3J7A0383.jpg", orientation: "vertical" },
+  { id: "1dwWycWJicAViOef-p9dwwo29hQsvSf_X", filename: "3J7A0386.jpg", orientation: "vertical" },
+  { id: "1waJiuTBeyIoFAJsVtaeyq_FJvCbtL4m9", filename: "3J7A0390.jpg", orientation: "vertical" },
+  { id: "11deOlJUGZbZgKD5Vf7DoioySky2-Sh3t", filename: "3J7A0412.jpg", orientation: "vertical" },
+  { id: "1E8fQF1_r84D8QnTFRnvUhwnpjzgtd0Hx", filename: "3J7A0422.jpg", orientation: "vertical" },
+  { id: "1n_xpTJLoSCBjQ5mfR4CuofTx4Te9xUCd", filename: "3J7A0424.jpg", orientation: "vertical" },
+  { id: "1aE66Uv_irBu7JacuDA3o63wuZWPSvdDv", filename: "3J7A0431.jpg", orientation: "horizontal" },
+  { id: "1FAnoeE8xApJ3EqsaVkSV_OreO3SNhbpU", filename: "3J7A0437.jpg", orientation: "horizontal" },
+  { id: "1q1B9RGQ3DceNcfmjyW5GsqX_6N2bpG1H", filename: "3J7A0444.jpg", orientation: "horizontal" },
+  { id: "1JAausnAWtvDZ0GbrK-qQuyx234IQtvVN", filename: "3J7A0449.jpg", orientation: "vertical" },
+  { id: "1fDJZ5NyHu4Nf_-WBZmWVVhWfQ4CzJ6Dg", filename: "3J7A0451.jpg", orientation: "vertical" },
+  { id: "1B66asdOUIG8jdLr0XM8OyawdAo4do3fy", filename: "3J7A0461.jpg", orientation: "vertical" },
+  { id: "1zMLGaf-8xFKF7pPBjDHwVXVHSXDs9KEn", filename: "3J7A0476.jpg", orientation: "vertical" },
+  { id: "1le94ELvqZrgNOWSptDPb-hCFCW3Csf9t", filename: "3J7A0490.jpg", orientation: "vertical" },
+  { id: "1AOvSRIBie46MM1-V3gKre0ZmGsNby_68", filename: "3J7A0495.jpg", orientation: "vertical" },
+  { id: "19oC1lOke_5wMSqyxP355mDYZa2FhXH5C", filename: "3J7A0499.jpg", orientation: "vertical" },
+  { id: "1Ca0MYluw3_QqDHbAUJ0-zJhXSXH4rfZQ", filename: "3J7A0506.jpg", orientation: "vertical" },
+  { id: "1AdhWWc1148OekXtwNHYdUPgu34W8zpDT", filename: "3J7A0508.jpg", orientation: "vertical" },
+  { id: "1NVu3mB5wDTA1ZypSRsRLKx2abEIOOCHm", filename: "3J7A0513.jpg", orientation: "vertical" },
+  { id: "1BDA5sEIzH5C09ltiYJbRBBdvLiiWj07w", filename: "3J7A0514.jpg", orientation: "vertical" },
+  { id: "1X3wIkCUL0zvpZiP50MgRX8FAA9R97U7o", filename: "3J7A0519.jpg", orientation: "vertical" },
+  { id: "1W0s8bGetlkUlUKgK5ygjJsOmgQYBvT3C", filename: "3J7A0523.jpg", orientation: "vertical" },
+  { id: "13whwIkpTl2TUcI-Fch0PVdiv6kccg3cf", filename: "3J7A0526.jpg", orientation: "vertical" },
+  { id: "1XbUGr17Ew1MRSfFDMV4mIQNzGIzFOMz1", filename: "3J7A0527.jpg", orientation: "vertical" },
+  { id: "1CMtyCii4eVB_aLgZyTzIGcV1iMGcz3SI", filename: "3J7A0529.jpg", orientation: "vertical" },
+  { id: "1DyANLHqZRw6Y1ob1wQEi2KPXljcpTdCZ", filename: "3J7A0532.jpg", orientation: "vertical" },
+  { id: "1A6evn-EOp86FS1-Vgf4-qo5aYRKtz8j_", filename: "3J7A0534.jpg", orientation: "vertical" },
+  { id: "1TvbJRuDNUfqP9V2A036oYCWCFwQTtP98", filename: "3J7A0538.jpg", orientation: "vertical" },
+  { id: "1LGoUNVJaia3bzt_ea06kp97fj-9LFfBb", filename: "3J7A0546.jpg", orientation: "horizontal" },
+  { id: "1RSA0Xqrog-jyDsKwv0GBWRFx6TVDqWQ6", filename: "3J7A0550.jpg", orientation: "vertical" },
+  { id: "1D8tbDbFxA-UKCzkNjb71WicsfK5zZutc", filename: "3J7A0555.jpg", orientation: "horizontal" },
+  { id: "13ceNbZA5PdhPQSPT87mRBuypiKLKuj8e", filename: "3J7A0559.jpg", orientation: "vertical" },
+  { id: "1lheEfbacbtpPj6oqcQ4271YT-2OQdqPQ", filename: "3J7A0563.jpg", orientation: "vertical" },
+  { id: "10rz099EeSX_NcCdQS0r1sMsOVxCO-PVb", filename: "3J7A0565.jpg", orientation: "vertical" },
+  { id: "1n7e-sVNAbupAWNp2xSTaF6T-2_FsLhVy", filename: "3J7A0567.jpg", orientation: "vertical" },
+  { id: "1BpkNBopfI0ZRZ8OlLMk72J3Xl2ku6tBr", filename: "3J7A0571.jpg", orientation: "vertical" },
+  { id: "1yD8NexTla7ITdCGN8tyb9poqXHspto5A", filename: "3J7A0574.jpg", orientation: "vertical" },
+  { id: "1h4Wwj4O0NbwhYaOM5X1_ktxnQ6AotUUb", filename: "3J7A0577.jpg", orientation: "vertical" },
+  { id: "1A7TAOLp8IUC9_mzBX9CqaKirTwTGmoFZ", filename: "3J7A0587.jpg", orientation: "vertical" },
+  { id: "1X2aMUTJE33lHu9aop8jQtTXsoOkZ8LMz", filename: "3J7A0593.jpg", orientation: "vertical" },
+  { id: "1rh6rvsYx5qolN92MZx8L7z72APgJp2Fq", filename: "3J7A0600.jpg", orientation: "vertical" },
+  { id: "1qxIm1qrDQOSHQcVa0dCHQ2lwpX2N5ihs", filename: "3J7A0614.jpg", orientation: "vertical" },
+  { id: "1XsALQ-G7V1A8eZmIggQMx-OtX5WzgsSS", filename: "3J7A0619.jpg", orientation: "vertical" },
+  { id: "1PQoPbNRq6u4L5bM8-AXU4Kc4OCOkCLHB", filename: "3J7A0629.jpg", orientation: "horizontal" },
+  { id: "1Tla8Mc_szvKjx8wzWFT4p3d0yOAXHYX6", filename: "3J7A0635.jpg", orientation: "vertical" },
+  { id: "1qL728yA0VDldMy1uhuhJo7PmW5XSgXpV", filename: "3J7A0644.jpg", orientation: "vertical" },
+  { id: "1HjJ53OQD4-t6Ej0XDYL4464XmpR86C35", filename: "3J7A0647.jpg", orientation: "horizontal" },
+  { id: "1MOGVO5hj3e0gdByMi6Ts-i4shHN2VwGx", filename: "3J7A0650.jpg", orientation: "vertical" },
+  { id: "1VHgr4_aps3cWumq9_CgxEa0kO5VUtC7D", filename: "3J7A0662.jpg", orientation: "horizontal" },
+  { id: "1ypqdr_iJ02APrrkJQP9DiNIYTv3VBmQP", filename: "3J7A0692.jpg", orientation: "vertical" },
+  { id: "1SAHZKyYDl4qPHxlZVOEWSfViBuSl0IiB", filename: "3J7A0701.jpg", orientation: "vertical" },
+  { id: "1hMexEONacNmTxs57JqrCpPbWogKBAzqb", filename: "3J7A0712.jpg", orientation: "vertical" },
+  { id: "1BC2wRaZPty5-21b83UnpSiXU2vQu5TU1", filename: "3J7A0723.jpg", orientation: "vertical" },
+  { id: "1lL1uLMgT1bRQA2VB51XKBcnGxu8zpgSm", filename: "3J7A0726.jpg", orientation: "vertical" },
+  { id: "1MWQHIopRTDCWifzvfWOec8Vq9BGQUTZl", filename: "3J7A0765.jpg", orientation: "vertical" },
+  { id: "158AbvE-Vqmw91FW54DZq-jGVPKlQRgBb", filename: "3J7A0770.jpg", orientation: "vertical" },
+  { id: "1TQFGSdq122avY5xd6UAGbM3z9Iwtxmll", filename: "3J7A0775.jpg", orientation: "vertical" },
+  { id: "147GLGSz307s91s5i03NJWtxSvPjXFJIm", filename: "3J7A0779.jpg", orientation: "vertical" },
+  { id: "1D-p9b47l8YHWlbOdv50i7oM9-0ap5sal", filename: "3J7A0782.jpg", orientation: "vertical" },
+  { id: "1IzmuSJi5XK9gDIOPAscX4sD1Po1f4VXi", filename: "3J7A0791.jpg", orientation: "horizontal" },
+  { id: "1gNA2nH0UPtJ504gkms_Ye9N_IaHku5kV", filename: "3J7A0792.jpg", orientation: "vertical" },
+  { id: "1pOMKAuebfuLPcM4fMDY5Uvc736JUcL3b", filename: "3J7A0794.jpg", orientation: "vertical" },
+  { id: "1BLwJ6HqtWtgDeoMNa0NR99lQlIJITrr_", filename: "3J7A0795.jpg", orientation: "vertical" },
+  { id: "17mLszMyHUUQFaEvSYouIRu9pDoblkeoO", filename: "3J7A0799.jpg", orientation: "vertical" },
+  { id: "1LTDoA_nhE0cwVd16zabm3VauB2SyI3yD", filename: "3J7A0803.jpg", orientation: "vertical" },
+  { id: "1AqpF5GSItq-oIKTmFNGj6uV-MpmxSER9", filename: "3J7A0808.jpg", orientation: "vertical" },
+  { id: "18-ryrTTaKSvThAvKFzTKjZHmUJGA8sfE", filename: "3J7A0813.jpg", orientation: "vertical" },
+  { id: "1pSW45MNLq33BbUeGXgq8fHCTXa4xuqSz", filename: "3J7A0816.jpg", orientation: "vertical" },
+  { id: "1QZP9gGJ0-ka1dkMwS_wMiO6LBkT5k31Y", filename: "3J7A0827.jpg", orientation: "vertical" },
+  { id: "1IXbzxH32yUjP5nf2MolySXGPNU5lzu4e", filename: "3J7A0834.jpg", orientation: "vertical" },
+  { id: "1ZGWZD5QFwOmpEOnOKdwJ3c9a5rPV_BdS", filename: "3J7A0837.jpg", orientation: "horizontal" },
+  { id: "152ubz7Tc_Fxqs75qK4GTR7VNP2JZRQHQ", filename: "3J7A0846.jpg", orientation: "vertical" },
+  { id: "1AlHnlqMXUNrugDCYM_StklhR9LTRV33C", filename: "3J7A0854.jpg", orientation: "vertical" },
+  { id: "1ft9ueZQSurqA_l6_2S7FK2NUzUgMHTkI", filename: "3J7A0862.jpg", orientation: "horizontal" },
+  { id: "1oXjJ9pdkiSJErdeIe7uC08SLOOod9j_Q", filename: "3J7A0875.jpg", orientation: "vertical" },
+  { id: "1VMH1kqIErB9cB0AqMG4fup7X15Ua_0Jv", filename: "3J7A0876.jpg", orientation: "vertical" },
+  { id: "1Z6_8SoTv9AF6-V_JVMmhwIGr6v5Poaak", filename: "3J7A0877.jpg", orientation: "horizontal" },
+  { id: "1wYlxUh0Sp-rccRzLAuS4m4SJ__wXCkac", filename: "3J7A0879.jpg", orientation: "horizontal" },
+  { id: "17KD2z9d6IIY_Z5RIDRsMjzPZVI2flrIA", filename: "3J7A0881.jpg", orientation: "vertical" },
+  { id: "1G2KW6g4ean2hopO2ofOJhg_bRhz3KgRM", filename: "3J7A0892.jpg", orientation: "horizontal" },
+  { id: "1r2s5tOIEVD-FMJbBEtlZmcYWfJVT77dO", filename: "3J7A0895.jpg", orientation: "horizontal" },
+  { id: "1Ld8fyJpUoQthQ0trEKO_m1zXe38trdah", filename: "3J7A0896.jpg", orientation: "vertical" },
+  { id: "1q3mZxtxqPvSrxbWByihPF9UajiZV5NVh", filename: "3J7A0898.jpg", orientation: "vertical" },
+  { id: "1L0XX-hVMAgUDoYZ2YFSDDPCtH9H_8_yZ", filename: "3J7A0908.jpg", orientation: "vertical" },
+  { id: "1ixuubWy33eVwG8N9RB5dBSxCzwcKoNZr", filename: "3J7A0915.jpg", orientation: "vertical" },
+  { id: "12caulwJEnzMY19C3oEGWfH8hco_MxdIl", filename: "3J7A0916.jpg", orientation: "horizontal" },
+  { id: "1aKgRGVPACh6lH7BUJOCbpfsJ0HW89Z4k", filename: "3J7A0919.jpg", orientation: "horizontal" },
+  { id: "1aEbt8TgWGmecWoRrTooVXsrP1f_sJ01t", filename: "3J7A0925.jpg", orientation: "horizontal" },
+  { id: "1QXB4VZDFCB6xH9UIx6ZtF92tiWMfae3s", filename: "3J7A0927.jpg", orientation: "vertical" },
+  { id: "1rQElEiwO_b-rEVMUOvJwqE5UY0Dm0G2c", filename: "3J7A0931.jpg", orientation: "vertical" },
+  { id: "1D9QHrtJBZgKbMi65PzAG_CQ_4iymilQ4", filename: "3J7A0933.jpg", orientation: "horizontal" },
 ] as const satisfies readonly CultPhoto[];
 
 export function cultPhotoPreview(id: string, width = 1200) {
   return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
 }
-

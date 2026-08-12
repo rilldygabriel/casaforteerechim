@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { LATEST_CULT_ALBUM } from "@/lib/cult-album";
+import {
+  LATEST_CULT_ALBUM,
+  LATEST_CULT_DATE_LABEL,
+  LATEST_CULT_TITLE,
+} from "@/lib/cult-album";
 import AlbumGallery from "./album-gallery";
 import "./album.css";
 
 export const metadata: Metadata = {
-  title: "Fotos do culto — 02 de agosto",
+  title: "Fotos do culto — 09 de agosto",
   description: "Álbum completo do culto de domingo da Igreja Casa Forte.",
 };
 
@@ -19,7 +23,7 @@ export default function PhotosPage() {
     <section className="cult-album-hero">
       <p><span /> Momentos da Casa</p>
       <h1>Álbum completo</h1>
-      <div><strong>Culto de domingo · 02 de agosto</strong><span>{LATEST_CULT_ALBUM.length} fotos em alta qualidade</span></div>
+      <div><strong>{LATEST_CULT_TITLE} · {LATEST_CULT_DATE_LABEL}</strong><span>{LATEST_CULT_ALBUM.length} fotos em alta qualidade</span></div>
       <p>Toque em uma foto para abrir, passar para os lados e baixar o arquivo original.</p>
     </section>
     <AlbumGallery photos={LATEST_CULT_ALBUM} />

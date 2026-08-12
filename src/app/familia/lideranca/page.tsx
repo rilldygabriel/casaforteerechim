@@ -109,6 +109,7 @@ export default async function FamilyLeadershipPage({
   let discipleSessions: DiscipleSession[] = [];
   let discipleProfiles: TeamMember[] = [];
   let pendingServeRequestCount = 0;
+  const pendingDiscipleshipRequestIds = new Set<string>();
 
   if (isDiscipler) {
     const { data: relationships } = await supabase
@@ -132,12 +133,12 @@ export default async function FamilyLeadershipPage({
 
       try {
         const serviceSupabase = getSupabaseServiceClient();
-        const { data: profiles } = await serviceSupabase
-          .from("member_profiles")
-          .select("user_id,full_name")
-          .in("user_id", discipleIds)
-          .eq("approval_status", "approved");
+        const [{ data: profiles }, { data: requests }] = await Promise.all([
+          serviceSupabase.from("member_profiles").select("user_id,full_name").in("user_id", discipleIds).eq("approval_status", "approved"),
+          serviceSupabase.from("discipleship_scheduling_requests").select("relationship_id").in("relationship_id", relationshipIds).eq("status", "pending"),
+        ]);
         discipleProfiles = (profiles ?? []) as TeamMember[];
+        for (const request of requests ?? []) pendingDiscipleshipRequestIds.add(request.relationship_id);
       } catch {
         discipleProfiles = [];
       }
@@ -274,6 +275,7 @@ export default async function FamilyLeadershipPage({
               return (
                 <article className="family-disciple-card" key={relationship.id} data-attention={elapsed === null || elapsed >= 30}>
                   <Link href={`/familia/lideranca/discipulos/${relationship.id}`}>
+                    {pendingDiscipleshipRequestIds.has(relationship.id) && <em className="family-disciple-request-notice">Precisa de discipulado</em>}
                     <span>Discípulo(a)</span>
                     <h3>{disciple?.full_name || "Membro da Família"}</h3>
                     <strong>
