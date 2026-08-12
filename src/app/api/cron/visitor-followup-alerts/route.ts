@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import webPush from "web-push";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
-import { getVisitorFollowupStep } from "@/lib/visitor-followup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+type PushSubscriptionRow = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth_key: string;
+  failure_count: number | null;
+};
 
 export async function GET(request: NextRequest) {
   if (!process.env.CRON_SECRET || request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -20,8 +28,6 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error: "Falha ao carregar etapas." }, { status: 503 });
 
   const visitorIds = [...new Set((steps ?? []).map((step) => step.visitor_id))];
-  const { data: visitors } = visitorIds.length ? await supabase.from("visitantes").select("id,nome,data_visita").in("id", visitorIds) : { data: [] };
-  const visitorDetails = new Map((visitors ?? []).map((visitor) => [visitor.id, visitor]));
   const [{ data: members }, { data: leaders }, { data: admins }] = await Promise.all([
     supabase.from("ministry_members").select("member_id").eq("ministry_key", "connect_consolidacao"),
     supabase.from("ministry_leaders").select("member_id").eq("ministry_key", "connect_consolidacao"),
@@ -29,27 +35,54 @@ export async function GET(request: NextRequest) {
   ]);
   const recipientIds = [...new Set([...(members ?? []).map((x) => x.member_id), ...(leaders ?? []).map((x) => x.member_id), ...(admins ?? []).map((x) => x.user_id)])];
   const { data: subscriptions } = recipientIds.length ? await supabase.from("web_push_subscriptions").select("id,user_id,endpoint,p256dh,auth_key,failure_count").in("user_id", recipientIds) : { data: [] };
-  let sent = 0, skipped = 0, failed = 0;
+  let skipped = 0, reservationFailures = 0;
+  const reservedStepIds: number[] = [];
   for (const step of steps ?? []) {
     const { error: reserveError } = await supabase.from("visitor_followup_alerts").insert({ followup_step_id: step.id, alert_date: today });
     if (reserveError?.code === "23505") { skipped += 1; continue; }
-    if (reserveError) { failed += 1; continue; }
-    let recipients = 0;
-    for (const subscription of subscriptions ?? []) {
+    if (reserveError) { reservationFailures += 1; continue; }
+    reservedStepIds.push(step.id);
+  }
+
+  if (!reservedStepIds.length) {
+    return NextResponse.json({ pending: steps?.length ?? 0, pendingVisitors: visitorIds.length, recipients: recipientIds.length, sent: 0, skipped, failed: reservationFailures });
+  }
+
+  let sent = 0, failed = reservationFailures;
+  const body = visitorIds.length === 1
+    ? "Há uma pessoa aguardando acompanhamento. Acesse o Painel da Casa e confira as mensagens pendentes."
+    : `Há ${visitorIds.length} pessoas aguardando acompanhamento. Acesse o Painel da Casa e confira as mensagens pendentes.`;
+
+  const subscriptionsByUser = new Map<string, PushSubscriptionRow[]>();
+  for (const subscription of subscriptions ?? []) {
+    const current = subscriptionsByUser.get(subscription.user_id) ?? [];
+    current.push(subscription);
+    subscriptionsByUser.set(subscription.user_id, current);
+  }
+
+  for (const userSubscriptions of subscriptionsByUser.values()) {
+    let delivered = false;
+    for (const subscription of userSubscriptions) {
       try {
-        const visitor = visitorDetails.get(step.visitor_id);
-        const stepTitle = getVisitorFollowupStep(step.step_key, visitor?.data_visita)?.title || "Contato";
-        await webPush.sendNotification({ endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth_key } }, JSON.stringify({ title: "Acompanhamento pendente", body: `${visitor?.nome || "Visitante"}: ${stepTitle} ainda não foi registrada.`, tag: `visitor-followup-${step.id}-${today}`, url: `/admin/visitantes/${step.visitor_id}` }), { TTL: 86400, urgency: "high" });
+        await webPush.sendNotification(
+          { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth_key } },
+          JSON.stringify({ title: "Lembrete do Connect", body, tag: `visitor-followup-digest-${today}`, url: "/admin/visitantes" }),
+          { TTL: 86400, urgency: "normal" },
+        );
         await supabase.from("web_push_subscriptions").update({ last_success_at: new Date().toISOString(), failure_count: 0 }).eq("id", subscription.id);
-        sent += 1; recipients += 1;
+        sent += 1;
+        delivered = true;
+        break;
       } catch (pushError) {
         const code = typeof pushError === "object" && pushError && "statusCode" in pushError ? Number(pushError.statusCode) : null;
         if (code === 404 || code === 410) await supabase.from("web_push_subscriptions").delete().eq("id", subscription.id);
         else await supabase.from("web_push_subscriptions").update({ failure_count: Math.min((subscription.failure_count ?? 0) + 1, 100) }).eq("id", subscription.id);
-        failed += 1;
       }
     }
-    await supabase.from("visitor_followup_alerts").update({ recipients_count: recipients }).eq("followup_step_id", step.id).eq("alert_date", today);
+    if (!delivered) failed += 1;
   }
-  return NextResponse.json({ pending: steps?.length ?? 0, recipients: recipientIds.length, sent, skipped, failed });
+
+  await supabase.from("visitor_followup_alerts").update({ recipients_count: 0 }).in("followup_step_id", reservedStepIds).eq("alert_date", today);
+  await supabase.from("visitor_followup_alerts").update({ recipients_count: sent }).eq("followup_step_id", reservedStepIds[0]).eq("alert_date", today);
+  return NextResponse.json({ pending: steps?.length ?? 0, pendingVisitors: visitorIds.length, recipients: recipientIds.length, sent, skipped, failed });
 }
