@@ -371,10 +371,10 @@ export default async function Familia({
       <section className="family-leadership-access family-generosity-access">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />Generosidade</p>
-          <h2>Pix, dízimos e ofertas</h2>
-          <p>Contribua por Pix ou cartão dentro do aplicativo, ou copie uma das chaves Pix da Casa.</p>
+          <h2>Generosidade</h2>
+          <p>Contribua com primícias, dízimos e ofertas via Pix ou cartão, sem sair do aplicativo.</p>
         </div>
-        <Link href="/generosidade">Abrir Pix e cartão</Link>
+        <Link href="/generosidade">Contribuir agora</Link>
       </section>
 
       <section className="family-leadership-access family-testimonials-access">

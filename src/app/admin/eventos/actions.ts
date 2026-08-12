@@ -75,10 +75,11 @@ export async function saveRegistration(formData: FormData) {
   const service = await requireAdmin();
   const id = value(formData, "registrationId");
   const fullName = value(formData, "fullName");
+  const email = value(formData, "email").toLowerCase();
   const phone = value(formData, "phone");
   const status = value(formData, "status");
-  if (!id || fullName.length < 3 || normalizePhone(phone).length < 10 || !REGISTRATION_STATUS_VALUES.includes(status as typeof REGISTRATION_STATUS_VALUES[number])) back("Revise os dados do participante.", "inscricoes");
-  const { error } = await service.from("event_registrations").update({ full_name: fullName, phone, phone_normalized: normalizePhone(phone), attendance_duration: value(formData, "attendanceDuration"), notes: value(formData, "notes"), status, updated_at: new Date().toISOString() }).eq("id", id);
+  if (!id || fullName.length < 3 || normalizePhone(phone).length < 10 || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || !REGISTRATION_STATUS_VALUES.includes(status as typeof REGISTRATION_STATUS_VALUES[number])) back("Revise os dados do participante.", "inscricoes");
+  const { error } = await service.from("event_registrations").update({ full_name: fullName, email: email || null, phone, phone_normalized: normalizePhone(phone), attendance_duration: value(formData, "attendanceDuration"), notes: value(formData, "notes"), status, updated_at: new Date().toISOString() }).eq("id", id);
   if (error?.code === "23505") back("Este telefone já está inscrito neste evento.", "inscricoes");
   if (error) back("Não foi possível atualizar a inscrição.", "inscricoes");
   revalidatePath("/admin/eventos"); back("Inscrição atualizada com sucesso.", "inscricoes");

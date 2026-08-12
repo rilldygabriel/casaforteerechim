@@ -39,19 +39,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function formatDate(date: string) { return new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`)); }
+function formatDateRange(startDate: string, endDate: string | null) { return endDate && endDate !== startDate ? `${formatDate(startDate)} a ${formatDate(endDate)}` : formatDate(startDate); }
 function formatTime(time: string | null) { if (!time) return "Horário a definir"; const [h, m] = time.split(":"); return m === "00" ? `${Number(h)}h` : `${Number(h)}h${m}`; }
 
 export default async function EventRegistrationPage({ params }: { params: Promise<{ slug: string }> }) {
   const event = await getEvent((await params).slug);
   if (!event || !event.is_public) notFound();
+  const isEncounter = ["encontro-com-deus-mulheres-2026", "encontro-com-deus-homens-2026"].includes(event.slug);
   const availability = eventRegistrationState(event);
   const remaining = event.capacity === null ? null : Math.max(event.capacity - event.registration_count, 0);
   return <main className="event-public-page">
     <header className="event-public-header"><Link href="/"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={180} height={70} priority /></Link><Link href="/calendario">Voltar ao calendário</Link></header>
     <section className="event-public-hero">
       <div><p className="home-kicker">{event.category} · {event.status === "confirmed" ? "Confirmado" : "A confirmar"}</p><h1>{event.title}</h1><p>{event.description}</p></div>
-      <dl><div><dt>Data</dt><dd>{formatDate(event.start_date)}</dd></div><div><dt>Horário</dt><dd>{formatTime(event.start_time)}{event.end_time ? ` às ${formatTime(event.end_time)}` : ""}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{Number(event.registration_fee_cents) > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(event.registration_fee_cents) / 100) : "Gratuito"}</dd></div><div><dt>Inscrições</dt><dd>{availability.label}{remaining !== null ? ` · ${remaining} vagas restantes` : ""}</dd></div></dl>
+      <dl><div><dt>Data</dt><dd>{formatDateRange(event.start_date, event.end_date)}</dd></div><div><dt>Horário</dt><dd>{formatTime(event.start_time)}{event.end_time ? ` às ${formatTime(event.end_time)}` : ""}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{Number(event.registration_fee_cents) > 0 ? `${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(event.registration_fee_cents) / 100)}${isEncounter ? " · cartão em até 4x" : ""}` : "Gratuito"}</dd></div><div><dt>Inscrições</dt><dd>{availability.label}{remaining !== null ? ` · ${remaining} vagas restantes` : ""}</dd></div></dl>
     </section>
-    <section className="event-registration-layout"><div><p className="home-kicker">Seu próximo passo</p><h2>Faça sua inscrição</h2><p>{event.slug === "pos-encontro-agosto-2026" ? "Informe seus dados e confirme se você já participou do Encontro com Deus na Casa." : "Preencha os dados abaixo. Nossa equipe poderá entrar em contato pelo WhatsApp com as próximas orientações."}</p></div><RegistrationForm slug={event.slug} enabled={availability.open} feeCents={Number(event.registration_fee_cents)} variant={event.slug === "pos-encontro-agosto-2026" ? "post-encounter" : "standard"} /></section>
+    <section className="event-registration-layout"><div><p className="home-kicker">Inscrição agora</p><h2>Faça sua inscrição</h2><p>{event.slug === "pos-encontro-agosto-2026" ? "Informe seus dados e confirme se você já participou do Encontro com Deus na Casa." : isEncounter ? "Informe nome completo, e-mail e WhatsApp. Depois escolha Pix ou cartão para confirmar sua vaga." : "Preencha os dados abaixo. Nossa equipe poderá entrar em contato pelo WhatsApp com as próximas orientações."}</p></div><RegistrationForm slug={event.slug} enabled={availability.open} feeCents={Number(event.registration_fee_cents)} variant={event.slug === "pos-encontro-agosto-2026" ? "post-encounter" : isEncounter ? "encounter" : "standard"} publicKey={process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || ""} /></section>
   </main>;
 }

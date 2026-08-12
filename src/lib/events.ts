@@ -34,6 +34,14 @@ export function validatePostEncounterRegistration(input: { fullName: string; pho
   return null;
 }
 
+export function validateEncounterRegistration(input: { fullName: string; email: string; phone: string }) {
+  if (input.fullName.trim().length < 3 || input.fullName.trim().length > 160) return "Informe seu nome completo.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim())) return "Informe um e-mail válido.";
+  const phone = normalizePhone(input.phone);
+  if (phone.length < 10 || phone.length > 11) return "Informe um WhatsApp válido com DDD.";
+  return null;
+}
+
 export function normalizePhone(value: string) {
   let digits = value.replace(/\D/g, "");
   if (digits.startsWith("55") && digits.length > 11) digits = digits.slice(2);

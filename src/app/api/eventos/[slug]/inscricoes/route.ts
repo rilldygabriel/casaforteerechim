@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { eventRegistrationState, normalizePhone, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
-import { createMercadoPagoCheckout, isMercadoPagoConfigured } from "@/lib/mercado-pago";
+import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
+import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,11 +16,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (!event || event.archived_at || !event.is_public) return NextResponse.json({ error: "Este evento não está disponível." }, { status: 404 });
     const feeCents = Number(event.registration_fee_cents || 0);
     const isPostEncounter = event.slug === "pos-encontro-agosto-2026";
-    const validationError = isPostEncounter ? validatePostEncounterRegistration(input) : validateRegistration(input);
+    const isEncounter = ["encontro-com-deus-mulheres-2026", "encontro-com-deus-homens-2026"].includes(event.slug);
+    const validationError = isPostEncounter ? validatePostEncounterRegistration(input) : isEncounter ? validateEncounterRegistration(input) : validateRegistration(input);
     if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
     if (input.email && !EMAIL.test(input.email)) return NextResponse.json({ error: "Informe um e-mail válido." }, { status: 400 });
     if (feeCents > 0 && !EMAIL.test(input.email)) return NextResponse.json({ error: "Informe seu e-mail para receber os dados do pagamento." }, { status: 400 });
-    if (feeCents > 0 && !isMercadoPagoConfigured()) return NextResponse.json({ error: "O pagamento deste evento está sendo ativado. Tente novamente em instantes." }, { status: 503 });
+    if (feeCents > 0 && !isMercadoPagoBrickConfigured()) return NextResponse.json({ error: "O pagamento deste evento está sendo ativado. Tente novamente em instantes." }, { status: 503 });
 
     const { count } = await service.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", event.id).is("archived_at", null);
     const availability = eventRegistrationState({ ...event, registration_count: count ?? 0 });
@@ -28,12 +29,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const phoneNormalized = normalizePhone(input.phone);
     const eligible = !isPostEncounter || input.completedEncounter === "yes";
     const initialStatus = !eligible ? "rejected" : feeCents > 0 ? "awaiting_payment" : isPostEncounter ? "confirmed" : "pending";
-    const { data: registration, error } = await service.from("event_registrations").insert({ event_id: event.id, full_name: input.fullName, phone: input.phone, phone_normalized: phoneNormalized, attendance_duration: isPostEncounter ? "not_attending" : input.attendanceDuration, notes: isPostEncounter ? "" : input.notes, consent: true, completed_encounter: isPostEncounter ? eligible : null, status: initialStatus }).select("id").single();
+    const { data: registration, error } = await service.from("event_registrations").insert({ event_id: event.id, full_name: input.fullName, email: input.email || null, phone: input.phone, phone_normalized: phoneNormalized, attendance_duration: isPostEncounter || isEncounter ? "not_attending" : input.attendanceDuration, notes: isPostEncounter || isEncounter ? "" : input.notes, consent: true, completed_encounter: isPostEncounter ? eligible : null, status: initialStatus }).select("id").single();
     if (error?.code === "23505") {
       const { data: existing } = await service.from("event_registrations").select("id,status").eq("event_id", event.id).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
       if (existing?.status === "awaiting_payment") {
-        const { data: payment } = await service.from("mercado_pago_payments").select("checkout_url").eq("registration_id", existing.id).maybeSingle();
-        if (payment?.checkout_url) return NextResponse.json({ accepted: true, checkoutUrl: payment.checkout_url, message: "Continue seu pagamento no Mercado Pago." });
+        const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents").eq("registration_id", existing.id).maybeSingle();
+        if (payment) return NextResponse.json({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), message: "Continue o pagamento para confirmar sua inscrição." });
       }
       return NextResponse.json({ error: "Já existe uma inscrição com este telefone para este evento." }, { status: 409 });
     }
@@ -44,9 +45,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       try {
         const { error: paymentError } = await service.from("mercado_pago_payments").insert({ id: paymentId, purpose: "event", event_id: event.id, registration_id: registration.id, payer_name: input.fullName, payer_email: input.email, payer_phone: input.phone, amount_cents: feeCents });
         if (paymentError) throw paymentError;
-        const checkout = await createMercadoPagoCheckout({ paymentId, purpose: "event", amountCents: feeCents, payerName: input.fullName, payerEmail: input.email, payerPhone: input.phone, eventTitle: event.title, returnPath: `/eventos/${event.slug}` });
-        await service.from("mercado_pago_payments").update({ provider_preference_id: checkout.preferenceId, checkout_url: checkout.checkoutUrl, status: "pending", updated_at: new Date().toISOString() }).eq("id", paymentId);
-        return NextResponse.json({ accepted: true, checkoutUrl: checkout.checkoutUrl, message: "Inscrição reservada. Conclua o pagamento para confirmar." }, { status: 201 });
+        return NextResponse.json({ accepted: true, paymentId, amountCents: feeCents, message: "Inscrição reservada. Conclua o pagamento para confirmar." }, { status: 201 });
       } catch (checkoutError) {
         await service.from("mercado_pago_payments").delete().eq("registration_id", registration.id).eq("status", "created");
         await service.from("event_registrations").delete().eq("id", registration.id).eq("status", "awaiting_payment");

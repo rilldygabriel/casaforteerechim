@@ -7435,6 +7435,17 @@ a:focus-visible {
 .event-consent input { width: 20px; height: 20px; accent-color: var(--yellow); }
 .event-registration-form > button { min-height: 52px; border: 0; border-radius: 999px; background: var(--yellow); color: var(--surface-0); font-weight: 900; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
 .event-registration-form > button:disabled { opacity: .55; cursor: wait; }
+.event-payment-notice { margin: 0; padding: 15px 17px; border: 1px solid rgba(255,254,21,.22); border-radius: 13px; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.event-payment-notice strong { color: var(--yellow); }
+.event-embedded-payment { display: grid; gap: 16px; min-width: 0; }
+.event-embedded-payment > header { padding: 20px 22px; border: 1px solid rgba(255,254,21,.25); border-radius: 18px; background: var(--surface-4); }
+.event-embedded-payment > header span { display: block; color: var(--yellow); font-size: .68rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.event-embedded-payment > header strong { display: block; margin-top: 7px; font-size: 2rem; }
+.event-embedded-payment > header p { margin: 10px 0 0; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.event-payment-result { display: grid; justify-items: center; gap: 14px; text-align: center; }
+.event-payment-result .pix-qr { margin-top: 6px; }
+.event-payment-result small { color: var(--muted); }
+.event-copy-pix { min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--yellow); color: #111; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 900; text-transform: uppercase; }
 .event-form-message { margin: 0; color: var(--yellow); line-height: 1.5; }
 .event-form-message[data-state="error"] { color: #ff9b9b; }
 .event-registration-success, .event-registration-closed { padding: clamp(30px, 5vw, 50px); border: 1px solid rgba(127,230,156,.4); border-radius: 24px; background: rgba(127,230,156,.07); }

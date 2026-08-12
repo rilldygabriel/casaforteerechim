@@ -60,6 +60,9 @@ export async function createMercadoPagoBrickPayment(input: {
   amountCents: number;
   payerName: string;
   formData: Json;
+  purpose?: "contribution" | "event";
+  description?: string;
+  maxInstallments?: number;
 }) {
   const payer = object(input.formData.payer);
   const identification = object(payer.identification);
@@ -67,13 +70,14 @@ export async function createMercadoPagoBrickPayment(input: {
   const paymentMethodId = text(input.formData.payment_method_id);
   const token = text(input.formData.token);
   const issuerId = text(input.formData.issuer_id);
-  const installments = Math.max(1, Math.min(12, Math.trunc(number(input.formData.installments) || 1)));
+  const maxInstallments = Math.max(1, Math.min(12, Math.trunc(input.maxInstallments || 12)));
+  const installments = Math.max(1, Math.min(maxInstallments, Math.trunc(number(input.formData.installments) || 1)));
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Informe um e-mail válido no pagamento.");
   if (!paymentMethodId || (paymentMethodId !== "pix" && !token)) throw new Error("Dados de pagamento incompletos.");
   const nameParts = input.payerName.trim().split(/\s+/);
   const body: Json = {
     transaction_amount: input.amountCents / 100,
-    description: "Contribuição · Igreja Casa Forte",
+    description: (input.description || "Contribuição · Igreja Casa Forte").slice(0, 120),
     payment_method_id: paymentMethodId,
     external_reference: input.paymentId,
     notification_url: `${SITE_URL}/api/webhooks/mercado-pago`,
@@ -86,7 +90,7 @@ export async function createMercadoPagoBrickPayment(input: {
         identification: { type: text(identification.type), number: text(identification.number).replace(/\D/g, "") },
       } : {}),
     },
-    metadata: { purpose: "contribution" },
+    metadata: { purpose: input.purpose || "contribution" },
   };
   if (token) {
     body.token = token;
