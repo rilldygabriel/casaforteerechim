@@ -331,6 +331,15 @@ export default async function Familia({
         </div>
       </section>
 
+      <section className="family-leadership-access family-generosity-access family-access-light">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />Generosidade</p>
+          <h2>Generosidade</h2>
+          <p>Contribua com primícias, dízimos e ofertas via Pix ou cartão, sem sair do aplicativo.</p>
+        </div>
+        <Link href="/generosidade">Contribua</Link>
+      </section>
+
       {hasLeadershipArea && (
         <section className="family-leadership-access family-access-light">
           <div>
@@ -375,15 +384,6 @@ export default async function Familia({
           <p>Veja cultos, reuniões, encontros e toda a programação atualizada da igreja.</p>
         </div>
         <Link href="/calendario">Abrir calendário</Link>
-      </section>
-
-      <section className="family-leadership-access family-generosity-access family-access-light">
-        <div>
-          <p className="section-eyebrow"><span aria-hidden="true" />Generosidade</p>
-          <h2>Generosidade</h2>
-          <p>Contribua com primícias, dízimos e ofertas via Pix ou cartão, sem sair do aplicativo.</p>
-        </div>
-        <Link href="/generosidade">Contribuir agora</Link>
       </section>
 
       <section className="family-leadership-access family-testimonials-access family-access-yellow">
