@@ -3,7 +3,6 @@ import { normalizeWhatsappPhone } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
 
-const ONE_TIME_TOKEN = "2MtYf_8sxrHBE_5hJAzZxiGvsiLd8gcItXwHoUDug0Y";
 const TEMPLATE_NAME = "novidade_pagamentos_site_2026";
 const MESSAGE = `Novidade meu povo lindo
 
@@ -14,10 +13,6 @@ Benção demais né.
 Acesse agora o site e veja todas as funcionalidades
 
 www.casaforteerechim.app.br`;
-
-function authorized(request: Request) {
-  return request.headers.get("authorization") === `Bearer ${ONE_TIME_TOKEN}`;
-}
 
 function authorizedCron(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -122,73 +117,10 @@ async function runBroadcast() {
 }
 
 export async function GET(request: Request) {
-  if (authorizedCron(request)) {
-    const status = await templateStatus();
-    if (status !== "APPROVED") return Response.json({ status, sent: false });
-    return Response.json({ status, sent: true, ...(await runBroadcast()) });
-  }
-  if (!authorized(request)) {
+  if (!authorizedCron(request)) {
     return Response.json({ error: "Não autorizado" }, { status: 401 });
   }
-
-  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  if (!accountId || !accessToken) {
-    return Response.json({ error: "WhatsApp não configurado" }, { status: 503 });
-  }
-
-  const url = new URL(
-    `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${accountId}/message_templates`,
-  );
-  const query = new URL(request.url).searchParams;
-  if (query.get("all") !== "1") {
-    url.searchParams.set("name", query.get("broadcast") === "1" ? TEMPLATE_NAME : "notificacao_site_casa_forte");
-  }
-  url.searchParams.set("fields", "name,status,category,language,components");
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    cache: "no-store",
-  });
-  const payload = await response.json().catch(() => ({}));
-  return Response.json(payload, { status: response.status });
-}
-
-export async function PUT(request: Request) {
-  if (!authorized(request)) {
-    return Response.json({ error: "Não autorizado" }, { status: 401 });
-  }
-
-  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  if (!accountId || !accessToken) {
-    return Response.json({ error: "WhatsApp não configurado" }, { status: 503 });
-  }
-
-  const response = await fetch(
-    `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${accountId}/message_templates`,
-    {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: TEMPLATE_NAME,
-        language: "pt_BR",
-        category: "MARKETING",
-        components: [{ type: "BODY", text: MESSAGE }],
-      }),
-      cache: "no-store",
-    },
-  );
-  const payload = await response.json().catch(() => ({}));
-  return Response.json(payload, { status: response.status });
-}
-
-export async function POST(request: Request) {
-  if (!authorized(request)) {
-    return Response.json({ error: "Não autorizado" }, { status: 401 });
-  }
-
-  if (await templateStatus() !== "APPROVED") {
-    return Response.json({ error: "O modelo ainda está em aprovação pela Meta." }, { status: 409 });
-  }
-  return Response.json(await runBroadcast());
+  const status = await templateStatus();
+  if (status !== "APPROVED") return Response.json({ status, sent: false });
+  return Response.json({ status, sent: true, ...(await runBroadcast()) });
 }
