@@ -104,11 +104,11 @@ export default function MercadoPagoCheckout({ configured, publicKey, defaultName
   const copy = result ? resultCopy(result) : null;
 
   return <section className="mercado-pago-contribution">
-    <div><p className="section-eyebrow"><span aria-hidden="true" />Pagamento online</p><h2>Uma contribuição, três destinações</h2><p>Informe somente os valores que desejar. Dízimo, primícias e oferta serão somados em um único Pix ou pagamento com cartão, sem sair do site.</p></div>
+    <div><p className="section-eyebrow"><span aria-hidden="true" />Pagamento online</p><h2>Primícia, dízimo e ofertas</h2><p>Informe somente os valores que desejar. Primícia, dízimo e oferta serão somados em um único Pix ou pagamento com cartão, sem sair do site.</p></div>
     {!draft ? <form onSubmit={choosePayment}>
       <div className="contribution-values wide">
+        <label>Primícia<input name="firstfruits" inputMode="decimal" placeholder="R$ 0,00" value={values.firstfruits} onChange={(event) => setValues((current) => ({ ...current, firstfruits: event.target.value }))} /></label>
         <label>Dízimo<input name="tithe" inputMode="decimal" placeholder="R$ 0,00" value={values.tithe} onChange={(event) => setValues((current) => ({ ...current, tithe: event.target.value }))} /></label>
-        <label>Primícias<input name="firstfruits" inputMode="decimal" placeholder="R$ 0,00" value={values.firstfruits} onChange={(event) => setValues((current) => ({ ...current, firstfruits: event.target.value }))} /></label>
         <label>Oferta<input name="offering" inputMode="decimal" placeholder="R$ 0,00" value={values.offering} onChange={(event) => setValues((current) => ({ ...current, offering: event.target.value }))} /></label>
       </div>
       <label className="wide">Seu nome<input name="name" autoComplete="name" minLength={2} maxLength={160} value={name} onChange={(event) => setName(event.target.value)} required /></label>
@@ -127,8 +127,8 @@ export default function MercadoPagoCheckout({ configured, publicKey, defaultName
       <div className="embedded-payment-summary">
         <div><span>Total</span><strong>{money.format(summary.totalCents / 100)}</strong></div>
         <ul>
+          {cents(summary.firstfruits) > 0 ? <li><span>Primícia</span><strong>{money.format(cents(summary.firstfruits) / 100)}</strong></li> : null}
           {cents(summary.tithe) > 0 ? <li><span>Dízimo</span><strong>{money.format(cents(summary.tithe) / 100)}</strong></li> : null}
-          {cents(summary.firstfruits) > 0 ? <li><span>Primícias</span><strong>{money.format(cents(summary.firstfruits) / 100)}</strong></li> : null}
           {cents(summary.offering) > 0 ? <li><span>Oferta</span><strong>{money.format(cents(summary.offering) / 100)}</strong></li> : null}
         </ul>
         <button className="payment-edit-button" type="button" onClick={restart}>Alterar valores</button>
