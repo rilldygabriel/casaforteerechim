@@ -14,8 +14,36 @@ Acesse agora o site e veja todas as funcionalidades
 
 www.casaforteerechim.app.br`;
 
+function authorized(request: Request) {
+  return request.headers.get("authorization") === `Bearer ${ONE_TIME_TOKEN}`;
+}
+
+export async function GET(request: Request) {
+  if (!authorized(request)) {
+    return Response.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+  if (!accountId || !accessToken) {
+    return Response.json({ error: "WhatsApp não configurado" }, { status: 503 });
+  }
+
+  const url = new URL(
+    `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${accountId}/message_templates`,
+  );
+  url.searchParams.set("name", "notificacao_site_casa_forte");
+  url.searchParams.set("fields", "name,status,category,language,components");
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  const payload = await response.json().catch(() => ({}));
+  return Response.json(payload, { status: response.status });
+}
+
 export async function POST(request: Request) {
-  if (request.headers.get("authorization") !== `Bearer ${ONE_TIME_TOKEN}`) {
+  if (!authorized(request)) {
     return Response.json({ error: "Não autorizado" }, { status: 401 });
   }
 
