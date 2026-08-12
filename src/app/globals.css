@@ -2199,6 +2199,10 @@ h1 strong {
 .mercado-pago-contribution button { min-height: 56px; border: 0; border-radius: 10px; background: var(--yellow); color: #10120c; cursor: pointer; font: inherit; font-size: .76rem; font-weight: 950; text-transform: uppercase; }
 .mercado-pago-contribution button:disabled { cursor: wait; opacity: .58; }
 .mercado-pago-contribution form > p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; text-align: center; }
+.contribution-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.contribution-total { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 19px; border: 1px solid color-mix(in srgb, var(--yellow) 42%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--yellow) 7%, var(--surface-0)); }
+.contribution-total span { color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+.contribution-total strong { color: var(--yellow); font-size: 1.5rem; }
 .generosity-manual-pix { padding-block: 72px 28px; }
 
 .payment-return-page { min-height: 100svh; padding: 26px; background: var(--background); color: var(--foreground); }
@@ -2208,6 +2212,7 @@ h1 strong {
 .payment-return-page h1 { margin: 8px 0 18px; font-size: clamp(2.3rem, 6vw, 4.4rem); letter-spacing: -.055em; }
 .payment-return-page section > p:not(.section-eyebrow) { max-width: 500px; color: var(--muted); line-height: 1.65; }
 .payment-return-page section > strong { margin-top: 28px; color: var(--yellow); font-size: 2rem; }
+.payment-return-page section > ul { display: grid; gap: 7px; width: min(100%, 360px); margin: 18px 0 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 13px; color: var(--muted); list-style: none; }
 .payment-return-page section > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 34px; }
 .payment-return-page section > div a { padding: 14px 20px; border: 1px solid var(--line); border-radius: 999px; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
 
@@ -2215,6 +2220,7 @@ h1 strong {
   .mercado-pago-contribution { grid-template-columns: 1fr; }
   .mercado-pago-contribution form { grid-template-columns: 1fr; }
   .mercado-pago-contribution form > * { grid-column: 1 !important; }
+  .contribution-values { grid-template-columns: 1fr; }
 }
 
 .generosity-hero {

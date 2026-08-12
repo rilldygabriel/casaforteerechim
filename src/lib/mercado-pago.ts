@@ -7,7 +7,8 @@ const API_URL = "https://api.mercadopago.com";
 const SITE_URL = "https://www.casaforteerechim.app.br";
 
 type Json = Record<string, unknown>;
-type PaymentPurpose = "tithe" | "offering" | "firstfruits" | "event";
+type PaymentPurpose = "tithe" | "offering" | "firstfruits" | "contribution" | "event";
+type ContributionPurpose = "tithe" | "offering" | "firstfruits";
 
 function object(value: unknown): Json {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Json : {};
@@ -52,6 +53,7 @@ async function mercadoPagoFetch(path: string, init: RequestInit = {}) {
 
 function titleForPurpose(purpose: PaymentPurpose, eventTitle?: string) {
   if (purpose === "event") return `Inscrição · ${eventTitle || "Evento Casa Forte"}`;
+  if (purpose === "contribution") return "Contribuição · Igreja Casa Forte";
   if (purpose === "tithe") return "Dízimo · Igreja Casa Forte";
   if (purpose === "firstfruits") return "Oferta de primícias · Igreja Casa Forte";
   return "Oferta · Igreja Casa Forte";
@@ -66,13 +68,33 @@ export async function createMercadoPagoCheckout(input: {
   payerPhone?: string | null;
   eventTitle?: string;
   returnPath?: string;
+  allocations?: Partial<Record<ContributionPurpose, number>>;
 }) {
   const returnPath = input.returnPath?.startsWith("/") ? input.returnPath : "/generosidade";
   const returnUrl = `${SITE_URL}/pagamento/retorno?reference=${encodeURIComponent(input.paymentId)}&from=${encodeURIComponent(returnPath)}`;
   const expiration = new Date(Date.now() + 24 * 60 * 60_000).toISOString();
   const phoneDigits = (input.payerPhone || "").replace(/\D/g, "");
+  const allocationLabels: Record<ContributionPurpose, string> = {
+    tithe: "Dízimo",
+    firstfruits: "Primícias",
+    offering: "Oferta",
+  };
+  const contributionItems = input.purpose === "contribution"
+    ? (Object.entries(input.allocations || {}) as [ContributionPurpose, number][])
+      .filter(([, cents]) => Number.isInteger(cents) && cents > 0)
+      .map(([purpose, cents]) => ({
+        id: `${input.paymentId}:${purpose}`,
+        title: `${allocationLabels[purpose]} · Igreja Casa Forte`,
+        quantity: 1,
+        currency_id: "BRL",
+        unit_price: cents / 100,
+      }))
+    : [];
+  if (input.purpose === "contribution" && contributionItems.reduce((sum, item) => sum + Math.round(item.unit_price * 100), 0) !== input.amountCents) {
+    throw new Error("A divisão da contribuição não corresponde ao valor total.");
+  }
   const body: Json = {
-    items: [{
+    items: contributionItems.length ? contributionItems : [{
       id: input.paymentId,
       title: titleForPurpose(input.purpose, input.eventTitle).slice(0, 120),
       quantity: 1,
@@ -86,7 +108,7 @@ export async function createMercadoPagoCheckout(input: {
     statement_descriptor: "CASA FORTE",
     expires: true,
     expiration_date_to: expiration,
-    metadata: { purpose: input.purpose },
+    metadata: { purpose: input.purpose, allocations: input.allocations || {} },
   };
   if (input.payerEmail) {
     body.payer = {
@@ -137,7 +159,7 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   const status = mapPaymentStatus(text(provider.status));
   const service = getSupabaseServiceClient();
   const { data: localPayment } = await service.from("mercado_pago_payments")
-    .select("id,purpose,event_id,registration_id,amount_cents,status")
+    .select("id,purpose,event_id,registration_id,amount_cents,status,tithe_cents,offering_cents,firstfruits_cents")
     .eq("id", externalReference).maybeSingle();
   if (!localPayment) return { ignored: true, status };
 
@@ -165,7 +187,12 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   }
 
   if (status === "approved") {
-    const description = localPayment.purpose === "event" ? "Inscrição de evento via Mercado Pago" : localPayment.purpose === "tithe" ? "Dízimo via Mercado Pago" : localPayment.purpose === "firstfruits" ? "Oferta de primícias via Mercado Pago" : "Oferta via Mercado Pago";
+    const parts = [
+      Number(localPayment.tithe_cents) > 0 ? `Dízimo ${formatMoney(Number(localPayment.tithe_cents))}` : "",
+      Number(localPayment.firstfruits_cents) > 0 ? `Primícias ${formatMoney(Number(localPayment.firstfruits_cents))}` : "",
+      Number(localPayment.offering_cents) > 0 ? `Oferta ${formatMoney(Number(localPayment.offering_cents))}` : "",
+    ].filter(Boolean);
+    const description = localPayment.purpose === "event" ? "Inscrição de evento via Mercado Pago" : localPayment.purpose === "contribution" ? `Contribuição via Mercado Pago · ${parts.join(" · ")}` : localPayment.purpose === "tithe" ? "Dízimo via Mercado Pago" : localPayment.purpose === "firstfruits" ? "Oferta de primícias via Mercado Pago" : "Oferta via Mercado Pago";
     const fingerprint = createHash("sha256").update(`mercado_pago|${providerPaymentId}`).digest("hex");
     await service.from("finance_income_entries").upsert({
       transaction_date: approvedAt!.slice(0, 10),
@@ -177,4 +204,8 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
     }, { onConflict: "fingerprint", ignoreDuplicates: true });
   }
   return { ignored: false, status, paymentId: localPayment.id };
+}
+
+function formatMoney(cents: number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 }

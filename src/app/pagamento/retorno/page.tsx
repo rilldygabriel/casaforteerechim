@@ -16,12 +16,13 @@ export default async function PaymentReturnPage({ searchParams }: { searchParams
     try { await synchronizeMercadoPagoPayment(providerPaymentId); } catch { /* O webhook fará uma nova tentativa. */ }
   }
   const { data: payment } = reference
-    ? await getSupabaseServiceClient().from("mercado_pago_payments").select("status,purpose,event_id,amount_cents").eq("id", reference).maybeSingle()
+    ? await getSupabaseServiceClient().from("mercado_pago_payments").select("status,purpose,event_id,amount_cents,tithe_cents,offering_cents,firstfruits_cents").eq("id", reference).maybeSingle()
     : { data: null };
   const approved = payment?.status === "approved";
   const rejected = payment && ["rejected", "cancelled", "refunded", "charged_back"].includes(payment.status);
   const title = approved ? "Pagamento confirmado" : rejected ? "Pagamento não concluído" : "Pagamento em processamento";
   const copy = approved ? "Recebemos a confirmação do Mercado Pago. Obrigado por caminhar e construir conosco." : rejected ? "O pagamento não foi aprovado. Você pode tentar novamente com outra forma de pagamento." : "O Mercado Pago ainda está processando a transação. A confirmação será atualizada automaticamente.";
   const back = typeof params.from === "string" && params.from.startsWith("/") && !params.from.startsWith("//") ? params.from : "/generosidade";
-  return <main className="payment-return-page"><header><Link href="/"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={190} height={74} priority /></Link></header><section data-status={approved ? "approved" : rejected ? "rejected" : "pending"}><span aria-hidden="true">{approved ? "✓" : rejected ? "!" : "…"}</span><p className="section-eyebrow">Mercado Pago</p><h1>{title}</h1><p>{copy}</p>{payment ? <strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(payment.amount_cents) / 100)}</strong> : null}<div><Link href={back}>Voltar</Link><Link href="/">Ir para o início</Link></div></section></main>;
+  const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  return <main className="payment-return-page"><header><Link href="/"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={190} height={74} priority /></Link></header><section data-status={approved ? "approved" : rejected ? "rejected" : "pending"}><span aria-hidden="true">{approved ? "✓" : rejected ? "!" : "…"}</span><p className="section-eyebrow">Mercado Pago</p><h1>{title}</h1><p>{copy}</p>{payment ? <strong>{money.format(Number(payment.amount_cents) / 100)}</strong> : null}{payment?.purpose === "contribution" ? <ul>{Number(payment.tithe_cents) > 0 ? <li>Dízimo: {money.format(Number(payment.tithe_cents) / 100)}</li> : null}{Number(payment.firstfruits_cents) > 0 ? <li>Primícias: {money.format(Number(payment.firstfruits_cents) / 100)}</li> : null}{Number(payment.offering_cents) > 0 ? <li>Oferta: {money.format(Number(payment.offering_cents) / 100)}</li> : null}</ul> : null}<div><Link href={back}>Voltar</Link><Link href="/">Ir para o início</Link></div></section></main>;
 }

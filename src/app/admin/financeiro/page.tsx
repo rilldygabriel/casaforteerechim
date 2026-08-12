@@ -43,14 +43,15 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonthKey();
   const range = monthRange(month);
   const service = getSupabaseServiceClient();
-  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }] = await Promise.all([
+  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }, { data: monthlyOnlineContributions }] = await Promise.all([
     service.from("finance_payables").select("id,description,vendor,category,due_date,amount_cents,status,payment_date,notes").order("status").order("due_date"),
     service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source").order("transaction_date", { ascending: false }).limit(30),
     service.from("finance_income_entries").select("amount_cents").gte("transaction_date", range.start).lt("transaction_date", range.end),
     service.from("finance_bank_connections").select("id,institution_name,status,last_synced_at").order("created_at"),
     service.from("finance_bank_accounts").select("id,connection_id,name,current_balance_cents,currency_code").order("name"),
     service.from("finance_service_income_records").select("id,service_date,cash_cents,pix_cents,counted_by,created_at").gte("service_date", range.start).lt("service_date", range.end).order("service_date", { ascending: false }).order("created_at", { ascending: false }),
-    service.from("mercado_pago_payments").select("id,purpose,payer_name,amount_cents,status,payment_method_id,payment_type_id,approved_at,created_at").order("created_at", { ascending: false }).limit(40),
+    service.from("mercado_pago_payments").select("id,purpose,payer_name,amount_cents,tithe_cents,offering_cents,firstfruits_cents,status,payment_method_id,payment_type_id,approved_at,created_at").order("created_at", { ascending: false }).limit(40),
+    service.from("mercado_pago_payments").select("amount_cents,tithe_cents,offering_cents,firstfruits_cents").eq("purpose", "contribution").eq("status", "approved").gte("approved_at", `${range.start}T03:00:00.000Z`).lt("approved_at", `${range.end}T03:00:00.000Z`),
   ]);
   const allPayables = payables ?? [];
   const dueInMonth = allPayables.filter((item) => item.due_date >= range.start && item.due_date < range.end);
@@ -64,6 +65,12 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const serviceIncomeInMonth = serviceIncomeRecords ?? [];
   const serviceCashTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.cash_cents), 0);
   const servicePixTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.pix_cents), 0);
+  const onlineContributionTotals = (monthlyOnlineContributions ?? []).reduce((totals, payment) => ({
+    tithe: totals.tithe + Number(payment.tithe_cents),
+    firstfruits: totals.firstfruits + Number(payment.firstfruits_cents),
+    offering: totals.offering + Number(payment.offering_cents),
+    total: totals.total + Number(payment.amount_cents),
+  }), { tithe: 0, firstfruits: 0, offering: 0, total: 0 });
 
   return (
     <main className="finance-page">
@@ -92,8 +99,9 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       {params.error ? <p className="finance-flash error">{params.error}</p> : null}
 
       <section className="finance-online-payments" id="mercado-pago">
-        <header><div><span>Recebimentos online</span><h2>Mercado Pago</h2><p>Pagamentos de eventos, dízimos e ofertas. A baixa é confirmada automaticamente pelo webhook.</p></div><strong data-configured={isMercadoPagoConfigured()}>{isMercadoPagoConfigured() ? "API conectada" : "Aguardando credenciais"}</strong></header>
-        <div className="finance-online-grid">{(onlinePayments ?? []).length ? (onlinePayments ?? []).map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" ? "Estornado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong><p>{payment.payment_method_id ? `${payment.payment_method_id} · ` : ""}{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Os pagamentos aparecerão aqui assim que a API for ativada.</p>}</div>
+        <header><div><span>Recebimentos online</span><h2>Mercado Pago</h2><p>Somente pagamentos iniciados pelo checkout do site aparecem nesta área e recebem classificação automática.</p></div><strong data-configured={isMercadoPagoConfigured()}>{isMercadoPagoConfigured() ? "API conectada" : "Aguardando credenciais"}</strong></header>
+        <div className="finance-online-summary" aria-label="Contribuições online confirmadas no mês"><article><span>Dízimos</span><strong>{money.format(onlineContributionTotals.tithe / 100)}</strong></article><article><span>Primícias</span><strong>{money.format(onlineContributionTotals.firstfruits / 100)}</strong></article><article><span>Ofertas</span><strong>{money.format(onlineContributionTotals.offering / 100)}</strong></article><article><span>Total</span><strong>{money.format(onlineContributionTotals.total / 100)}</strong></article></div>
+        <div className="finance-online-grid">{(onlinePayments ?? []).length ? (onlinePayments ?? []).map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" ? "Estornado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{money.format(Number(payment.tithe_cents) / 100)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{money.format(Number(payment.firstfruits_cents) / 100)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{money.format(Number(payment.offering_cents) / 100)}</b></li> : null}</ul> : null}<p>{payment.payment_method_id ? `${payment.payment_method_id} · ` : ""}{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Os pagamentos aparecerão aqui assim que a primeira contribuição for iniciada.</p>}</div>
       </section>
 
       <section className="finance-service-income-panel" id="entradas-de-culto">
