@@ -17,6 +17,7 @@ async function requireAdmin() {
 
 function value(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
 function nullable(value: string) { return value || null; }
+function moneyCents(input: string) { const normalized = input.replace(/\s/g, "").replace(/R\$/gi, "").replace(/\./g, "").replace(",", "."); const amount = Number(normalized || 0); return Number.isFinite(amount) ? Math.round(amount * 100) : -1; }
 function back(message: string, tab = "eventos") { redirect(`/admin/eventos?tab=${tab}&mensagem=${encodeURIComponent(message)}`); }
 
 export async function saveEvent(formData: FormData) {
@@ -30,6 +31,8 @@ export async function saveEvent(formData: FormData) {
   const capacityText = value(formData, "capacity");
   const capacity = capacityText ? Number(capacityText) : null;
   if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) back("O limite de vagas é inválido.");
+  const registrationFeeCents = moneyCents(value(formData, "registrationFee"));
+  if (registrationFeeCents < 0 || registrationFeeCents > 100_000_000) back("O valor da inscrição é inválido.");
   const payload = {
     title,
     slug,
@@ -46,6 +49,7 @@ export async function saveEvent(formData: FormData) {
     registration_status: formData.get("registrationOpen") === "on" ? "open" : "closed",
     registration_deadline: nullable(value(formData, "registrationDeadline")),
     capacity,
+    registration_fee_cents: registrationFeeCents,
     is_public: formData.get("isPublic") === "on",
     is_featured: formData.get("isFeatured") === "on",
     updated_at: new Date().toISOString(),

@@ -24,3 +24,19 @@
 .finance-service-income-form{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:900px){.finance-open-finance-panel{grid-template-columns:1fr}}
 @media(max-width:560px){.finance-open-finance-panel{padding:18px;border-radius:21px}.finance-open-finance-buttons{display:grid}.finance-open-finance-actions button,.finance-open-finance-actions>a{width:100%}.finance-service-income-form{grid-template-columns:1fr}}
+.finance-online-payments { margin-top: 24px; padding: clamp(22px, 4vw, 38px); border: 1px solid rgba(255,254,21,.32); border-radius: 24px; background: var(--surface-2); }
+.finance-online-payments > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.finance-online-payments > header span { color: var(--accent); font-size: .72rem; font-weight: 900; text-transform: uppercase; }
+.finance-online-payments > header h2 { margin: 8px 0; font-size: clamp(2rem, 4vw, 3.4rem); }
+.finance-online-payments > header p { max-width: 650px; color: #969b95; line-height: 1.6; }
+.finance-online-payments > header > strong { padding: 10px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #969b95; font-size: .7rem; text-transform: uppercase; white-space: nowrap; }
+.finance-online-payments > header > strong[data-configured="true"] { border-color: #78ad74; color: #8fd58a; }
+.finance-online-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.finance-online-grid article { padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: var(--surface-0); }
+.finance-online-grid article > div { display: flex; justify-content: space-between; gap: 10px; color: #969b95; font-size: .68rem; text-transform: uppercase; }
+.finance-online-grid article[data-status="approved"] > div b { color: #8fd58a; }
+.finance-online-grid article h3 { margin: 22px 0 8px; font-size: 1rem; }
+.finance-online-grid article > strong { color: var(--accent); font-size: 1.7rem; }
+.finance-online-grid article > p { margin-top: 14px; color: #969b95; font-size: .75rem; }
+@media (max-width: 850px) { .finance-online-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 580px) { .finance-online-payments > header { flex-direction: column; } .finance-online-grid { grid-template-columns: 1fr; } }

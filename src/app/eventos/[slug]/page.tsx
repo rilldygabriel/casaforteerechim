@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 async function getEvent(slug: string) {
   const supabase = await getSupabaseServerClient();
-  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,image_url,status,registration_enabled,registration_status,registration_deadline,capacity,is_public").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,image_url,status,registration_enabled,registration_status,registration_deadline,capacity,is_public,registration_fee_cents").eq("slug", slug).maybeSingle();
   if (!data) return null;
   const { count } = await getSupabaseServiceClient().from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", data.id).is("archived_at", null);
   return { ...data, registration_count: count ?? 0 };
@@ -50,8 +50,8 @@ export default async function EventRegistrationPage({ params }: { params: Promis
     <header className="event-public-header"><Link href="/"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={180} height={70} priority /></Link><Link href="/calendario">Voltar ao calendário</Link></header>
     <section className="event-public-hero">
       <div><p className="home-kicker">{event.category} · {event.status === "confirmed" ? "Confirmado" : "A confirmar"}</p><h1>{event.title}</h1><p>{event.description}</p></div>
-      <dl><div><dt>Data</dt><dd>{formatDate(event.start_date)}</dd></div><div><dt>Horário</dt><dd>{formatTime(event.start_time)}{event.end_time ? ` às ${formatTime(event.end_time)}` : ""}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Inscrições</dt><dd>{availability.label}{remaining !== null ? ` · ${remaining} vagas restantes` : ""}</dd></div></dl>
+      <dl><div><dt>Data</dt><dd>{formatDate(event.start_date)}</dd></div><div><dt>Horário</dt><dd>{formatTime(event.start_time)}{event.end_time ? ` às ${formatTime(event.end_time)}` : ""}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{Number(event.registration_fee_cents) > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(event.registration_fee_cents) / 100) : "Gratuito"}</dd></div><div><dt>Inscrições</dt><dd>{availability.label}{remaining !== null ? ` · ${remaining} vagas restantes` : ""}</dd></div></dl>
     </section>
-    <section className="event-registration-layout"><div><p className="home-kicker">Seu próximo passo</p><h2>Faça sua inscrição</h2><p>{event.slug === "pos-encontro-agosto-2026" ? "Informe seus dados e confirme se você já participou do Encontro com Deus na Casa." : "Preencha os dados abaixo. Nossa equipe poderá entrar em contato pelo WhatsApp com as próximas orientações."}</p></div><RegistrationForm slug={event.slug} enabled={availability.open} variant={event.slug === "pos-encontro-agosto-2026" ? "post-encounter" : "standard"} /></section>
+    <section className="event-registration-layout"><div><p className="home-kicker">Seu próximo passo</p><h2>Faça sua inscrição</h2><p>{event.slug === "pos-encontro-agosto-2026" ? "Informe seus dados e confirme se você já participou do Encontro com Deus na Casa." : "Preencha os dados abaixo. Nossa equipe poderá entrar em contato pelo WhatsApp com as próximas orientações."}</p></div><RegistrationForm slug={event.slug} enabled={availability.open} feeCents={Number(event.registration_fee_cents)} variant={event.slug === "pos-encontro-agosto-2026" ? "post-encounter" : "standard"} /></section>
   </main>;
 }

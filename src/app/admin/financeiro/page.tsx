@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { isOpenFinanceConfigured } from "@/lib/open-finance";
+import { isMercadoPagoConfigured } from "@/lib/mercado-pago";
 import { createPayable, togglePayableStatus } from "./actions";
 import OpenFinanceConnect from "./open-finance-connect";
 import ServiceIncomeForm from "./service-income-form";
@@ -42,13 +43,14 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonthKey();
   const range = monthRange(month);
   const service = getSupabaseServiceClient();
-  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }] = await Promise.all([
+  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }] = await Promise.all([
     service.from("finance_payables").select("id,description,vendor,category,due_date,amount_cents,status,payment_date,notes").order("status").order("due_date"),
     service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source").order("transaction_date", { ascending: false }).limit(30),
     service.from("finance_income_entries").select("amount_cents").gte("transaction_date", range.start).lt("transaction_date", range.end),
     service.from("finance_bank_connections").select("id,institution_name,status,last_synced_at").order("created_at"),
     service.from("finance_bank_accounts").select("id,connection_id,name,current_balance_cents,currency_code").order("name"),
     service.from("finance_service_income_records").select("id,service_date,cash_cents,pix_cents,counted_by,created_at").gte("service_date", range.start).lt("service_date", range.end).order("service_date", { ascending: false }).order("created_at", { ascending: false }),
+    service.from("mercado_pago_payments").select("id,purpose,payer_name,amount_cents,status,payment_method_id,payment_type_id,approved_at,created_at").order("created_at", { ascending: false }).limit(40),
   ]);
   const allPayables = payables ?? [];
   const dueInMonth = allPayables.filter((item) => item.due_date >= range.start && item.due_date < range.end);
@@ -76,6 +78,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       </section>
 
       <nav className="finance-section-nav" aria-label="Áreas do financeiro">
+        <a href="#mercado-pago">Mercado Pago</a>
         <a href="#entradas-de-culto">Entradas de culto</a>
         <a href="#contas-a-pagar">Contas a pagar</a>
         <a href="#open-finance">Open Finance</a>
@@ -87,6 +90,11 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       </form>
       {params.ok ? <p className="finance-flash success">{params.ok}</p> : null}
       {params.error ? <p className="finance-flash error">{params.error}</p> : null}
+
+      <section className="finance-online-payments" id="mercado-pago">
+        <header><div><span>Recebimentos online</span><h2>Mercado Pago</h2><p>Pagamentos de eventos, dízimos e ofertas. A baixa é confirmada automaticamente pelo webhook.</p></div><strong data-configured={isMercadoPagoConfigured()}>{isMercadoPagoConfigured() ? "API conectada" : "Aguardando credenciais"}</strong></header>
+        <div className="finance-online-grid">{(onlinePayments ?? []).length ? (onlinePayments ?? []).map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" ? "Estornado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong><p>{payment.payment_method_id ? `${payment.payment_method_id} · ` : ""}{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Os pagamentos aparecerão aqui assim que a API for ativada.</p>}</div>
+      </section>
 
       <section className="finance-service-income-panel" id="entradas-de-culto">
         <header className="finance-service-income-heading">
@@ -163,7 +171,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-income-section">
         <header><div><span>Entradas confirmadas</span><h2>Últimos lançamentos</h2></div></header>
         <div>{(incomeEntries ?? []).length ? (incomeEntries ?? []).map((entry) => (
-          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
+          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
         )) : <p className="finance-empty">As entradas identificadas nos extratos aparecerão aqui.</p>}</div>
       </section>
     </main>

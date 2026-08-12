@@ -2171,6 +2171,52 @@ h1 strong {
   margin-inline: auto;
 }
 
+.mercado-pago-contribution,
+.generosity-manual-pix {
+  width: min(100% - 48px, 1120px);
+  margin-inline: auto;
+}
+
+.mercado-pago-contribution {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(28px, 6vw, 72px);
+  padding: clamp(26px, 5vw, 54px);
+  border: 1px solid color-mix(in srgb, var(--yellow) 45%, var(--line));
+  border-radius: 24px;
+  background: var(--surface-4);
+}
+
+.mercado-pago-contribution h2,
+.generosity-manual-pix h2 { margin-top: 12px; font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -.045em; }
+.mercado-pago-contribution > div > p:last-child { margin-top: 18px; color: var(--muted); line-height: 1.65; }
+.mercado-pago-contribution form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.mercado-pago-contribution label { display: grid; gap: 8px; color: var(--muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; }
+.mercado-pago-contribution label small { font-weight: 500; text-transform: none; }
+.mercado-pago-contribution input,
+.mercado-pago-contribution select { min-width: 0; min-height: 52px; padding: 0 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-0); color: var(--foreground); font: inherit; }
+.mercado-pago-contribution .wide { grid-column: 1 / -1; }
+.mercado-pago-contribution button { min-height: 56px; border: 0; border-radius: 10px; background: var(--yellow); color: #10120c; cursor: pointer; font: inherit; font-size: .76rem; font-weight: 950; text-transform: uppercase; }
+.mercado-pago-contribution button:disabled { cursor: wait; opacity: .58; }
+.mercado-pago-contribution form > p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; text-align: center; }
+.generosity-manual-pix { padding-block: 72px 28px; }
+
+.payment-return-page { min-height: 100svh; padding: 26px; background: var(--background); color: var(--foreground); }
+.payment-return-page > header { width: min(100%, 1040px); margin: 0 auto; }
+.payment-return-page > section { display: grid; justify-items: center; width: min(100%, 680px); margin: clamp(40px, 10vh, 110px) auto; padding: clamp(34px, 7vw, 72px); border: 1px solid var(--line); border-radius: 24px; background: var(--surface-4); text-align: center; }
+.payment-return-page > section > span { display: grid; place-items: center; width: 66px; height: 66px; margin-bottom: 24px; border-radius: 50%; background: var(--yellow); color: #111; font-size: 2rem; font-weight: 900; }
+.payment-return-page h1 { margin: 8px 0 18px; font-size: clamp(2.3rem, 6vw, 4.4rem); letter-spacing: -.055em; }
+.payment-return-page section > p:not(.section-eyebrow) { max-width: 500px; color: var(--muted); line-height: 1.65; }
+.payment-return-page section > strong { margin-top: 28px; color: var(--yellow); font-size: 2rem; }
+.payment-return-page section > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 34px; }
+.payment-return-page section > div a { padding: 14px 20px; border: 1px solid var(--line); border-radius: 999px; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
+
+@media (max-width: 780px) {
+  .mercado-pago-contribution { grid-template-columns: 1fr; }
+  .mercado-pago-contribution form { grid-template-columns: 1fr; }
+  .mercado-pago-contribution form > * { grid-column: 1 !important; }
+}
+
 .generosity-hero {
   padding-block: clamp(70px, 10vw, 130px) 55px;
 }

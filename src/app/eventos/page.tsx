@@ -15,6 +15,7 @@ type PublicEvent = {
   id: string; title: string; slug: string; description: string; category: string; start_date: string;
   start_time: string | null; end_time: string | null; location: string; registration_enabled: boolean;
   registration_status: string; registration_deadline: string | null; capacity: number | null;
+  registration_fee_cents: number;
 };
 
 function todayInSaoPaulo() {
@@ -40,7 +41,7 @@ function eventTime(value: string | null) {
 export default async function EventsPage() {
   const service = getSupabaseServiceClient();
   const { data } = await service.from("events")
-    .select("id,title,slug,description,category,start_date,start_time,end_time,location,registration_enabled,registration_status,registration_deadline,capacity")
+    .select("id,title,slug,description,category,start_date,start_time,end_time,location,registration_enabled,registration_status,registration_deadline,capacity,registration_fee_cents")
     .is("archived_at", null).eq("is_public", true).eq("registration_enabled", true).neq("status", "cancelled")
     .gte("start_date", todayInSaoPaulo()).order("start_date", { ascending: true });
   const events = (data ?? []) as PublicEvent[];
@@ -60,7 +61,7 @@ export default async function EventsPage() {
         const time = event.end_time ? `${eventTime(event.start_time)} às ${eventTime(event.end_time)}` : eventTime(event.start_time);
         return <article className="public-event-card" key={event.id}>
           <div className="public-event-card-date" aria-label={date.full}><span>{date.weekday}</span><strong>{date.day}</strong><span>{date.month}</span></div>
-          <div className="public-event-card-copy"><div><span>{event.category}</span><span data-open={state.open}>{state.label}</span></div><h2>{event.title}</h2><p>{event.description}</p><dl><div><dt>Horário</dt><dd>{time}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div></dl><Link data-open={state.open} href={`/eventos/${event.slug}`}>{state.open ? "Fazer minha inscrição" : "Ver informações"}<span aria-hidden="true">→</span></Link></div>
+          <div className="public-event-card-copy"><div><span>{event.category}</span><span data-open={state.open}>{state.label}</span></div><h2>{event.title}</h2><p>{event.description}</p><dl><div><dt>Horário</dt><dd>{time}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{event.registration_fee_cents > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(event.registration_fee_cents / 100) : "Gratuito"}</dd></div></dl><Link data-open={state.open} href={`/eventos/${event.slug}`}>{state.open ? "Fazer minha inscrição" : "Ver informações"}<span aria-hidden="true">→</span></Link></div>
         </article>;
       })}
       {events.length === 0 ? <div className="public-events-empty"><h2>Novas inscrições em breve</h2><p>Assim que um novo evento abrir inscrições, ele aparecerá aqui.</p><Link href="/calendario">Ver calendário da Casa</Link></div> : null}

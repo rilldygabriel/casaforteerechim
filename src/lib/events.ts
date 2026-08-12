@@ -9,6 +9,7 @@ export const ATTENDANCE_OPTIONS = [
 ] as const;
 
 export const REGISTRATION_STATUSES = [
+  ["awaiting_payment", "Aguardando pagamento"],
   ["pending", "Pendente"],
   ["contacting", "Em contato"],
   ["confirmed", "Confirmado"],
