@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import BirthdayCarousel from "@/components/birthday-carousel";
-import PixCopyButton from "@/components/pix-copy-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import LocationCheckin from "./location-checkin";
@@ -369,6 +368,15 @@ export default async function Familia({
         <Link href="/calendario">Abrir calendário</Link>
       </section>
 
+      <section className="family-leadership-access family-generosity-access">
+        <div>
+          <p className="section-eyebrow"><span aria-hidden="true" />Generosidade</p>
+          <h2>Pix, dízimos e ofertas</h2>
+          <p>Contribua por Pix ou cartão dentro do aplicativo, ou copie uma das chaves Pix da Casa.</p>
+        </div>
+        <Link href="/generosidade">Abrir Pix e cartão</Link>
+      </section>
+
       <section className="family-leadership-access family-testimonials-access">
         <div>
           <p className="section-eyebrow"><span aria-hidden="true" />O que Deus tem feito</p>
@@ -457,43 +465,6 @@ export default async function Familia({
           seu WhatsApp.
         </p>
         <Link href="/familia/servir">Ver ministérios</Link>
-      </section>
-
-      <section className="family-generosity-cta">
-        <div className="family-generosity-copy">
-          <p className="section-eyebrow">
-            <span aria-hidden="true" />
-            Generosidade
-          </p>
-          <h2>Contribua com um toque</h2>
-          <p>
-            Escolha a finalidade e copie a chave PIX sem sair da Área da
-            Família.
-          </p>
-        </div>
-        <div
-          className="family-generosity-actions"
-          aria-label="Chaves PIX da Casa Forte"
-        >
-          <div className="family-generosity-option">
-            <span>Primícias</span>
-            <strong>54 99321-7227</strong>
-            <PixCopyButton
-              pixKey="54993217227"
-              label="Copiar PIX de Primícias"
-              className="family-generosity-pix-button"
-            />
-          </div>
-          <div className="family-generosity-option">
-            <span>Dízimos e ofertas</span>
-            <strong>46.534.858/0001-37</strong>
-            <PixCopyButton
-              pixKey="46534858000137"
-              label="Copiar PIX de Dízimos e ofertas"
-              className="family-generosity-pix-button"
-            />
-          </div>
-        </div>
       </section>
 
       <section className="family-menu" aria-label="Menu da Família Casa Forte">
