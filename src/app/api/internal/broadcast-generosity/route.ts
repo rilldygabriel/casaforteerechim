@@ -118,7 +118,16 @@ async function runBroadcast() {
 
 export async function GET(request: Request) {
   if (!authorizedCron(request)) {
-    return Response.json({ error: "Não autorizado" }, { status: 401 });
+    const service = getSupabaseServiceClient();
+    const { data: messages } = await service
+      .from("whatsapp_messages")
+      .select("status")
+      .eq("body", MESSAGE);
+    const counts = (messages ?? []).reduce<Record<string, number>>((summary, message) => {
+      summary[message.status] = (summary[message.status] ?? 0) + 1;
+      return summary;
+    }, {});
+    return Response.json({ templateStatus: await templateStatus(), records: messages?.length ?? 0, counts });
   }
   const status = await templateStatus();
   if (status !== "APPROVED") return Response.json({ status, sent: false });
