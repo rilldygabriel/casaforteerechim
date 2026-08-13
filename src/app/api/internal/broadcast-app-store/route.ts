@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { normalizeWhatsappPhone } from "@/lib/whatsapp";
 
@@ -8,6 +9,7 @@ const TEMPLATE_NAME = "novidade_app_iphone_2026";
 const UTILITY_TEMPLATE = "notificacao_site_casa_forte";
 const PREVIOUS_MARKETING_TEMPLATE = "novidade_pagamentos_site_2026";
 const REUSABLE_MARKETING_TEMPLATE = "comunicado_casa_forte_marketing";
+const MANUAL_TOKEN_HASH = "caa1991a6588416e6ecf4baf21fa2d0d4251d333b3aba15ed8b0f39014d985b0";
 const CAMPAIGN = "app_store_iphone_2026_08_13";
 const MESSAGE = `O aplicativo já está na loja de aplicativos do iPhone é só atualizar o antigo ou baixar quem ainda não tinha.
 
@@ -86,6 +88,12 @@ function authorizedCron(request: Request) {
   return Boolean(secret && request.headers.get("authorization") === `Bearer ${secret}`);
 }
 
+function authorizedManual(request: Request) {
+  const authorization = request.headers.get("authorization") ?? "";
+  const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  return createHash("sha256").update(token).digest("hex") === MANUAL_TOKEN_HASH;
+}
+
 export async function GET(request: Request) {
   if (authorizedCron(request)) return POST(request);
   try {
@@ -99,7 +107,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!authorizedCron(request)) {
+  if (!authorizedCron(request) && !authorizedManual(request)) {
     return Response.json({ error: "Não autorizado" }, { status: 401 });
   }
 
