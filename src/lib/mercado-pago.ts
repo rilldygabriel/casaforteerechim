@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { sendWhatsappNotification } from "@/lib/whatsapp";
 
 const API_URL = "https://api.mercadopago.com";
 const SITE_URL = "https://www.casaforteerechim.app.br";
@@ -224,7 +225,7 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   const status = mapPaymentStatus(text(provider.status));
   const service = getSupabaseServiceClient();
   const { data: localPayment } = await service.from("mercado_pago_payments")
-    .select("id,purpose,event_id,registration_id,amount_cents,status,tithe_cents,offering_cents,firstfruits_cents")
+    .select("id,purpose,event_id,registration_id,payer_name,amount_cents,status,tithe_cents,offering_cents,firstfruits_cents,payment_method_id,whatsapp_notification_status")
     .eq("id", externalReference).maybeSingle();
   if (!localPayment) return { ignored: true, status };
 
@@ -267,8 +268,87 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
       source: "mercado_pago",
       mercado_pago_payment_id: localPayment.id,
     }, { onConflict: "fingerprint", ignoreDuplicates: true });
+
+    if (localPayment.purpose !== "event") {
+      await notifyContributionToPastor({
+        id: localPayment.id,
+        purpose: localPayment.purpose as Exclude<PaymentPurpose, "event">,
+        payerName: localPayment.payer_name,
+        amountCents: Number(localPayment.amount_cents),
+        titheCents: Number(localPayment.tithe_cents),
+        offeringCents: Number(localPayment.offering_cents),
+        firstfruitsCents: Number(localPayment.firstfruits_cents),
+        paymentMethodId: text(provider.payment_method_id) || localPayment.payment_method_id,
+      });
+    }
   }
   return { ignored: false, status, paymentId: localPayment.id };
+}
+
+async function notifyContributionToPastor(input: {
+  id: string;
+  purpose: Exclude<PaymentPurpose, "event">;
+  payerName: string;
+  amountCents: number;
+  titheCents: number;
+  offeringCents: number;
+  firstfruitsCents: number;
+  paymentMethodId: string | null;
+}) {
+  const service = getSupabaseServiceClient();
+  const { data: claim, error: claimError } = await service.from("mercado_pago_payments")
+    .update({ whatsapp_notification_status: "sending", whatsapp_notification_error: null })
+    .eq("id", input.id)
+    .in("whatsapp_notification_status", ["pending", "failed"])
+    .select("id")
+    .maybeSingle();
+  if (claimError) throw new Error("Não foi possível reservar a notificação da contribuição.");
+  if (!claim) return;
+
+  const { data: recipient, error: recipientError } = await service.from("member_profiles")
+    .select("phone")
+    .ilike("full_name", "Pastor Rilldy")
+    .limit(1)
+    .maybeSingle();
+  if (recipientError || !recipient?.phone) {
+    await service.from("mercado_pago_payments").update({
+      whatsapp_notification_status: "failed",
+      whatsapp_notification_error: "Telefone do Pastor Rilldy não encontrado.",
+    }).eq("id", input.id);
+    throw new Error("Telefone do destinatário da contribuição não encontrado.");
+  }
+
+  const titheCents = input.purpose === "tithe" ? input.amountCents : input.titheCents;
+  const firstfruitsCents = input.purpose === "firstfruits" ? input.amountCents : input.firstfruitsCents;
+  const offeringCents = input.purpose === "offering" ? input.amountCents : input.offeringCents;
+  const paymentMethod = input.paymentMethodId === "pix" ? "Pix" : "Cartão";
+  const message = [
+    "Nova contribuição confirmada 🙏",
+    "",
+    `Pessoa: ${input.payerName}`,
+    `Valor total: ${formatMoney(input.amountCents)}`,
+    `Primícia: ${formatMoney(firstfruitsCents)}`,
+    `Dízimo: ${formatMoney(titheCents)}`,
+    `Oferta: ${formatMoney(offeringCents)}`,
+    `Forma de pagamento: ${paymentMethod}`,
+  ].join("\n");
+  const result = await sendWhatsappNotification(recipient.phone, message);
+
+  if (!result.ok) {
+    await service.from("mercado_pago_payments").update({
+      whatsapp_notification_status: "failed",
+      whatsapp_notification_error: result.error.slice(0, 500),
+    }).eq("id", input.id);
+    throw new Error("A notificação da contribuição não foi aceita pelo WhatsApp.");
+  }
+
+  const { error: sentError } = await service.from("mercado_pago_payments").update({
+    whatsapp_notification_status: "sent",
+    whatsapp_notification_sent_at: new Date().toISOString(),
+    whatsapp_notification_message_id: result.messageId || null,
+    whatsapp_notification_error: null,
+  }).eq("id", input.id);
+  if (sentError) console.error("mercado_pago_whatsapp_notification_audit_error", sentError);
 }
 
 function formatMoney(cents: number) {
