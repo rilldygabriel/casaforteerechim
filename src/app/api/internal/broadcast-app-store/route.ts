@@ -7,6 +7,7 @@ export const maxDuration = 60;
 const TEMPLATE_NAME = "novidade_app_iphone_2026";
 const UTILITY_TEMPLATE = "notificacao_site_casa_forte";
 const PREVIOUS_MARKETING_TEMPLATE = "novidade_pagamentos_site_2026";
+const REUSABLE_MARKETING_TEMPLATE = "comunicado_casa_forte_marketing";
 const CAMPAIGN = "app_store_iphone_2026_08_13";
 const MESSAGE = `O aplicativo já está na loja de aplicativos do iPhone é só atualizar o antigo ou baixar quem ainda não tinha.
 
@@ -43,8 +44,41 @@ async function getTemplates() {
   if (!response.ok) throw new Error("Não foi possível consultar os modelos da Meta");
 
   return ((payload?.data ?? []) as TemplateInfo[]).filter((template) =>
-    [TEMPLATE_NAME, PREVIOUS_MARKETING_TEMPLATE, UTILITY_TEMPLATE].includes(template.name ?? ""),
+    [TEMPLATE_NAME, PREVIOUS_MARKETING_TEMPLATE, UTILITY_TEMPLATE, REUSABLE_MARKETING_TEMPLATE].includes(template.name ?? ""),
   );
+}
+
+async function ensureReusableMarketingTemplate(templates: TemplateInfo[]) {
+  const existing = templates.find((item) => item.name === REUSABLE_MARKETING_TEMPLATE);
+  if (existing) return existing;
+
+  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+  if (!accountId || !accessToken) throw new Error("WhatsApp não configurado");
+  const response = await fetch(
+    `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0"}/${accountId}/message_templates`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: REUSABLE_MARKETING_TEMPLATE,
+        language: "pt_BR",
+        category: "MARKETING",
+        components: [
+          { type: "HEADER", format: "TEXT", text: "Comunicado da Casa" },
+          {
+            type: "BODY",
+            text: "Olá, família Casa Forte! 💛\n\n{{1}}\n\nDeus abençoe você poderosamente.\nIgreja Casa Forte Erechim",
+            example: { body_text: [["Temos uma novidade especial para compartilhar com você."]] },
+          },
+        ],
+      }),
+      cache: "no-store",
+    },
+  );
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(String(payload?.error?.message || "Não foi possível criar o modelo permanente"));
+  return { name: REUSABLE_MARKETING_TEMPLATE, status: payload?.status, category: payload?.category, language: "pt_BR" };
 }
 
 function authorizedCron(request: Request) {
@@ -70,6 +104,7 @@ export async function POST(request: Request) {
   }
 
   const templates = await getTemplates();
+  await ensureReusableMarketingTemplate(templates);
   const template = templates.find((item) => item.name === TEMPLATE_NAME);
   if (template?.status !== "APPROVED" || template.category !== "MARKETING") {
     return Response.json({ error: "Modelo indisponível", template }, { status: 409 });
