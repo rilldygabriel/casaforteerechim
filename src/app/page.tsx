@@ -215,7 +215,7 @@ export default function Home() {
         <div className="home-generosity-grid">
           <article>
             <span>01</span>
-            <h3>Oferta de Primícias</h3>
+            <h3>Primícias</h3>
             <p>Uma expressão de honra e gratidão pelas primeiras conquistas.</p>
             <strong>54 99321-7227</strong>
             <PixCopyButton
@@ -226,7 +226,7 @@ export default function Home() {
           </article>
           <article>
             <span>02</span>
-            <h3>Dízimos e Ofertas</h3>
+            <h3>Dízimos e ofertas</h3>
             <p>Sua contribuição sustenta a missão e tudo o que construímos.</p>
             <strong>46.534.858/0001-37</strong>
             <PixCopyButton
@@ -321,39 +321,32 @@ export default function Home() {
 
           <div className="home-useful-links-grid">
             <Link href="/biblia">
-              <span>Palavra</span>
-              <strong>Bíblia Sagrada</strong>
-              <ArrowIcon />
+              <span className="home-useful-icon" aria-hidden="true">B</span>
+              <strong>Bíblia</strong>
             </Link>
             <a href={GROUP_URL} target="_blank" rel="noreferrer">
-              <span>Comunidade</span>
-              <strong>Grupo oficial da Casa</strong>
-              <ArrowIcon />
+              <span className="home-useful-icon" aria-hidden="true">W</span>
+              <strong>Grupo da Casa</strong>
             </a>
             <a href={PASTOR_CHANNEL_URL} target="_blank" rel="noreferrer">
-              <span>Devocionais</span>
+              <span className="home-useful-icon" aria-hidden="true">P</span>
               <strong>Canal do Pastor</strong>
-              <ArrowIcon />
             </a>
             <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">
-              <span>Instagram</span>
-              <strong>@casaforteerechim</strong>
-              <ArrowIcon />
+              <span className="home-useful-icon" aria-hidden="true">IG</span>
+              <strong>Instagram</strong>
             </a>
             <a href={YOUTUBE_URL} target="_blank" rel="noreferrer">
-              <span>Mensagens</span>
-              <strong>YouTube da Casa</strong>
-              <ArrowIcon />
+              <span className="home-useful-icon" aria-hidden="true">YT</span>
+              <strong>YouTube</strong>
             </a>
             <a href={CASA_MUSIC_URL} target="_blank" rel="noreferrer">
-              <span>Louvor</span>
-              <strong>Casa Forte Music</strong>
-              <ArrowIcon />
+              <span className="home-useful-icon" aria-hidden="true">♪</span>
+              <strong>Casa Music</strong>
             </a>
             <a href={MAPS_URL} target="_blank" rel="noreferrer">
-              <span>Localização</span>
+              <span className="home-useful-icon" aria-hidden="true">●</span>
               <strong>Como chegar</strong>
-              <ArrowIcon />
             </a>
           </div>
         </article>

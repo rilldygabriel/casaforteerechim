@@ -43,41 +43,66 @@ export default function MotionExperience() {
 
     root.classList.add("motion-ready");
 
-    const revealElements = Array.from(
-      document.querySelectorAll<HTMLElement>(REVEAL_SELECTORS),
-    );
-    const staggerElements = Array.from(
-      document.querySelectorAll<HTMLElement>(STAGGER_SELECTORS),
-    );
+    const observer = reducedMotion || !("IntersectionObserver" in window)
+      ? null
+      : new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("is-revealed");
+              observer?.unobserve(entry.target);
+            });
+          },
+          {
+            rootMargin: "0px 0px -7% 0px",
+            threshold: 0.08,
+          },
+        );
 
-    staggerElements.forEach((element, index) => {
-      element.classList.add("motion-stagger");
-      element.style.setProperty("--motion-order", String(index % 8));
-    });
+    function registerMotionElements(scope: ParentNode) {
+      const revealElements = Array.from(
+        scope.querySelectorAll<HTMLElement>(REVEAL_SELECTORS),
+      );
+      const staggerElements = Array.from(
+        scope.querySelectorAll<HTMLElement>(STAGGER_SELECTORS),
+      );
 
-    if (reducedMotion || !("IntersectionObserver" in window)) {
-      revealElements.forEach((element) => element.classList.add("is-revealed"));
-      return () => root.classList.remove("motion-ready");
+      staggerElements.forEach((element, index) => {
+        if (element.classList.contains("motion-stagger")) return;
+        element.classList.add("motion-stagger");
+        element.style.setProperty("--motion-order", String(index % 8));
+      });
+
+      revealElements.forEach((element) => {
+        if (element.classList.contains("motion-reveal")) return;
+        element.classList.add("motion-reveal");
+
+        if (!observer) {
+          element.classList.add("is-revealed");
+          return;
+        }
+
+        observer.observe(element);
+      });
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-revealed");
-          observer.unobserve(entry.target);
-        });
-      },
-      {
-        rootMargin: "0px 0px -7% 0px",
-        threshold: 0.08,
-      },
-    );
+    registerMotionElements(document);
 
-    revealElements.forEach((element) => observer.observe(element));
+    const mutationObserver = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            registerMotionElements(node.parentElement ?? node);
+          }
+        });
+      });
+    });
+
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      observer.disconnect();
+      mutationObserver.disconnect();
+      observer?.disconnect();
       root.classList.remove("motion-ready");
     };
   }, [pathname]);
