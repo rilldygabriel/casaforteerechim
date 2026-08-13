@@ -80,6 +80,58 @@ export async function createServiceIncome(formData: FormData) {
   messageRedirect("ok", "Entrada de culto cadastrada com sucesso.", month);
 }
 
+export async function updateServiceIncome(formData: FormData) {
+  await requireFinanceAccess();
+  const id = String(formData.get("id") ?? "").trim();
+  const serviceDate = String(formData.get("serviceDate") ?? "").trim();
+  const cashCents = parseCurrencyToCents(String(formData.get("cashAmount") ?? "0"));
+  const pixCents = parseCurrencyToCents(String(formData.get("pixAmount") ?? "0"));
+  const month = String(formData.get("returnMonth") ?? "");
+
+  if (
+    !/^[0-9a-f-]{36}$/i.test(id) ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(serviceDate) ||
+    cashCents < 0 ||
+    pixCents < 0 ||
+    (cashCents === 0 && pixCents === 0)
+  ) {
+    messageRedirect("error", "Revise a data e os valores da entrada do culto.", month);
+  }
+
+  const { error } = await getSupabaseServiceClient()
+    .from("finance_service_income_records")
+    .update({
+      service_date: serviceDate,
+      cash_cents: cashCents,
+      pix_cents: pixCents,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) messageRedirect("error", "Não foi possível editar esta entrada do culto.", month);
+  revalidatePath("/admin/financeiro");
+  messageRedirect("ok", "Entrada do culto atualizada com sucesso.", month);
+}
+
+export async function deleteServiceIncome(formData: FormData) {
+  await requireFinanceAccess();
+  const id = String(formData.get("id") ?? "").trim();
+  const month = String(formData.get("returnMonth") ?? "");
+
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    messageRedirect("error", "Não foi possível identificar esta entrada do culto.", month);
+  }
+
+  const { error } = await getSupabaseServiceClient()
+    .from("finance_service_income_records")
+    .delete()
+    .eq("id", id);
+
+  if (error) messageRedirect("error", "Não foi possível excluir esta entrada do culto.", month);
+  revalidatePath("/admin/financeiro");
+  messageRedirect("ok", "Entrada do culto excluída com sucesso.", month);
+}
+
 export async function togglePayableStatus(formData: FormData) {
   await requireFinanceAccess();
   const id = String(formData.get("id") ?? "");

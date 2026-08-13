@@ -9,6 +9,7 @@ import { isMercadoPagoConfigured } from "@/lib/mercado-pago";
 import { createPayable, togglePayableStatus } from "./actions";
 import OpenFinanceConnect from "./open-finance-connect";
 import ServiceIncomeForm from "./service-income-form";
+import ServiceIncomeRecordActions from "./service-income-record-actions";
 import StatementAnalyzer from "./statement-analyzer";
 import "./finance.css";
 
@@ -122,6 +123,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
               <header><div><time>{formatDate(record.service_date)}</time><h4>Entrada do culto</h4></div><strong>{money.format((Number(record.cash_cents) + pixTotal) / 100)}</strong></header>
               <dl><div><dt>Dinheiro</dt><dd>{money.format(Number(record.cash_cents) / 100)}</dd></div><div><dt>Pix</dt><dd>{money.format(pixTotal / 100)}</dd></div></dl>
               <p><b>Contagem feita por:</b> {record.counted_by.join(", ")}</p>
+              <ServiceIncomeRecordActions id={record.id} month={month} serviceDate={record.service_date} cashCents={Number(record.cash_cents)} pixCents={pixTotal} />
             </article>;
           }) : <p className="finance-empty">Nenhuma entrada de culto cadastrada ainda.</p>}</div>
         </div>
