@@ -4873,6 +4873,19 @@ html[data-theme="light"] .home-useful-links-grid strong {
   color: #242620;
 }
 
+/* Estabilidade em apps e navegadores antigos: conteúdo nunca depende de animação. */
+.motion-ready .motion-reveal,
+.motion-ready .motion-reveal.is-revealed {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
+.motion-ready .is-revealed .motion-stagger {
+  animation: none !important;
+}
+
 .home-useful-links-grid .home-icon {
   grid-column: 2;
   grid-row: 1 / 3;
