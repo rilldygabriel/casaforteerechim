@@ -37,6 +37,12 @@ html[data-theme="light"] {
   --yellow-soft: rgba(214, 77, 11, 0.13);
 }
 
+/* Movimento e profundidade — experiência Casa Forte */
+html {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-soft-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8569,4 +8575,401 @@ html[data-theme="light"] .family-leadership-access.family-access-yellow > a {
 .family-leadership-access.family-access-light > a:hover,
 .family-leadership-access.family-access-yellow > a:hover {
   transform: translateY(-2px);
+}
+
+/* Experiência dinâmica e premium */
+.motion-ready :is(
+  .home-hero-panel,
+  .home-entry-grid,
+  .home-block,
+  .home-footer,
+  .family-hero,
+  .family-leadership-access,
+  .family-profile-section,
+  .family-serve-cta,
+  .family-menu,
+  .family-permissions,
+  .family-discipler-choice,
+  .birthday-carousel
+) {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0) scale(0.985);
+  transition:
+    opacity 720ms var(--motion-ease),
+    transform 820ms var(--motion-ease);
+  will-change: opacity, transform;
+}
+
+.motion-ready :is(
+  .home-hero-panel,
+  .home-entry-grid,
+  .home-block,
+  .home-footer,
+  .family-hero,
+  .family-leadership-access,
+  .family-profile-section,
+  .family-serve-cta,
+  .family-menu,
+  .family-permissions,
+  .family-discipler-choice,
+  .birthday-carousel
+).is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.motion-ready .is-revealed .motion-stagger {
+  animation: casa-card-in 650ms var(--motion-ease) both;
+  animation-delay: calc(var(--motion-order, 0) * 55ms + 90ms);
+}
+
+@keyframes casa-card-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.home-page {
+  background:
+    radial-gradient(circle at 12% 2%, rgba(255, 254, 21, 0.105), transparent 23%),
+    radial-gradient(circle at 92% 26%, rgba(255, 254, 21, 0.045), transparent 21%),
+    var(--background);
+}
+
+.home-header {
+  position: relative;
+  z-index: 30;
+}
+
+@media (min-width: 761px) {
+  .home-header {
+    position: sticky;
+    top: max(0px, env(safe-area-inset-top));
+    width: min(100% - 24px, 1304px);
+    min-height: 76px;
+    margin-top: 8px;
+    padding-inline: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--background) 78%, transparent);
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+  }
+}
+
+.home-brand,
+.home-nav a,
+.inner-back,
+.family-notification-link,
+.family-header-actions button {
+  transition:
+    transform 220ms var(--motion-ease),
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 220ms ease;
+}
+
+.home-brand:hover {
+  transform: scale(1.025);
+}
+
+.home-nav a:hover,
+.family-notification-link:hover,
+.family-header-actions button:hover,
+.inner-back:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.home-hero-panel {
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, 0.34),
+    inset 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.home-hero-panel::before {
+  position: absolute;
+  z-index: 3;
+  top: -120px;
+  left: 38%;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: rgba(255, 254, 21, 0.11);
+  filter: blur(80px);
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero-copy > * {
+  animation: casa-hero-copy-in 760ms var(--motion-ease) both;
+}
+
+.home-hero-copy > :nth-child(2) { animation-delay: 70ms; }
+.home-hero-copy > :nth-child(3) { animation-delay: 130ms; }
+.home-hero-copy > :nth-child(4) { animation-delay: 190ms; }
+
+@keyframes casa-hero-copy-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.home-hero-cover img {
+  transition: transform 1.2s var(--motion-ease), filter 600ms ease;
+}
+
+.home-hero-panel:hover .home-hero-cover img {
+  transform: scale(1.022);
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.home-entry-grid > a,
+.home-block,
+.home-connections > article,
+.home-resources > article,
+.family-member-summary,
+.family-leadership-access,
+.family-menu-card,
+.family-permissions,
+.family-discipler-choice,
+.birthday-carousel {
+  box-shadow:
+    0 20px 58px rgba(0, 0, 0, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.045);
+}
+
+:is(
+  .home-entry-grid > a,
+  .home-generosity-grid > article,
+  .home-program-card,
+  .home-gallery > a,
+  .home-useful-links-grid > a,
+  .home-resources > article,
+  .home-pastor-grid > a,
+  .home-pastor-grid > article,
+  .testimonial-card,
+  .family-member-summary,
+  .family-leadership-access,
+  .family-menu-card,
+  .family-discipler-grid > article,
+  .family-current-discipler
+) {
+  transition:
+    transform 320ms var(--motion-ease),
+    box-shadow 320ms var(--motion-ease),
+    border-color 240ms ease,
+    background-color 240ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(
+    .home-program-card,
+    .home-gallery > a,
+    .home-useful-links-grid > a,
+    .home-resources > article,
+    .testimonial-card,
+    .family-member-summary,
+    .family-leadership-access,
+    .family-menu-card,
+    .family-discipler-grid > article,
+    .family-current-discipler
+  ):hover {
+    z-index: 2;
+    border-color: color-mix(in srgb, var(--yellow) 44%, var(--line));
+    box-shadow:
+      0 28px 78px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 254, 21, 0.035);
+    transform: translateY(-6px);
+  }
+}
+
+:is(
+  .home-nav a,
+  .home-entry-grid > a,
+  .home-inline-link,
+  .home-copy-button,
+  .home-gallery-download,
+  .home-prayer-cta,
+  .family-leadership-access > a,
+  .family-menu-card a,
+  .family-discipler-grid button,
+  .family-notification-link,
+  .family-header-actions button
+):active {
+  transform: scale(0.975);
+  transition-duration: 80ms;
+}
+
+.home-block,
+.family-leadership-access,
+.family-menu-card,
+.family-permissions,
+.family-discipler-choice {
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(255, 254, 21, 0.055), transparent 29%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.018), transparent 45%);
+}
+
+.home-section-heading h2,
+.home-resources h2,
+.family-hero h1,
+.family-leadership-access h2 {
+  text-wrap: balance;
+}
+
+.home-kicker,
+.section-eyebrow {
+  text-shadow: 0 0 22px color-mix(in srgb, var(--yellow) 24%, transparent);
+}
+
+.home-gallery img,
+.home-pastor-grid img,
+.family-discipler-photo img,
+.family-photo-frame img {
+  backface-visibility: hidden;
+}
+
+.inner-header {
+  position: relative;
+  z-index: 20;
+  background: color-mix(in srgb, var(--surface-0) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+.family-hero {
+  position: relative;
+}
+
+.family-hero::before {
+  position: absolute;
+  top: 18%;
+  right: 4%;
+  width: clamp(170px, 26vw, 330px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 254, 21, 0.11);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 254, 21, 0.085), transparent 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.family-member-summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.family-member-summary::after {
+  position: absolute;
+  z-index: -1;
+  right: -70px;
+  bottom: -100px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: rgba(255, 254, 21, 0.075);
+  filter: blur(58px);
+  content: "";
+}
+
+.family-leadership-access > a,
+.family-menu-card a,
+.family-discipler-grid button {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.home-program-carousel,
+.birthday-carousel-track {
+  scroll-behavior: smooth;
+  scroll-snap-stop: always;
+}
+
+@media (max-width: 760px) {
+  .home-page {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255, 254, 21, 0.09), transparent 18%),
+      var(--background);
+  }
+
+  .home-header {
+    position: relative;
+    z-index: 30;
+  }
+
+  .home-hero-panel,
+  .home-block,
+  .home-connections > article,
+  .home-resources > article,
+  .family-member-summary,
+  .family-leadership-access,
+  .family-menu-card,
+  .family-permissions,
+  .family-discipler-choice {
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
+  }
+
+  .motion-ready :is(
+    .home-hero-panel,
+    .home-entry-grid,
+    .home-block,
+    .home-footer,
+    .family-hero,
+    .family-leadership-access,
+    .family-profile-section,
+    .family-serve-cta,
+    .family-menu,
+    .family-permissions,
+    .family-discipler-choice,
+    .birthday-carousel
+  ) {
+    transform: translate3d(0, 22px, 0) scale(0.992);
+  }
+
+  .home-hero-copy > * {
+    animation-duration: 620ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-ready :is(
+    .home-hero-panel,
+    .home-entry-grid,
+    .home-block,
+    .home-footer,
+    .family-hero,
+    .family-leadership-access,
+    .family-profile-section,
+    .family-serve-cta,
+    .family-menu,
+    .family-permissions,
+    .family-discipler-choice,
+    .birthday-carousel
+  ) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .motion-ready .is-revealed .motion-stagger,
+  .home-hero-copy > * {
+    animation: none;
+  }
+
+  .home-hero-panel:hover .home-hero-cover img {
+    transform: none;
+  }
 }

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import ScrollToTop from "@/components/scroll-to-top";
 import ThemeToggle from "@/components/theme-toggle";
+import MotionExperience from "@/components/motion-experience";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -86,6 +87,7 @@ export default function RootLayout({
       </head>
       <body>
         <ScrollToTop />
+        <MotionExperience />
         <ThemeToggle floating />
         {children}
       </body>
