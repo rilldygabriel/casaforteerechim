@@ -95,9 +95,9 @@ export default function MemberSignupForm() {
           <h1>Cadastro realizado.</h1>
           <p>
             Enviamos agora o convite para o seu e-mail. Abra a mensagem e crie
-            sua senha para entrar na Área da Família. O convite precisa ser
-            confirmado em até 24 horas; depois desse prazo, o cadastro é
-            excluído automaticamente.
+            sua senha para entrar na Área da Família. O link vale por 24 horas.
+            Se passar do prazo, a própria tela permite solicitar outro link,
+            sem precisar refazer o cadastro ou chamar a liderança.
           </p>
           <Link className="family-auth-primary-link" href="/familia/login">
             Ir para o acesso

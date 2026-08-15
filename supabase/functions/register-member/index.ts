@@ -213,10 +213,7 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(false, 500, "database_error");
   }
 
-  if (
-    existingApplication?.status === "invited" ||
-    existingApplication?.status === "rejected"
-  ) {
+  if (existingApplication?.status === "rejected") {
     return jsonResponse(true, 200, "already_registered");
   }
 

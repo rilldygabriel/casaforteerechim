@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const VERIFICATION_LIMIT_MS = 24 * 60 * 60 * 1000;
+const VERIFICATION_LIMIT_MS = 30 * 24 * 60 * 60 * 1000;
 
 function isExpiredAndUnverified(user: User, cutoff: number) {
   const createdAt = Date.parse(user.created_at);
