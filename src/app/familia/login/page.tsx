@@ -33,6 +33,10 @@ export default async function MemberLoginPage({
   const initialError =
     params.erro === "link-invalido"
       ? "Este link expirou ou não é mais válido."
+      : params.erro === "cadastro-google-indisponivel"
+        ? "O cadastro com Google está temporariamente indisponível. Tente novamente em instantes."
+        : params.erro === "google-nao-concluido"
+          ? "Não foi possível concluir o acesso com Google. Tente novamente."
       : params.erro === "sessao-expirada"
         ? "Sua sessão expirou. Entre novamente para continuar."
       : "";
