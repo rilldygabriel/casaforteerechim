@@ -2708,6 +2708,9 @@ h1 strong {
 .admin-announcement-form label { display: grid; gap: 8px; color: #d5d7d2; font-size: 0.72rem; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; }
 .admin-announcement-form :is(input, textarea) { width: 100%; padding: 15px 17px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: var(--surface-0); color: white; font: inherit; line-height: 1.5; }
 .admin-announcement-form :is(input, textarea):focus { border-color: var(--yellow); }
+.admin-announcement-form .admin-announcement-channel { display: flex; grid-template-columns: none; align-items: center; gap: 11px; padding: 14px 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; background: var(--surface-0); cursor: pointer; }
+.admin-announcement-form .admin-announcement-channel input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--yellow); }
+.admin-announcement-form .admin-announcement-channel span { line-height: 1.35; }
 .admin-announcement-form button:disabled { opacity: .58; cursor: wait; }
 .admin-announcement-feedback { margin: 0; color: var(--yellow); line-height: 1.5; }
 .admin-announcement-feedback[data-kind="error"] { color: #ff8d8d; }

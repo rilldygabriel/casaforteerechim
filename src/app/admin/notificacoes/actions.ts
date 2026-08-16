@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import webPush from "web-push";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { sendWhatsappBroadcast } from "@/lib/whatsapp-broadcast";
 
 export type AnnouncementState = { kind: "idle" | "success" | "error"; message: string };
 
@@ -13,6 +14,7 @@ export async function sendFamilyAnnouncement(
 ): Promise<AnnouncementState> {
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
+  const sendWhatsApp = formData.get("sendWhatsApp") === "on";
   if (title.length < 3 || title.length > 100 || body.length < 3 || body.length > 2000) {
     return { kind: "error", message: "Revise o título e a mensagem antes de enviar." };
   }
@@ -71,5 +73,19 @@ export async function sendFamilyAnnouncement(
   revalidatePath("/admin/notificacoes");
   revalidatePath("/familia");
   revalidatePath("/familia/notificacoes");
-  return { kind: "success", message: `Aviso publicado para todos. ${sent} aparelho${sent === 1 ? " recebeu" : "s receberam"} a notificação agora.` };
+
+  let whatsappMessage = "";
+  if (sendWhatsApp) {
+    try {
+      const result = await sendWhatsappBroadcast(body, `announcement_${announcement.id}`);
+      whatsappMessage = ` WhatsApp: ${result.accepted} aceito${result.accepted === 1 ? "" : "s"} pela Meta, ${result.rejected} recusado${result.rejected === 1 ? "" : "s"}.`;
+    } catch {
+      whatsappMessage = " O aviso foi publicado, mas o WhatsApp não concluiu o disparo.";
+    }
+  }
+
+  return {
+    kind: "success",
+    message: `Aviso publicado para todos. ${sent} aparelho${sent === 1 ? " recebeu" : "s receberam"} a notificação agora.${whatsappMessage}`,
+  };
 }
