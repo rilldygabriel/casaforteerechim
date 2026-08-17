@@ -20,10 +20,10 @@ const ACCEPT_JESUS_URL =
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 // Este destaque sempre usa o vídeo publicado somente como Palavra, não o culto completo.
-const LATEST_MESSAGE_TITLE = "QUEBRANDO O CICLO DE DESORDEM";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=DiKZr0vYXA4";
+const LATEST_MESSAGE_TITLE = "QUEBRANDO CICLOS DE REPROVAÇÃO";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=qafqfwmvIJs";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/DiKZr0vYXA4?rel=0";
+  "https://www.youtube-nocookie.com/embed/qafqfwmvIJs?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
@@ -31,9 +31,14 @@ const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PHOTO_ARCHIVE_FOLDERS = [
   {
-    date: "09/08",
+    date: "16/08",
     title: "Culto de Domingo",
     url: "/fotos",
+  },
+  {
+    date: "09/08",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/13sF21-Fzfp8tyzfcvlPHWyugBabSxD6h",
   },
   {
     date: "02/08",
