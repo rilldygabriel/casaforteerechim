@@ -4,6 +4,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
+import SiteRefreshButton from "@/components/site-refresh-button";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import TestimonialsSection from "@/components/testimonials-section";
 import { GALLERY_PHOTOS } from "@/lib/gallery";
@@ -132,6 +133,7 @@ export default function Home() {
 
         <nav className="home-nav" aria-label="Acesso rápido">
           <ThemeToggle />
+          <SiteRefreshButton />
           <Link className="home-nav-filled" href="/familia">
             Área de membro
           </Link>

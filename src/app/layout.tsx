@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import ScrollToTop from "@/components/scroll-to-top";
+import SiteRefreshButton from "@/components/site-refresh-button";
 import ThemeToggle from "@/components/theme-toggle";
 import "./globals.css";
 
@@ -86,6 +87,7 @@ export default function RootLayout({
       </head>
       <body>
         <ScrollToTop />
+        <SiteRefreshButton floating />
         <ThemeToggle floating />
         {children}
       </body>

@@ -8111,6 +8111,12 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .theme-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .theme-toggle-floating { position: fixed; z-index: 1000; top: calc(env(safe-area-inset-top, 0px) + 22px); right: max(18px, calc((100vw - 1240px) / 2)); box-shadow: 0 8px 28px rgba(0,0,0,.2); }
 body:has(.theme-toggle-inline) > .theme-toggle-floating { display: none; }
+.site-refresh-button { display:inline-flex;min-width:46px;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:var(--foreground);background:color-mix(in srgb,var(--surface-4) 86%,transparent);cursor:pointer;font:inherit;font-size:.62rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;transition:color 180ms ease,background 180ms ease,border-color 180ms ease,transform 180ms ease; }
+.site-refresh-button:hover { border-color:var(--accent);color:var(--accent);transform:translateY(-1px); }
+.site-refresh-button:disabled { cursor:wait;opacity:.72; }
+.site-refresh-button svg { width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.site-refresh-floating { position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 22px);right:max(76px,calc((100vw - 1240px) / 2 + 58px));box-shadow:0 8px 28px rgba(0,0,0,.2); }
+body:has(.site-refresh-inline) > .site-refresh-floating { display:none; }
 body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 136px; }
 
 html[data-theme="light"] body,
@@ -8158,6 +8164,7 @@ html[data-theme="light"] .calendar-header > a:last-child { border-color: rgba(32
 html[data-theme="light"] .home-nav .home-nav-light { border-color: #34312e; color: #34312e; background: transparent; }
 html[data-theme="light"] .home-nav .home-nav-filled { border-color: var(--accent); color: #fff; background: var(--accent); }
 html[data-theme="light"] .theme-toggle { border-color: rgba(36,35,33,.22); color: #34312e; background: rgba(255,255,255,.92); box-shadow: 0 8px 24px rgba(56,43,33,.1); }
+html[data-theme="light"] .site-refresh-button { border-color:rgba(36,35,33,.22);color:#34312e;background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(56,43,33,.1); }
 html[data-theme="light"] :is(.home-block, .inner-page, .admin-dashboard, .admin-visitors-page, .calendar-page, .public-events-page, .event-public-page, .bible-page) :is(article,aside,fieldset,form) {
   border-color: rgba(32,35,32,.2);
 }
@@ -8522,7 +8529,10 @@ html[data-theme="light"] :is(.admin-auth-card,.calendar-feature-card,.calendar-d
   .theme-toggle { min-width: 42px; min-height: 42px; padding-inline: 11px; }
   .theme-toggle span { display: none; }
   .theme-toggle-floating { top: calc(env(safe-area-inset-top, 0px) + 18px); right: 18px; }
-  body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 58px; }
+  .site-refresh-button { min-width:42px;min-height:42px;padding-inline:11px; }
+  .site-refresh-button span { display:none; }
+  .site-refresh-floating { top:calc(env(safe-area-inset-top,0px) + 18px);right:70px; }
+  body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 112px; }
 }
 
 /* Acessos principais da Família: alternância clara e amarela */
