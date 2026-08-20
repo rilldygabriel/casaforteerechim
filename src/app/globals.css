@@ -9528,3 +9528,321 @@ html[data-palette="editorial"] ::selection {
     border-radius: 24px;
   }
 }
+
+/* Correção de contraste do tema Editorial
+   Lima = destaque; oliva = texto em fundo claro; branco = texto em grafite. */
+html[data-palette="editorial"] {
+  --accent-ink: #526d00;
+  --dark-card: #171a16;
+  --dark-card-muted: #c6cbc2;
+  --light-card: #fbfaf7;
+  --font-editorial-display: var(--font-geist-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-editorial-text: var(--font-geist-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html[data-palette="editorial"] body {
+  font-family: var(--font-editorial-text);
+  font-weight: 450;
+}
+
+html[data-palette="editorial"] :is(
+  .home-hero h1,
+  .home-section-heading h2,
+  .home-resources h2,
+  .family-hero h1,
+  .family-leadership-access h2,
+  .admin-dashboard-hero h1,
+  .admin-visitors-hero h1,
+  .calendar-hero h1,
+  .finance-hero h1,
+  .public-events-hero h1,
+  .event-public-hero h1
+) {
+  font-family: var(--font-editorial-display);
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: .92;
+  text-wrap: balance;
+}
+
+html[data-palette="editorial"] :is(
+  .home-block h3,
+  .family-menu-card h2,
+  .admin-dashboard-grid h2,
+  .calendar-feature-copy h3,
+  .finance-page h2,
+  .finance-page h3
+) {
+  font-family: var(--font-editorial-display);
+  font-weight: 720;
+  letter-spacing: -.045em;
+}
+
+html[data-palette="editorial"] :is(
+  .home-kicker,
+  .section-eyebrow,
+  [class*="eyebrow"],
+  button,
+  .home-nav a,
+  .admin-dashboard-grid strong
+) {
+  font-family: var(--font-editorial-text);
+  font-weight: 850;
+  letter-spacing: .11em;
+}
+
+html[data-palette="editorial"] .theme-toggle-floating {
+  box-shadow: none;
+}
+
+html[data-palette="editorial"] .theme-toggle-floating > .theme-toggle {
+  box-shadow: 0 10px 26px rgba(24,26,22,.14);
+}
+
+/* Página inicial: cards com fotografia continuam sendo superfícies escuras. */
+html[data-palette="editorial"] .home-block .home-prayer-card {
+  border-color: rgba(255,255,255,.32);
+  color: #fff;
+  background: var(--dark-card) !important;
+}
+
+html[data-palette="editorial"] .home-block .home-prayer-card :is(h1,h2,h3,h4,strong) {
+  color: #fff !important;
+}
+
+html[data-palette="editorial"] .home-block .home-prayer-card :is(p,small,time,label) {
+  color: #d8dcd4 !important;
+}
+
+html[data-palette="editorial"] .home-block .home-prayer-card :is(.home-kicker,.section-eyebrow,[class*="eyebrow"]) {
+  color: var(--accent-on-dark) !important;
+}
+
+html[data-palette="editorial"] :is(.home-prayer-cta,.home-jesus-card > a) {
+  color: #11130f !important;
+  background: var(--accent) !important;
+}
+
+html[data-palette="editorial"] :is(
+  .home-jesus-card,
+  .home-photo-links,
+  .testimonial-card,
+  .home-generosity-grid > article
+) :is(.home-kicker,.section-eyebrow,[class*="eyebrow"]) {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] .home-photo-links > div a,
+html[data-palette="editorial"] .home-block .home-photo-links > div a {
+  border-bottom-color: rgba(17,19,15,.16);
+  color: #263017 !important;
+}
+
+html[data-palette="editorial"] .home-photo-links > div a:hover,
+html[data-palette="editorial"] .home-block .home-photo-links > div a:hover {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] .home-useful-links-grid .home-useful-icon {
+  border-color: rgba(82,109,0,.5);
+  color: var(--accent-ink);
+}
+
+html[data-palette="editorial"] .home-useful-links-grid > a:hover .home-useful-icon {
+  color: #11130f;
+  background: var(--accent);
+}
+
+/* Painel: grafite sempre recebe branco; lima sempre recebe preto. */
+html[data-palette="editorial"] .admin-dashboard-grid > a:not(:nth-child(4n + 1)):not(:nth-child(4n + 4)) :is(h2,h3) {
+  color: #fff !important;
+}
+
+html[data-palette="editorial"] .admin-dashboard-grid > a:not(:nth-child(4n + 1)):not(:nth-child(4n + 4)) p {
+  color: var(--dark-card-muted) !important;
+}
+
+html[data-palette="editorial"] .admin-dashboard-grid > a:not(:nth-child(4n + 1)):not(:nth-child(4n + 4)) :is(span,strong,em) {
+  color: var(--accent-on-dark) !important;
+}
+
+html[data-palette="editorial"] .admin-dashboard-grid > a:nth-child(4n + 1) :is(h2,h3,p,span,strong,em),
+html[data-palette="editorial"] .admin-dashboard-grid > a:nth-child(4n + 4) :is(h2,h3,p,span,strong,em) {
+  color: #11130f !important;
+}
+
+html[data-palette="editorial"] :is(.admin-dashboard-hero,.admin-calendar-footer-heading) .section-eyebrow,
+html[data-palette="editorial"] .admin-calendar-footer-heading > div > span,
+html[data-palette="editorial"] .admin-calendar-footer-heading > a {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] .admin-calendar-group article {
+  border-color: #30342e;
+  color: #fff;
+  background: var(--dark-card);
+}
+
+html[data-palette="editorial"] .admin-calendar-group article :is(h2,h3,h4,strong) {
+  color: #fff !important;
+}
+
+html[data-palette="editorial"] .admin-calendar-group article :is(time,span,p,small) {
+  color: #c9cec5 !important;
+}
+
+/* Elementos claros do calendário e das áreas internas. */
+html[data-palette="editorial"] :is(
+  .calendar-page,
+  .public-events-page,
+  .event-public-page,
+  .admin-visitors-page,
+  .finance-page
+) > :is(header,section) > .section-eyebrow,
+html[data-palette="editorial"] :is(
+  .calendar-page,
+  .public-events-page,
+  .event-public-page,
+  .admin-visitors-page,
+  .finance-page
+) .section-eyebrow {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] .calendar-feature-card .calendar-feature-copy :is(h3,strong) {
+  color: #11130f !important;
+}
+
+html[data-palette="editorial"] .calendar-feature-card .calendar-feature-copy :is(p,small,time) {
+  color: #51574e !important;
+}
+
+html[data-palette="editorial"] .calendar-feature-card .calendar-feature-copy :is(a,button) {
+  color: #11130f !important;
+  background: var(--accent) !important;
+}
+
+/* Financeiro: navegação, valores e ações com leitura forte. */
+html[data-palette="editorial"] .finance-section-nav a {
+  border-color: rgba(17,19,15,.14);
+  color: #242820 !important;
+  background: #d8dad4;
+}
+
+html[data-palette="editorial"] .finance-section-nav a:first-child {
+  border-color: var(--accent);
+  color: #11130f !important;
+  background: var(--accent);
+}
+
+html[data-palette="editorial"] :is(
+  .finance-month-filter button,
+  .finance-create-panel button,
+  .finance-statement-upload button,
+  .finance-analysis-review > button,
+  .finance-service-income-form > .primary,
+  .finance-open-finance-actions button,
+  .finance-open-finance-actions > a,
+  .finance-service-record-actions details form button
+) {
+  color: #11130f !important;
+  background: var(--accent) !important;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-payments,
+  .finance-service-income-panel,
+  .finance-create-panel,
+  .finance-statement-panel,
+  .finance-open-finance-panel,
+  .finance-ledger-section
+) {
+  border-color: rgba(82,109,0,.24);
+  color: #11130f;
+  background: #d9dbd5 !important;
+  background-image: none !important;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-payments,
+  .finance-service-income-panel,
+  .finance-create-panel,
+  .finance-statement-panel,
+  .finance-open-finance-panel,
+  .finance-ledger-section
+) :is(h1,h2,h3,h4,strong) {
+  color: #11130f;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-payments,
+  .finance-service-income-panel,
+  .finance-create-panel,
+  .finance-statement-panel,
+  .finance-open-finance-panel,
+  .finance-ledger-section
+) :is(p,small,time,label) {
+  color: #50564d;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-payments > header span,
+  .finance-service-income-heading > div:first-child > span,
+  .finance-service-history > header span,
+  .finance-pix-editor header span,
+  .finance-open-finance-copy > span,
+  .finance-ledger-section > header > div:first-child > span
+) {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] .finance-online-payments > header > strong[data-configured="true"] {
+  border-color: #397b36;
+  color: #2f6a2d !important;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-summary article,
+  .finance-online-grid article,
+  .finance-service-totals article,
+  .finance-service-records > article,
+  .finance-bank-accounts article,
+  .finance-ledger-totals article,
+  .finance-ledger-list > article
+) {
+  border-color: rgba(17,19,15,.13);
+  color: #11130f;
+  background: var(--light-card);
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-summary strong,
+  .finance-online-grid article > strong,
+  .finance-service-records time,
+  .finance-ledger-list article[data-direction="credit"] b
+) {
+  color: var(--accent-ink) !important;
+}
+
+html[data-palette="editorial"] :is(
+  .finance-online-summary span,
+  .finance-online-grid article > div,
+  .finance-online-grid article > p,
+  .finance-service-totals span,
+  .finance-service-records p,
+  .finance-ledger-list :is(time,small)
+) {
+  color: #555b52 !important;
+}
+
+html[data-palette="editorial"] .finance-online-grid article :is(h3,strong),
+html[data-palette="editorial"] .finance-service-records > article :is(h3,h4,strong,dd),
+html[data-palette="editorial"] .finance-ledger-list > article :is(h3,h4,strong) {
+  color: #11130f;
+}
+
+@media (max-width: 760px) {
+  html[data-palette="editorial"] .admin-calendar-group article {
+    box-shadow: 0 12px 28px rgba(18,20,17,.16);
+  }
+}
