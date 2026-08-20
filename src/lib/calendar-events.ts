@@ -54,6 +54,7 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
     description: "Encontrão da Rede Teens em um endereço especial. Sexta-feira, às 19h.",
   }),
   event("vigilia-agosto", "Vigília de Oração", "2026-08-22", "Oração", {
+    startTime: "21:00",
     notes: "A programação de oração desta semana acontecerá na vigília de sábado, dia 22.",
   }),
   event("rede-teens-agosto", "Rede Teens", "2026-08-29", "Rede Teens"),
