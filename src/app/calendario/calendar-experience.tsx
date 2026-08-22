@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import EventAttendanceButton from "@/components/event-attendance-button";
 import {
   CALENDAR_MONTHS,
   EVENT_CATEGORIES,
@@ -14,6 +15,7 @@ import {
   formatEventWeekday,
   parseDateParts,
 } from "@/lib/calendar-events";
+import { useEventAttendance } from "@/lib/use-event-attendance";
 
 const MONTH_FORMATTER = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" });
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -46,6 +48,7 @@ export default function CalendarExperience({ today, events }: { today: string; e
   const [selectedEvent, setSelectedEvent] = useState<ChurchEvent | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const attendance = useEventAttendance();
   const monthlyEvents = useMemo(() => {
     const prefix = `2026-${String(month).padStart(2, "0")}`;
     return events.filter((item) => (item.startDate.startsWith(prefix) || item.endDate?.startsWith(prefix)) && (category === "Todos" || item.category === category));
@@ -111,6 +114,7 @@ export default function CalendarExperience({ today, events }: { today: string; e
                     <p>{item.category}</p><h3>{item.title}</h3>
                     <strong>{formatEventTime(item)}</strong>
                     <button type="button" onClick={() => setSelectedEvent(item)}>Ver detalhes</button>
+                    <EventAttendanceButton event={item} confirmed={attendance.confirmed.has(item.id)} pending={attendance.pendingKey === item.id} onToggle={attendance.toggleAttendance} />
                     {item.registrationSlug ? <Link className="calendar-registration-link" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
                   </div>
                 </article>
@@ -124,7 +128,7 @@ export default function CalendarExperience({ today, events }: { today: string; e
         <div className="calendar-baptism-heading"><div><p className="calendar-eyebrow">Seu próximo passo</p><h2 id="baptism-title">Batismo nas Águas</h2></div><p>Uma decisão pública de fé, uma nova história e toda a Casa celebrando com você.</p></div>
         <div className="calendar-baptism-grid">{baptismEvents.map((item) => <article key={item.id}>
           <div className="calendar-baptism-date"><strong>{parseDateParts(item.startDate).day}</strong><span>{monthLabel(parseDateParts(item.startDate).month).split(" ")[0]}</span><small>{formatEventWeekday(item.startDate)}</small></div>
-          <div className="calendar-baptism-copy"><span>Durante o Culto de Ceia · {formatEventTime(item)}</span><h3>{item.title}</h3><p>{item.description}</p><Link href={`/eventos/${item.registrationSlug}`}>Quero me inscrever <span aria-hidden="true">→</span></Link></div>
+          <div className="calendar-baptism-copy"><span>Durante o Culto de Ceia · {formatEventTime(item)}</span><h3>{item.title}</h3><p>{item.description}</p><div className="calendar-baptism-actions"><EventAttendanceButton event={item} confirmed={attendance.confirmed.has(item.id)} pending={attendance.pendingKey === item.id} onToggle={attendance.toggleAttendance} /><Link href={`/eventos/${item.registrationSlug}`}>Quero me inscrever <span aria-hidden="true">→</span></Link></div></div>
         </article>)}</div>
       </section> : null}
 
@@ -180,12 +184,12 @@ export default function CalendarExperience({ today, events }: { today: string; e
 
       <footer className="calendar-footer"><p>Aqui você é família.</p><Link href="/">Igreja Casa Forte Erechim</Link></footer>
 
-      {selectedEvent ? <EventDetails item={selectedEvent} close={() => setSelectedEvent(null)} closeButtonRef={closeButtonRef} /> : null}
+      {selectedEvent ? <EventDetails item={selectedEvent} close={() => setSelectedEvent(null)} closeButtonRef={closeButtonRef} confirmed={attendance.confirmed.has(selectedEvent.id)} pending={attendance.pendingKey === selectedEvent.id} onToggle={attendance.toggleAttendance} /> : null}
     </main>
   );
 }
 
-function EventDetails({ item, close, closeButtonRef }: { item: ChurchEvent; close: () => void; closeButtonRef: React.RefObject<HTMLButtonElement | null> }) {
+function EventDetails({ item, close, closeButtonRef, confirmed, pending, onToggle }: { item: ChurchEvent; close: () => void; closeButtonRef: React.RefObject<HTMLButtonElement | null>; confirmed: boolean; pending: boolean; onToggle: (event: ChurchEvent) => void | Promise<void> }) {
   return (
     <div className="calendar-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
       <section className="calendar-modal" role="dialog" aria-modal="true" aria-labelledby="event-detail-title">
@@ -203,6 +207,7 @@ function EventDetails({ item, close, closeButtonRef }: { item: ChurchEvent; clos
         {item.description ? <p>{item.description}</p> : null}
         {item.registrationLabel ? <p className="calendar-registration-status">{item.registrationLabel}</p> : null}
         {item.notes ? <aside><strong>Observação</strong><p>{item.notes}</p></aside> : null}
+        <EventAttendanceButton event={item} confirmed={confirmed} pending={pending} onToggle={onToggle} className="calendar-modal-attendance" />
         {item.registrationSlug ? <Link className="calendar-modal-registration" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
       </section>
     </div>

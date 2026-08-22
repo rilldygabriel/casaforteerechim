@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
+import EventAttendanceButton from "@/components/event-attendance-button";
 import { CHURCH_EVENTS, formatEventDate, formatEventTime, formatEventWeekday, getSaoPauloDateKey, parseDateParts } from "@/lib/calendar-events";
+import { useEventAttendance } from "@/lib/use-event-attendance";
 
 function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   return <svg aria-hidden="true" className="home-icon" viewBox="0 0 20 20" fill="none" style={direction === "left" ? { transform: "rotate(180deg)" } : undefined}><path d="M4 10h12M11 5l5 5-5 5" /></svg>;
@@ -11,6 +13,7 @@ function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
 export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const isPausedRef = useRef(false);
+  const attendance = useEventAttendance();
   const events = useMemo(() => {
     const today = getSaoPauloDateKey();
     return CHURCH_EVENTS.filter((event) => event.status !== "cancelled" && (event.endDate ?? event.startDate) >= today).slice(0, 12);
@@ -93,7 +96,10 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
               <p>{event.category}{event.recurring ? " · Recorrente" : ""}</p>
               <h3>{event.title}</h3>
               <strong>{formatEventTime(event)}</strong>
-              <Link href={event.registrationSlug ? `/eventos/${event.registrationSlug}` : "/calendario"}>{event.registrationSlug ? "Quero me inscrever" : "Ver no calendário"}</Link>
+              <div className="calendar-feature-actions">
+                <EventAttendanceButton event={event} confirmed={attendance.confirmed.has(event.id)} pending={attendance.pendingKey === event.id} onToggle={attendance.toggleAttendance} />
+                <Link href={event.registrationSlug ? `/eventos/${event.registrationSlug}` : "/calendario"}>{event.registrationSlug ? "Quero me inscrever" : "Ver no calendário"}</Link>
+              </div>
             </div>
           </article>
         ))}
