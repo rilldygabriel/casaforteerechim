@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import EventAttendanceControl from "@/components/event-attendance-control";
 import { eventRegistrationState } from "@/lib/events";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -61,7 +62,7 @@ export default async function EventsPage() {
         const time = event.end_time ? `${eventTime(event.start_time)} às ${eventTime(event.end_time)}` : eventTime(event.start_time);
         return <article className="public-event-card" key={event.id}>
           <div className="public-event-card-date" aria-label={date.full}><span>{date.weekday}</span><strong>{date.day}</strong><span>{date.month}</span></div>
-          <div className="public-event-card-copy"><div><span>{event.category}</span><span data-open={state.open}>{state.label}</span></div><h2>{event.title}</h2><p>{event.description}</p><dl><div><dt>Horário</dt><dd>{time}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{event.registration_fee_cents > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(event.registration_fee_cents / 100) : "Gratuito"}</dd></div></dl><Link data-open={state.open} href={`/eventos/${event.slug}`}>{state.open ? "Fazer minha inscrição" : "Ver informações"}<span aria-hidden="true">→</span></Link></div>
+          <div className="public-event-card-copy"><div><span>{event.category}</span><span data-open={state.open}>{state.label}</span></div><h2>{event.title}</h2><p>{event.description}</p><dl><div><dt>Horário</dt><dd>{time}</dd></div><div><dt>Local</dt><dd>{event.location || "Igreja Casa Forte Erechim"}</dd></div><div><dt>Valor</dt><dd>{event.registration_fee_cents > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(event.registration_fee_cents / 100) : "Gratuito"}</dd></div></dl><div className="public-event-card-actions"><EventAttendanceControl event={{ id: `database-${event.id}`, title: event.title, startDate: event.start_date, startTime: event.start_time?.slice(0, 5) ?? undefined, category: "Eventos especiais", status: "confirmed" }} /><Link data-open={state.open} href={`/eventos/${event.slug}`}>{state.open ? "Fazer minha inscrição" : "Ver informações"}<span aria-hidden="true">→</span></Link></div></div>
         </article>;
       })}
       {events.length === 0 ? <div className="public-events-empty"><h2>Novas inscrições em breve</h2><p>Assim que um novo evento abrir inscrições, ele aparecerá aqui.</p><Link href="/calendario">Ver calendário da Casa</Link></div> : null}

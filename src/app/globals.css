@@ -7621,6 +7621,13 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .calendar-modal-attendance + .calendar-modal-registration { width: 100%; margin-top: 9px; }
 .calendar-baptism-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 21px; }
 .calendar-baptism-copy .calendar-baptism-actions > :is(a,button) { min-height: 45px; margin: 0; }
+.public-event-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: auto; padding-top: 18px; }
+.public-event-card-actions > :is(a,button) { width: 100%; min-height: 45px; margin: 0; }
+.public-event-card-copy .public-event-card-actions > a { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 18px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #fff; font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.public-event-card-copy .public-event-card-actions > a[data-open="true"] { border-color: var(--yellow); background: var(--yellow); color: #090b08; }
+.event-public-summary { display: grid; align-content: start; gap: 12px; }
+.event-public-summary > dl { margin: 0; }
+.event-public-attendance { width: 100%; min-height: 50px; }
 
 /* Painel de confirmações e auditoria de dispositivos */
 .admin-attendance-page {
@@ -7696,6 +7703,7 @@ html[data-theme="light"] .event-attendance-button:not([aria-pressed="true"]) { c
   .admin-device-columns li { align-items: flex-start; flex-direction: column; gap: 4px; }
   .admin-attendance-event-grid li span,
   .admin-device-columns li span { text-align: left; }
+  .public-event-card-actions { grid-template-columns: 1fr; }
 }
 
 :is(.calendar-feature-card, .calendar-day-events button, .calendar-list-event, .calendar-modal-accent)[data-category="Cultos"] { --event-color: var(--accent); }
