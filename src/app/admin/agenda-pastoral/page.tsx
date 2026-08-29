@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { DiscipleshipSubmitButton } from "@/app/familia/meus-discipulados/submit-button";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import {
   bookPastoralSlot,
   cancelPastoralBooking,
@@ -19,7 +20,7 @@ export const metadata: Metadata = { title: "Agenda Pastoral", robots: { index: f
 export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{ sucesso?: string; erro?: string }>;
-type Slot = { id: string; calendar_id: string; host_name: string; location: string | null; starts_at: string; ends_at: string; status: "available" | "booked" | "cancelled" };
+type Slot = { id: string; source_calendar_id: string; host_name: string; location: string | null; starts_at: string; ends_at: string; status: "available" | "booked" | "cancelled" };
 type Booking = { id: string; slot_id: string; requester_name: string; requester_phone: string | null; status: "confirmed" | "cancelled"; booked_at: string; read_at: string | null };
 
 function formatSlotDate(value: string) {
@@ -54,31 +55,28 @@ export default async function PastoralAgendaPage({ searchParams }: { searchParam
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const [{ data: profile }, { data: disciplerRole }, { data: calendars }] = await Promise.all([
+  const [{ data: profile }, { data: disciplerRole }] = await Promise.all([
     supabase.from("member_profiles").select("full_name,is_admin,approval_status").eq("user_id", user.id).maybeSingle(),
     supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
-    supabase.from("agenda_calendars").select("id,name,owner_id").order("created_at"),
   ]);
   const isAdmin = Boolean(profile?.is_admin);
   const isDiscipler = Boolean(disciplerRole) && (profile?.approval_status === "approved" || isAdmin);
   if (!isAdmin && !isDiscipler) redirect("/admin");
 
-  const calendar = calendars?.[0] ?? null;
+  const agendaClient = isAdmin ? getSupabaseServiceClient() : supabase;
+  const { data: setting } = await agendaClient.from("pastoral_calendar_settings")
+    .select("source_calendar_id,title,is_active").order("created_at").limit(1).maybeSingle();
+  const calendar = setting ? { id: setting.source_calendar_id } : null;
   const canManage = Boolean(isAdmin && calendar);
-  const [{ data: setting }, { data: slotsData }] = await Promise.all([
-    calendar
-      ? supabase.from("pastoral_calendar_settings").select("calendar_id,title,is_active").eq("calendar_id", calendar.id).maybeSingle()
-      : Promise.resolve({ data: null }),
-    supabase.from("pastoral_availability_slots")
-      .select("id,calendar_id,host_name,location,starts_at,ends_at,status")
+  const { data: slotsData } = await agendaClient.from("pastoral_availability_slots")
+      .select("id,source_calendar_id,host_name,location,starts_at,ends_at,status")
       .gt("ends_at", new Date().toISOString())
       .in("status", ["available", "booked"])
-      .order("starts_at"),
-  ]);
+      .order("starts_at");
   const slots = (slotsData ?? []) as Slot[];
   const slotIds = slots.map((slot) => slot.id);
   const { data: bookingsData } = slotIds.length
-    ? await supabase.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,status,booked_at,read_at").in("slot_id", slotIds).eq("status", "confirmed").order("booked_at", { ascending: false })
+    ? await agendaClient.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,status,booked_at,read_at").in("slot_id", slotIds).eq("status", "confirmed").order("booked_at", { ascending: false })
     : { data: [] };
   const bookings = (bookingsData ?? []) as Booking[];
   const slotById = new Map(slots.map((slot) => [slot.id, slot]));
@@ -95,7 +93,7 @@ export default async function PastoralAgendaPage({ searchParams }: { searchParam
     {params.sucesso ? <p className="pastoral-agenda-message is-success">{params.sucesso}</p> : null}
     {params.erro ? <p className="pastoral-agenda-message is-error">{params.erro}</p> : null}
 
-    {isAdmin && !calendar ? <section className="pastoral-agenda-empty"><h2>Conecte sua agenda pessoal</h2><p>Entre primeiro no painel Rilldy Gabriel com a mesma conta administrativa e abra a Agenda. Assim este painel reconhece a agenda compartilhada sem copiar dados.</p></section> : null}
+    {isAdmin && !calendar ? <section className="pastoral-agenda-empty"><h2>Publique o primeiro horário</h2><p>Abra a aba Horários no painel Rio de Gabriel e ative a Agenda Pastoral. Somente a disponibilidade escolhida será compartilhada com a Casa Forte.</p></section> : null}
 
     {canManage && calendar ? <section className="pastoral-agenda-management">
       <form action={publishPastoralSlot} className="pastoral-agenda-form">
