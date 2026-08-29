@@ -15,8 +15,8 @@
 .pastoral-agenda-form > p, .pastoral-agenda-status > p { margin: 10px 0 0; color: #9ca19a; line-height: 1.6; }
 .pastoral-agenda-fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 24px; }
 .pastoral-agenda-fields label { display: grid; gap: 8px; color: #c6cac4; font-size: .72rem; font-weight: 800; }
-.pastoral-agenda-fields input { min-width: 0; height: 50px; padding: 0 14px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
-.pastoral-agenda-fields input:focus { border-color: var(--accent); }
+.pastoral-agenda-fields input, .pastoral-agenda-fields select { min-width: 0; height: 50px; padding: 0 14px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
+.pastoral-agenda-fields input:focus, .pastoral-agenda-fields select:focus { border-color: var(--accent); }
 .pastoral-agenda-form > button, .pastoral-agenda-status button, .pastoral-slot-card button, .pastoral-booking-actions button { min-height: 46px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--accent); color: var(--surface-0); font: inherit; font-size: .65rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
 .pastoral-agenda-form > button { width: 100%; margin-top: 16px; }
 .pastoral-agenda-status { display: flex; align-items: flex-start; flex-direction: column; }
@@ -27,12 +27,13 @@
 .pastoral-agenda-section[data-highlight="true"] { border-color: rgba(255,254,21,.55); box-shadow: 0 18px 50px rgba(255,254,21,.06); }
 .pastoral-agenda-section > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .pastoral-agenda-section > header > strong { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 50%; background: var(--accent); color: var(--surface-0); }
-.pastoral-slot-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 20px; }
-.pastoral-slot-card { padding: 20px; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; background: rgba(255,255,255,.025); }
+.pastoral-slot-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 20px; }
+.pastoral-slot-card { display: flex; overflow: hidden; aspect-ratio: 1 / 1; min-width: 0; padding: 20px; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; background: rgba(255,255,255,.025); flex-direction: column; }
 .pastoral-slot-card h3 { margin: 10px 0 0; font-size: 1.45rem; }
 .pastoral-slot-card time { display: block; margin-top: 14px; color: #d5d8d2; font-size: .8rem; line-height: 1.55; text-transform: capitalize; }
 .pastoral-slot-card p { min-height: 18px; margin: 8px 0 0; color: #8f948d; font-size: .72rem; }
-.pastoral-slot-card form { margin-top: 16px; }
+.pastoral-slot-card form { margin-top: auto; padding-top: 16px; }
+.pastoral-slot-card form + form { margin-top: 8px; padding-top: 0; }
 .pastoral-slot-card button { width: 100%; }
 .pastoral-slot-card form + form button { border: 1px solid rgba(255,255,255,.16); background: transparent; color: #dadcd7; }
 .pastoral-booking-list { display: grid; gap: 10px; margin-top: 20px; }
@@ -43,5 +44,5 @@
 .pastoral-booking-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .pastoral-booking-actions form:last-child button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ffb1b1; }
 button:disabled { cursor: wait; opacity: .55; }
-@media (max-width: 860px) { .pastoral-agenda-management { grid-template-columns: 1fr; } .pastoral-slot-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-@media (max-width: 620px) { .pastoral-agenda-page { padding-inline: 14px; } .pastoral-agenda-hero { margin-top: 36px; } .pastoral-agenda-hero > div { align-items: flex-start; flex-direction: column; } .pastoral-agenda-fields, .pastoral-slot-grid { grid-template-columns: 1fr; } .pastoral-booking-list article { align-items: stretch; flex-direction: column; } .pastoral-booking-actions, .pastoral-booking-actions form, .pastoral-booking-actions button { width: 100%; } }
+@media (max-width: 860px) { .pastoral-agenda-management { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .pastoral-agenda-page { padding-inline: 14px; } .pastoral-agenda-hero { margin-top: 36px; } .pastoral-agenda-hero > div { align-items: flex-start; flex-direction: column; } .pastoral-agenda-fields { grid-template-columns: 1fr; } .pastoral-slot-card { padding: 14px; } .pastoral-slot-card h3 { font-size: 1rem; } .pastoral-slot-card time, .pastoral-slot-card p { font-size: .7rem; } .pastoral-slot-card button { min-height: 38px; padding-inline: 10px; font-size: .56rem; } .pastoral-booking-list article { align-items: stretch; flex-direction: column; } .pastoral-booking-actions, .pastoral-booking-actions form, .pastoral-booking-actions button { width: 100%; } }

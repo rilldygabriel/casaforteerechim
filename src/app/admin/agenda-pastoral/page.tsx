@@ -102,7 +102,7 @@ export default async function PastoralAgendaPage({ searchParams }: { searchParam
         <input type="hidden" name="calendarId" value={calendar.id} />
         <span>Disponibilidade pastoral</span><h2>Liberar novo horário</h2><p>O cartão ficará visível apenas para discipuladores autorizados.</p>
         <div className="pastoral-agenda-fields">
-          <label>Pastor(a)<input name="hostName" list="pastoral-host-options" defaultValue="Pr. Rilldy" required /><datalist id="pastoral-host-options"><option value="Pr. Rilldy" /><option value="Pra. Lize" /></datalist></label>
+          <label>Quem estará disponível?<select name="hostName" defaultValue="Pr. Rilldy" required><option value="Pr. Rilldy">Somente Pr. Rilldy</option><option value="Pra. Lize">Somente Pra. Lize</option><option value="Pr. Rilldy e Pra. Lize">Pr. Rilldy e Pra. Lize</option></select></label>
           <label>Local<input name="location" placeholder="Igreja, gabinete ou online" maxLength={200} /></label>
           <label>Início<input name="startsAt" type="datetime-local" defaultValue={localDateTime(24)} required /></label>
           <label>Fim<input name="endsAt" type="datetime-local" defaultValue={localDateTime(25)} required /></label>
