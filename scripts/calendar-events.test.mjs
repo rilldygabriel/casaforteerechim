@@ -21,7 +21,7 @@ test("todas as programações recorrentes possuem horário definido", () => {
 
 test("domingos usam 19h e as demais recorrências usam 19h30", () => {
   for (const item of CHURCH_EVENTS.filter((event) => event.recurring)) {
-    if ((item.category === "Cultos" && item.title === "Culto na Casa") || item.category === "Ceia e Batismo") {
+    if (new Date(`${item.startDate}T12:00:00Z`).getUTCDay() === 0) {
       assert.equal(item.startTime, "19:00");
     } else {
       assert.equal(item.startTime, "19:30");
@@ -30,13 +30,14 @@ test("domingos usam 19h e as demais recorrências usam 19h30", () => {
 });
 
 test("os batismos são apresentados como Batismo nas Águas", () => {
-  const baptisms = CHURCH_EVENTS.filter((item) => item.registrationSlug);
-  assert.equal(baptisms.length, 2);
+  const baptisms = CHURCH_EVENTS.filter((item) => item.title === "Batismo nas Águas");
+  assert.equal(baptisms.length, 1);
   assert.equal(baptisms.every((item) => item.title === "Batismo nas Águas"), true);
+  assert.equal(baptisms[0].startDate, "2026-12-13");
 });
 
 test("as datas mensais de ceia estão corretas", () => {
-  const dates = CHURCH_EVENTS.filter((item) => item.category === "Ceia e Batismo").map(
+  const dates = CHURCH_EVENTS.filter((item) => item.id.startsWith("ceia-")).map(
     (item) => item.startDate,
   );
   assert.deepEqual(dates, [
@@ -46,6 +47,12 @@ test("as datas mensais de ceia estão corretas", () => {
     "2026-11-08",
     "2026-12-13",
   ]);
+});
+
+test("o batismo de setembro e o seminário de intercessão não aparecem", () => {
+  assert.equal(CHURCH_EVENTS.some((item) => item.registrationSlug === "batismo-setembro-2026"), false);
+  assert.equal(CHURCH_EVENTS.some((item) => item.id === "seminario-intercessao"), false);
+  assert.equal(CHURCH_EVENTS.some((item) => item.startDate === "2026-09-13" && item.title === "Ceia do Senhor"), true);
 });
 
 test("reuniões de equipes ocupam a primeira e a segunda terça-feira", () => {

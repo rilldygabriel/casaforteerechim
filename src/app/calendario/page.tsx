@@ -16,7 +16,7 @@ function category(value: string): EventCategory {
 
 export default async function CalendarPage() {
   const supabase = await getSupabaseServerClient();
-  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,status,registration_enabled,registration_status,is_featured").eq("is_public", true).is("archived_at", null).order("start_date");
+  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,status,registration_enabled,registration_status,is_featured").eq("is_public", true).is("archived_at", null).neq("slug", "batismo-setembro-2026").order("start_date");
   const databaseEvents: ChurchEvent[] = (data ?? []).map((item) => ({
     id: `database-${item.id}`,
     title: item.title,

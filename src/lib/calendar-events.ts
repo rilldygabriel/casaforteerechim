@@ -58,7 +58,6 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
     notes: "A programação de oração desta semana acontecerá na vigília de sábado, dia 22.",
   }),
   event("rede-teens-agosto", "Rede Teens", "2026-08-29", "Rede Teens"),
-  event("seminario-intercessao", "Seminário de Intercessão e Oração", "2026-09-05", "Seminários", { status: "tentative" }),
   event("rede-mulheres-setembro", "Rede de Mulheres", "2026-09-11", "Mulheres"),
   event("encontrao-teens-setembro", "Encontrão Rede Teens", "2026-09-12", "Rede Teens"),
   event("rede-homens-setembro", "Rede de Homens", "2026-09-18", "Homens"),
@@ -144,7 +143,7 @@ function createRecurringEvents() {
         if (currentDate === "2026-12-20") continue;
 
         if (sundayCount === 2) {
-          const withBaptism = currentDate === "2026-09-13" || currentDate === "2026-12-13";
+          const withBaptism = currentDate === "2026-12-13";
           const ceiaEvent = recurringEvent(
               `ceia-${currentDate}`,
               withBaptism ? "Batismo nas Águas" : "Ceia do Senhor",
@@ -155,7 +154,7 @@ function createRecurringEvents() {
           if (withBaptism) {
             ceiaEvent.featured = true;
             ceiaEvent.description = "Você tomou a decisão de seguir Jesus e deseja dar o próximo passo? Participe do Batismo nas Águas durante o Culto de Ceia na Casa.";
-            ceiaEvent.registrationSlug = currentDate === "2026-09-13" ? "batismo-setembro-2026" : "batismo-dezembro-2026";
+            ceiaEvent.registrationSlug = "batismo-dezembro-2026";
             ceiaEvent.registrationLabel = "Inscrições abertas";
           }
           events.push(ceiaEvent);
