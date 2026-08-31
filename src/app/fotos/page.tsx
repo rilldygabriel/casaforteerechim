@@ -10,7 +10,7 @@ import AlbumGallery from "./album-gallery";
 import "./album.css";
 
 export const metadata: Metadata = {
-  title: "Fotos do culto — 23 de agosto",
+  title: "Fotos do culto — 30 de agosto",
   description: "Álbum completo do culto de domingo da Igreja Casa Forte.",
 };
 
