@@ -1,7 +1,11 @@
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
-import { normalizeWhatsappPhone } from "@/lib/whatsapp";
+import {
+  ensureWhatsappWebhookSubscription,
+  normalizeWhatsappPhone,
+  sanitizeWhatsappTemplateParameter,
+} from "@/lib/whatsapp";
 
-const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v23.0";
+const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v25.0";
 const TEMPLATE_NAME = "comunicado_casa_forte_marketing";
 
 type TemplateInfo = {
@@ -53,7 +57,7 @@ export async function sendWhatsappBroadcast(
   message: string,
   campaign: string,
 ): Promise<WhatsappBroadcastResult> {
-  const cleanMessage = message.trim().slice(0, 900);
+  const cleanMessage = sanitizeWhatsappTemplateParameter(message);
   if (!cleanMessage) throw new Error("Mensagem vazia.");
 
   const template = await getApprovedTemplate();
@@ -62,6 +66,7 @@ export async function sendWhatsappBroadcast(
   if (!accessToken || !phoneNumberId) throw new Error("WhatsApp não configurado.");
 
   const service = getSupabaseServiceClient();
+  await ensureWhatsappWebhookSubscription();
   const { data: profiles, error: profilesError } = await service
     .from("member_profiles")
     .select("full_name,phone");

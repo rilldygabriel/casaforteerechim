@@ -305,15 +305,18 @@ async function notifyContributionToPastor(input: {
   if (claimError) throw new Error("Não foi possível reservar a notificação da contribuição.");
   if (!claim) return;
 
-  const { data: recipient, error: recipientError } = await service.from("member_profiles")
+  const { data: recipients, error: recipientError } = await service.from("member_profiles")
     .select("phone")
     .ilike("full_name", "Pastor Rilldy")
-    .limit(1)
-    .maybeSingle();
+    .eq("is_admin", true)
+    .limit(2);
+  const recipient = recipients?.length === 1 ? recipients[0] : null;
   if (recipientError || !recipient?.phone) {
     await service.from("mercado_pago_payments").update({
       whatsapp_notification_status: "failed",
-      whatsapp_notification_error: "Telefone do Pastor Rilldy não encontrado.",
+      whatsapp_notification_error: recipients?.length && recipients.length > 1
+        ? "Mais de um destinatário financeiro foi encontrado."
+        : "Telefone do Pastor Rilldy não encontrado.",
     }).eq("id", input.id);
     throw new Error("Telefone do destinatário da contribuição não encontrado.");
   }
@@ -324,14 +327,13 @@ async function notifyContributionToPastor(input: {
   const paymentMethod = input.paymentMethodId === "pix" ? "Pix" : "Cartão";
   const message = [
     "Nova contribuição confirmada 🙏",
-    "",
     `Pessoa: ${input.payerName}`,
     `Valor total: ${formatMoney(input.amountCents)}`,
     `Primícia: ${formatMoney(firstfruitsCents)}`,
     `Dízimo: ${formatMoney(titheCents)}`,
     `Oferta: ${formatMoney(offeringCents)}`,
     `Forma de pagamento: ${paymentMethod}`,
-  ].join("\n");
+  ].join(" · ");
   const result = await sendWhatsappNotification(recipient.phone, message);
 
   if (!result.ok) {

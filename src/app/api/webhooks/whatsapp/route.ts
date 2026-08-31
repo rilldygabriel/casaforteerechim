@@ -4,6 +4,29 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
 
+type WhatsappIncomingMessage = {
+  from?: string | number;
+  id?: string;
+  timestamp?: string | number;
+  type?: string;
+  text?: { body?: string };
+  button?: { text?: string };
+  interactive?: { button_reply?: { title?: string } };
+  image?: { id?: string };
+  audio?: { id?: string };
+  document?: { id?: string };
+};
+
+type WhatsappDelivery = {
+  id?: string;
+  status?: string;
+  errors?: Array<{
+    title?: string;
+    message?: string;
+    error_data?: { details?: string };
+  }>;
+};
+
 export function GET(request: NextRequest) {
   const search = request.nextUrl.searchParams;
   const configuredToken = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN?.trim();
@@ -57,8 +80,8 @@ export async function POST(request: NextRequest) {
   for (const entry of payload.entry ?? []) for (const change of entry.changes ?? []) {
     const value = (change.value ?? {}) as {
       contacts?: Array<{ wa_id?: string; profile?: { name?: string } }>;
-      messages?: Array<Record<string, any>>;
-      statuses?: Array<Record<string, any>>;
+      messages?: WhatsappIncomingMessage[];
+      statuses?: WhatsappDelivery[];
     };
     const names = new Map((value.contacts ?? []).map((contact: { wa_id?: string; profile?: { name?: string } }) => [contact.wa_id, contact.profile?.name]));
     for (const message of value.messages ?? []) {
@@ -96,13 +119,28 @@ export async function POST(request: NextRequest) {
       }
     }
     for (const delivery of value.statuses ?? []) {
-      const status = ["sent", "delivered", "read", "failed"].includes(delivery.status) ? delivery.status : "sent";
-      const { error } = await supabase.from("whatsapp_messages").update({ status, error_message: delivery.errors?.[0]?.title ?? null }).eq("wa_message_id", delivery.id);
+      if (!delivery.id) continue;
+      const status = ["sent", "delivered", "read", "failed"].includes(delivery.status ?? "")
+        ? delivery.status!
+        : "sent";
+      const errorMessage = delivery.errors?.[0]?.title
+        ?? delivery.errors?.[0]?.message
+        ?? delivery.errors?.[0]?.error_data?.details
+        ?? null;
+      const { data: updated, error } = await supabase.from("whatsapp_messages")
+        .update({ status, error_message: errorMessage })
+        .eq("wa_message_id", delivery.id)
+        .select("id");
       if (error) {
         processingFailed = true;
         console.error("whatsapp_webhook_delivery_failed", { messageId: delivery.id, error: error.message });
+      } else if (!updated?.length) {
+        console.info("whatsapp_webhook_delivery_unmatched", {
+          messageId: delivery.id,
+          status,
+        });
       } else {
-        deliveryUpdates += 1;
+        deliveryUpdates += updated.length;
       }
     }
   }
