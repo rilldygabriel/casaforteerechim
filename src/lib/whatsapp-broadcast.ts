@@ -22,6 +22,8 @@ export type WhatsappBroadcastResult = {
   skipped: number;
 };
 
+export type WhatsappBroadcastAudience = "members" | "disciplers";
+
 async function getApprovedTemplate() {
   const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
@@ -56,6 +58,7 @@ async function getApprovedTemplate() {
 export async function sendWhatsappBroadcast(
   message: string,
   campaign: string,
+  audience: WhatsappBroadcastAudience = "members",
 ): Promise<WhatsappBroadcastResult> {
   const cleanMessage = sanitizeWhatsappTemplateParameter(message);
   if (!cleanMessage) throw new Error("Mensagem vazia.");
@@ -67,9 +70,21 @@ export async function sendWhatsappBroadcast(
 
   const service = getSupabaseServiceClient();
   await ensureWhatsappWebhookSubscription();
-  const { data: profiles, error: profilesError } = await service
-    .from("member_profiles")
-    .select("full_name,phone");
+  let disciplerIds: string[] | null = null;
+  if (audience === "disciplers") {
+    const { data: roles, error: rolesError } = await service
+      .from("discipler_roles")
+      .select("member_id");
+    if (rolesError) throw new Error("Não foi possível carregar os discipuladores.");
+    disciplerIds = [...new Set((roles ?? []).map((role) => role.member_id))];
+  }
+
+  const profilesQuery = service.from("member_profiles").select("user_id,full_name,phone");
+  const { data: profiles, error: profilesError } = disciplerIds
+    ? disciplerIds.length
+      ? await profilesQuery.in("user_id", disciplerIds)
+      : { data: [], error: null }
+    : await profilesQuery;
   if (profilesError) throw new Error("Não foi possível carregar os membros.");
 
   const recipientMap = new Map<string, string | null>();
