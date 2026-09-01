@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "dark" | "navy";
 
@@ -62,6 +62,14 @@ function subscribeTheme(onStoreChange: () => void) {
 
 export default function ThemeToggle({ floating = false }: { floating?: boolean }) {
   const theme = useSyncExternalStore<Theme>(subscribeTheme, readTheme, () => "dark");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("casa-forte-theme");
+    const active: Theme =
+      saved === "navy" || saved === "light" || saved === "editorial" ? "navy" : "dark";
+
+    if (readTheme() !== active) applyTheme(active);
+  }, []);
 
   function selectTheme(next: Theme, target: HTMLButtonElement) {
     applyTheme(next);
