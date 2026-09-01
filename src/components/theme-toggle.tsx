@@ -1,22 +1,23 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-type Theme = "dark" | "light" | "editorial";
+type Theme = "dark" | "navy";
+
+const THEME_EVENT = "casa-forte-theme-change";
 
 const THEME_LABELS: Record<Theme, string> = {
-  dark: "Escuro",
-  light: "Claro",
-  editorial: "Editorial",
+  dark: "Original",
+  navy: "Marfim e azul",
 };
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const lightTheme = theme !== "dark";
+  const lightTheme = theme === "navy";
 
   root.dataset.theme = lightTheme ? "light" : "dark";
-  if (theme === "editorial") {
-    root.dataset.palette = "editorial";
+  if (theme === "navy") {
+    root.dataset.palette = "navy";
   } else {
     delete root.dataset.palette;
   }
@@ -25,29 +26,17 @@ function applyTheme(theme: Theme) {
   localStorage.setItem("casa-forte-theme", theme);
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute(
-      "content",
-      theme === "dark" ? "#080908" : theme === "editorial" ? "#f1efeb" : "#ffffff",
-    );
+    ?.setAttribute("content", theme === "dark" ? "#080908" : "#f6f3ed");
+  window.dispatchEvent(new Event(THEME_EVENT));
 }
 
 function ThemeIcon({ theme }: { theme: Theme }) {
-  if (theme === "light") {
+  if (theme === "navy") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-      </svg>
-    );
-  }
-
-  if (theme === "editorial") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="2" />
-        <rect x="14" y="3" width="7" height="7" rx="2" />
-        <rect x="3" y="14" width="7" height="7" rx="2" />
-        <path d="M17.5 14v7M14 17.5h7" />
+        <rect x="3" y="4" width="5" height="16" rx="2" />
+        <rect x="9.5" y="4" width="5" height="16" rx="2" />
+        <rect x="16" y="4" width="5" height="16" rx="2" />
       </svg>
     );
   }
@@ -59,25 +48,23 @@ function ThemeIcon({ theme }: { theme: Theme }) {
   );
 }
 
+function readTheme(): Theme {
+  if (typeof document === "undefined") return "dark";
+  return document.documentElement.dataset.palette === "navy" ? "navy" : "dark";
+}
+
+function subscribeTheme(onStoreChange: () => void) {
+  window.addEventListener(THEME_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener(THEME_EVENT, onStoreChange);
+  };
+}
+
 export default function ThemeToggle({ floating = false }: { floating?: boolean }) {
-  const [theme, setTheme] = useState<Theme>("dark");
-
-  useLayoutEffect(() => {
-    const saved = localStorage.getItem("casa-forte-theme");
-    const active: Theme =
-      saved === "editorial" || document.documentElement.dataset.palette === "editorial"
-        ? "editorial"
-        : saved === "light" || document.documentElement.dataset.theme === "light"
-          ? "light"
-          : "dark";
-
-    applyTheme(active);
-    setTheme(active);
-  }, []);
+  const theme = useSyncExternalStore<Theme>(subscribeTheme, readTheme, () => "dark");
 
   function selectTheme(next: Theme, target: HTMLButtonElement) {
     applyTheme(next);
-    setTheme(next);
     const picker = target.closest("details") as HTMLDetailsElement | null;
     if (picker) picker.open = false;
   }
