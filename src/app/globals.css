@@ -9454,6 +9454,14 @@ html[data-palette="navy"] .home-entry-grid > a:nth-child(even) {
   background: #313851;
 }
 
+html[data-palette="navy"] .home-entry-grid > a:nth-child(odd) :is(span,strong,svg) {
+  color: #252b40 !important;
+}
+
+html[data-palette="navy"] .home-entry-grid > a:nth-child(even) :is(span,strong,svg) {
+  color: #f6f3ed !important;
+}
+
 html[data-palette="navy"] .home-entry-grid > a:hover,
 html[data-palette="navy"] .home-nav .home-nav-filled:hover {
   color: #252b40;
