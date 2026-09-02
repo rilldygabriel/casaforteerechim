@@ -7875,7 +7875,6 @@ html[data-theme="light"] .event-attendance-button:not([aria-pressed="true"]) { c
     min-height: 330px;
   }
 }
-
 @media (max-width: 900px) {
   .calendar-weekly {
     grid-template-columns: 1fr;
@@ -8262,7 +8261,7 @@ html[data-theme="light"] .event-attendance-button:not([aria-pressed="true"]) { c
   right: 0;
   display: grid;
   width: max-content;
-  grid-template-columns: repeat(2, minmax(104px, 1fr));
+  grid-template-columns: repeat(3, minmax(82px, 1fr));
   gap: 6px;
   padding: 7px;
   border: 1px solid var(--line);
@@ -10118,5 +10117,395 @@ html[data-palette="navy"] .admin-dashboard-grid > .admin-module-link:hover {
 
   html[data-palette="navy"] .admin-dashboard-grid > .admin-module-link p {
     font-size: .64rem;
+  }
+}
+
+/* Tema Azul e Dourado — sólido, acolhedor e sóbrio. */
+html[data-palette="heritage"] {
+  --background: #f6f1e9;
+  --surface-0: #fffdf9;
+  --surface-1: #dcd6ca;
+  --surface-2: #a9c6d8;
+  --surface-3: #3e6e8e;
+  --surface-4: #16232e;
+  --surface: var(--surface-3);
+  --foreground: #16232e;
+  --accent: #c69a5c;
+  --accent-on-dark: #f6f1e9;
+  --muted: #4a4f55;
+  --line: rgba(22, 35, 46, 0.2);
+  --yellow: var(--accent);
+  --yellow-soft: rgba(198, 154, 92, 0.18);
+  --heritage-blue: #3e6e8e;
+  --heritage-navy: #16232e;
+  --heritage-cream: #f6f1e9;
+  --heritage-beige: #dcd6ca;
+  --heritage-sky: #a9c6d8;
+  --heritage-gold: #c69a5c;
+  --heritage-graphite: #4a4f55;
+}
+
+html[data-palette="heritage"] :is(
+  body,
+  .site-shell,
+  .home-page,
+  .inner-page,
+  .admin-dashboard,
+  .admin-visitors-page,
+  .calendar-page,
+  .public-events-page,
+  .event-public-page,
+  .bible-page
+) {
+  color: var(--heritage-navy);
+  background-color: var(--heritage-cream);
+}
+
+html[data-palette="heritage"] :is(.home-page,.inner-page,.admin-dashboard,.calendar-page) {
+  background-image:
+    radial-gradient(circle at 88% 3%, rgba(169,198,216,.25), transparent 20%),
+    radial-gradient(circle at 8% 28%, rgba(198,154,92,.1), transparent 22%) !important;
+}
+
+html[data-palette="heritage"] :is(.section-eyebrow,.home-kicker,[class*="eyebrow"]) {
+  color: var(--heritage-blue) !important;
+}
+
+html[data-palette="heritage"] :is(.home-header,.inner-header) {
+  border-color: rgba(22,35,46,.16);
+  background-color: color-mix(in srgb, var(--heritage-cream) 90%, transparent);
+  box-shadow: 0 18px 52px rgba(22,35,46,.1);
+}
+
+html[data-palette="heritage"] :is(.theme-toggle,.site-refresh-button) {
+  border-color: rgba(22,35,46,.22);
+  color: var(--heritage-navy);
+  background: rgba(255,253,249,.95);
+  box-shadow: 0 10px 26px rgba(22,35,46,.12);
+}
+
+html[data-palette="heritage"] .theme-choice-row {
+  border-color: rgba(22,35,46,.18);
+  background: rgba(246,241,233,.98);
+}
+
+html[data-palette="heritage"] .theme-choice {
+  border-color: rgba(22,35,46,.16);
+  color: var(--heritage-navy);
+  background: var(--heritage-beige);
+}
+
+html[data-palette="heritage"] .theme-choice:first-child {
+  color: var(--heritage-cream);
+  background: #0d0d0d;
+}
+
+html[data-palette="heritage"] .theme-choice:nth-child(2) {
+  color: #313851;
+  background: #c2cbd3;
+}
+
+html[data-palette="heritage"] .theme-choice:nth-child(3),
+html[data-palette="heritage"] .theme-choice[aria-pressed="true"] {
+  border-color: var(--heritage-gold);
+  color: var(--heritage-navy);
+  background: var(--heritage-gold);
+  box-shadow: 0 8px 20px rgba(198,154,92,.28);
+}
+
+html[data-palette="heritage"] .home-nav .home-nav-filled,
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(odd),
+html[data-palette="heritage"] .admin-auth-form button,
+html[data-palette="heritage"] .calendar-filters button[aria-pressed="true"] {
+  border-color: var(--heritage-gold);
+  color: var(--heritage-navy);
+  background: var(--heritage-gold);
+  box-shadow: 0 16px 38px rgba(22,35,46,.18);
+}
+
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(even) {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-blue);
+}
+
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(odd) :is(span,strong,svg) {
+  color: var(--heritage-navy) !important;
+}
+
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(even) :is(span,strong,svg) {
+  color: var(--heritage-cream) !important;
+}
+
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(odd):hover,
+html[data-palette="heritage"] .home-nav .home-nav-filled:hover {
+  background: #d4ae78;
+}
+
+html[data-palette="heritage"] .home-entry-grid > a:nth-child(even):hover {
+  background: var(--heritage-navy);
+}
+
+html[data-palette="heritage"] .home-block {
+  border-color: rgba(169,198,216,.32);
+  border-radius: clamp(24px, 3vw, 34px);
+  color: var(--heritage-cream);
+  background: var(--heritage-navy) !important;
+  box-shadow: 0 24px 64px rgba(22,35,46,.2), inset 0 1px rgba(255,255,255,.06);
+}
+
+html[data-palette="heritage"] .home-block > :is(h1,h2,h3,h4),
+html[data-palette="heritage"] .home-block > :is(header,div) > :is(h1,h2,h3,h4) {
+  color: var(--heritage-cream);
+}
+
+html[data-palette="heritage"] .home-block :is(.home-kicker,.section-eyebrow,[class*="eyebrow"]) {
+  color: var(--heritage-sky) !important;
+}
+
+html[data-palette="heritage"] .home-block :is(
+  .testimonial-card,
+  .home-useful-links-grid > a,
+  .home-program-card,
+  .home-generosity-grid > article,
+  .home-jesus-card,
+  .home-photo-links,
+  .home-pastor-card
+) {
+  border-color: rgba(22,35,46,.14);
+  border-radius: 22px;
+  color: var(--heritage-navy);
+  background: #fffdf9 !important;
+  box-shadow: 0 14px 32px rgba(13,13,13,.16);
+}
+
+html[data-palette="heritage"] .home-block :is(
+  .testimonial-card,
+  .home-useful-links-grid > a,
+  .home-program-card,
+  .home-generosity-grid > article,
+  .home-jesus-card,
+  .home-photo-links,
+  .home-pastor-card
+) :is(h1,h2,h3,h4,strong) {
+  color: var(--heritage-navy);
+}
+
+html[data-palette="heritage"] .home-block :is(
+  .testimonial-card,
+  .home-useful-links-grid > a,
+  .home-program-card,
+  .home-generosity-grid > article,
+  .home-jesus-card,
+  .home-photo-links,
+  .home-pastor-card
+) :is(p,small,time,label) {
+  color: var(--heritage-graphite);
+}
+
+html[data-palette="heritage"] .home-block .home-prayer-card {
+  border-color: rgba(169,198,216,.34);
+  color: var(--heritage-cream);
+  background: var(--heritage-blue) !important;
+}
+
+html[data-palette="heritage"] .home-block .home-prayer-card :is(h1,h2,h3,h4,strong) {
+  color: var(--heritage-cream) !important;
+}
+
+html[data-palette="heritage"] .home-block .home-prayer-card :is(p,small,time,label) {
+  color: #e7edf1 !important;
+}
+
+html[data-palette="heritage"] :is(.home-prayer-cta,.home-jesus-card > a) {
+  color: var(--heritage-navy) !important;
+  background: var(--heritage-gold) !important;
+}
+
+html[data-palette="heritage"] :is(.calendar-feature-visual,.home-program-card .calendar-feature-visual) {
+  border-top-color: var(--heritage-gold);
+  background: var(--heritage-navy) !important;
+}
+
+html[data-palette="heritage"] :is(.calendar-feature-visual,.home-program-card .calendar-feature-visual) :is(small,em) {
+  color: var(--heritage-sky) !important;
+}
+
+html[data-palette="heritage"] :is(.birthday-carousel,.calendar-weekly,.calendar-baptism) {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-blue) !important;
+  box-shadow: 0 22px 58px rgba(22,35,46,.2);
+}
+
+html[data-palette="heritage"] :is(.birthday-day-card,.calendar-baptism-grid > article) {
+  border-color: rgba(169,198,216,.28);
+  background: var(--heritage-navy);
+}
+
+html[data-palette="heritage"] :is(
+  .calendar-month-controls,
+  .calendar-feature-card,
+  .calendar-day,
+  .calendar-modal,
+  .admin-auth-card,
+  .wa-inbox,
+  .family-member-summary,
+  .family-profile-section,
+  .family-discipler-choice
+) {
+  border-color: rgba(22,35,46,.16);
+  color: var(--heritage-navy);
+  background: #fffdf9 !important;
+  background-image: none !important;
+  box-shadow: 0 16px 38px rgba(22,35,46,.11);
+}
+
+html[data-palette="heritage"] .calendar-weekday {
+  color: var(--heritage-cream);
+  background: var(--heritage-navy);
+}
+
+html[data-palette="heritage"] .calendar-day-empty {
+  background: var(--heritage-beige);
+}
+
+html[data-palette="heritage"] :is(.family-permissions,.role-panel-card,.finance-summary-card) {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-navy) !important;
+  background-image: none !important;
+  box-shadow: 0 22px 58px rgba(22,35,46,.2);
+}
+
+html[data-palette="heritage"] .family-menu-card {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-navy) !important;
+  background-image: none !important;
+  box-shadow: 0 18px 42px rgba(22,35,46,.18);
+}
+
+html[data-palette="heritage"] .family-menu-card:nth-child(even) {
+  border-color: rgba(22,35,46,.16);
+  color: var(--heritage-navy);
+  background: var(--heritage-beige) !important;
+}
+
+html[data-palette="heritage"] :is(
+  .family-permissions,
+  .role-panel-card,
+  .finance-summary-card,
+  .family-menu-card:not(:nth-child(even))
+) :is(h1,h2,h3,h4,strong) {
+  color: var(--heritage-cream) !important;
+}
+
+html[data-palette="heritage"] :is(
+  .family-permissions,
+  .role-panel-card,
+  .finance-summary-card,
+  .family-menu-card:not(:nth-child(even))
+) :is(p,small,time,label) {
+  color: #d9e3e9 !important;
+}
+
+html[data-palette="heritage"] .admin-dashboard-grid > a {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-navy);
+  box-shadow: 0 18px 42px rgba(22,35,46,.18);
+}
+
+html[data-palette="heritage"] .admin-dashboard-grid > a:nth-child(4n + 1),
+html[data-palette="heritage"] .admin-dashboard-grid > a:nth-child(4n + 4) {
+  border-color: var(--heritage-gold);
+  color: var(--heritage-navy);
+  background: var(--heritage-gold);
+}
+
+html[data-palette="heritage"] .admin-dashboard-grid > a:not(:nth-child(4n + 1)):not(:nth-child(4n + 4)) :is(h2,h3) {
+  color: var(--heritage-cream) !important;
+}
+
+html[data-palette="heritage"] .admin-dashboard-grid > a:not(:nth-child(4n + 1)):not(:nth-child(4n + 4)) :is(p,span,strong,em) {
+  color: #d9e3e9 !important;
+}
+
+html[data-palette="heritage"] .admin-dashboard-grid > a:nth-child(4n + 1) :is(h2,h3,p,span,strong,em),
+html[data-palette="heritage"] .admin-dashboard-grid > a:nth-child(4n + 4) :is(h2,h3,p,span,strong,em) {
+  color: var(--heritage-navy) !important;
+}
+
+html[data-palette="heritage"] .admin-calendar-group article {
+  border-color: var(--heritage-blue);
+  color: var(--heritage-cream);
+  background: var(--heritage-navy);
+}
+
+html[data-palette="heritage"] .admin-calendar-group article :is(h2,h3,h4,strong) {
+  color: var(--heritage-cream) !important;
+}
+
+html[data-palette="heritage"] .admin-calendar-group article :is(time,span,p,small) {
+  color: #d9e3e9 !important;
+}
+
+html[data-palette="heritage"] :is(input,textarea,select) {
+  border-color: rgba(22,35,46,.22) !important;
+  color: var(--heritage-navy) !important;
+  background: #fffdf9 !important;
+  box-shadow: inset 0 1px 2px rgba(22,35,46,.04);
+}
+
+html[data-palette="heritage"] :is(
+  .finance-online-payments,
+  .finance-service-income-panel,
+  .finance-create-panel,
+  .finance-statement-panel,
+  .finance-open-finance-panel,
+  .finance-ledger-section
+) {
+  border-color: rgba(62,110,142,.28);
+  color: var(--heritage-navy);
+  background: var(--heritage-beige) !important;
+  background-image: none !important;
+}
+
+html[data-palette="heritage"] :is(
+  .finance-online-summary article,
+  .finance-online-grid article,
+  .finance-service-totals article,
+  .finance-service-records > article,
+  .finance-bank-accounts article,
+  .finance-ledger-totals article,
+  .finance-ledger-list > article
+) {
+  border-color: rgba(22,35,46,.14);
+  color: var(--heritage-navy);
+  background: #fffdf9;
+}
+
+html[data-palette="heritage"] :is(
+  .finance-month-filter button,
+  .finance-create-panel button,
+  .finance-statement-upload button,
+  .finance-analysis-review > button,
+  .finance-service-income-form > .primary,
+  .finance-open-finance-actions button,
+  .finance-open-finance-actions > a
+) {
+  color: var(--heritage-navy) !important;
+  background: var(--heritage-gold) !important;
+}
+
+html[data-palette="heritage"] ::selection {
+  color: var(--heritage-navy);
+  background: var(--heritage-sky);
+}
+
+@media (max-width: 760px) {
+  html[data-palette="heritage"] :is(.home-block,.family-menu-card,.family-permissions,.family-discipler-choice) {
+    border-radius: 24px;
   }
 }
