@@ -36,6 +36,21 @@
 .pastoral-slot-card form + form { margin-top: 8px; padding-top: 0; }
 .pastoral-slot-card button { width: 100%; }
 .pastoral-slot-card form + form button { border: 1px solid rgba(255,255,255,.16); background: transparent; color: #dadcd7; }
+.pastoral-slot-card:has(.pastoral-slot-manage details[open]) { aspect-ratio: auto; grid-column: 1 / -1; }
+.pastoral-slot-manage { margin-top: auto; padding-top: 14px; }
+.pastoral-slot-manage summary { padding: 11px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; color: var(--accent); font-size: .65rem; font-weight: 900; text-align: center; text-transform: uppercase; cursor: pointer; list-style: none; }
+.pastoral-slot-manage summary::-webkit-details-marker { display: none; }
+.pastoral-slot-edit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px !important; padding: 14px !important; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(0,0,0,.16); }
+.pastoral-slot-edit label { display: grid; gap: 6px; color: #c6cac4; font-size: .68rem; font-weight: 800; }
+.pastoral-slot-edit input, .pastoral-slot-edit select { min-width: 0; height: 44px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
+.pastoral-slot-edit input:focus, .pastoral-slot-edit select:focus { border-color: var(--accent); }
+.pastoral-slot-edit button { grid-column: 1 / -1; }
+.pastoral-booking-form { display: grid !important; gap: 10px; }
+.pastoral-booking-form label { display: grid; gap: 6px; color: #c6cac4; font-size: .68rem; font-weight: 800; }
+.pastoral-booking-form select { min-width: 0; width: 100%; height: 44px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
+.pastoral-booking-form select:focus { border-color: var(--accent); }
+.pastoral-slot-manage > form { margin-top: 8px; padding-top: 0; }
+.pastoral-slot-manage > form button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ffb1b1; }
 .pastoral-booking-list { display: grid; gap: 10px; margin-top: 20px; }
 .pastoral-booking-list article { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: rgba(255,255,255,.025); }
 .pastoral-booking-list article[data-unread="true"] { border-color: rgba(255,254,21,.42); background: rgba(255,254,21,.045); }
@@ -45,4 +60,4 @@
 .pastoral-booking-actions form:last-child button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ffb1b1; }
 button:disabled { cursor: wait; opacity: .55; }
 @media (max-width: 860px) { .pastoral-agenda-management { grid-template-columns: 1fr; } }
-@media (max-width: 620px) { .pastoral-agenda-page { padding-inline: 14px; } .pastoral-agenda-hero { margin-top: 36px; } .pastoral-agenda-hero > div { align-items: flex-start; flex-direction: column; } .pastoral-agenda-fields { grid-template-columns: 1fr; } .pastoral-slot-card { padding: 14px; } .pastoral-slot-card h3 { font-size: 1rem; } .pastoral-slot-card time, .pastoral-slot-card p { font-size: .7rem; } .pastoral-slot-card button { min-height: 38px; padding-inline: 10px; font-size: .56rem; } .pastoral-booking-list article { align-items: stretch; flex-direction: column; } .pastoral-booking-actions, .pastoral-booking-actions form, .pastoral-booking-actions button { width: 100%; } }
+@media (max-width: 620px) { .pastoral-agenda-page { padding-inline: 14px; } .pastoral-agenda-hero { margin-top: 36px; } .pastoral-agenda-hero > div { align-items: flex-start; flex-direction: column; } .pastoral-agenda-fields, .pastoral-slot-edit { grid-template-columns: 1fr; } .pastoral-slot-edit button { grid-column: auto; } .pastoral-slot-card { padding: 14px; } .pastoral-slot-card h3 { font-size: 1rem; } .pastoral-slot-card time, .pastoral-slot-card p { font-size: .7rem; } .pastoral-slot-card button { min-height: 38px; padding-inline: 10px; font-size: .56rem; } .pastoral-booking-list article { align-items: stretch; flex-direction: column; } .pastoral-booking-actions, .pastoral-booking-actions form, .pastoral-booking-actions button { width: 100%; } }

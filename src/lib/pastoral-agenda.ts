@@ -2,7 +2,14 @@ import { timingSafeEqual } from "node:crypto";
 
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
-const HOSTS = new Set(["Pr. Rilldy", "Pra. Lize", "Pr. Rilldy e Pra. Lize"]);
+const HOSTS = new Set(["Rilldy", "Lisi", "Rilldy e Lisi", "Pr. Rilldy", "Pra. Lize", "Pr. Rilldy e Pra. Lize"]);
+
+function normalizedHostName(value: string) {
+  if (value === "Pr. Rilldy") return "Rilldy";
+  if (value === "Pra. Lize") return "Lisi";
+  if (value === "Pr. Rilldy e Pra. Lize") return "Rilldy e Lisi";
+  return value;
+}
 
 export function authorizePastoralIntegration(request: Request) {
   const expected = process.env.PASTORAL_AGENDA_INTEGRATION_SECRET;
@@ -20,7 +27,7 @@ export async function pastoralSnapshot(sourceCalendarId: string) {
   if (settingError || slotsError) throw new Error("Não foi possível carregar a agenda pastoral.");
   const slotIds = (slots ?? []).map((slot) => slot.id);
   const { data: bookings, error: bookingError } = slotIds.length
-    ? await service.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,status,booked_at,read_at,source_event_id").in("slot_id", slotIds).order("booked_at", { ascending: false })
+    ? await service.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,selected_host_name,status,booked_at,read_at,source_event_id").in("slot_id", slotIds).order("booked_at", { ascending: false })
     : { data: [], error: null };
   if (bookingError) throw new Error("Não foi possível carregar as reservas.");
   return { setting, slots: slots ?? [], bookings: bookings ?? [] };
@@ -39,18 +46,44 @@ export async function configurePastoralAgenda(sourceCalendarId: string, title: s
 
 export async function createPastoralSlot(input: { sourceCalendarId: string; hostName: string; location: string | null; startsAt: string; endsAt: string }) {
   if (!HOSTS.has(input.hostName)) throw new Error("Responsável pastoral inválido.");
+  const hostName = normalizedHostName(input.hostName);
   const service = getSupabaseServiceClient();
   await configurePastoralAgenda(input.sourceCalendarId, "Agenda pastoral", true);
   const { data: conflict } = await service.from("pastoral_availability_slots").select("id").eq("source_calendar_id", input.sourceCalendarId).in("status", ["available", "booked"]).lt("starts_at", input.endsAt).gt("ends_at", input.startsAt).limit(1);
   if (conflict?.length) throw new Error("Esse horário já foi publicado.");
   const { data, error } = await service.from("pastoral_availability_slots").insert({
     source_calendar_id: input.sourceCalendarId,
-    host_name: input.hostName,
+    host_name: hostName,
     location: input.location,
     starts_at: input.startsAt,
     ends_at: input.endsAt,
   }).select("id").single();
   if (error) throw error;
+  return data;
+}
+
+export async function updatePastoralSlotById(slotId: string, input: { sourceCalendarId: string; hostName: string; location: string | null; startsAt: string; endsAt: string }) {
+  if (!HOSTS.has(input.hostName)) throw new Error("Responsável pastoral inválido.");
+  const service = getSupabaseServiceClient();
+  const { data: conflict, error: conflictError } = await service.from("pastoral_availability_slots")
+    .select("id")
+    .eq("source_calendar_id", input.sourceCalendarId)
+    .in("status", ["available", "booked"])
+    .neq("id", slotId)
+    .lt("starts_at", input.endsAt)
+    .gt("ends_at", input.startsAt)
+    .limit(1);
+  if (conflictError) throw conflictError;
+  if (conflict?.length) throw new Error("Esse horário já foi publicado.");
+  const { data, error } = await service.from("pastoral_availability_slots").update({
+    host_name: normalizedHostName(input.hostName),
+    location: input.location,
+    starts_at: input.startsAt,
+    ends_at: input.endsAt,
+    updated_at: new Date().toISOString(),
+  }).eq("id", slotId).eq("source_calendar_id", input.sourceCalendarId).eq("status", "available").select("id").maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Somente horários livres podem ser alterados.");
   return data;
 }
 
