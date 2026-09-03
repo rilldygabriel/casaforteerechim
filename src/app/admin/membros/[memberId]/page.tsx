@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import PasswordResetActions from "./password-reset-actions";
+import MemberGroupEditor from "./member-group-editor";
 import "../members.css";
 
 const UUID_PATTERN =
@@ -270,11 +271,20 @@ export default async function AdminMemberProfilePage({
     notFound();
   }
 
-  const { data: member, error } = await supabase
-    .from("member_profiles")
-    .select(MEMBER_DETAIL_FIELDS)
-    .eq("user_id", memberId)
-    .maybeSingle();
+  const [
+    { data: member, error },
+    { data: groupMemberships },
+  ] = await Promise.all([
+    supabase
+      .from("member_profiles")
+      .select(MEMBER_DETAIL_FIELDS)
+      .eq("user_id", memberId)
+      .maybeSingle(),
+    supabase
+      .from("member_group_memberships")
+      .select("group_key")
+      .eq("member_id", memberId),
+  ]);
 
   if (error || !member) {
     notFound();
@@ -299,6 +309,7 @@ export default async function AdminMemberProfilePage({
           />
         </Link>
         <nav aria-label="Navegação administrativa">
+          <Link href="/admin/membros/grupos">Ver grupos</Link>
           <Link href="/admin/membros">Voltar aos membros</Link>
         </nav>
       </header>
@@ -340,6 +351,18 @@ export default async function AdminMemberProfilePage({
       </section>
 
       <section className="admin-member-detail-sections">
+        <article className="admin-member-detail-card admin-member-groups-card">
+          <header>
+            <span>Grupos da Casa</span>
+            <h2>Classificação do membro</h2>
+            <p>Marque todas as funções que se aplicam. O aceite atualiza os grupos e os acessos vinculados.</p>
+          </header>
+          <MemberGroupEditor
+            memberId={member.user_id}
+            selectedGroups={(groupMemberships ?? []).map((membership) => membership.group_key)}
+          />
+        </article>
+
         <article className="admin-member-detail-card">
           <header>
             <span>01</span>

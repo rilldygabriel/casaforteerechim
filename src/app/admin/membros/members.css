@@ -349,6 +349,40 @@
   letter-spacing: -0.05em;
 }
 
+.admin-member-groups-card > header p { margin: 12px 0 0; color: #a9ada7; font-size: .8rem; line-height: 1.55; }
+.admin-member-groups-form { margin-top: 22px; }
+.admin-member-groups-form .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.admin-member-groups-form fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.admin-member-groups-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.admin-member-group-option { position: relative; display: grid; min-height: 112px; grid-template-columns: 30px minmax(0, 1fr); gap: 13px; align-items: start; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: var(--surface-0); cursor: pointer; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.admin-member-group-option:hover { transform: translateY(-1px); border-color: rgba(255,254,21,.32); }
+.admin-member-group-option input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
+.admin-member-group-check { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 9px; color: transparent; background: rgba(255,255,255,.04); font-weight: 950; }
+.admin-member-group-option input:checked + .admin-member-group-check { border-color: var(--accent); color: var(--surface-0); background: var(--accent); }
+.admin-member-group-option:has(input:checked) { border-color: rgba(255,254,21,.4); background: rgba(255,254,21,.06); }
+.admin-member-group-option:has(input:focus-visible) { outline: 3px solid rgba(255,254,21,.22); outline-offset: 2px; }
+.admin-member-group-option strong { display: block; color: var(--foreground); font-size: 1rem; }
+.admin-member-group-option small { display: block; margin-top: 6px; color: #92968f; font-size: .7rem; line-height: 1.45; }
+.admin-member-groups-footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 18px; }
+.admin-member-groups-footer p { margin: 0; color: #9be7b4; font-size: .72rem; }
+.admin-member-groups-footer p[data-kind="error"] { color: #ffb4a7; }
+.admin-member-groups-footer button { min-height: 44px; padding-inline: 18px; border: 0; border-radius: 999px; color: var(--surface-0); background: var(--accent); cursor: pointer; font: inherit; font-size: .66rem; font-weight: 900; text-transform: uppercase; }
+.admin-member-groups-footer button:disabled { cursor: wait; opacity: .6; }
+
+.admin-member-group-directory { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 48px; }
+.admin-member-group-directory-card { padding: clamp(22px, 3vw, 30px); border: 1px solid rgba(255,255,255,.13); border-radius: 24px; background: var(--surface-1); }
+.admin-member-group-directory-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.admin-member-group-directory-card > header span { color: var(--accent); font-size: .6rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.admin-member-group-directory-card h2 { margin: 8px 0 0; font-size: clamp(1.5rem, 3vw, 2.2rem); }
+.admin-member-group-directory-card header p { margin: 8px 0 0; color: #92968f; font-size: .74rem; line-height: 1.45; }
+.admin-member-group-directory-card header > strong { display: grid; min-width: 42px; height: 42px; place-items: center; border-radius: 50%; color: var(--surface-0); background: var(--accent); font-size: 1rem; }
+.admin-member-group-people { display: grid; gap: 8px; margin-top: 18px; }
+.admin-member-group-people > p { color: #92968f; font-size: .75rem; }
+.admin-member-group-people a { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 52px; padding: 11px 13px; border: 1px solid rgba(255,255,255,.1); border-radius: 13px; color: var(--foreground); background: rgba(255,255,255,.025); }
+.admin-member-group-people a:hover { border-color: rgba(255,254,21,.32); }
+.admin-member-group-people span { font-weight: 750; }
+.admin-member-group-people small { color: var(--accent); font-size: .62rem; font-weight: 850; white-space: nowrap; }
+
 .admin-member-detail-card dl {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -469,6 +503,13 @@
   .admin-member-detail-card dl > .admin-member-detail-field-wide {
     grid-column: auto;
   }
+
+  .admin-member-groups-grid,
+  .admin-member-group-directory { grid-template-columns: 1fr; }
+
+  .admin-member-groups-footer { align-items: stretch; flex-direction: column; }
+
+  .admin-member-groups-footer button { width: 100%; }
 }
 
 

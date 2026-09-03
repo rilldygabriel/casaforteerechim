@@ -205,6 +205,7 @@ export default async function AdminMembersPage() {
           />
         </Link>
         <nav aria-label="Navegação administrativa">
+          <Link href="/admin/membros/grupos">Grupos</Link>
           <Link href="/admin">Voltar ao painel</Link>
         </nav>
       </header>
