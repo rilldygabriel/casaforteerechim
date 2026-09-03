@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   let sent = 0;
   for (const item of due) {
-    const { data: relationship } = await service.from("discipleship_relationships").select("discipler_id,disciple_id").eq("id", item.relationshipId).maybeSingle();
+    const { data: relationship } = await service.from("discipleship_relationships").select("discipler_id,disciple_id").eq("id", item.relationshipId).is("ended_at", null).maybeSingle();
     if (!relationship) continue;
     const { data: people } = await service.from("member_profiles").select("user_id,full_name,phone").in("user_id", [relationship.discipler_id, relationship.disciple_id]);
     const disciple = people?.find((person) => person.user_id === relationship.disciple_id);

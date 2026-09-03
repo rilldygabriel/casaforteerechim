@@ -120,21 +120,24 @@ export async function addDisciple(formData: FormData) {
     redirectWithMessage("discipuladores", "erro", "Essa pessoa ainda não é discipuladora.");
   }
 
-  const { error } = await supabase.from("discipleship_relationships").insert({
-    discipler_id: disciplerId,
-    disciple_id: discipleId,
-    assigned_by: user.id,
+  const { data, error } = await supabase.rpc("assign_or_transfer_disciple", {
+    p_discipler_id: disciplerId,
+    p_disciple_id: discipleId,
   });
 
-  if (error?.code === "23505") {
-    redirectWithMessage("discipuladores", "erro", "Esse discípulo já está vinculado a um discipulador.");
-  }
   if (error) {
     redirectWithMessage("discipuladores", "erro", "Não foi possível cadastrar o discípulo agora.");
   }
 
+  const result = Array.isArray(data) ? data[0] : data;
   revalidateLeadership();
-  redirectWithMessage("discipuladores", "sucesso", "Discípulo cadastrado com sucesso.");
+  redirectWithMessage(
+    "discipuladores",
+    "sucesso",
+    result?.transferred
+      ? "Discipulador trocado com sucesso. O histórico anterior foi preservado."
+      : "Discípulo cadastrado com sucesso.",
+  );
 }
 
 export async function removeDisciple(formData: FormData) {

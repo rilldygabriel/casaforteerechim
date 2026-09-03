@@ -300,22 +300,19 @@ export async function reviewRoleRequest(
     if (requestError) return { kind: "error", message: "A função foi salva, mas o pedido não foi concluído. Atualize e tente novamente." };
   } else {
     if (!UUID_PATTERN.test(referenceId)) return { kind: "error", message: "O discipulador informado é inválido." };
-    if (decision === "approve") {
-      const { data: activeRelationship } = await supabase
-        .from("discipleship_relationships")
-        .select("id")
-        .eq("disciple_id", memberId)
-        .is("ended_at", null)
-        .maybeSingle();
-      if (activeRelationship) {
-        return { kind: "error", message: "Esta pessoa já possui discipulador. O vínculo anterior precisa ser liberado antes da troca." };
-      }
-      const { error } = await supabase.from("discipleship_relationships").insert({ discipler_id: referenceId, disciple_id: memberId, assigned_by: user.id });
-      if (error) return { kind: "error", message: "Não foi possível vincular o discipulador. Tente novamente." };
-      await supabase.from("member_profiles").update({ has_discipler: true }).eq("user_id", memberId);
+    const { data, error } = await supabase.rpc("review_discipleship_request", {
+      p_member_id: memberId,
+      p_discipler_id: referenceId,
+      p_decision: decision,
+    });
+    if (error) return { kind: "error", message: "Não foi possível concluir este pedido. Atualize a página e tente novamente." };
+    const result = Array.isArray(data) ? data[0] : data;
+    revalidatePath("/familia/meus-discipulados");
+    revalidatePath("/admin/meus-discipulos");
+    if (decision === "approve" && result?.transferred) {
+      revalidatePath("/familia/lideranca");
+      return { kind: "success", message: "Troca aprovada. O vínculo anterior foi encerrado e todo o histórico foi preservado." };
     }
-    const { error: requestError } = await supabase.from("discipleship_requests").update({ status: decision === "approve" ? "approved" : "rejected", reviewed_by: user.id, reviewed_at: now, updated_at: now }).eq("member_id", memberId);
-    if (requestError) return { kind: "error", message: "O vínculo foi salvo, mas o pedido não foi concluído. Atualize e tente novamente." };
   }
   revalidatePath("/admin/membros");
   revalidatePath("/admin/lideranca/discipuladores");
