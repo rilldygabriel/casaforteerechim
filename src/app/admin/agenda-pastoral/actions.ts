@@ -11,15 +11,16 @@ import { formatDiscipleshipDate, sendWhatsappNotification } from "@/lib/whatsapp
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PATH = "/admin/agenda-pastoral";
+const FAMILY_PATH = "/familia/agenda-pastoral";
 
 function finish(kind: "sucesso" | "erro", message: string): never {
   redirect(`${PATH}?${new URLSearchParams({ [kind]: message })}`);
 }
 
-async function session() {
+async function session(loginPath = "/admin/login") {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
+  if (!user) redirect(loginPath);
   return { supabase, user };
 }
 
@@ -31,7 +32,7 @@ async function adminSession() {
 }
 
 function friendlyDatabaseError(message: string) {
-  if (/somente discipuladores/i.test(message)) return "Somente discipuladores autorizados podem reservar.";
+  if (/somente discipuladores/i.test(message)) return "Somente discipuladores e integrantes da equipe pastoral autorizados podem reservar.";
   if (/ja possui outra reserva/i.test(message)) return "Você já possui outra reserva nesse mesmo período.";
   if (/nao esta mais disponivel|acabou de ficar indisponivel|duplicate key/i.test(message)) return "Esse horário acabou de ser reservado ou não está mais disponível.";
   if (/horario ja possui|horario ja foi publicado/i.test(message)) return "Esse horário já está ocupado ou publicado.";
@@ -132,15 +133,21 @@ export async function markPastoralBookingRead(formData: FormData) {
 }
 
 export async function bookPastoralSlot(formData: FormData) {
-  const { supabase, user } = await session();
+  const returnPath = String(formData.get("returnTo") ?? "") === FAMILY_PATH ? FAMILY_PATH : PATH;
+  const { supabase, user } = await session(
+    returnPath === FAMILY_PATH ? `/familia/login?next=${encodeURIComponent(FAMILY_PATH)}` : "/admin/login",
+  );
+  const bookFinish = (kind: "sucesso" | "erro", message: string): never => {
+    redirect(`${returnPath}?${new URLSearchParams({ [kind]: message })}`);
+  };
   const slotId = String(formData.get("slotId") ?? "");
   const selectedHostName = String(formData.get("selectedHostName") ?? "").trim();
-  if (!UUID.test(slotId)) finish("erro", "Horário inválido.");
-  if (selectedHostName && !["Rilldy", "Lisi", "Rilldy e Lisi"].includes(selectedHostName)) finish("erro", "Escolha pastoral inválida.");
+  if (!UUID.test(slotId)) bookFinish("erro", "Horário inválido.");
+  if (selectedHostName && !["Rilldy", "Lisi", "Rilldy e Lisi"].includes(selectedHostName)) bookFinish("erro", "Escolha pastoral inválida.");
 
   const { data, error } = await supabase.rpc("book_pastoral_slot", { p_slot_id: slotId, p_selected_host_name: selectedHostName || null });
   const booking = Array.isArray(data) ? data[0] : data;
-  if (error || !booking) finish("erro", friendlyDatabaseError(error?.message ?? ""));
+  if (error || !booking) bookFinish("erro", friendlyDatabaseError(error?.message ?? ""));
 
   const when = formatDiscipleshipDate(booking.starts_at);
   after(async () => {
@@ -177,6 +184,7 @@ export async function bookPastoralSlot(formData: FormData) {
   });
 
   revalidatePath(PATH);
+  revalidatePath(FAMILY_PATH);
   revalidatePath("/dashboard/agenda");
-  finish("sucesso", `Discipulado confirmado para ${when}.`);
+  bookFinish("sucesso", `Discipulado confirmado para ${when}.`);
 }

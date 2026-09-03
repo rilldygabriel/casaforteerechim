@@ -207,7 +207,7 @@ export default async function Familia({
   const completedProfileSteps = countProfileSteps(profile);
   const hasProfileStar = profile.profile_completed === true && completedProfileSteps === 11;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
-  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles] =
+  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles, pastoralGroupMemberships] =
     await Promise.all([
       supabase
         .from("discipler_roles")
@@ -222,7 +222,13 @@ export default async function Familia({
         .from("ministry_members")
         .select("ministry_key")
         .eq("member_id", user.id),
+      supabase
+        .from("member_group_memberships")
+        .select("group_key")
+        .eq("member_id", user.id)
+        .in("group_key", ["discipulador", "equipe_pastoral"]),
     ]);
+  const canBookPastoralAgenda = Boolean(pastoralGroupMemberships.data?.length);
   const hasLeadershipArea = Boolean(
     profile.is_admin ||
       disciplerRole.data ||
@@ -340,6 +346,17 @@ export default async function Familia({
         </div>
         <Link href="/generosidade">Contribua</Link>
       </section>
+
+      {canBookPastoralAgenda && (
+        <section className="family-leadership-access family-pastoral-agenda-access family-access-yellow">
+          <div>
+            <p className="section-eyebrow"><span aria-hidden="true" />Agenda Pastoral</p>
+            <h2>Quero marcar meu discipulado com os pastores</h2>
+            <p>Veja os horários liberados por Rilldy e Lisi e confirme o melhor momento para seu discipulado.</p>
+          </div>
+          <Link href="/familia/agenda-pastoral">Ver horários disponíveis</Link>
+        </section>
+      )}
 
       {hasLeadershipArea && (
         <section className="family-leadership-access family-access-light">
