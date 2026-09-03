@@ -36,6 +36,7 @@ function friendlyDatabaseError(message: string) {
   if (/nao esta mais disponivel|acabou de ficar indisponivel|duplicate key/i.test(message)) return "Esse horário acabou de ser reservado ou não está mais disponível.";
   if (/horario ja possui|horario ja foi publicado/i.test(message)) return "Esse horário já está ocupado ou publicado.";
   if (/nao autorizado/i.test(message)) return "Você não possui permissão para realizar essa ação.";
+  if (/escolha pastoral invalida|responsavel nao esta disponivel/i.test(message)) return "Escolha Rilldy, Lisi ou os dois para esse horário.";
   return "Não foi possível concluir agora. Atualize a página e tente novamente.";
 }
 
@@ -133,31 +134,46 @@ export async function markPastoralBookingRead(formData: FormData) {
 export async function bookPastoralSlot(formData: FormData) {
   const { supabase, user } = await session();
   const slotId = String(formData.get("slotId") ?? "");
+  const selectedHostName = String(formData.get("selectedHostName") ?? "").trim();
   if (!UUID.test(slotId)) finish("erro", "Horário inválido.");
+  if (selectedHostName && !["Rilldy", "Lisi", "Rilldy e Lisi"].includes(selectedHostName)) finish("erro", "Escolha pastoral inválida.");
 
-  const { data, error } = await supabase.rpc("book_pastoral_slot", { p_slot_id: slotId });
+  const { data, error } = await supabase.rpc("book_pastoral_slot", { p_slot_id: slotId, p_selected_host_name: selectedHostName || null });
   const booking = Array.isArray(data) ? data[0] : data;
   if (error || !booking) finish("erro", friendlyDatabaseError(error?.message ?? ""));
 
   const when = formatDiscipleshipDate(booking.starts_at);
   after(async () => {
     const service = getSupabaseServiceClient();
-    const synced = await personalAgendaAction("booking-created", {
-      calendarId: booking.source_calendar_id,
-      requesterName: booking.requester_name,
-      requesterPhone: booking.requester_phone,
-      hostName: booking.host_name,
-      startsAt: booking.starts_at,
-      endsAt: booking.ends_at,
-      location: booking.location,
-    });
-    if (synced.eventId) await service.from("pastoral_bookings").update({ source_event_id: synced.eventId }).eq("id", booking.booking_id);
-    const { data: people } = await service.from("member_profiles")
-      .select("user_id,full_name,phone")
-      .eq("user_id", user.id);
-    const requester = people?.find((person) => person.user_id === user.id);
+    const [{ data: requester }, { data: pastors }, synced] = await Promise.all([
+      service.from("member_profiles")
+        .select("phone")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      service.from("member_profiles")
+        .select("full_name,phone")
+        .in("full_name", ["Pastor Rilldy", "Lisi Gabriel", "Pastora Lisi"]),
+      personalAgendaAction("booking-created", {
+        calendarId: booking.source_calendar_id,
+        requesterName: booking.requester_name,
+        requesterPhone: booking.requester_phone,
+        hostName: booking.host_name,
+        startsAt: booking.starts_at,
+        endsAt: booking.ends_at,
+        location: booking.location,
+      }).catch((): Record<string, unknown> => ({})),
+    ]);
+    if (typeof synced.eventId === "string") await service.from("pastoral_bookings").update({ source_event_id: synced.eventId }).eq("id", booking.booking_id);
     const requesterMessage = `Seu discipulado com ${booking.host_name} foi confirmado para ${when}. O horário já está reservado na Agenda Pastoral.`;
-    await sendWhatsappNotification(requester?.phone, requesterMessage);
+    const pastoralMessage = `Agenda pastoral confirmada 🙏 ${booking.requester_name} marcou discipulado com ${booking.host_name} para ${when}.`;
+    const pastoralPhones = [...new Set((pastors ?? [])
+      .filter((person) => ["Pastor Rilldy", "Lisi Gabriel", "Pastora Lisi"].includes(person.full_name ?? ""))
+      .map((person) => person.phone)
+      .filter((phone): phone is string => Boolean(phone)))];
+    await Promise.allSettled([
+      sendWhatsappNotification(requester?.phone, requesterMessage),
+      ...pastoralPhones.map((phone) => sendWhatsappNotification(phone, pastoralMessage)),
+    ]);
   });
 
   revalidatePath(PATH);

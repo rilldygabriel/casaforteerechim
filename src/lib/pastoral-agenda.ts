@@ -27,7 +27,7 @@ export async function pastoralSnapshot(sourceCalendarId: string) {
   if (settingError || slotsError) throw new Error("Não foi possível carregar a agenda pastoral.");
   const slotIds = (slots ?? []).map((slot) => slot.id);
   const { data: bookings, error: bookingError } = slotIds.length
-    ? await service.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,status,booked_at,read_at,source_event_id").in("slot_id", slotIds).order("booked_at", { ascending: false })
+    ? await service.from("pastoral_bookings").select("id,slot_id,requester_name,requester_phone,selected_host_name,status,booked_at,read_at,source_event_id").in("slot_id", slotIds).order("booked_at", { ascending: false })
     : { data: [], error: null };
   if (bookingError) throw new Error("Não foi possível carregar as reservas.");
   return { setting, slots: slots ?? [], bookings: bookings ?? [] };

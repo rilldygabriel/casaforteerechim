@@ -45,6 +45,10 @@
 .pastoral-slot-edit input, .pastoral-slot-edit select { min-width: 0; height: 44px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
 .pastoral-slot-edit input:focus, .pastoral-slot-edit select:focus { border-color: var(--accent); }
 .pastoral-slot-edit button { grid-column: 1 / -1; }
+.pastoral-booking-form { display: grid !important; gap: 10px; }
+.pastoral-booking-form label { display: grid; gap: 6px; color: #c6cac4; font-size: .68rem; font-weight: 800; }
+.pastoral-booking-form select { min-width: 0; width: 100%; height: 44px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; background: rgba(0,0,0,.24); color: var(--foreground); font: inherit; color-scheme: dark; }
+.pastoral-booking-form select:focus { border-color: var(--accent); }
 .pastoral-slot-manage > form { margin-top: 8px; padding-top: 0; }
 .pastoral-slot-manage > form button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ffb1b1; }
 .pastoral-booking-list { display: grid; gap: 10px; margin-top: 20px; }

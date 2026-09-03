@@ -89,7 +89,7 @@ export default async function AdminPage() {
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
           {isDiscipler && <Module number="02" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu cuidado pessoal." action="Abrir meus discípulos" />}
-          <Module number="A" href="/admin/agenda-pastoral" title="Agenda Pastoral" copy="Libere horários de Rilldy e Lize e acompanhe as reservas dos discipuladores." action="Gerenciar agenda" />
+          <Module number="A" href="/admin/agenda-pastoral" title="Agenda Pastoral" copy="Libere horários de Rilldy e Lisi e acompanhe as reservas dos discipuladores." action="Gerenciar agenda" />
           <Module number="03" href="/admin/membros" title="Membros" copy="Revise cadastros e controle o acesso à Área da Família." action="Gerenciar membros" />
           <Module number="04" href="/admin/lideranca/ministerios" title="Ministérios" copy="Organize líderes e participantes de todos os ministérios da Casa." action="Gerenciar ministérios" />
           <Module number="05" href="/admin/visitantes" title="Visitantes" copy="Consulte as fichas recebidas e os próximos passos de cada pessoa." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />
