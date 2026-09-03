@@ -1,6 +1,7 @@
 "use server";
 
 import { getVercelOidcToken } from "@vercel/oidc";
+import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -15,6 +16,66 @@ const SITE_ORIGIN = "https://www.casaforteerechim.app.br";
 const RESEND_URL = "https://fjwkfpwraipxmcjlwssv.supabase.co/functions/v1/admin-resend-member-invite";
 const VERCEL_TEAM_ID = "team_Pw24QkatuwWyFJiYuYCKi12Z";
 const VERCEL_PROJECT_ID = "prj_My9r71EBQYchsF5T97S35WFXV8Kg";
+const MEMBER_GROUP_KEYS = new Set([
+  "voluntario",
+  "discipulador",
+  "equipe_pastoral",
+  "sendo_discipulado",
+]);
+
+export type MemberGroupState = {
+  kind: "idle" | "success" | "error";
+  message: string;
+};
+
+export async function saveMemberGroups(
+  _previousState: MemberGroupState,
+  formData: FormData,
+): Promise<MemberGroupState> {
+  const memberId = String(formData.get("memberId") ?? "");
+  const groupKeys = Array.from(new Set(formData.getAll("groupKeys").map(String)));
+
+  if (!UUID_PATTERN.test(memberId) || groupKeys.some((key) => !MEMBER_GROUP_KEYS.has(key))) {
+    return { kind: "error", message: "Não foi possível validar essa classificação." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { kind: "error", message: "Sua sessão expirou." };
+
+  const { data: admin } = await supabase
+    .from("member_profiles")
+    .select("is_admin,approval_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!admin?.is_admin || admin.approval_status !== "approved") {
+    return { kind: "error", message: "Ação não autorizada." };
+  }
+
+  const { error } = await supabase.rpc("set_member_groups", {
+    p_member_id: memberId,
+    p_group_keys: groupKeys,
+  });
+
+  if (error) {
+    if (/discipulador possui discipulos vinculados/i.test(error.message)) {
+      return { kind: "error", message: "Transfira os discípulos antes de retirar a função de discipulador." };
+    }
+    if (/membro possui discipulador vinculado/i.test(error.message)) {
+      return { kind: "error", message: "Encerre o vínculo atual antes de retirar a classificação Sendo Discipulado." };
+    }
+    return { kind: "error", message: "Não foi possível salvar os grupos agora." };
+  }
+
+  revalidatePath(`/admin/membros/${memberId}`);
+  revalidatePath("/admin/membros/grupos");
+  revalidatePath("/admin/lideranca/discipuladores");
+  revalidatePath("/admin/meus-discipulos");
+  revalidatePath("/familia");
+  revalidatePath("/familia/lideranca");
+
+  return { kind: "success", message: "Classificação salva e grupos atualizados." };
+}
 
 function whatsappRecipient(phone: string) {
   const digits = phone.replace(/\D/g, "");
