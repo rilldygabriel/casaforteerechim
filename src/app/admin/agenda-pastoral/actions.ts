@@ -6,7 +6,7 @@ import { after } from "next/server";
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
-import { cancelPastoralBookingById, cancelPastoralSlotById, configurePastoralAgenda, createPastoralSlot, markPastoralBookingReadById, personalAgendaAction } from "@/lib/pastoral-agenda";
+import { cancelPastoralBookingById, cancelPastoralSlotById, configurePastoralAgenda, createPastoralSlot, markPastoralBookingReadById, personalAgendaAction, updatePastoralSlotById } from "@/lib/pastoral-agenda";
 import { formatDiscipleshipDate, sendWhatsappNotification } from "@/lib/whatsapp";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -61,6 +61,26 @@ export async function publishPastoralSlot(formData: FormData) {
   revalidatePath(PATH);
   revalidatePath("/dashboard/agenda");
   finish("sucesso", "Horário publicado nos dois painéis.");
+}
+
+export async function updatePastoralSlot(formData: FormData) {
+  await adminSession();
+  const calendarId = String(formData.get("calendarId") ?? "");
+  const slotId = String(formData.get("slotId") ?? "");
+  const hostName = String(formData.get("hostName") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const startsAt = new Date(`${String(formData.get("startsAt") ?? "")}:00-03:00`);
+  const endsAt = new Date(`${String(formData.get("endsAt") ?? "")}:00-03:00`);
+  if (!UUID.test(calendarId) || !UUID.test(slotId) || hostName.length < 2 || hostName.length > 100 || location.length > 200) finish("erro", "Confira o responsável e o local.");
+  if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime()) || startsAt <= new Date() || endsAt <= startsAt || endsAt.getTime() - startsAt.getTime() > 4 * 60 * 60 * 1000) finish("erro", "Escolha um período futuro de até quatro horas.");
+  try {
+    const check = await personalAgendaAction("check-conflict", { calendarId, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() });
+    if (check.conflict) throw new Error("horario ja possui compromisso privado");
+    await updatePastoralSlotById(slotId, { sourceCalendarId: calendarId, hostName, location: location || null, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() });
+  } catch (error) { finish("erro", friendlyDatabaseError(error instanceof Error ? error.message : "")); }
+  revalidatePath(PATH);
+  revalidatePath("/dashboard/agenda");
+  finish("sucesso", "Horário atualizado nos dois painéis.");
 }
 
 export async function togglePastoralCalendar(formData: FormData) {

@@ -7,6 +7,7 @@ import {
   markPastoralBookingReadById,
   personalAgendaAction,
   pastoralSnapshot,
+  updatePastoralSlotById,
 } from "@/lib/pastoral-agenda";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
     const action = String(body.action ?? "");
     if (action === "configure") await configurePastoralAgenda(String(body.calendarId), String(body.title), Boolean(body.isActive));
     else if (action === "publish") await createPastoralSlot({ sourceCalendarId: String(body.calendarId), hostName: String(body.hostName), location: body.location ? String(body.location) : null, startsAt: String(body.startsAt), endsAt: String(body.endsAt) });
+    else if (action === "update-slot") await updatePastoralSlotById(String(body.slotId), { sourceCalendarId: String(body.calendarId), hostName: String(body.hostName), location: body.location ? String(body.location) : null, startsAt: String(body.startsAt), endsAt: String(body.endsAt) });
     else if (action === "cancel-slot") await cancelPastoralSlotById(String(body.slotId));
     else if (action === "cancel-booking") {
       const booking = await cancelPastoralBookingById(String(body.bookingId));
