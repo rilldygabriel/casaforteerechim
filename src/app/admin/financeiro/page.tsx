@@ -33,6 +33,10 @@ function formatDate(value: string) {
   return dateFormatter.format(new Date(`${value}T12:00:00Z`));
 }
 
+function isWithinProcessingWindow(createdAt: string) {
+  return new Date(createdAt).getTime() >= Date.now() - 24 * 60 * 60_000;
+}
+
 export default async function FinancePage({ searchParams }: { searchParams: Promise<{ month?: string; ok?: string; error?: string }> }) {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -75,6 +79,11 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   }), { tithe: 0, firstfruits: 0, offering: 0, total: 0 });
   const ledgerCredits = (ledgerEntries ?? []).filter((entry) => entry.direction === "credit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
   const ledgerDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
+  const visibleOnlinePayments = (onlinePayments ?? []).filter((payment) => {
+    if (payment.status === "expired") return false;
+    if (!["created", "pending", "in_process"].includes(payment.status)) return true;
+    return isWithinProcessingWindow(payment.created_at);
+  });
 
   return (
     <main className="finance-page">
@@ -106,7 +115,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-online-payments" id="mercado-pago">
         <header><div><span>Recebimentos online</span><h2>Mercado Pago</h2><p>Somente pagamentos iniciados pelo checkout do site aparecem nesta área e recebem classificação automática.</p></div><strong data-configured={isMercadoPagoConfigured()}>{isMercadoPagoConfigured() ? "API conectada" : "Aguardando credenciais"}</strong></header>
         <div className="finance-online-summary" aria-label="Contribuições online confirmadas no mês"><article><span>Dízimos</span><strong>{money.format(onlineContributionTotals.tithe / 100)}</strong></article><article><span>Primícias</span><strong>{money.format(onlineContributionTotals.firstfruits / 100)}</strong></article><article><span>Ofertas</span><strong>{money.format(onlineContributionTotals.offering / 100)}</strong></article><article><span>Total</span><strong>{money.format(onlineContributionTotals.total / 100)}</strong></article></div>
-        <div className="finance-online-grid">{(onlinePayments ?? []).length ? (onlinePayments ?? []).map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" ? "Estornado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{money.format(Number(payment.tithe_cents) / 100)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{money.format(Number(payment.firstfruits_cents) / 100)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{money.format(Number(payment.offering_cents) / 100)}</b></li> : null}</ul> : null}<p>{payment.payment_method_id ? `${payment.payment_method_id} · ` : ""}{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Os pagamentos aparecerão aqui assim que a primeira contribuição for iniciada.</p>}</div>
+        <div className="finance-online-grid">{visibleOnlinePayments.length ? visibleOnlinePayments.map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" || payment.status === "charged_back" ? "Estornado" : payment.status === "cancelled" ? "Cancelado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{money.format(Number(payment.tithe_cents) / 100)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{money.format(Number(payment.firstfruits_cents) / 100)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{money.format(Number(payment.offering_cents) / 100)}</b></li> : null}</ul> : null}<p>{payment.payment_method_id ? `${payment.payment_method_id} · ` : ""}{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Nenhum pagamento confirmado ou em processamento nas últimas 24 horas.</p>}</div>
       </section>
 
       <section className="finance-service-income-panel" id="entradas-de-culto">

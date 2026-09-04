@@ -195,8 +195,78 @@ export async function createMercadoPagoCheckout(input: {
 }
 
 function mapPaymentStatus(value: string) {
-  if (["approved", "pending", "in_process", "rejected", "cancelled", "refunded", "charged_back"].includes(value)) return value;
+  if (["approved", "pending", "in_process", "rejected", "cancelled", "refunded", "charged_back", "expired"].includes(value)) return value;
   return "pending";
+}
+
+const PROCESSING_PAYMENT_STATUSES = ["created", "pending", "in_process"];
+const PIX_PROCESSING_WINDOW_MS = 24 * 60 * 60_000;
+
+export async function expireStaleMercadoPagoPixPayments() {
+  const service = getSupabaseServiceClient();
+  const cutoff = new Date(Date.now() - PIX_PROCESSING_WINDOW_MS).toISOString();
+  const { data: stalePayments, error: selectError } = await service
+    .from("mercado_pago_payments")
+    .select("id,provider_payment_id")
+    .eq("payment_method_id", "pix")
+    .in("status", PROCESSING_PAYMENT_STATUSES)
+    .lt("created_at", cutoff)
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  if (selectError) throw new Error("Não foi possível consultar os Pix pendentes.");
+
+  let synchronized = 0;
+  let synchronizationFailures = 0;
+  const eligibleForExpiry: string[] = [];
+  for (const payment of stalePayments ?? []) {
+    if (!payment.provider_payment_id) {
+      eligibleForExpiry.push(payment.id);
+      continue;
+    }
+    try {
+      const result = await synchronizeMercadoPagoPayment(payment.provider_payment_id);
+      synchronized += 1;
+      if (!result.ignored && PROCESSING_PAYMENT_STATUSES.includes(result.status)) eligibleForExpiry.push(payment.id);
+    } catch (error) {
+      synchronizationFailures += 1;
+      console.error("mercado_pago_stale_pix_sync_error", { paymentId: payment.id, error });
+    }
+  }
+
+  if (!eligibleForExpiry.length) {
+    return { checked: stalePayments?.length ?? 0, synchronized, synchronizationFailures, expired: 0 };
+  }
+
+  const { data: expiredPayments, error: expireError } = await service
+    .from("mercado_pago_payments")
+    .update({
+      status: "expired",
+      status_detail: "not_confirmed_within_24_hours",
+      updated_at: new Date().toISOString(),
+    })
+    .in("id", eligibleForExpiry)
+    .eq("payment_method_id", "pix")
+    .in("status", PROCESSING_PAYMENT_STATUSES)
+    .lt("created_at", cutoff)
+    .select("id,registration_id");
+
+  if (expireError) throw new Error("Não foi possível retirar os Pix vencidos do processamento.");
+
+  const registrationIds = (expiredPayments ?? []).map((payment) => payment.registration_id).filter(Boolean);
+  if (registrationIds.length) {
+    const { error: registrationError } = await service.from("event_registrations")
+      .update({ status: "cancelled", updated_at: new Date().toISOString() })
+      .in("id", registrationIds);
+    if (registrationError) console.error("mercado_pago_expired_registration_error", registrationError);
+  }
+
+  return {
+    checked: stalePayments?.length ?? 0,
+    synchronized,
+    synchronizationFailures,
+    expired: expiredPayments?.length ?? 0,
+  };
 }
 
 export function validateMercadoPagoWebhook(input: {
@@ -248,7 +318,7 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   if (updateError) throw new Error("Não foi possível atualizar o pagamento recebido.");
 
   if (localPayment.registration_id) {
-    const registrationStatus = status === "approved" ? "confirmed" : ["rejected", "cancelled", "refunded", "charged_back"].includes(status) ? "cancelled" : "awaiting_payment";
+    const registrationStatus = status === "approved" ? "confirmed" : ["rejected", "cancelled", "refunded", "charged_back", "expired"].includes(status) ? "cancelled" : "awaiting_payment";
     await service.from("event_registrations").update({ status: registrationStatus, updated_at: new Date().toISOString() }).eq("id", localPayment.registration_id);
   }
 
