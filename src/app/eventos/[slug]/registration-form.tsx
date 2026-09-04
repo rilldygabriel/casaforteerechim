@@ -9,12 +9,12 @@ const EventPayment = dynamic(() => import("./event-payment"), { ssr: false });
 type FormState = "idle" | "sending" | "success" | "rejected" | "error";
 const EMPTY = { fullName: "", email: "", phone: "", attendanceDuration: "", notes: "", consent: false, completedEncounter: "" };
 
-export default function RegistrationForm({ slug, enabled, feeCents = 0, variant = "standard", publicKey = "" }: { slug: string; enabled: boolean; feeCents?: number; variant?: "standard" | "post-encounter" | "encounter"; publicKey?: string }) {
+export default function RegistrationForm({ slug, enabled, feeCents = 0, variant = "standard" }: { slug: string; enabled: boolean; feeCents?: number; variant?: "standard" | "post-encounter" | "encounter" }) {
   const storageKey = `casaforte-event-registration-${slug}`;
   const [form, setForm] = useState(EMPTY);
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
-  const [payment, setPayment] = useState<{ id: string; amountCents: number; fullName: string; email: string } | null>(null);
+  const [payment, setPayment] = useState<{ id: string; amountCents: number; fullName: string } | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -42,7 +42,7 @@ export default function RegistrationForm({ slug, enabled, feeCents = 0, variant 
       if (result.checkoutUrl) { window.location.assign(result.checkoutUrl); return; }
       if (result.paymentId && result.amountCents) {
         localStorage.removeItem(storageKey);
-        setPayment({ id: result.paymentId, amountCents: result.amountCents, fullName: form.fullName, email: form.email });
+        setPayment({ id: result.paymentId, amountCents: result.amountCents, fullName: form.fullName });
         setState("idle");
         setMessage("");
         return;
@@ -57,7 +57,7 @@ export default function RegistrationForm({ slug, enabled, feeCents = 0, variant 
   }
 
   if (!enabled) return <div className="event-registration-closed"><strong>Inscrições indisponíveis</strong><p>Este evento não está recebendo novas inscrições.</p></div>;
-  if (payment) return <EventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} email={payment.email} publicKey={publicKey} />;
+  if (payment) return <EventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} />;
   if (state === "success") return <div className="event-registration-success" role="status"><span aria-hidden="true">✓</span><h2>Inscrição confirmada</h2><p>{message}</p></div>;
   if (state === "rejected") return <div className="event-registration-rejected" role="status"><span aria-hidden="true">!</span><h2>Inscrição não aceita</h2><p>{message}</p></div>;
 
