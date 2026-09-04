@@ -208,6 +208,7 @@ export async function expireStaleMercadoPagoPixPayments() {
   const { data: stalePayments, error: selectError } = await service
     .from("mercado_pago_payments")
     .select("id,provider_payment_id")
+    .eq("payment_provider", "mercado_pago")
     .eq("payment_method_id", "pix")
     .in("status", PROCESSING_PAYMENT_STATUSES)
     .lt("created_at", cutoff)
@@ -246,6 +247,7 @@ export async function expireStaleMercadoPagoPixPayments() {
       updated_at: new Date().toISOString(),
     })
     .in("id", eligibleForExpiry)
+    .eq("payment_provider", "mercado_pago")
     .eq("payment_method_id", "pix")
     .in("status", PROCESSING_PAYMENT_STATUSES)
     .lt("created_at", cutoff)

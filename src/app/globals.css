@@ -7477,6 +7477,18 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .event-payment-result .pix-qr { margin-top: 6px; }
 .event-payment-result small { color: var(--muted); }
 .event-copy-pix { min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--yellow); color: #111; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 900; text-transform: uppercase; }
+.event-pagbank-payment { display: grid; gap: 17px; padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(255,254,21,.25); border-radius: 20px; background: var(--surface-4); }
+.event-pagbank-payment > label, .event-card-fields > label { display: grid; gap: 8px; color: #d7d8d4; font-size: .7rem; font-weight: 850; letter-spacing: .055em; text-transform: uppercase; }
+.event-pagbank-payment :is(input, select) { width: 100%; min-height: 50px; padding: 12px 15px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: var(--background); color: white; font: inherit; }
+.event-pagbank-payment :is(input, select):focus { border-color: var(--yellow); }
+.event-payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px; border-radius: 999px; background: var(--surface-0); }
+.event-payment-methods button { min-height: 45px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-weight: 850; }
+.event-payment-methods button[data-active="true"] { background: var(--yellow); color: #111; }
+.event-card-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.event-card-fields .wide { grid-column: 1 / -1; }
+.event-pay-button { min-height: 52px; border: 0; border-radius: 999px; background: var(--yellow); color: #111; cursor: pointer; font: inherit; font-weight: 900; letter-spacing: .045em; text-transform: uppercase; }
+.event-pay-button:disabled { opacity: .55; cursor: wait; }
+.event-pagbank-payment .payment-inline-message { margin: 0; color: var(--muted); font-size: .75rem; line-height: 1.5; text-align: center; }
 .event-form-message { margin: 0; color: var(--yellow); line-height: 1.5; }
 .event-form-message[data-state="error"] { color: #ff9b9b; }
 .event-registration-success, .event-registration-closed { padding: clamp(30px, 5vw, 50px); border: 1px solid rgba(127,230,156,.4); border-radius: 24px; background: rgba(127,230,156,.07); }

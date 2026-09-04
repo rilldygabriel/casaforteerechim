@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
-import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
+import { isPagBankConfigured } from "@/lib/pagbank";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
     if (input.email && !EMAIL.test(input.email)) return NextResponse.json({ error: "Informe um e-mail válido." }, { status: 400 });
     if (feeCents > 0 && !EMAIL.test(input.email)) return NextResponse.json({ error: "Informe seu e-mail para receber os dados do pagamento." }, { status: 400 });
-    if (feeCents > 0 && !isMercadoPagoBrickConfigured()) return NextResponse.json({ error: "O pagamento deste evento está sendo ativado. Tente novamente em instantes." }, { status: 503 });
+    if (feeCents > 0 && !isPagBankConfigured()) return NextResponse.json({ error: "O pagamento PagBank deste evento está sendo ativado. Tente novamente em instantes." }, { status: 503 });
 
     const { count } = await service.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", event.id).is("archived_at", null);
     const availability = eventRegistrationState({ ...event, registration_count: count ?? 0 });
@@ -33,7 +33,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (error?.code === "23505") {
       const { data: existing } = await service.from("event_registrations").select("id,status").eq("event_id", event.id).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
       if (existing?.status === "awaiting_payment") {
-        const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents").eq("registration_id", existing.id).maybeSingle();
+        const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents").eq("registration_id", existing.id).eq("payment_provider", "pagbank").maybeSingle();
         if (payment) return NextResponse.json({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), message: "Continue o pagamento para confirmar sua inscrição." });
       }
       return NextResponse.json({ error: "Já existe uma inscrição com este telefone para este evento." }, { status: 409 });
@@ -43,7 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (feeCents > 0) {
       const paymentId = randomUUID();
       try {
-        const { error: paymentError } = await service.from("mercado_pago_payments").insert({ id: paymentId, purpose: "event", event_id: event.id, registration_id: registration.id, payer_name: input.fullName, payer_email: input.email, payer_phone: input.phone, amount_cents: feeCents });
+        const { error: paymentError } = await service.from("mercado_pago_payments").insert({ id: paymentId, purpose: "event", payment_provider: "pagbank", event_id: event.id, registration_id: registration.id, payer_name: input.fullName, payer_email: input.email, payer_phone: input.phone, amount_cents: feeCents });
         if (paymentError) throw paymentError;
         return NextResponse.json({ accepted: true, paymentId, amountCents: feeCents, message: "Inscrição reservada. Conclua o pagamento para confirmar." }, { status: 201 });
       } catch (checkoutError) {
