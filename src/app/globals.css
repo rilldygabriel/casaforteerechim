@@ -4318,12 +4318,12 @@ a:focus-visible {
     var(--surface-4);
 }
 
-.home-photo-links > div {
+.home-photo-links-list {
   display: grid;
   margin-top: 48px;
 }
 
-.home-photo-links > div a {
+.home-photo-links-list a {
   display: flex;
   min-height: 63px;
   align-items: center;
@@ -4338,9 +4338,53 @@ a:focus-visible {
     padding 180ms ease;
 }
 
-.home-photo-links > div a:hover {
+.home-photo-links-list a:hover {
   padding-inline: 7px;
   color: var(--yellow);
+}
+
+.home-photo-links-more summary {
+  display: flex;
+  min-height: 52px;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: var(--yellow);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  list-style: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.home-photo-links-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.home-photo-links-more summary .home-icon {
+  transition: transform 180ms ease;
+}
+
+.home-photo-links-more[open] summary .home-icon {
+  transform: rotate(90deg);
+}
+
+.home-photo-links-less-label,
+.home-photo-links-more[open] .home-photo-links-more-label {
+  display: none;
+}
+
+.home-photo-links-more[open] .home-photo-links-less-label {
+  display: inline;
+}
+
+.home-photo-links-more > div {
+  display: grid;
 }
 
 .home-pastors {
