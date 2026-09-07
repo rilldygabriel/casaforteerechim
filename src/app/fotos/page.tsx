@@ -10,8 +10,8 @@ import AlbumGallery from "./album-gallery";
 import "./album.css";
 
 export const metadata: Metadata = {
-  title: "Fotos do culto — 2 de setembro",
-  description: "Álbum completo do Culto de Quarta na Casa da Igreja Casa Forte.",
+  title: "Fotos do culto — 6 de setembro",
+  description: "Álbum completo do Culto de Domingo da Igreja Casa Forte.",
 };
 
 export default function PhotosPage() {

@@ -5,9 +5,9 @@ export type GalleryPhoto = {
   className: string;
 };
 
-const CULT_DATE = "2 de setembro";
+const CULT_DATE = "6 de setembro";
 
-const FEATURED_PHOTOS = [
+const SEPTEMBER_SECOND_FEATURED_PHOTOS = [
   ["1mhXleux7KFeCd1y-bZ-IGPAHeD9enJ8f", "horizontal"],
   ["1rVIOgx1hF_BbNSrP78KK7Y7BKN-rQtBV", "vertical"],
   ["12Fja3VW2xjLZnPANcQ8QFSQOqluSUck7", "horizontal"],
@@ -30,11 +30,36 @@ const FEATURED_PHOTOS = [
   ["1RWuXto5M_FwC4FMw_FDjCb-fSTfCgJTD", "horizontal"],
 ] as const;
 
+const FEATURED_PHOTOS: ReadonlyArray<
+  readonly [string, "horizontal" | "vertical"]
+> = [
+  ["16ZoaED7RLKtJbGEFA0kjmxEpj_VsOWTc", "horizontal"],
+  ["12vPVXARyjQG0z1w-WqjrK6eeyNrcjgw7", "horizontal"],
+  ["1t1PNts2fWYT_YrH15cXxEUiX5zp_Bl7J", "horizontal"],
+  ["1kcDkohUPXPmyXoAxw59plo-WSKuDd0iD", "horizontal"],
+  ["16vG3NIu4l_IPYOXycDys8lIoMU1kzvpb", "horizontal"],
+  ["10XNHvFSCl9hBL0Ymg8nuNWxS7sZ1rhTS", "horizontal"],
+  ["1VU8ur2rxmvnW4wGqcqvpHB6uUCUSc78Z", "horizontal"],
+  ["15HMO70-ZHvZLMFclQeHmP7x2kXJG3lWF", "horizontal"],
+  ["1B3XJW-5cZqKdw7hB5JBcQ3zlQkBLAhBw", "horizontal"],
+  ["1OsUmseZSu9ghZg6eOETvOP9uEHhTI7Os", "horizontal"],
+  ["16-XpayqqFXTaH0vgSFLAb5HGeN0YTGRF", "horizontal"],
+  ["1BUGm5MjfuxX9ro75pW88zC5gtXvQkzXi", "horizontal"],
+  ["1QWs-JZwHVyq526FudeTuXFG-8EgIHHZC", "horizontal"],
+  ["15Vp7cwtJXTTGOkMfA5F6cap6m77MP_8E", "horizontal"],
+  ["1Ny2fci5EhoR8Cy4BL4h2ChWGi91e3EYf", "horizontal"],
+  ["1_4xgBYBqzj5SpYMT0vOTxQwVXyJuNxNY", "horizontal"],
+  ["178oqgpF1poy-s1NWeaowE-XrxjSXnurT", "horizontal"],
+  ["1XDvtoR4dRdf7HuvFJufOFkPYYawO-TdJ", "horizontal"],
+  ["1i3jBa84VfZpkrpKHxG9FcOh2g6Bxftyh", "horizontal"],
+  ["1XHTj7G5VftN5JPGhOrkWpoN-w8ExHR87", "horizontal"],
+];
+
 export const GALLERY_PHOTOS: GalleryPhoto[] = FEATURED_PHOTOS.map(
   ([id, orientation], index) => ({
-    slug: `culto-de-quarta-02-09-foto-${String(index + 1).padStart(2, "0")}`,
+    slug: `culto-de-domingo-06-09-foto-${String(index + 1).padStart(2, "0")}`,
     src: `https://lh3.googleusercontent.com/d/${id}=w1400`,
-    alt: `Momento do Culto de Quarta na Casa em ${CULT_DATE} — foto ${String(index + 1).padStart(2, "0")}`,
+    alt: `Momento do Culto de Domingo na Casa em ${CULT_DATE} — foto ${String(index + 1).padStart(2, "0")}`,
     className: orientation === "vertical" ? "home-gallery-tall" : "home-gallery-wide",
   }),
 );
