@@ -32,9 +32,14 @@ const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PHOTO_ARCHIVE_FOLDERS = [
   {
+    date: "06/09",
+    title: "Culto de Domingo",
+    url: "/fotos",
+  },
+  {
     date: "02/09",
     title: "Culto de Quarta na Casa",
-    url: "/fotos",
+    url: "https://drive.google.com/drive/folders/1KC2qKf6aFM82YEvkzFq8ehraSmfBIJ5W",
   },
   {
     date: "30/08",
