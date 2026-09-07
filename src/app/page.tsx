@@ -414,8 +414,8 @@ export default function Home() {
         <article className="home-photo-links">
           <p className="home-kicker">Memórias da Casa</p>
           <h2>Últimas fotos</h2>
-          <div>
-            {PHOTO_ARCHIVE_FOLDERS.map((folder) => (
+          <div className="home-photo-links-list">
+            {PHOTO_ARCHIVE_FOLDERS.slice(0, 5).map((folder) => (
               <a
                 href={folder.url}
                 key={folder.url}
@@ -426,6 +426,28 @@ export default function Home() {
                 <ArrowIcon />
               </a>
             ))}
+            {PHOTO_ARCHIVE_FOLDERS.length > 5 ? (
+              <details className="home-photo-links-more">
+                <summary>
+                  <span className="home-photo-links-more-label">Veja mais</span>
+                  <span className="home-photo-links-less-label">Ver menos</span>
+                  <ArrowIcon />
+                </summary>
+                <div>
+                  {PHOTO_ARCHIVE_FOLDERS.slice(5).map((folder) => (
+                    <a
+                      href={folder.url}
+                      key={folder.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {folder.date} · {folder.title}
+                      <ArrowIcon />
+                    </a>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
         </article>
       </section>
