@@ -5,9 +5,9 @@ import {
   formatEventTime,
 } from "../src/lib/calendar-events.ts";
 
-test("usa a grafia Ekklesia no seminário", () => {
-  assert.equal(CHURCH_EVENTS.some((item) => item.title.includes("Eclesia")), false);
-  assert.equal(CHURCH_EVENTS.some((item) => item.title.includes("Ekklesia")), true);
+test("o Ekklesia de 19 de setembro não aparece", () => {
+  assert.equal(CHURCH_EVENTS.some((item) => item.id === "seminario-ekklesia"), false);
+  assert.equal(CHURCH_EVENTS.some((item) => item.startDate === "2026-09-19" && /ekklesia|eclesia/i.test(item.title)), false);
 });
 
 test("todas as programações recorrentes possuem horário definido", () => {
