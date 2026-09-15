@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { configurePastoralAgenda, createPastoralSlot, personalAgendaAction } from "@/lib/pastoral-agenda";
+import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
+import { publishOwnerEventPhoto, recentOwnerEventPhoto } from "@/lib/whatsapp-event-photo";
 import { isCasaCommandOwnerPhone, isMetaBusinessPhoneNumberId } from "@/lib/whatsapp-command-auth";
 import { publishWhatsappCommandAnnouncement } from "@/lib/whatsapp-command-announcement";
 import { casaCommandHelp, casaDraftPreview, parseCasaCommand, type CasaCommandDraft } from "@/lib/whatsapp-command-parser";
@@ -115,21 +117,26 @@ async function executeDraft(draft: StoredDraft, code: string) {
   }
   if (payload.kind === "event-create") {
     if (parseLocalDateTime(payload.date, payload.time) <= new Date()) throw new Error("A data do evento deve ser futura.");
+    if (payload.registrationFeeCents > 0 && !isMercadoPagoBrickConfigured()) {
+      throw new Error("Mercado Pago ainda não está pronto para cobrar inscrições desse evento. Nada foi publicado.");
+    }
     const eventId = commandUuid(code);
     const { data: existing, error: existingError } = await service.from("events").select("id").eq("slug", payload.slug).maybeSingle();
     if (existingError) throw new Error("Não foi possível conferir eventos existentes.");
     if (existing?.id === eventId) return `Evento público “${payload.title}” já estava criado no site. Nenhuma cópia foi publicada.`;
     if (existing) throw new Error("Já existe um evento com esse título/endereço. Confira no painel antes de publicar outro.");
+    const imageUrl = payload.imageDraftPath ? await publishOwnerEventPhoto(payload.imageDraftPath, eventId) : null;
     const { error } = await service.from("events").insert({
       id: eventId,
       title: payload.title, slug: payload.slug, description: payload.description, category: "Eventos especiais",
-      start_date: payload.date, start_time: payload.time, location: payload.location, status: "confirmed",
-      registration_enabled: false, registration_status: "closed", registration_fee_cents: 0,
+      start_date: payload.date, start_time: payload.time, location: payload.location, image_url: imageUrl, status: "confirmed",
+      registration_enabled: payload.registrationEnabled, registration_status: payload.registrationEnabled ? "open" : "closed",
+      registration_fee_cents: payload.registrationFeeCents,
       is_public: true, is_featured: false, updated_at: new Date().toISOString(),
     });
     if (error) throw new Error(error.code === "23505" ? "Esse evento já existe." : "Não foi possível criar o evento.");
     revalidatePath("/calendario"); revalidatePath("/eventos"); revalidatePath("/admin/eventos");
-    return `Evento público “${payload.title}” criado no site, sem inscrição automática.`;
+    return `Evento público “${payload.title}” criado no site${payload.imageDraftPath ? " com capa" : ""}, ${payload.registrationEnabled ? "com inscrição aberta" : "sem inscrição"}. Veja: https://www.casaforteerechim.app.br/eventos/${payload.slug}`;
   }
   const result = await publishWhatsappCommandAnnouncement({ ownerUserId: draft.ownerUserId, title: payload.title, body: payload.body, campaign: `casa_command_${code}`, businessPhoneNumberId: draft.businessPhoneNumberId });
   return `Aviso publicado no site. Push: ${result.pushSent} aparelho(s). WhatsApp: ${result.whatsapp.accepted} aceito(s) pela Meta, ${result.whatsapp.rejected} recusado(s), ${result.whatsapp.skipped} já enviado(s).`;
@@ -151,6 +158,10 @@ export async function handleCasaCommand(input: { phone: string; conversationId: 
   else if (parsed.type === "agenda-list") answer = await agendaOverview();
   else if (parsed.type === "invalid") answer = parsed.reason;
   else if (parsed.type === "draft") {
+    if (parsed.draft.kind === "event-create") {
+      const recentPhoto = await recentOwnerEventPhoto(input.conversationId);
+      if (recentPhoto) parsed.draft.imageDraftPath = recentPhoto.path;
+    }
     const code = randomBytes(4).toString("hex").toUpperCase();
     answer = casaDraftPreview(parsed.draft, code);
     const record: StoredDraft = {

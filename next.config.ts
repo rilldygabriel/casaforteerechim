@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         pathname:
           "/storage/v1/object/sign/member-profile-photos/**",
       },
+      {
+        protocol: "https",
+        hostname: "fjwkfpwraipxmcjlwssv.supabase.co",
+        pathname: "/storage/v1/object/public/casa-event-images/**",
+      },
     ],
   },
 };
