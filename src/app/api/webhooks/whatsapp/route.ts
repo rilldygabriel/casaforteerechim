@@ -126,7 +126,8 @@ export async function POST(request: NextRequest) {
           });
           if (authorized) {
             try {
-              if (await handleCasaCommand({ phone, conversationId: conversation.id, incomingMessageId: message.id, body: String(body) })) {
+              if (await handleCasaCommand({ phone, conversationId: conversation.id, incomingMessageId: message.id,
+                businessPhoneNumberId: String(value.metadata?.phone_number_id ?? ""), body: String(body) })) {
                 after(async () => { try { await processQueuedCasaCommands(); } catch (commandError) {
                   console.error("casa_command_background_failed", commandError instanceof Error ? commandError.message : "unknown");
                 } });

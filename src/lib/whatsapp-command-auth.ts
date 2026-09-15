@@ -9,3 +9,8 @@ export function isCasaCommandOwnerPhone(phone: string) {
     digits === CASA_COMMAND_OWNER_PHONE.slice(2) ||
     digits === CASA_COMMAND_OWNER_WA_ID;
 }
+
+// O identificador vem do webhook assinado pela Meta, não de texto enviado pelo usuário.
+export function isMetaBusinessPhoneNumberId(value: unknown): value is string {
+  return typeof value === "string" && /^\d{10,20}$/.test(value);
+}

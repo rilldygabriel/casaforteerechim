@@ -1,4 +1,5 @@
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { isMetaBusinessPhoneNumberId } from "@/lib/whatsapp-command-auth";
 import {
   ensureWhatsappWebhookSubscription,
   normalizeWhatsappPhone,
@@ -63,14 +64,15 @@ export async function sendWhatsappBroadcast(
   message: string,
   campaign: string,
   audience: WhatsappBroadcastAudience = "members",
+  businessPhoneNumberId?: string,
 ): Promise<WhatsappBroadcastResult> {
   const cleanMessage = sanitizeWhatsappTemplateParameter(message);
   if (!cleanMessage) throw new Error("Mensagem vazia.");
 
   const template = await getApprovedTemplate();
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  if (!accessToken || !phoneNumberId) throw new Error("WhatsApp não configurado.");
+  const phoneNumberId = businessPhoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  if (!accessToken || !isMetaBusinessPhoneNumberId(phoneNumberId)) throw new Error("WhatsApp não configurado.");
 
   const service = getSupabaseServiceClient();
   await ensureWhatsappWebhookSubscription();

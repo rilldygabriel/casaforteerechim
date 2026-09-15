@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendWhatsappBroadcast, verifyWhatsappBroadcastTemplate } from "@/lib/whatsapp-broadcast";
 
-export async function publishWhatsappCommandAnnouncement(input: { ownerUserId: string; title: string; body: string; campaign: string }) {
+export async function publishWhatsappCommandAnnouncement(input: { ownerUserId: string; title: string; body: string; campaign: string; businessPhoneNumberId: string }) {
   await verifyWhatsappBroadcastTemplate();
   const service = getSupabaseServiceClient();
   const hash = createHash("sha256").update(input.campaign).digest("hex");
@@ -45,6 +45,6 @@ export async function publishWhatsappCommandAnnouncement(input: { ownerUserId: s
   revalidatePath("/admin/notificacoes");
   revalidatePath("/familia");
   revalidatePath("/familia/notificacoes");
-  const whatsapp = await sendWhatsappBroadcast(input.body, input.campaign);
+  const whatsapp = await sendWhatsappBroadcast(input.body, input.campaign, "members", input.businessPhoneNumberId);
   return { announcementId: created.id, pushSent, whatsapp };
 }

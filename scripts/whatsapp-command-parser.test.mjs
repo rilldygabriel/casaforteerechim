@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parseCasaCommand, casaDraftPreview } from "../src/lib/whatsapp-command-parser.ts";
-import { isCasaCommandOwnerPhone } from "../src/lib/whatsapp-command-auth.ts";
+import { isCasaCommandOwnerPhone, isMetaBusinessPhoneNumberId } from "../src/lib/whatsapp-command-auth.ts";
 
 test("somente o número fixo do pastor pode originar comandos", () => {
   assert.equal(isCasaCommandOwnerPhone("54993217227"), true);
@@ -11,6 +11,13 @@ test("somente o número fixo do pastor pode originar comandos", () => {
   assert.equal(isCasaCommandOwnerPhone("54993217228"), false);
   assert.equal(isCasaCommandOwnerPhone("5554992640253"), false);
   assert.equal(isCasaCommandOwnerPhone(""), false);
+});
+
+test("aceita somente identificador numérico do número oficial no webhook assinado", () => {
+  assert.equal(isMetaBusinessPhoneNumberId("1188719124331063"), true);
+  assert.equal(isMetaBusinessPhoneNumberId("123456789012345"), true);
+  assert.equal(isMetaBusinessPhoneNumberId(undefined), false);
+  assert.equal(isMetaBusinessPhoneNumberId("123/../../foo"), false);
 });
 
 test("não executa mensagens comuns do WhatsApp", () => {
