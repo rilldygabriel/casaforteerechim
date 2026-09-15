@@ -3,6 +3,7 @@ import { HarnessAgent } from "@ai-sdk/harness/agent";
 import { createCodex } from "@ai-sdk/harness-codex";
 import { createVercelSandbox } from "@ai-sdk/sandbox-vercel";
 import { Sandbox } from "@vercel/sandbox";
+import { FatalError } from "workflow";
 
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { replyToCasaOwner, isAuthorizedCasaCommandSender } from "@/lib/whatsapp-admin-commands";
@@ -10,6 +11,14 @@ import { createCodePullRequest, mainCommitSha, validateCodeFiles, type CodeFile 
 
 type CodeRequest = { id: string; conversation_id: number; origin_message_id: string;
   business_phone_number_id: string; request_text: string; owner_user_id: string };
+
+function safeExecutorError(error: unknown) {
+  const raw = error instanceof Error ? error.message :
+    typeof error === "string" ? error :
+    error && typeof error === "object" && "message" in error ? String(error.message) :
+    "Falha desconhecida no executor de código.";
+  return raw.replace(/Bearer\s+[^\s]+/gi, "Bearer [redacted]").slice(0, 300);
+}
 
 async function runIsolatedCodeAgent(request: string) {
   "use step";
@@ -25,13 +34,22 @@ async function runIsolatedCodeAgent(request: string) {
       "registry.npmjs.org": [], "*.npmjs.org": [], "ai-gateway.vercel.sh": gatewayEgress } },
   });
   try {
-    const install = await sandbox.runCommand({ cmd: "npm", args: ["ci"], cwd: sandbox.cwd });
+    // Harness requires a child workDir, not ".". Clone the pinned source into that
+    // child so Codex, git diff and the build all operate on the same repository.
+    const workDir = `${sandbox.cwd}/site-agent`;
+    const clone = await sandbox.runCommand({ cmd: "git", args: ["clone", "--local", "--no-hardlinks", ".", "site-agent"], cwd: sandbox.cwd });
+    if (clone.exitCode !== 0) throw new Error("Não consegui preparar o repositório isolado da prévia.");
+    const revision = await sandbox.runCommand({ cmd: "git", args: ["rev-parse", "HEAD"], cwd: workDir });
+    if (revision.exitCode !== 0 || (await revision.stdout()).trim() !== baseSha) {
+      throw new Error("A cópia isolada não corresponde à versão esperada do site.");
+    }
+    const install = await sandbox.runCommand({ cmd: "npm", args: ["ci"], cwd: workDir });
     if (install.exitCode !== 0) throw new Error("Dependências da prévia não instalaram na sandbox.");
     const agent = new HarnessAgent({
       harness: createCodex({ auth: { AI_GATEWAY_API_KEY: "brokered-by-sandbox" }, reasoningEffort: "medium", webSearch: false }),
       model: "gpt-5.6-terra",
       sandbox: createVercelSandbox({ sandbox }),
-      sandboxConfig: { workDir: "." },
+      sandboxConfig: { workDir: "site-agent" },
       instructions: [
         "You are the coding assistant for Igreja Casa Forte Erechim. Work only in this checked-out public repository.",
         "Implement a small, precise change requested by the pastor. Do not push, commit, create PRs, deploy, or call external admin APIs.",
@@ -51,9 +69,9 @@ async function runIsolatedCodeAgent(request: string) {
         prompt: `Pedido do pastor (texto/áudio transcrito): ${request.slice(0, 4000)}\n\nResponda em português brasileiro com o que alterou e testou.` });
       summary = result.text.trim().slice(0, 700) || summary;
     } finally { await session.destroy(); }
-    const stage = await sandbox.runCommand({ cmd: "git", args: ["add", "-N", "."], cwd: sandbox.cwd });
+    const stage = await sandbox.runCommand({ cmd: "git", args: ["add", "-N", "."], cwd: workDir });
     if (stage.exitCode !== 0) throw new Error("Não consegui identificar os arquivos alterados.");
-    const diff = await sandbox.runCommand({ cmd: "git", args: ["diff", "--name-status", "-z", "HEAD"], cwd: sandbox.cwd });
+    const diff = await sandbox.runCommand({ cmd: "git", args: ["diff", "--name-status", "-z", "HEAD"], cwd: workDir });
     if (diff.exitCode !== 0) throw new Error("Não consegui verificar o resultado da IA.");
     const parts = (await diff.stdout()).split("\0").filter(Boolean);
     const files: CodeFile[] = [];
@@ -62,16 +80,22 @@ async function runIsolatedCodeAgent(request: string) {
       if (!path || !/^[AMD]$/.test(status)) throw new Error("A IA gerou renomeação ou mudança não suportada para publicação automática.");
       if (status === "D") files.push({ path, action: "delete" });
       else {
-        const content = await sandbox.readFileToBuffer({ path, cwd: sandbox.cwd });
+        const content = await sandbox.readFileToBuffer({ path, cwd: workDir });
         if (!content) throw new Error("Arquivo alterado não encontrado na sandbox.");
         files.push({ path, action: "upsert", base64: content.toString("base64") });
       }
     }
     validateCodeFiles(files);
-    const build = await sandbox.runCommand({ cmd: "npm", args: ["run", "build"], cwd: sandbox.cwd });
+    const build = await sandbox.runCommand({ cmd: "npm", args: ["run", "build"], cwd: workDir });
     if (build.exitCode !== 0) throw new Error("Build da alteração falhou na sandbox; a prévia não será publicada.");
     return { baseSha, files, summary };
-  } finally { await sandbox.stop(); }
+  } catch (error) {
+    // A failed isolated run must not automatically purchase three more VMs.
+    throw new FatalError(safeExecutorError(error));
+  } finally {
+    try { await sandbox.stop(); }
+    catch { console.error("site_code_sandbox_stop_failed"); }
+  }
 }
 
 async function createPrAndAskConfirmation(id: string, result: Awaited<ReturnType<typeof runIsolatedCodeAgent>>) {
@@ -126,7 +150,7 @@ export async function prepareSiteCodeChange(id: string, request: string) {
     const result = await runIsolatedCodeAgent(request);
     return await createPrAndAskConfirmation(id, result);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Falha desconhecida no executor de código.";
+    const message = safeExecutorError(error);
     await recordCodeAgentFailure(id, message);
     return { error: message };
   }
