@@ -8,7 +8,7 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = "openai/gpt-6-astra-fast";
+const MODEL = "openai/gpt-5.6-terra";
 
 function clientKey(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();

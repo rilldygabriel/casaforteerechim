@@ -5,12 +5,12 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { handleCasaCommand, isAuthorizedCasaCommandSender, replyToCasaOwner } from "@/lib/whatsapp-admin-commands";
 import { parseCasaCommand } from "@/lib/whatsapp-command-parser";
 
-const LANGUAGE_MODEL = "openai/gpt-6-astra-fast";
+const LANGUAGE_MODEL = "openai/gpt-5.6-terra";
 const TRANSCRIPTION_MODEL = "openai/whisper-1";
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v25.0";
 const MAX_AUDIO_BYTES = 16 * 1024 * 1024;
 
-type BotDecision = { intent: "command" | "clarify" | "site_change"; command: string; reply: string };
+type BotDecision = { intent: "command" | "clarify" | "agenda_stats" | "site_change"; command: string; reply: string };
 type BotState = {
   state: "queued" | "processing" | "responding" | "completed" | "failed";
   businessPhoneNumberId: string;
@@ -28,7 +28,7 @@ const decisionSchema = jsonSchema<BotDecision>({
   type: "object",
   additionalProperties: false,
   properties: {
-    intent: { type: "string", enum: ["command", "clarify", "site_change"] },
+    intent: { type: "string", enum: ["command", "clarify", "agenda_stats", "site_change"] },
     command: { type: "string", maxLength: 1400 },
     reply: { type: "string", maxLength: 700 },
   },
@@ -36,7 +36,7 @@ const decisionSchema = jsonSchema<BotDecision>({
 }, {
   validate(value) {
     const item = value as Partial<BotDecision> | null;
-    if (!item || !["command", "clarify", "site_change"].includes(String(item.intent)) ||
+    if (!item || !["command", "clarify", "agenda_stats", "site_change"].includes(String(item.intent)) ||
         typeof item.command !== "string" || typeof item.reply !== "string" ||
         item.command.length > 1400 || item.reply.length > 700) {
       return { success: false, error: new Error("Resposta da IA inválida.") };
@@ -84,6 +84,17 @@ async function recentConversation(conversationId: number, incomingMessageId: str
     .reverse().map((item) => ({ de: item.direction, texto: String(item.body ?? "").slice(0, 450) }));
 }
 
+async function pastoralAgendaStats() {
+  const service = getSupabaseServiceClient();
+  const [{ count: booked, error: bookedError }, { count: upcoming, error: upcomingError }] = await Promise.all([
+    service.from("pastoral_availability_slots").select("id", { count: "exact", head: true }).eq("status", "booked"),
+    service.from("pastoral_availability_slots").select("id", { count: "exact", head: true })
+      .eq("status", "booked").gt("starts_at", new Date().toISOString()),
+  ]);
+  if (bookedError || upcomingError) throw new Error("Não consegui consultar as reservas da Agenda Pastoral.");
+  return `Na Agenda Pastoral, ${booked ?? 0} horário(s) já foram reservados no total; ${upcoming ?? 0} ainda estão por acontecer. Não alterei nenhum horário.`;
+}
+
 async function understandRequest(text: string, history: Awaited<ReturnType<typeof recentConversation>>) {
   const localDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const result = await generateText({
@@ -96,6 +107,7 @@ async function understandRequest(text: string, history: Awaited<ReturnType<typeo
       "CASA AGENDA; CASA AGENDA ABRIR; CASA AGENDA PAUSAR; CASA AGENDA NOVO AAAA-MM-DD | HH:MM | HH:MM | Rilldy/Lisi/Rilldy e Lisi | Local;",
       "CASA EVENTO Título | AAAA-MM-DD | HH:MM | Local | Descrição (evento público sem inscrição); CASA AVISO Título | Texto.",
       "Use intent=command somente com todos os campos explícitos e command contendo o comando completo.",
+      "Perguntas sobre QUANTOS horários foram preenchidos, reservados ou aceitos na Agenda Pastoral são intent=agenda_stats; command vazio. Nunca classifique uma consulta de contagem como site_change.",
       "Se faltarem dados, use intent=clarify e faça UMA pergunta objetiva em reply; command vazio.",
       "Pedidos de mudar código, design, fotos, vídeo, cadastros, pagamentos ou qualquer outra área não coberta são intent=site_change.",
       "Nunca interprete sim, ok ou confirmação informal como CASA CONFIRMAR. A confirmação com código é obrigatória.",
@@ -156,7 +168,7 @@ export async function processQueuedCasaBotMessages(limit = 2) {
         await handleCasaCommand({ phone, conversationId: row.conversation_id, incomingMessageId: row.wa_message_id,
           businessPhoneNumberId: state.businessPhoneNumberId, body: decision.command });
       } else {
-        const answer = decision.intent === "site_change"
+        const answer = decision.intent === "agenda_stats" ? await pastoralAgendaStats() : decision.intent === "site_change"
           ? `Entendi o pedido${payload.type === "audio" ? ` do áudio: “${text.slice(0, 220)}”` : ""}. Ainda não tenho um executor seguro para alterar código/design e publicar sozinho por este WhatsApp. Não fiz nenhuma mudança. Para agenda, eventos públicos e avisos, já posso preparar uma prévia para sua confirmação.`
           : decision.reply || "Pode me dizer o que deseja fazer e os detalhes necessários?";
         await replyToCasaOwner(phone, row.conversation_id, answer.slice(0, 900), row.wa_message_id, state.businessPhoneNumberId);
