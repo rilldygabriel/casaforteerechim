@@ -6,6 +6,8 @@ import { isCasaCommandOwnerPhone } from "../src/lib/whatsapp-command-auth.ts";
 test("somente o número fixo do pastor pode originar comandos", () => {
   assert.equal(isCasaCommandOwnerPhone("54993217227"), true);
   assert.equal(isCasaCommandOwnerPhone("+55 (54) 99321-7227"), true);
+  assert.equal(isCasaCommandOwnerPhone("555493217227"), true);
+  assert.equal(isCasaCommandOwnerPhone("5493217227"), false);
   assert.equal(isCasaCommandOwnerPhone("54993217228"), false);
   assert.equal(isCasaCommandOwnerPhone("5554992640253"), false);
   assert.equal(isCasaCommandOwnerPhone(""), false);
@@ -14,6 +16,8 @@ test("somente o número fixo do pastor pode originar comandos", () => {
 test("não executa mensagens comuns do WhatsApp", () => {
   assert.equal(parseCasaCommand("Boa tarde, como faço inscrição?"), null);
   assert.equal(parseCasaCommand("agenda"), null);
+  assert.deepEqual(parseCasaCommand("Oi casa"), { type: "help" });
+  assert.deepEqual(parseCasaCommand("Oi, casa!"), { type: "help" });
 });
 
 test("agenda pastoral aceita apenas datas, horas e responsável explícitos", () => {

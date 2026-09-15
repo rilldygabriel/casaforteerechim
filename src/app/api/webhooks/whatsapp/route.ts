@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { handleCasaCommand, isAuthorizedCasaCommandSender, processQueuedCasaCommands } from "@/lib/whatsapp-admin-commands";
+import { parseCasaCommand } from "@/lib/whatsapp-command-parser";
 
 export const runtime = "nodejs";
 
@@ -116,15 +117,23 @@ export async function POST(request: NextRequest) {
           processingFailed = true;
           console.error("whatsapp_webhook_unread_count_failed", { messageId: message.id, error: unreadError.message });
         }
-        if (message.type === "text" && await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id)) {
-          try {
-            if (await handleCasaCommand({ phone, conversationId: conversation.id, incomingMessageId: message.id, body: String(body) })) {
-              after(async () => { try { await processQueuedCasaCommands(); } catch (commandError) {
-                console.error("casa_command_background_failed", commandError instanceof Error ? commandError.message : "unknown");
-              } });
+        if (message.type === "text" && parseCasaCommand(String(body))) {
+          const authorized = await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id);
+          console.info("casa_command_authorization", {
+            messageId: message.id,
+            authorized,
+            businessPhoneMetadataPresent: Boolean(value.metadata?.phone_number_id),
+          });
+          if (authorized) {
+            try {
+              if (await handleCasaCommand({ phone, conversationId: conversation.id, incomingMessageId: message.id, body: String(body) })) {
+                after(async () => { try { await processQueuedCasaCommands(); } catch (commandError) {
+                  console.error("casa_command_background_failed", commandError instanceof Error ? commandError.message : "unknown");
+                } });
+              }
+            } catch (commandError) {
+              console.error("casa_command_intake_failed", { messageId: message.id, error: commandError instanceof Error ? commandError.message : "unknown" });
             }
-          } catch (commandError) {
-            console.error("casa_command_intake_failed", { messageId: message.id, error: commandError instanceof Error ? commandError.message : "unknown" });
           }
         }
       } else if (insertError.code !== "23505") {
