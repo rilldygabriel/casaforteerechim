@@ -3,7 +3,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const AUDIT_KEY_HASH = "4aaed77a34131a56aa23fa672b3c3f75b3f169f83db8b1c5aaed137e0e647c66";
+const AUDIT_KEY_HASH = "84a60b6a342e1f833485e4994ed9da24c2855248d78076c4932f7009611971c5";
 const PAGBANK_ORDERS_URL = "https://api.pagseguro.com/orders";
 
 function authorized(request: Request) {
