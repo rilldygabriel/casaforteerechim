@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
       <article className="legal-card">
         <p className="section-eyebrow"><span />Privacidade e cuidado</p>
         <h1>Política de Privacidade</h1>
-        <p className="legal-updated">Última atualização: 6 de agosto de 2026.</p>
+        <p className="legal-updated">Última atualização: 15 de setembro de 2026.</p>
 
         <p>
           A Igreja Casa Forte Erechim respeita sua privacidade. Esta política explica como tratamos os dados enviados pelo site, pela Área da Família e pelos canais oficiais de atendimento, incluindo o WhatsApp.
@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
 
         <h2>Dados que podemos receber</h2>
         <p>
-          Podemos receber nome, telefone, e-mail, foto de perfil, data de nascimento, informações de participação na igreja, pedidos de oração, inscrições em eventos e mensagens enviadas ao número oficial da Casa.
+          Podemos receber nome, telefone, e-mail, foto de perfil, data de nascimento, informações de participação na igreja, pedidos de oração, inscrições em eventos, mensagens enviadas ao número oficial da Casa e perguntas enviadas à IA do site.
         </p>
 
         <h2>Como usamos esses dados</h2>
@@ -31,6 +31,11 @@ export default function PrivacyPolicyPage() {
         <h2>WhatsApp</h2>
         <p>
           As mensagens enviadas ao número oficial podem ser armazenadas de forma segura para que a equipe autorizada consiga visualizar o histórico e responder pelo painel administrativo. Não vendemos nem utilizamos essas mensagens para publicidade de terceiros.
+        </p>
+
+        <h2>IA da Casa</h2>
+        <p>
+          Perguntas feitas à IA do site são processadas por um fornecedor de inteligência artificial e registradas com a resposta para segurança, controle de uso e melhoria da base de informações da Casa. O chat público usa apenas informações da igreja liberadas para publicação e não acessa fichas de membros, finanças ou anotações pastorais. Não envie dados sensíveis pelo chat; para cuidado pessoal, use os canais de atendimento da equipe.
         </p>
 
         <h2>Compartilhamento e segurança</h2>

@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import ScrollToTop from "@/components/scroll-to-top";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import ThemeToggle from "@/components/theme-toggle";
+import SiteAssistant from "@/components/site-assistant";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -89,6 +90,7 @@ export default function RootLayout({
         <ScrollToTop />
         <SiteRefreshButton floating />
         <ThemeToggle floating />
+        <SiteAssistant />
         {children}
       </body>
     </html>

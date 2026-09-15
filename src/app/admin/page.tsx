@@ -104,6 +104,7 @@ export default async function AdminPage() {
           <Module number="06" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
           <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
           <Module number="08" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
+          <Module number="IA" href="/admin/assistente" title="IA da Casa" copy="Ensine respostas verificadas e controle o que a assistente pode dizer no site." action="Ensinar a IA" />
           <Module number="09" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie eventos, acompanhe participantes, vagas e cada etapa das inscrições." action="Gerenciar eventos" />
           <Module number="10" href="/admin/financeiro" title="Financeiro" copy="Acompanhe contas, pagamentos, resumo mensal e entradas dos extratos." action="Abrir financeiro" />
           <Module number="11" href="/admin/presencas" title="Confirmações" copy="Veja quem confirmou presença nos cultos e eventos e quais membros já possuem um dispositivo identificado." action="Acompanhar presenças" />

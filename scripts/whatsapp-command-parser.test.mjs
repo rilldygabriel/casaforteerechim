@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseCasaCommand, casaDraftPreview } from "../src/lib/whatsapp-command-parser.ts";
+import { parseCasaCommand, casaDraftPreview, isExplicitCasaCommand } from "../src/lib/whatsapp-command-parser.ts";
 import { isCasaCommandOwnerPhone, isMetaBusinessPhoneNumberId } from "../src/lib/whatsapp-command-auth.ts";
 
 test("somente o número fixo do pastor pode originar comandos", () => {
@@ -25,6 +25,14 @@ test("não executa mensagens comuns do WhatsApp", () => {
   assert.equal(parseCasaCommand("agenda"), null);
   assert.deepEqual(parseCasaCommand("Oi casa"), { type: "help" });
   assert.deepEqual(parseCasaCommand("Oi, casa!"), { type: "help" });
+});
+
+test("conversa livre sobre o site não é confundida com comando antigo", () => {
+  assert.equal(isExplicitCasaCommand("Casa, atualize o design do site"), false);
+  assert.equal(isExplicitCasaCommand("casa atualize as fotos"), false);
+  assert.equal(isExplicitCasaCommand("Oi casa"), true);
+  assert.equal(isExplicitCasaCommand("CASA CONFIRMAR A1B2C3D4"), true);
+  assert.equal(isExplicitCasaCommand("CASA AGENDA NOVO 2026-02-30"), true);
 });
 
 test("agenda pastoral aceita apenas datas, horas e responsável explícitos", () => {
