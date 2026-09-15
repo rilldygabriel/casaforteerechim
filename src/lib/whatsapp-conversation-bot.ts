@@ -10,7 +10,8 @@ const TRANSCRIPTION_MODEL = "openai/whisper-1";
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v25.0";
 const MAX_AUDIO_BYTES = 16 * 1024 * 1024;
 
-type BotDecision = { intent: "command" | "clarify" | "agenda_stats" | "site_change"; command: string; reply: string };
+type OwnerQuery = "members" | "visitor_followups" | "event_registrations";
+type BotDecision = { intent: "command" | "clarify" | "agenda_stats" | "owner_query" | "site_change"; command: string; reply: string; query: OwnerQuery | ""; subject: string };
 type BotState = {
   state: "queued" | "processing" | "responding" | "completed" | "failed";
   businessPhoneNumberId: string;
@@ -28,17 +29,20 @@ const decisionSchema = jsonSchema<BotDecision>({
   type: "object",
   additionalProperties: false,
   properties: {
-    intent: { type: "string", enum: ["command", "clarify", "agenda_stats", "site_change"] },
+    intent: { type: "string", enum: ["command", "clarify", "agenda_stats", "owner_query", "site_change"] },
     command: { type: "string", maxLength: 1400 },
     reply: { type: "string", maxLength: 700 },
+    query: { type: "string", enum: ["", "members", "visitor_followups", "event_registrations"] },
+    subject: { type: "string", maxLength: 180 },
   },
-  required: ["intent", "command", "reply"],
+  required: ["intent", "command", "reply", "query", "subject"],
 }, {
   validate(value) {
     const item = value as Partial<BotDecision> | null;
-    if (!item || !["command", "clarify", "agenda_stats", "site_change"].includes(String(item.intent)) ||
+    if (!item || !["command", "clarify", "agenda_stats", "owner_query", "site_change"].includes(String(item.intent)) ||
         typeof item.command !== "string" || typeof item.reply !== "string" ||
-        item.command.length > 1400 || item.reply.length > 700) {
+        typeof item.query !== "string" || !["", "members", "visitor_followups", "event_registrations"].includes(item.query) ||
+        typeof item.subject !== "string" || item.command.length > 1400 || item.reply.length > 700 || item.subject.length > 180) {
       return { success: false, error: new Error("Resposta da IA inválida.") };
     }
     return { success: true, value: item as BotDecision };
@@ -95,6 +99,48 @@ async function pastoralAgendaStats() {
   return `Na Agenda Pastoral, ${booked ?? 0} horário(s) já foram reservados no total; ${upcoming ?? 0} ainda estão por acontecer. Não alterei nenhum horário.`;
 }
 
+async function ownerSiteQuery(decision: BotDecision) {
+  const service = getSupabaseServiceClient();
+  if (decision.query === "members") {
+    const [all, approved, complete, pending] = await Promise.all([
+      service.from("member_profiles").select("user_id", { count: "exact", head: true }),
+      service.from("member_profiles").select("user_id", { count: "exact", head: true }).eq("approval_status", "approved"),
+      service.from("member_profiles").select("user_id", { count: "exact", head: true }).eq("profile_completed", true),
+      service.from("member_profiles").select("user_id", { count: "exact", head: true }).eq("approval_status", "pending"),
+    ]);
+    if (all.error || approved.error || complete.error || pending.error) throw new Error("Não consegui consultar os membros.");
+    return `Cadastros da Família: ${all.count ?? 0} no total, ${approved.count ?? 0} aprovados, ${complete.count ?? 0} com perfil completo e ${pending.count ?? 0} aguardando aprovação.`;
+  }
+  if (decision.query === "visitor_followups") {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const { count, error } = await service.from("visitor_followup_steps").select("id", { count: "exact", head: true })
+      .is("completed_at", null).lte("due_date", today);
+    if (error) throw new Error("Não consegui consultar o acompanhamento de visitantes.");
+    return `A equipe Connect tem ${count ?? 0} etapa(s) de acompanhamento de visitantes vencidas ou para hoje e ainda não concluídas. Confira os detalhes no painel de visitantes.`;
+  }
+  if (decision.query === "event_registrations") {
+    const subject = decision.subject.trim().toLocaleLowerCase("pt-BR");
+    if (subject.length < 3) return "Qual é o nome do evento cujas inscrições você quer consultar?";
+    const { data: events, error: eventError } = await service.from("events")
+      .select("id,title,slug,start_date").eq("registration_enabled", true).is("archived_at", null)
+      .order("start_date", { ascending: false }).limit(80);
+    if (eventError) throw new Error("Não consegui consultar os eventos.");
+    const matches = (events ?? []).filter((event) => `${event.title} ${event.slug} ${event.start_date}`.toLocaleLowerCase("pt-BR").includes(subject));
+    if (matches.length !== 1) return matches.length
+      ? `Encontrei mais de um evento com “${decision.subject.slice(0, 80)}”. Diga o título e a data para eu distinguir.`
+      : `Não encontrei um evento de inscrição ativo com “${decision.subject.slice(0, 80)}”. Confira o nome no painel de eventos.`;
+    const event = matches[0];
+    const { data: registrations, count, error } = await service.from("event_registrations")
+      .select("full_name,status", { count: "exact" }).eq("event_id", event.id).is("archived_at", null)
+      .neq("status", "cancelled").order("created_at", { ascending: false }).limit(15);
+    if (error) throw new Error("Não consegui consultar as inscrições.");
+    const names = (registrations ?? []).map((registration) => registration.full_name).join(", ");
+    const suffix = (count ?? 0) > 15 ? " (mostrei só os 15 mais recentes)" : "";
+    return `${event.title} (${event.start_date}): ${count ?? 0} inscrição(ões) ativa(s). ${names ? `Nomes: ${names}${suffix}.` : "Ainda não há inscritos."}`;
+  }
+  return "Posso consultar membros, acompanhamento de visitantes e inscrições de um evento específico. Qual desses você deseja?";
+}
+
 async function understandRequest(text: string, history: Awaited<ReturnType<typeof recentConversation>>) {
   const localDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const result = await generateText({
@@ -108,6 +154,8 @@ async function understandRequest(text: string, history: Awaited<ReturnType<typeo
       "CASA EVENTO Título | AAAA-MM-DD | HH:MM | Local | Descrição (evento público sem inscrição); CASA AVISO Título | Texto.",
       "Use intent=command somente com todos os campos explícitos e command contendo o comando completo.",
       "Perguntas sobre QUANTOS horários foram preenchidos, reservados ou aceitos na Agenda Pastoral são intent=agenda_stats; command vazio. Nunca classifique uma consulta de contagem como site_change.",
+      "Para consultas privadas do pastor, use intent=owner_query e query=members para números de membros; query=visitor_followups para pendências do Connect; query=event_registrations para inscritos em um evento. Ponha o nome do evento em subject. Não invente resposta; as informações serão consultadas no banco depois. command vazio.",
+      "Para as outras intenções, query vazio e subject vazio. Responda de forma curta e direta.",
       "Se faltarem dados, use intent=clarify e faça UMA pergunta objetiva em reply; command vazio.",
       "Pedidos de mudar código, design, fotos, vídeo, cadastros, pagamentos ou qualquer outra área não coberta são intent=site_change.",
       "Nunca interprete sim, ok ou confirmação informal como CASA CONFIRMAR. A confirmação com código é obrigatória.",
@@ -168,7 +216,8 @@ export async function processQueuedCasaBotMessages(limit = 2) {
         await handleCasaCommand({ phone, conversationId: row.conversation_id, incomingMessageId: row.wa_message_id,
           businessPhoneNumberId: state.businessPhoneNumberId, body: decision.command });
       } else {
-        const answer = decision.intent === "agenda_stats" ? await pastoralAgendaStats() : decision.intent === "site_change"
+        const answer = decision.intent === "agenda_stats" ? await pastoralAgendaStats() : decision.intent === "owner_query"
+          ? await ownerSiteQuery(decision) : decision.intent === "site_change"
           ? `Entendi o pedido${payload.type === "audio" ? ` do áudio: “${text.slice(0, 220)}”` : ""}. Ainda não tenho um executor seguro para alterar código/design e publicar sozinho por este WhatsApp. Não fiz nenhuma mudança. Para agenda, eventos públicos e avisos, já posso preparar uma prévia para sua confirmação.`
           : decision.reply || "Pode me dizer o que deseja fazer e os detalhes necessários?";
         await replyToCasaOwner(phone, row.conversation_id, answer.slice(0, 900), row.wa_message_id, state.businessPhoneNumberId);
