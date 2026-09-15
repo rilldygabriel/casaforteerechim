@@ -3,13 +3,12 @@ import { revalidatePath } from "next/cache";
 
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { configurePastoralAgenda, createPastoralSlot, personalAgendaAction } from "@/lib/pastoral-agenda";
-import { isCasaCommandOwnerPhone } from "@/lib/whatsapp-command-auth";
+import { isCasaCommandOwnerPhone, isMetaBusinessPhoneNumberId } from "@/lib/whatsapp-command-auth";
 import { publishWhatsappCommandAnnouncement } from "@/lib/whatsapp-command-announcement";
 import { casaCommandHelp, casaDraftPreview, parseCasaCommand, type CasaCommandDraft } from "@/lib/whatsapp-command-parser";
 
 const OWNER_USER_ID = "34944370-8853-4c1b-866b-8c80b4e59829";
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v25.0";
-const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || "1188719124331063";
 const DRAFT_VALID_MS = 10 * 60_000;
 
 function commandUuid(code: string) {
@@ -22,6 +21,7 @@ type StoredDraft = {
   kind: CasaCommandDraft["kind"];
   payload: CasaCommandDraft;
   ownerUserId: string;
+  businessPhoneNumberId: string;
   expiresAt: string;
   originMessageId: string;
   startedAt?: string;
@@ -36,20 +36,21 @@ async function ownerAccountAuthorized() {
 
 export async function isAuthorizedCasaCommandSender(phone: string, businessPhoneNumberId: string | undefined) {
   const phoneMatches = isCasaCommandOwnerPhone(phone);
-  const businessPhoneMatches = businessPhoneNumberId === PHONE_NUMBER_ID;
-  if (!phoneMatches || !businessPhoneMatches) {
-    console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneMatches });
+  const businessPhoneIdValid = isMetaBusinessPhoneNumberId(businessPhoneNumberId);
+  if (!phoneMatches || !businessPhoneIdValid) {
+    console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneIdValid });
     return false;
   }
   const accountApproved = await ownerAccountAuthorized();
-  if (!accountApproved) console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneMatches, accountApproved });
+  if (!accountApproved) console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneIdValid, accountApproved });
   return accountApproved;
 }
 
-async function reply(phone: string, conversationId: number, body: string, incomingMessageId: string) {
+async function reply(phone: string, conversationId: number, body: string, incomingMessageId: string, businessPhoneNumberId: string) {
+  if (!isMetaBusinessPhoneNumberId(businessPhoneNumberId)) throw new Error("Número oficial do WhatsApp inválido.");
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
   if (!accessToken) throw new Error("WhatsApp oficial não configurado para responder.");
-  const response = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${PHONE_NUMBER_ID}/messages`, {
+  const response = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${businessPhoneNumberId}/messages`, {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
     body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to: phone,
@@ -62,7 +63,7 @@ async function reply(phone: string, conversationId: number, body: string, incomi
   const service = getSupabaseServiceClient();
   const { error } = await service.from("whatsapp_messages").insert({
     conversation_id: conversationId, wa_message_id: messageId, direction: "outbound", message_type: "text",
-    body, status: "sent", sent_at: new Date().toISOString(), raw_payload: { kind: "casa_command_reply", in_reply_to: incomingMessageId },
+    body, status: "sent", sent_at: new Date().toISOString(), raw_payload: { kind: "casa_command_reply", in_reply_to: incomingMessageId, business_phone_number_id: businessPhoneNumberId },
   });
   if (error) console.warn("casa_command_reply_not_logged", { code: error.code });
 }
@@ -130,7 +131,7 @@ async function executeDraft(draft: StoredDraft, code: string) {
     revalidatePath("/calendario"); revalidatePath("/eventos"); revalidatePath("/admin/eventos");
     return `Evento público “${payload.title}” criado no site, sem inscrição automática.`;
   }
-  const result = await publishWhatsappCommandAnnouncement({ ownerUserId: draft.ownerUserId, title: payload.title, body: payload.body, campaign: `casa_command_${code}` });
+  const result = await publishWhatsappCommandAnnouncement({ ownerUserId: draft.ownerUserId, title: payload.title, body: payload.body, campaign: `casa_command_${code}`, businessPhoneNumberId: draft.businessPhoneNumberId });
   return `Aviso publicado no site. Push: ${result.pushSent} aparelho(s). WhatsApp: ${result.whatsapp.accepted} aceito(s) pela Meta, ${result.whatsapp.rejected} recusado(s), ${result.whatsapp.skipped} já enviado(s).`;
 }
 
@@ -141,7 +142,7 @@ async function draftRow(conversationId: number, code: string) {
   return data as { id: number; status: string; raw_payload: StoredDraft } | null;
 }
 
-export async function handleCasaCommand(input: { phone: string; conversationId: number; incomingMessageId: string; body: string }) {
+export async function handleCasaCommand(input: { phone: string; conversationId: number; incomingMessageId: string; businessPhoneNumberId: string; body: string }) {
   const parsed = parseCasaCommand(input.body);
   if (!parsed) return false;
   const service = getSupabaseServiceClient();
@@ -154,6 +155,7 @@ export async function handleCasaCommand(input: { phone: string; conversationId: 
     answer = casaDraftPreview(parsed.draft, code);
     const record: StoredDraft = {
       state: "pending", kind: parsed.draft.kind, payload: parsed.draft, ownerUserId: OWNER_USER_ID,
+      businessPhoneNumberId: input.businessPhoneNumberId,
       expiresAt: new Date(Date.now() + DRAFT_VALID_MS).toISOString(), originMessageId: input.incomingMessageId,
     };
     const { error } = await service.from("whatsapp_messages").insert({
@@ -179,7 +181,7 @@ export async function handleCasaCommand(input: { phone: string; conversationId: 
       else answer = `Confirmação recebida. Estou executando o comando ${parsed.code}; envio o resultado aqui em seguida.`;
     }
   }
-  await reply(input.phone, input.conversationId, answer, input.incomingMessageId);
+  await reply(input.phone, input.conversationId, answer, input.incomingMessageId, input.businessPhoneNumberId);
   return true;
 }
 
@@ -217,6 +219,7 @@ export async function processQueuedCasaCommands(limit = 3) {
       if (conversationError || !conversation?.phone || !isCasaCommandOwnerPhone(conversation.phone)) {
         throw new Error("Comando recusado: remetente não autorizado.");
       }
+      if (!isMetaBusinessPhoneNumberId(draft.businessPhoneNumberId)) throw new Error("Número oficial de origem inválido.");
       if (!await ownerAccountAuthorized()) throw new Error("A conta administrativa do proprietário não está aprovada.");
       resultText = await executeDraft(draft, code);
       state = "completed";
@@ -231,7 +234,7 @@ export async function processQueuedCasaCommands(limit = 3) {
       .update({ status: state === "completed" ? "sent" : "failed", raw_payload: { ...draft, state, result: resultText } })
       .eq("id", row.id).eq("status", "delivered");
     if (conversation?.phone && isCasaCommandOwnerPhone(conversation.phone)) {
-      try { await reply(conversation.phone, row.conversation_id, `Comando ${code}: ${resultText}`, draft.originMessageId); }
+      try { await reply(conversation.phone, row.conversation_id, `Comando ${code}: ${resultText}`, draft.originMessageId, draft.businessPhoneNumberId); }
       catch (replyError) { console.warn("casa_command_result_reply_failed", { code, error: replyError instanceof Error ? replyError.message : "unknown" }); }
     }
   }
