@@ -4,6 +4,7 @@ import { generateText, gateway, jsonSchema, Output, transcribe } from "ai";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { handleCasaCommand, isAuthorizedCasaCommandSender, replyToCasaOwner } from "@/lib/whatsapp-admin-commands";
 import { parseCasaCommand } from "@/lib/whatsapp-command-parser";
+import { saveOwnerEventPhoto } from "@/lib/whatsapp-event-photo";
 
 const LANGUAGE_MODEL = "openai/gpt-5.6-terra";
 const TRANSCRIPTION_MODEL = "openai/whisper-1";
@@ -23,7 +24,8 @@ type BotState = {
   usage?: unknown;
   error?: string;
 };
-type IncomingPayload = { casa_bot: BotState; audio?: { id?: string }; type?: string; [key: string]: unknown };
+type IncomingPayload = { casa_bot: BotState; audio?: { id?: string }; image?: { id?: string; caption?: string }; type?: string;
+  casa_event_photo?: { path: string; state: "stored" }; [key: string]: unknown };
 
 const decisionSchema = jsonSchema<BotDecision>({
   type: "object",
@@ -82,7 +84,7 @@ async function downloadOwnerAudio(mediaId: string, businessPhoneNumberId: string
 async function recentConversation(conversationId: number, incomingMessageId: string) {
   const { data } = await getSupabaseServiceClient().from("whatsapp_messages")
     .select("direction,body,message_type,wa_message_id")
-    .eq("conversation_id", conversationId).in("message_type", ["text", "audio"])
+    .eq("conversation_id", conversationId).in("message_type", ["text", "audio", "image"])
     .order("created_at", { ascending: false }).limit(8);
   return (data ?? []).filter((item) => item.wa_message_id !== incomingMessageId)
     .reverse().map((item) => ({ de: item.direction, texto: String(item.body ?? "").slice(0, 450) }));
@@ -151,13 +153,15 @@ async function understandRequest(text: string, history: Awaited<ReturnType<typeo
       "Interprete somente o pedido do pastor. Não invente datas, horários, local, pessoas, valores ou eventos.",
       "Para ações hoje executáveis, converta o pedido em UM comando CASA exatamente válido:",
       "CASA AGENDA; CASA AGENDA ABRIR; CASA AGENDA PAUSAR; CASA AGENDA NOVO AAAA-MM-DD | HH:MM | HH:MM | Rilldy/Lisi/Rilldy e Lisi | Local;",
-      "CASA EVENTO Título | AAAA-MM-DD | HH:MM | Local | Descrição (evento público sem inscrição); CASA AVISO Título | Texto.",
+      "CASA EVENTO Título | AAAA-MM-DD | HH:MM | Local | Descrição | INSCRICAO SIM/NAO | VALOR 0/250,00; CASA AVISO Título | Texto.",
+      "Para evento com inscrição, pergunte se a inscrição é gratuita ou paga quando o pastor não informar. Se paga, pergunte o valor exato. Nunca invente preço. Use INSCRICAO SIM e VALOR 0 apenas quando ele disser explicitamente que será gratuito.",
+      "Quando uma foto foi enviada pelo pastor, ela é guardada em rascunho privado e anexada automaticamente à próxima prévia de evento. Não descreva a foto sem vê-la.",
       "Use intent=command somente com todos os campos explícitos e command contendo o comando completo.",
       "Perguntas sobre QUANTOS horários foram preenchidos, reservados ou aceitos na Agenda Pastoral são intent=agenda_stats; command vazio. Nunca classifique uma consulta de contagem como site_change.",
       "Para consultas privadas do pastor, use intent=owner_query e query=members para números de membros; query=visitor_followups para pendências do Connect; query=event_registrations para inscritos em um evento. Ponha o nome do evento em subject. Não invente resposta; as informações serão consultadas no banco depois. command vazio.",
       "Para as outras intenções, query vazio e subject vazio. Responda de forma curta e direta.",
       "Se faltarem dados, use intent=clarify e faça UMA pergunta objetiva em reply; command vazio.",
-      "Pedidos de mudar código, design, fotos, vídeo, cadastros, pagamentos ou qualquer outra área não coberta são intent=site_change.",
+      "Pedidos de mudar código, design, fotos gerais do site, vídeo, cadastros, pagamentos ou qualquer outra área não coberta são intent=site_change.",
       "Nunca interprete sim, ok ou confirmação informal como CASA CONFIRMAR. A confirmação com código é obrigatória.",
       "Não revele dados privados da igreja nem assuma que uma ação foi publicada.",
     ].join("\n"),
@@ -194,6 +198,7 @@ export async function processQueuedCasaBotMessages(limit = 2) {
     const processing: IncomingPayload = { ...payload, casa_bot: { ...state, state: "processing", generationId,
       model: payload.type === "audio" ? `${TRANSCRIPTION_MODEL} + ${LANGUAGE_MODEL}` : LANGUAGE_MODEL,
       startedAt: new Date().toISOString() } };
+    let activePayload = processing;
     const { data: claimed } = await service.from("whatsapp_messages")
       .update({ raw_payload: processing }).eq("id", row.id)
       .contains("raw_payload", { casa_bot: { state: "queued" } }).select("id").maybeSingle();
@@ -205,10 +210,27 @@ export async function processQueuedCasaBotMessages(limit = 2) {
       if (!await isAuthorizedCasaCommandSender(phone, state.businessPhoneNumberId)) throw new Error("Remetente não autorizado.");
       const text = payload.type === "audio"
         ? await downloadOwnerAudio(String(row.media_id ?? payload.audio?.id ?? ""), state.businessPhoneNumberId)
+        : payload.type === "image" ? String(payload.image?.caption ?? "").trim().slice(0, 4000)
         : String(row.body ?? "").trim().slice(0, 4000);
+      if (payload.type === "image") {
+        const path = await saveOwnerEventPhoto(String(row.media_id ?? payload.image?.id ?? ""), state.businessPhoneNumberId);
+        const stored: IncomingPayload = { ...processing, casa_event_photo: { path, state: "stored" },
+          casa_bot: { ...processing.casa_bot, state: text ? "processing" : "responding" } };
+        activePayload = stored;
+        await service.from("whatsapp_messages").update({ body: text || "[Foto para evento recebida em rascunho privado]", raw_payload: stored }).eq("id", row.id);
+        if (!text) {
+          await replyToCasaOwner(phone, row.conversation_id,
+            "Recebi sua foto e guardei em rascunho privado. Para criar o evento, mande título, data, horário, local, descrição e diga se haverá inscrição gratuita ou paga (se paga, o valor). Vou mostrar uma prévia antes de publicar.",
+            row.wa_message_id, state.businessPhoneNumberId);
+          await service.from("whatsapp_messages").update({ raw_payload: { ...stored,
+            casa_bot: { ...stored.casa_bot, state: "completed" } } }).eq("id", row.id);
+          completed += 1;
+          continue;
+        }
+      }
       if (!text) throw new Error("Mensagem vazia.");
       const { decision, usage } = await understandRequest(text, await recentConversation(row.conversation_id, row.wa_message_id));
-      const normalized = { ...processing, casa_bot: { ...processing.casa_bot, state: "responding" as const,
+      const normalized = { ...activePayload, casa_bot: { ...activePayload.casa_bot, state: "responding" as const,
         transcript: payload.type === "audio" ? text : undefined, decision, usage } };
       await service.from("whatsapp_messages").update({ body: text, raw_payload: normalized }).eq("id", row.id);
       const command = decision.intent === "command" ? parseCasaCommand(decision.command) : null;

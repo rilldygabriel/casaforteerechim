@@ -16,7 +16,7 @@ type WhatsappIncomingMessage = {
   text?: { body?: string };
   button?: { text?: string };
   interactive?: { button_reply?: { title?: string } };
-  image?: { id?: string };
+  image?: { id?: string; caption?: string };
   audio?: { id?: string };
   document?: { id?: string };
 };
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       receivedMessages += 1;
       const phone = String(message.from ?? "").replace(/\D/g, "");
       if (!phone || !message.id) continue;
-      const body = message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title ?? `[${message.type ?? "mensagem"}]`;
+      const body = message.text?.body ?? message.image?.caption ?? message.button?.text ?? message.interactive?.button_reply?.title ?? `[${message.type ?? "mensagem"}]`;
       const { data: conversation, error } = await supabase.from("whatsapp_conversations").upsert({
         phone, contact_name: names.get(phone) ?? null, last_message_at: new Date(Number(message.timestamp) * 1000).toISOString(),
         last_message_preview: String(body).slice(0, 240), updated_at: new Date().toISOString(),
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         });
         continue;
       }
-      const isBotCandidate = message.type === "text" || message.type === "audio";
+      const isBotCandidate = message.type === "text" || message.type === "audio" || message.type === "image";
       const authorized = isBotCandidate && await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id);
       const isScriptedCommand = message.type === "text" && isExplicitCasaCommand(String(body));
       const botQueued = authorized && !isScriptedCommand;

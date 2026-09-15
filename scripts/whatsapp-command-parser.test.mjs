@@ -47,10 +47,21 @@ test("evento e aviso ficam em rascunho até confirmação", () => {
   const event = parseCasaCommand("CASA EVENTO Vigília de Oração | 2026-09-20 | 21:00 | Igreja | Uma noite de oração");
   assert.equal(event?.type, "draft");
   assert.equal(event?.draft.kind, "event-create");
-  assert.equal(event?.draft.slug, "vigilia-de-oracao");
+  assert.equal(event?.draft.slug, "vigilia-de-oracao-2026-09-20");
+  assert.equal(event?.draft.registrationEnabled, false);
   const notice = parseCasaCommand("CASA AVISO Culto hoje | Hoje nos vemos às 19h!");
   assert.equal(notice?.type, "draft");
   assert.match(casaDraftPreview(notice.draft, "A1B2C3D4"), /CASA CONFIRMAR A1B2C3D4/);
+});
+
+test("evento com inscricao preserva preco e capa na previa", () => {
+  const event = parseCasaCommand("CASA EVENTO Encontrão Teens | 2026-09-25 | 19:00 | Igreja | Uma noite especial | INSCRICAO SIM | VALOR 250,00");
+  assert.equal(event?.type, "draft");
+  assert.equal(event?.draft.registrationEnabled, true);
+  assert.equal(event?.draft.registrationFeeCents, 25000);
+  event.draft.imageDraftPath = "whatsapp/fcf2f61f-1ea7-4d0f-8c43-8a0f332338d1.webp";
+  assert.match(casaDraftPreview(event.draft, "A1B2C3D4"), /foto enviada no WhatsApp/);
+  assert.equal(parseCasaCommand("CASA EVENTO Teste | 2026-09-25 | 19:00 | Igreja | Texto | INSCRICAO NAO | VALOR 1")?.type, "invalid");
 });
 
 test("confirmação exige código exato de oito caracteres", () => {

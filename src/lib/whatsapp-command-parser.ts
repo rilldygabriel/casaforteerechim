@@ -1,7 +1,8 @@
 export type CasaCommandDraft =
   | { kind: "agenda-toggle"; active: boolean }
   | { kind: "agenda-publish"; date: string; start: string; end: string; host: "Rilldy" | "Lisi" | "Rilldy e Lisi"; location: string }
-  | { kind: "event-create"; title: string; slug: string; date: string; time: string; location: string; description: string }
+  | { kind: "event-create"; title: string; slug: string; date: string; time: string; location: string; description: string;
+      registrationEnabled: boolean; registrationFeeCents: number; imageDraftPath?: string }
   | { kind: "announcement-send"; title: string; body: string };
 
 export type ParsedCasaCommand =
@@ -19,6 +20,13 @@ const CODE = /^[A-F0-9]{8}$/;
 
 function slugifyEvent(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function eventFeeCents(value: string) {
+  const match = /^VALOR\s+(0|\d{1,5}(?:[,.]\d{2})?)$/i.exec(value.trim());
+  if (!match) return null;
+  const cents = Math.round(Number(match[1].replace(",", ".")) * 100);
+  return Number.isSafeInteger(cents) && cents >= 0 && cents <= 1_000_000 ? cents : null;
 }
 
 function validDate(value: string) {
@@ -62,12 +70,19 @@ export function parseCasaCommand(body: string): ParsedCasaCommand {
 
   if (/^evento\s+/i.test(command)) {
     const parts = command.replace(/^evento\s+/i, "").split("|").map((part) => part.trim());
-    const [title, date, time, location, description] = parts;
-    const slug = slugifyEvent(title ?? "");
-    if (parts.length !== 5 || !title || title.length < 3 || title.length > 160 || !slug || !validDate(date) || !TIME.test(time) || !location || location.length > 200 || !description || description.length > 2000) {
-      return { type: "invalid", reason: "Use: CASA EVENTO Título | 2026-09-20 | 19:00 | Local | Descrição" };
+    const [title, date, time, location, description, registrationText, feeText] = parts;
+    const baseSlug = slugifyEvent(title ?? "");
+    const registrationEnabled = /^INSCRICAO\s+SIM$/i.test(registrationText ?? "");
+    const feeCents = parts.length === 7 ? eventFeeCents(feeText ?? "") : 0;
+    const validRegistration = parts.length === 5 || (parts.length === 7 &&
+      /^(INSCRICAO\s+SIM|INSCRICAO\s+NAO)$/i.test(registrationText ?? "") && feeCents !== null &&
+      (registrationEnabled || feeCents === 0));
+    if (!validRegistration || !title || title.length < 3 || title.length > 160 || !baseSlug || !validDate(date) || !TIME.test(time) || !location || location.length > 200 || !description || description.length > 2000) {
+      return { type: "invalid", reason: "Use: CASA EVENTO Título | 2026-09-20 | 19:00 | Local | Descrição | INSCRICAO SIM | VALOR 0" };
     }
-    return { type: "draft", draft: { kind: "event-create", title, slug, date, time, location, description } };
+    const slug = `${baseSlug}-${date}`;
+    return { type: "draft", draft: { kind: "event-create", title, slug, date, time, location, description,
+      registrationEnabled, registrationFeeCents: feeCents ?? 0 } };
   }
 
   if (/^aviso\s+/i.test(command)) {
@@ -97,9 +112,10 @@ export function casaCommandHelp() {
     "CASA AGENDA — horários livres",
     "CASA AGENDA ABRIR ou CASA AGENDA PAUSAR",
     "CASA AGENDA NOVO 2026-09-20 | 14:00 | 15:00 | Rilldy | Local",
-    "CASA EVENTO Título | 2026-09-20 | 19:00 | Local | Descrição",
+    "CASA EVENTO Título | 2026-09-20 | 19:00 | Local | Descrição | INSCRICAO SIM | VALOR 0",
+    "Para capa, envie a foto antes do pedido. Ela fica privada até você confirmar o evento.",
     "CASA AVISO Título | Mensagem para todos",
-    "Agenda, eventos públicos sem inscrição e avisos geram uma prévia. Depois envie CASA CONFIRMAR CÓDIGO (ou CASA CANCELAR CÓDIGO).",
+    "Agenda, eventos com/sem inscrição e avisos geram uma prévia. Depois envie CASA CONFIRMAR CÓDIGO (ou CASA CANCELAR CÓDIGO).",
     "Outras alterações do site ainda não são publicadas automaticamente por este WhatsApp.",
   ].join("\n");
 }
@@ -109,7 +125,7 @@ export function casaDraftPreview(draft: CasaCommandDraft, code: string) {
   let detail: string;
   if (draft.kind === "agenda-toggle") detail = draft.active ? "Reabrir reservas da Agenda Pastoral" : "Pausar novas reservas da Agenda Pastoral";
   else if (draft.kind === "agenda-publish") detail = `Publicar horário: ${draft.date}, ${draft.start}–${draft.end}, ${draft.host}, ${draft.location}`;
-  else if (draft.kind === "event-create") detail = `Criar evento público (sem inscrição): ${draft.title}, ${draft.date} às ${draft.time}, ${draft.location}. ${draft.description}`;
+  else if (draft.kind === "event-create") detail = `Criar evento público: ${draft.title}, ${draft.date} às ${draft.time}, ${draft.location}. ${draft.description}. Inscrição: ${draft.registrationEnabled ? `aberta${draft.registrationFeeCents ? `, R$ ${(draft.registrationFeeCents / 100).toFixed(2).replace(".", ",")}` : ", gratuita"}` : "fechada"}. Capa: ${draft.imageDraftPath ? "foto enviada no WhatsApp" : "sem foto"}.`;
   else detail = `Publicar aviso no site e enviar pelo WhatsApp oficial para todos os cadastrados: ${draft.title} — ${draft.body}`;
   return `Prévia — ${detail}\n\nSe estiver correto, envie CASA CONFIRMAR ${code}. Para desistir, CASA CANCELAR ${code}. Código válido por 10 minutos.`;
 }
