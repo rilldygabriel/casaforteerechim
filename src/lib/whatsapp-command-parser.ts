@@ -36,6 +36,7 @@ function normalizeHost(value: string): "Rilldy" | "Lisi" | "Rilldy e Lisi" | nul
 }
 
 export function parseCasaCommand(body: string): ParsedCasaCommand {
+  if (/^oi[\s,]+casa[.!?\s]*$/i.test(body.trim())) return { type: "help" };
   const match = /^casa(?:\s+([\s\S]+))?$/i.exec(body.trim());
   if (!match) return null;
   const command = (match[1] ?? "ajuda").trim();
@@ -84,6 +85,7 @@ export function parseCasaCommand(body: string): ParsedCasaCommand {
 export function casaCommandHelp() {
   return [
     "Painel da Casa via WhatsApp (somente Pastor Rilldy):",
+    "Oi casa — abrir este menu",
     "CASA AGENDA — horários livres",
     "CASA AGENDA ABRIR ou CASA AGENDA PAUSAR",
     "CASA AGENDA NOVO 2026-09-20 | 14:00 | 15:00 | Rilldy | Local",

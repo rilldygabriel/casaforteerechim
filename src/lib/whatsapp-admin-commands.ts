@@ -35,8 +35,15 @@ async function ownerAccountAuthorized() {
 }
 
 export async function isAuthorizedCasaCommandSender(phone: string, businessPhoneNumberId: string | undefined) {
-  if (businessPhoneNumberId !== PHONE_NUMBER_ID || !isCasaCommandOwnerPhone(phone)) return false;
-  return ownerAccountAuthorized();
+  const phoneMatches = isCasaCommandOwnerPhone(phone);
+  const businessPhoneMatches = businessPhoneNumberId === PHONE_NUMBER_ID;
+  if (!phoneMatches || !businessPhoneMatches) {
+    console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneMatches });
+    return false;
+  }
+  const accountApproved = await ownerAccountAuthorized();
+  if (!accountApproved) console.warn("casa_command_auth_rejected", { phoneMatches, businessPhoneMatches, accountApproved });
+  return accountApproved;
 }
 
 async function reply(phone: string, conversationId: number, body: string, incomingMessageId: string) {
