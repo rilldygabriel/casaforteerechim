@@ -16,6 +16,7 @@
 # next.js
 /.next/
 /.next-executor-test/
+/.next-executor-secure-test/
 /out/
 
 # production

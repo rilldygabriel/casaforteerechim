@@ -17,12 +17,18 @@ async function runIsolatedCodeAgent(request: string) {
   if (!gatewayKey || process.env.VERCEL_ENV !== "production") {
     throw new Error("Executor privado indisponível nesta implantação.");
   }
+  const gatewayEgress = [{ transform: [{ headers: { authorization: `Bearer ${gatewayKey}` } }] }];
   const baseSha = await mainCommitSha();
   const sandbox = await Sandbox.create({ runtime: "node24", timeout: 12 * 60_000, ports: [3000],
-    source: { type: "git", url: "https://github.com/rilldygabriel/casaforteerechim.git", depth: 1, revision: baseSha } });
+    source: { type: "git", url: "https://github.com/rilldygabriel/casaforteerechim.git", depth: 1, revision: baseSha },
+    networkPolicy: { allow: { "github.com": [], "codeload.github.com": [],
+      "registry.npmjs.org": [], "*.npmjs.org": [], "ai-gateway.vercel.sh": gatewayEgress } },
+  });
   try {
+    const install = await sandbox.runCommand({ cmd: "npm", args: ["ci"], cwd: sandbox.cwd });
+    if (install.exitCode !== 0) throw new Error("Dependências da prévia não instalaram na sandbox.");
     const agent = new HarnessAgent({
-      harness: createCodex({ auth: { AI_GATEWAY_API_KEY: gatewayKey }, reasoningEffort: "medium", webSearch: false }),
+      harness: createCodex({ auth: { AI_GATEWAY_API_KEY: "brokered-by-sandbox" }, reasoningEffort: "medium", webSearch: false }),
       model: "gpt-5.6-terra",
       sandbox: createVercelSandbox({ sandbox }),
       sandboxConfig: { workDir: "." },
@@ -38,6 +44,7 @@ async function runIsolatedCodeAgent(request: string) {
       tools: {},
     });
     const session = await agent.createSession();
+    await sandbox.update({ networkPolicy: { allow: { "ai-gateway.vercel.sh": gatewayEgress } } });
     let summary = "Alteração preparada na prévia.";
     try {
       const result = await agent.generate({ session,
