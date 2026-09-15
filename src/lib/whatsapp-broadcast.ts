@@ -55,6 +55,10 @@ async function getApprovedTemplate() {
   return template;
 }
 
+export async function verifyWhatsappBroadcastTemplate() {
+  await getApprovedTemplate();
+}
+
 export async function sendWhatsappBroadcast(
   message: string,
   campaign: string,

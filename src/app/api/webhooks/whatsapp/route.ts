@@ -1,6 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { handleCasaCommand, isAuthorizedCasaCommandSender, processQueuedCasaCommands } from "@/lib/whatsapp-admin-commands";
 
 export const runtime = "nodejs";
 
@@ -79,6 +81,7 @@ export async function POST(request: NextRequest) {
 
   for (const entry of payload.entry ?? []) for (const change of entry.changes ?? []) {
     const value = (change.value ?? {}) as {
+      metadata?: { phone_number_id?: string };
       contacts?: Array<{ wa_id?: string; profile?: { name?: string } }>;
       messages?: WhatsappIncomingMessage[];
       statuses?: WhatsappDelivery[];
@@ -112,6 +115,17 @@ export async function POST(request: NextRequest) {
         if (unreadError) {
           processingFailed = true;
           console.error("whatsapp_webhook_unread_count_failed", { messageId: message.id, error: unreadError.message });
+        }
+        if (message.type === "text" && await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id)) {
+          try {
+            if (await handleCasaCommand({ phone, conversationId: conversation.id, incomingMessageId: message.id, body: String(body) })) {
+              after(async () => { try { await processQueuedCasaCommands(); } catch (commandError) {
+                console.error("casa_command_background_failed", commandError instanceof Error ? commandError.message : "unknown");
+              } });
+            }
+          } catch (commandError) {
+            console.error("casa_command_intake_failed", { messageId: message.id, error: commandError instanceof Error ? commandError.message : "unknown" });
+          }
         }
       } else if (insertError.code !== "23505") {
         processingFailed = true;
