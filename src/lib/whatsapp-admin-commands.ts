@@ -151,9 +151,12 @@ async function draftRow(conversationId: number, code: string) {
 }
 
 export async function handleCasaCommand(input: { phone: string; conversationId: number; incomingMessageId: string; businessPhoneNumberId: string; body: string }) {
+  if (/^CASA\s+(?:CONFIRMAR|CANCELAR)\s+[A-F0-9]{8}$/i.test(input.body.trim()) &&
+    !await isAuthorizedCasaCommandSender(input.phone, input.businessPhoneNumberId)) {
+    throw new Error("Remetente não autorizado.");
+  }
   const visualConfirmation = await siteCodeConfirmationAnswer(input.conversationId, input.body);
   if (visualConfirmation !== null) {
-    if (!await isAuthorizedCasaCommandSender(input.phone, input.businessPhoneNumberId)) throw new Error("Remetente não autorizado.");
     await replyToCasaOwner(input.phone, input.conversationId, visualConfirmation, input.incomingMessageId, input.businessPhoneNumberId);
     return true;
   }
