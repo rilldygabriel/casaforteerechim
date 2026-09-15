@@ -68,6 +68,21 @@ export async function processQueuedSiteCodeChanges() {
       console.error("site_code_merge_failed", error instanceof Error ? error.message : "unknown");
     }
   }
+  // A function can stop after claiming a confirmation or after GitHub accepts the merge.
+  // Re-reading the PR makes both cases safe to recover without publishing a second version.
+  const { data: interruptedMerges } = await service.from("site_ai_change_requests")
+    .select("id,pull_request_number,pull_request_head_sha").eq("status", "merging")
+    .is("merge_commit_sha", null).order("created_at").limit(1);
+  for (const row of interruptedMerges ?? []) {
+    if (!row.pull_request_number || !row.pull_request_head_sha) continue;
+    try {
+      const merge = await mergeCodePullRequest(row.pull_request_number, row.pull_request_head_sha);
+      await service.from("site_ai_change_requests").update({ merge_commit_sha: merge.sha, updated_at: new Date().toISOString() })
+        .eq("id", row.id).eq("status", "merging").is("merge_commit_sha", null);
+    } catch (error) {
+      console.error("site_code_merge_recovery_failed", error instanceof Error ? error.message : "unknown");
+    }
+  }
   const { data: merging } = await service.from("site_ai_change_requests")
     .select("id,conversation_id,origin_message_id,business_phone_number_id,merge_commit_sha")
     .eq("status", "merging").not("merge_commit_sha", "is", null).order("created_at").limit(3);

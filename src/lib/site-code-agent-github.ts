@@ -90,8 +90,11 @@ export async function createCodePullRequest(input: { baseSha: string; branchName
 
 export async function mergeCodePullRequest(number: number, expectedHeadSha: string) {
   const token = await githubCodeToken();
-  const pr = await github<{ state: string; head: { sha: string }; base: { ref: string }; merged: boolean }>(token, `/pulls/${number}`);
-  if (pr.merged) return { merged: true, sha: expectedHeadSha };
+  const pr = await github<{ state: string; head: { sha: string }; base: { ref: string }; merged: boolean; merge_commit_sha: string | null }>(token, `/pulls/${number}`);
+  if (pr.merged) {
+    if (!pr.merge_commit_sha || !/^[a-f0-9]{40}$/.test(pr.merge_commit_sha)) throw new Error("Merge antigo sem commit verificável.");
+    return { merged: true, sha: pr.merge_commit_sha };
+  }
   if (pr.state !== "open" || pr.base.ref !== "main" || pr.head.sha !== expectedHeadSha) throw new Error("A prévia mudou ou foi fechada; não vou publicar outra versão.");
   const result = await github<{ merged: boolean; sha: string }>(token, `/pulls/${number}/merge`, {
     method: "PUT", body: JSON.stringify({ commit_title: "Atualização da interface Casa Forte", merge_method: "squash", sha: expectedHeadSha }),

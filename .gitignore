@@ -17,6 +17,9 @@
 /.next/
 /.next-executor-test/
 /.next-executor-secure-test/
+/.harness-bootstrap/
+/.agent-runs/
+/.pnpm-store/
 /out/
 
 # production
