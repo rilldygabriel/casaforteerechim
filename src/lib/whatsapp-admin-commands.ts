@@ -8,6 +8,7 @@ import { publishOwnerEventPhoto, recentOwnerEventPhoto } from "@/lib/whatsapp-ev
 import { isCasaCommandOwnerPhone, isMetaBusinessPhoneNumberId } from "@/lib/whatsapp-command-auth";
 import { publishWhatsappCommandAnnouncement } from "@/lib/whatsapp-command-announcement";
 import { casaCommandHelp, casaDraftPreview, parseCasaCommand, type CasaCommandDraft } from "@/lib/whatsapp-command-parser";
+import { siteCodeConfirmationAnswer } from "@/lib/site-code-agent-confirmation";
 
 const OWNER_USER_ID = "34944370-8853-4c1b-866b-8c80b4e59829";
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_API_VERSION || "v25.0";
@@ -150,6 +151,15 @@ async function draftRow(conversationId: number, code: string) {
 }
 
 export async function handleCasaCommand(input: { phone: string; conversationId: number; incomingMessageId: string; businessPhoneNumberId: string; body: string }) {
+  if (/^CASA\s+(?:CONFIRMAR|CANCELAR)\s+[A-F0-9]{8}$/i.test(input.body.trim()) &&
+    !await isAuthorizedCasaCommandSender(input.phone, input.businessPhoneNumberId)) {
+    throw new Error("Remetente não autorizado.");
+  }
+  const visualConfirmation = await siteCodeConfirmationAnswer(input.conversationId, input.body);
+  if (visualConfirmation !== null) {
+    await replyToCasaOwner(input.phone, input.conversationId, visualConfirmation, input.incomingMessageId, input.businessPhoneNumberId);
+    return true;
+  }
   const parsed = parseCasaCommand(input.body);
   if (!parsed) return false;
   const service = getSupabaseServiceClient();

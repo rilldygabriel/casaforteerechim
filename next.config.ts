@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  serverExternalPackages: ["@ai-sdk/harness", "@ai-sdk/harness-codex", "@ai-sdk/sandbox-vercel"],
   images: {
     remotePatterns: [
       {
@@ -24,4 +26,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withWorkflow(nextConfig);

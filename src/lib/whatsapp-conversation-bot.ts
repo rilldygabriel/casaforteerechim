@@ -5,6 +5,7 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { handleCasaCommand, isAuthorizedCasaCommandSender, replyToCasaOwner } from "@/lib/whatsapp-admin-commands";
 import { parseCasaCommand } from "@/lib/whatsapp-command-parser";
 import { saveOwnerEventPhoto } from "@/lib/whatsapp-event-photo";
+import { queueOwnerVisualChange } from "@/lib/site-code-agent-pipeline";
 
 const LANGUAGE_MODEL = "openai/gpt-5.6-terra";
 const TRANSCRIPTION_MODEL = "openai/whisper-1";
@@ -143,6 +144,16 @@ async function ownerSiteQuery(decision: BotDecision) {
   return "Posso consultar membros, acompanhamento de visitantes e inscrições de um evento específico. Qual desses você deseja?";
 }
 
+async function visualChangeAnswer(input: { phone: string; conversationId: number; incomingMessageId: string;
+  businessPhoneNumberId: string; text: string }) {
+  if (!/(?:tema|design|visual|estilo|contraste|layout|card|caixinha|botão|cores|cor |fonte|tipografia|tamanho|espaçamento|alinhamento)/i.test(input.text)) {
+    return "Entendi seu pedido. O editor hospedado inicial trabalha só com ajustes visuais pequenos; eventos, inscrições e avisos usam a prévia própria da Casa. Para código sensível, peça por aqui para revisão. Não fiz nenhuma mudança.";
+  }
+  return queueOwnerVisualChange({ phone: input.phone, conversationId: input.conversationId,
+    incomingMessageId: input.incomingMessageId, businessPhoneNumberId: input.businessPhoneNumberId,
+    requestText: input.text });
+}
+
 async function understandRequest(text: string, history: Awaited<ReturnType<typeof recentConversation>>) {
   const localDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const result = await generateText({
@@ -240,7 +251,8 @@ export async function processQueuedCasaBotMessages(limit = 2) {
       } else {
         const answer = decision.intent === "agenda_stats" ? await pastoralAgendaStats() : decision.intent === "owner_query"
           ? await ownerSiteQuery(decision) : decision.intent === "site_change"
-          ? `Entendi o pedido${payload.type === "audio" ? ` do áudio: “${text.slice(0, 220)}”` : ""}. Ainda não tenho um executor seguro para alterar código/design e publicar sozinho por este WhatsApp. Não fiz nenhuma mudança. Para agenda, eventos públicos e avisos, já posso preparar uma prévia para sua confirmação.`
+          ? await visualChangeAnswer({ phone, conversationId: row.conversation_id, incomingMessageId: row.wa_message_id,
+            businessPhoneNumberId: state.businessPhoneNumberId, text })
           : decision.reply || "Pode me dizer o que deseja fazer e os detalhes necessários?";
         await replyToCasaOwner(phone, row.conversation_id, answer.slice(0, 900), row.wa_message_id, state.businessPhoneNumberId);
       }

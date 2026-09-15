@@ -8,6 +8,7 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Public questions should use the balanced GPT tier; coding tasks use a separate model.
 const MODEL = "openai/gpt-5.6-terra";
 
 function clientKey(request: Request) {

@@ -5,6 +5,7 @@ import SiteRefreshButton from "@/components/site-refresh-button";
 import ThemeToggle from "@/components/theme-toggle";
 import SiteAssistant from "@/components/site-assistant";
 import "./globals.css";
+import "./casa-ai-overrides.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.casaforteerechim.app.br"),

@@ -14,21 +14,27 @@
     "test:whatsapp-commands": "node --experimental-strip-types --test scripts/whatsapp-command-parser.test.mjs"
   },
   "dependencies": {
+    "@ai-sdk/harness": "^1.0.112",
+    "@ai-sdk/harness-codex": "^1.0.114",
+    "@ai-sdk/sandbox-vercel": "^1.0.112",
     "@mercadopago/sdk-react": "1.0.7",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
+    "@vercel/connect": "^2.1.0",
     "@vercel/oidc": "3.8.1",
+    "@vercel/sandbox": "^3.3.0",
     "@youversion/platform-core": "2.4.0",
     "ai": "7.0.101",
     "geist": "^1.7.2",
     "linkedom": "0.18.12",
-    "next": "16.2.11",
+    "next": "16.3.5",
     "pluggy-js": "0.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-pluggy-connect": "2.12.0",
-    "sharp": "0.34.5",
-    "web-push": "3.6.7"
+    "sharp": "0.35.4",
+    "web-push": "3.6.7",
+    "workflow": "^4.8.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -37,8 +43,24 @@
     "@types/react-dom": "^19",
     "@types/web-push": "3.6.4",
     "eslint": "^9",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "undici": "7.29.1",
+    "@workflow/core": {
+      "nanoid": "5.1.16"
+    },
+    "next": {
+      "postcss": {
+        "nanoid": "3.3.19"
+      }
+    },
+    "@tailwindcss/postcss": {
+      "postcss": {
+        "nanoid": "3.3.19"
+      }
+    }
   }
 }
