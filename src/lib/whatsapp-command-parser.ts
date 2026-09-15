@@ -82,16 +82,25 @@ export function parseCasaCommand(body: string): ParsedCasaCommand {
   return { type: "invalid", reason: "Comando não reconhecido. Envie CASA AJUDA para ver as opções." };
 }
 
+export function isExplicitCasaCommand(body: string) {
+  const value = body.trim();
+  return (/^oi[\s,]+casa[.!?\s]*$/i.test(value) ||
+    /^casa\s+(?:ajuda|agenda|evento|aviso|confirmar|cancelar)\b/i.test(value)) &&
+    Boolean(parseCasaCommand(value));
+}
+
 export function casaCommandHelp() {
   return [
     "Painel da Casa via WhatsApp (somente Pastor Rilldy):",
     "Oi casa — abrir este menu",
+    "Você também pode conversar comigo por texto ou áudio, sem decorar comandos.",
     "CASA AGENDA — horários livres",
     "CASA AGENDA ABRIR ou CASA AGENDA PAUSAR",
     "CASA AGENDA NOVO 2026-09-20 | 14:00 | 15:00 | Rilldy | Local",
     "CASA EVENTO Título | 2026-09-20 | 19:00 | Local | Descrição",
     "CASA AVISO Título | Mensagem para todos",
-    "Toda mudança gera uma prévia. Depois envie CASA CONFIRMAR CÓDIGO (ou CASA CANCELAR CÓDIGO).",
+    "Agenda, eventos públicos sem inscrição e avisos geram uma prévia. Depois envie CASA CONFIRMAR CÓDIGO (ou CASA CANCELAR CÓDIGO).",
+    "Outras alterações do site ainda não são publicadas automaticamente por este WhatsApp.",
   ].join("\n");
 }
 

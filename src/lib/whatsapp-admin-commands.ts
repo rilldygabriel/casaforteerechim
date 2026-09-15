@@ -46,7 +46,7 @@ export async function isAuthorizedCasaCommandSender(phone: string, businessPhone
   return accountApproved;
 }
 
-async function reply(phone: string, conversationId: number, body: string, incomingMessageId: string, businessPhoneNumberId: string) {
+export async function replyToCasaOwner(phone: string, conversationId: number, body: string, incomingMessageId: string, businessPhoneNumberId: string) {
   if (!isMetaBusinessPhoneNumberId(businessPhoneNumberId)) throw new Error("Número oficial do WhatsApp inválido.");
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
   if (!accessToken) throw new Error("WhatsApp oficial não configurado para responder.");
@@ -181,7 +181,7 @@ export async function handleCasaCommand(input: { phone: string; conversationId: 
       else answer = `Confirmação recebida. Estou executando o comando ${parsed.code}; envio o resultado aqui em seguida.`;
     }
   }
-  await reply(input.phone, input.conversationId, answer, input.incomingMessageId, input.businessPhoneNumberId);
+  await replyToCasaOwner(input.phone, input.conversationId, answer, input.incomingMessageId, input.businessPhoneNumberId);
   return true;
 }
 
@@ -234,7 +234,7 @@ export async function processQueuedCasaCommands(limit = 3) {
       .update({ status: state === "completed" ? "sent" : "failed", raw_payload: { ...draft, state, result: resultText } })
       .eq("id", row.id).eq("status", "delivered");
     if (conversation?.phone && isCasaCommandOwnerPhone(conversation.phone)) {
-      try { await reply(conversation.phone, row.conversation_id, `Comando ${code}: ${resultText}`, draft.originMessageId, draft.businessPhoneNumberId); }
+      try { await replyToCasaOwner(conversation.phone, row.conversation_id, `Comando ${code}: ${resultText}`, draft.originMessageId, draft.businessPhoneNumberId); }
       catch (replyError) { console.warn("casa_command_result_reply_failed", { code, error: replyError instanceof Error ? replyError.message : "unknown" }); }
     }
   }

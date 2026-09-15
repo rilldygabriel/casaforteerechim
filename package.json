@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.110.8",
     "@vercel/oidc": "3.8.1",
     "@youversion/platform-core": "2.4.0",
+    "ai": "7.0.101",
     "geist": "^1.7.2",
     "linkedom": "0.18.12",
     "next": "16.2.11",

@@ -1,0 +1,15 @@
+.site-assistant-root{position:fixed;z-index:70;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));font-family:inherit}
+.site-assistant-launcher{display:flex;align-items:center;gap:9px;border:1px solid #78831d;border-radius:999px;padding:12px 18px;background:#e7f755;color:#171914;font-weight:900;box-shadow:0 12px 35px #0005;cursor:pointer}
+.site-assistant-launcher span:first-child{font-size:20px;line-height:1}
+.site-assistant-panel{box-sizing:border-box;display:flex;flex-direction:column;width:min(380px,calc(100vw - 36px));height:min(520px,calc(100dvh - 110px));margin-bottom:12px;border:1px solid #69705d;border-radius:22px;background:#191c17;color:#f8faf2;box-shadow:0 22px 70px #0009;overflow:hidden}
+.site-assistant-panel header{display:flex;align-items:center;gap:11px;padding:16px 18px;border-bottom:1px solid #3f4539}
+.site-assistant-mark{display:grid;place-items:center;width:37px;height:37px;border-radius:12px;background:#e7f755;color:#171914;font-size:24px}
+.site-assistant-panel header div{display:grid;gap:2px;flex:1}.site-assistant-panel header small{color:#bec5b7;font-size:11px}
+.site-assistant-panel header button{border:0;background:transparent;color:#fff;font-size:30px;line-height:1;cursor:pointer}
+.site-assistant-messages{display:flex;flex-direction:column;gap:11px;flex:1;overflow:auto;padding:17px;scrollbar-color:#5f6954 transparent}
+.site-assistant-messages p{white-space:pre-wrap;overflow-wrap:anywhere;max-width:88%;margin:0;padding:12px 14px;border-radius:15px;background:#343a31;color:#fff;line-height:1.5;font-size:14px}
+.site-assistant-messages p[data-role=user]{align-self:flex-end;background:#e7f755;color:#171914}
+.site-assistant-panel form{display:flex;gap:8px;padding:10px 14px}.site-assistant-panel form input{flex:1;min-width:0;border:1px solid #636d5b;border-radius:999px;padding:12px 14px;background:#0d100c;color:#fff;font:inherit;font-size:14px}.site-assistant-panel form button{width:42px;border:0;border-radius:50%;background:#e7f755;color:#171914;font-size:24px;cursor:pointer}.site-assistant-panel form button:disabled{opacity:.5;cursor:default}
+.site-assistant-note{padding:0 16px 14px;color:#bdc5b6;font-size:10px;line-height:1.3}
+.site-assistant-root button:focus-visible,.site-assistant-root input:focus-visible{outline:3px solid #e7f755;outline-offset:2px}
+@media(max-width:500px){.site-assistant-root{right:12px;bottom:max(12px,env(safe-area-inset-bottom))}.site-assistant-panel{width:calc(100vw - 24px);height:min(560px,calc(100dvh - 95px))}}

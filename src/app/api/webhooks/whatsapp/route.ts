@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { handleCasaCommand, isAuthorizedCasaCommandSender, processQueuedCasaCommands } from "@/lib/whatsapp-admin-commands";
-import { parseCasaCommand } from "@/lib/whatsapp-command-parser";
+import { processQueuedCasaBotMessages } from "@/lib/whatsapp-conversation-bot";
+import { isExplicitCasaCommand } from "@/lib/whatsapp-command-parser";
 
 export const runtime = "nodejs";
 
@@ -105,10 +106,15 @@ export async function POST(request: NextRequest) {
         });
         continue;
       }
+      const isBotCandidate = message.type === "text" || message.type === "audio";
+      const authorized = isBotCandidate && await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id);
+      const isScriptedCommand = message.type === "text" && isExplicitCasaCommand(String(body));
+      const botQueued = authorized && !isScriptedCommand;
       const { error: insertError } = await supabase.from("whatsapp_messages").insert({
         conversation_id: conversation.id, wa_message_id: message.id, direction: "inbound",
         message_type: message.type ?? "text", body, media_id: message.image?.id ?? message.audio?.id ?? message.document?.id ?? null,
-        status: "received", sent_at: new Date(Number(message.timestamp) * 1000).toISOString(), raw_payload: message,
+        status: "received", sent_at: new Date(Number(message.timestamp) * 1000).toISOString(),
+        raw_payload: botQueued ? { ...message, casa_bot: { state: "queued", businessPhoneNumberId: value.metadata?.phone_number_id } } : message,
       });
       if (!insertError) {
         savedMessages += 1;
@@ -117,8 +123,7 @@ export async function POST(request: NextRequest) {
           processingFailed = true;
           console.error("whatsapp_webhook_unread_count_failed", { messageId: message.id, error: unreadError.message });
         }
-        if (message.type === "text" && parseCasaCommand(String(body))) {
-          const authorized = await isAuthorizedCasaCommandSender(phone, value.metadata?.phone_number_id);
+        if (isScriptedCommand) {
           console.info("casa_command_authorization", {
             messageId: message.id,
             authorized,
@@ -136,6 +141,11 @@ export async function POST(request: NextRequest) {
               console.error("casa_command_intake_failed", { messageId: message.id, error: commandError instanceof Error ? commandError.message : "unknown" });
             }
           }
+        } else if (botQueued) {
+          after(async () => {
+            try { await processQueuedCasaBotMessages(1); }
+            catch (botError) { console.error("casa_bot_background_failed", botError instanceof Error ? botError.message : "unknown"); }
+          });
         }
       } else if (insertError.code !== "23505") {
         processingFailed = true;
