@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { NextResponse } from "next/server";
 
 import { CHURCH_EVENTS, getSaoPauloDateKey } from "@/lib/calendar-events";
@@ -58,10 +58,11 @@ export async function POST(request: Request) {
     const history = Array.isArray(input.history) ? input.history.slice(-4)
       .filter((item) => item && typeof item === "object" && ["user", "assistant"].includes(String(item.role)))
       .map((item) => ({ papel: item.role, texto: String(item.text ?? "").slice(0, 350) })) : [];
-    const result = await generateText({
+    const result = streamText({
       model: MODEL,
+      maxOutputTokens: 380,
       system: [
-        "Você é a IA da Igreja Casa Forte Erechim. Responda de forma acolhedora e objetiva em português brasileiro.",
+        "Você é a IA da Igreja Casa Forte Erechim. Responda de forma acolhedora, concisa e objetiva em português brasileiro; geralmente em até três frases.",
         "Use APENAS a base pública e os eventos fornecidos. Se não houver informação suficiente, diga que não sabe e indique o contato da Casa.",
         "Não invente datas, valores, disponibilidade, pessoas, aprovação ou ensinamentos oficiais da igreja.",
         "Nunca consulte, peça nem revele dados privados de membros, discipulados ou financeiro.",
@@ -70,11 +71,19 @@ export async function POST(request: Request) {
       ].join("\n"),
       prompt: JSON.stringify({ hoje: today, base: knowledge, calendario: calendar, eventos: dynamicEvents,
         historico: history, pergunta: question }),
+      onFinish: async ({ text, usage }) => {
+        const answer = text.trim().slice(0, 1800) || "Não encontrei essa informação na base da Casa. Fale conosco pelo botão do site.";
+        await service.from("assistant_generations").update({ answer, status: "completed", usage,
+          completed_at: new Date().toISOString() }).eq("id", generationId);
+      },
+      onError: async ({ error }) => {
+        const code = error instanceof Error ? error.message.slice(0, 80) : "erro_stream";
+        await service.from("assistant_generations").update({ status: "failed", error_code: code,
+          completed_at: new Date().toISOString() }).eq("id", generationId);
+        console.error("site_assistant_stream_failed", { id: generationId, code });
+      },
     });
-    const answer = result.text.trim().slice(0, 1800) || "Não encontrei essa informação na base da Casa. Fale conosco pelo botão do site.";
-    await service.from("assistant_generations").update({ answer, status: "completed", usage: result.usage,
-      completed_at: new Date().toISOString() }).eq("id", generationId);
-    return NextResponse.json({ id: generationId, answer });
+    return result.toTextStreamResponse({ headers: { "Cache-Control": "no-store", "X-Assistant-Generation-Id": String(generationId) } });
   } catch (error) {
     const code = error instanceof Error ? error.message.slice(0, 80) : "erro";
     await service.from("assistant_generations").update({ status: "failed", error_code: code,
