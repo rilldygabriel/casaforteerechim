@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { configurePastoralAgenda, createPastoralSlot, personalAgendaAction } from "@/lib/pastoral-agenda";
-import { normalizeWhatsappPhone } from "@/lib/whatsapp";
+import { isCasaCommandOwnerPhone } from "@/lib/whatsapp-command-auth";
 import { publishWhatsappCommandAnnouncement } from "@/lib/whatsapp-command-announcement";
 import { casaCommandHelp, casaDraftPreview, parseCasaCommand, type CasaCommandDraft } from "@/lib/whatsapp-command-parser";
 
@@ -28,17 +28,15 @@ type StoredDraft = {
   result?: string;
 };
 
-async function ownerPhone() {
+async function ownerAccountAuthorized() {
   const { data, error } = await getSupabaseServiceClient().from("member_profiles")
-    .select("phone,is_admin,approval_status").eq("user_id", OWNER_USER_ID).maybeSingle();
-  if (error || !data?.is_admin || data.approval_status !== "approved") return "";
-  return normalizeWhatsappPhone(data.phone);
+    .select("is_admin,approval_status").eq("user_id", OWNER_USER_ID).maybeSingle();
+  return !error && Boolean(data?.is_admin && data.approval_status === "approved");
 }
 
 export async function isAuthorizedCasaCommandSender(phone: string, businessPhoneNumberId: string | undefined) {
-  if (businessPhoneNumberId !== PHONE_NUMBER_ID) return false;
-  const authorized = await ownerPhone();
-  return Boolean(authorized && normalizeWhatsappPhone(phone) === authorized);
+  if (businessPhoneNumberId !== PHONE_NUMBER_ID || !isCasaCommandOwnerPhone(phone)) return false;
+  return ownerAccountAuthorized();
 }
 
 async function reply(phone: string, conversationId: number, body: string, incomingMessageId: string) {
@@ -204,9 +202,15 @@ export async function processQueuedCasaCommands(limit = 3) {
       .eq("id", row.id).eq("status", "read").select("id").maybeSingle();
     if (claimError || !claimed) continue;
     const code = String(row.wa_message_id).replace(/^command:/, "");
+    const { data: conversation, error: conversationError } = await service.from("whatsapp_conversations")
+      .select("phone").eq("id", row.conversation_id).maybeSingle();
     let resultText: string;
     let state: "completed" | "failed";
     try {
+      if (conversationError || !conversation?.phone || !isCasaCommandOwnerPhone(conversation.phone)) {
+        throw new Error("Comando recusado: remetente não autorizado.");
+      }
+      if (!await ownerAccountAuthorized()) throw new Error("A conta administrativa do proprietário não está aprovada.");
       resultText = await executeDraft(draft, code);
       state = "completed";
       completed += 1;
@@ -219,8 +223,7 @@ export async function processQueuedCasaCommands(limit = 3) {
     await service.from("whatsapp_messages")
       .update({ status: state === "completed" ? "sent" : "failed", raw_payload: { ...draft, state, result: resultText } })
       .eq("id", row.id).eq("status", "delivered");
-    const { data: conversation } = await service.from("whatsapp_conversations").select("phone").eq("id", row.conversation_id).maybeSingle();
-    if (conversation?.phone && normalizeWhatsappPhone(conversation.phone) === await ownerPhone()) {
+    if (conversation?.phone && isCasaCommandOwnerPhone(conversation.phone)) {
       try { await reply(conversation.phone, row.conversation_id, `Comando ${code}: ${resultText}`, draft.originMessageId); }
       catch (replyError) { console.warn("casa_command_result_reply_failed", { code, error: replyError instanceof Error ? replyError.message : "unknown" }); }
     }
