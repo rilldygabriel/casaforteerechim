@@ -11,9 +11,9 @@ export const CHECKIN_EVENTS = {
   "quarta-ensino": {
     key: "quarta-ensino",
     weekday: 3,
-    title: "Culto Quarta de Ensino",
+    title: "Culto de Quarta na Casa",
     time: "19h30",
-    reminderTime: "17:30",
+    reminderTime: "16:00",
   },
 } as const;
 
