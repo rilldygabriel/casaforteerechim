@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
         },
         JSON.stringify({
           title: "Casa Forte",
-          body: `Hoje tem ${event.title} às ${event.time}. Não ande sozinho. Vem pra casa!`,
+          body: event.body,
           tag: `${event.key}-${eventDate}`,
           url: "/#proximos-passos",
         }),
