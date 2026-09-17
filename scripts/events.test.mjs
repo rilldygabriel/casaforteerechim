@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validateRegistration } from "../src/lib/events.ts";
+import { hasEventAdminAccess } from "../src/lib/event-admin-auth.ts";
+
+test("limita a administração de eventos a membros aprovados com a permissão específica", () => {
+  assert.equal(hasEventAdminAccess({ is_admin: false, can_manage_events: true, approval_status: "approved" }), true);
+  assert.equal(hasEventAdminAccess({ is_admin: false, can_manage_events: false, approval_status: "approved" }), false);
+  assert.equal(hasEventAdminAccess({ is_admin: false, can_manage_events: true, approval_status: "pending" }), false);
+  assert.equal(hasEventAdminAccess({ is_admin: true, can_manage_events: false, approval_status: "approved" }), true);
+});
 
 test("normaliza telefone brasileiro para impedir duplicidades", () => {
   assert.equal(normalizePhone("+55 (54) 99999-9999"), "54999999999");

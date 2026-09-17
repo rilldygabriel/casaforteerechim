@@ -1,6 +1,7 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { ATTENDANCE_OPTIONS, REGISTRATION_STATUSES, optionLabel } from "@/lib/events";
+import { hasEventAdminAccess } from "@/lib/event-admin-auth";
 
 function csv(value: unknown) { return `"${String(value ?? "").replace(/"/g, '""')}"`; }
 
@@ -8,8 +9,8 @@ export async function GET(request: Request) {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return new Response("Não autorizado", { status: 401 });
-  const { data: profile } = await supabase.from("member_profiles").select("is_admin,approval_status").eq("user_id", user.id).maybeSingle();
-  if (!profile?.is_admin || profile.approval_status !== "approved") return new Response("Sem permissão", { status: 403 });
+  const { data: profile } = await supabase.from("member_profiles").select("is_admin,can_manage_events,approval_status").eq("user_id", user.id).maybeSingle();
+  if (!hasEventAdminAccess(profile)) return new Response("Sem permissão", { status: 403 });
   const url = new URL(request.url);
   const eventId = url.searchParams.get("evento"); const status = url.searchParams.get("status"); const search = url.searchParams.get("busca")?.toLowerCase() ?? "";
   const { data } = await getSupabaseServiceClient().from("event_registrations").select("*,events(title,start_date)").is("archived_at", null).order("created_at", { ascending: false });
