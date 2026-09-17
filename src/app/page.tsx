@@ -232,6 +232,17 @@ export default function Home() {
 
       <ProgramsSection mapsUrl={MAPS_URL} />
 
+      <section className="home-block home-burger-event" aria-labelledby="burger-event-title">
+        <div className="home-burger-event-copy">
+          <p className="home-kicker">Domingo · 20 de setembro · após o culto</p>
+          <h2 id="burger-event-title">Hambúrguer<br /><strong>da Casa.</strong></h2>
+          <p>Fique com a família depois do culto. Escolha quantos desejar e reserve agora.</p>
+          <div className="home-burger-prices"><span>Simples <strong>R$ 20</strong></span><span>Duplo <strong>R$ 30</strong></span></div>
+          <Link className="home-burger-action" href="/eventos/hamburguer-da-casa-20-09">Reservar agora <ArrowIcon /></Link>
+        </div>
+        <figure className="home-burger-event-image"><Image src="/images/eventos/hamburguer-da-casa-20-09.jpg" alt="Hambúrguer da Casa, domingo, 20 de setembro, após o culto" fill sizes="(max-width: 760px) 100vw, 45vw" /></figure>
+      </section>
+
       <section
         className="home-block home-generosity"
         aria-labelledby="generosity-title"

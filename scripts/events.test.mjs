@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateRegistration } from "../src/lib/events.ts";
+import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validateRegistration } from "../src/lib/events.ts";
 
 test("normaliza telefone brasileiro para impedir duplicidades", () => {
   assert.equal(normalizePhone("+55 (54) 99999-9999"), "54999999999");
@@ -15,6 +15,13 @@ test("exige consentimento e dados válidos", () => {
 test("valida os três dados da inscrição do Encontro com Deus", () => {
   assert.match(validateEncounterRegistration({ fullName: "Ana Casa Forte", email: "email-invalido", phone: "54999999999" }) ?? "", /e-mail/i);
   assert.equal(validateEncounterRegistration({ fullName: "Ana Casa Forte", email: "ana@example.com", phone: "(54) 99999-9999" }), null);
+});
+
+test("valida a quantidade e o aceite da reserva de hambúrgueres", () => {
+  const base = { fullName: "Ana Casa Forte", email: "ana@example.com", phone: "(54) 99999-9999", simpleQuantity: 1, doubleQuantity: 2, consent: true };
+  assert.equal(validateHamburgerRegistration(base), null);
+  assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 0, doubleQuantity: 0 }) ?? "", /pelo menos um/i);
+  assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 60, doubleQuantity: 41 }) ?? "", /máximo 100/i);
 });
 
 test("fecha inscrições lotadas, encerradas ou fora do prazo", () => {

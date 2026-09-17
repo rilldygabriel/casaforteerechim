@@ -22,9 +22,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (!payment?.event_id || !payment.registration_id) return NextResponse.json({ error: "Pagamento não encontrado." }, { status: 404 });
     const [{ data: event }, { data: registration }] = await Promise.all([
       service.from("events").select("id,title,slug,registration_fee_cents").eq("id", payment.event_id).maybeSingle(),
-      service.from("event_registrations").select("id,status").eq("id", payment.registration_id).maybeSingle(),
+      service.from("event_registrations").select("id,status,order_total_cents").eq("id", payment.registration_id).maybeSingle(),
     ]);
-    if (!event || event.slug !== slug || !registration || Number(payment.amount_cents) !== Number(event.registration_fee_cents)) {
+    const expectedAmountCents = event?.slug === "hamburguer-da-casa-20-09" ? Number(registration?.order_total_cents) : Number(event?.registration_fee_cents);
+    if (!event || event.slug !== slug || !registration || Number(payment.amount_cents) !== expectedAmountCents) {
       return NextResponse.json({ error: "Os dados desta inscrição não conferem." }, { status: 409 });
     }
     if (registration.status === "confirmed" || payment.status === "approved") {
@@ -40,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         formData,
         purpose: "event",
         description: `Inscrição · ${event.title}`,
-        maxInstallments: 4,
+        maxInstallments: event.slug === "hamburguer-da-casa-20-09" ? 1 : 4,
       });
       providerPaymentCreated = true;
       await service.from("mercado_pago_payments").update({
