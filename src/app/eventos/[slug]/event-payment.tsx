@@ -23,6 +23,7 @@ export default function EventPayment({
   fullName,
   email,
   publicKey,
+  maxInstallments = 4,
 }: {
   slug: string;
   paymentId: string;
@@ -30,6 +31,7 @@ export default function EventPayment({
   fullName: string;
   email: string;
   publicKey: string;
+  maxInstallments?: number;
 }) {
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [message, setMessage] = useState("");
@@ -85,12 +87,12 @@ export default function EventPayment({
   }
 
   return <div className="event-embedded-payment">
-    <header><span>Inscrição reservada</span><strong>{money.format(amountCents / 100)}</strong><p>Escolha Pix ou cartão em até 4 vezes. O pagamento é processado pelo Mercado Pago dentro desta página e os dados do cartão não são armazenados pela Casa Forte.</p></header>
+    <header><span>Inscrição reservada</span><strong>{money.format(amountCents / 100)}</strong><p>Escolha Pix ou cartão {maxInstallments === 1 ? "em 1 vez" : `em até ${maxInstallments} vezes`}. O pagamento é processado pelo Mercado Pago dentro desta página e os dados do cartão não são armazenados pela Casa Forte.</p></header>
     <div className="embedded-payment">
       <Payment
         initialization={initialization}
         customization={{
-          paymentMethods: { creditCard: "all", bankTransfer: ["pix"], maxInstallments: 4 },
+          paymentMethods: { creditCard: "all", bankTransfer: ["pix"], maxInstallments },
           visual: { style: { theme: "default" }, hideRedirectionPanel: true },
         }}
         locale="pt-BR"

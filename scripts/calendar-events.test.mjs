@@ -71,3 +71,10 @@ test("eventos internos e o Encontrão de 14 de novembro não aparecem", () => {
   assert.equal(CHURCH_EVENTS.some((item) => item.id === "jantar-voluntarios"), false);
   assert.equal(CHURCH_EVENTS.some((item) => item.startDate === "2026-11-14" && item.title.includes("Encontrão")), false);
 });
+
+test("o Hambúrguer da Casa aparece em 20 de setembro com inscrição", () => {
+  const event = CHURCH_EVENTS.find((item) => item.id === "hamburguer-da-casa-setembro");
+  assert.equal(event?.startDate, "2026-09-20");
+  assert.equal(event?.registrationSlug, "hamburguer-da-casa-20-09");
+  assert.equal(formatEventTime(event), "Após o culto");
+});

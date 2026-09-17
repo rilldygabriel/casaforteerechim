@@ -7454,6 +7454,29 @@ html[data-theme="light"] .home-useful-links-grid strong {
 }
 
 /* Eventos públicos */
+.home-burger-event {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 147, 46, .34);
+  border-radius: 30px;
+  background: radial-gradient(circle at 10% 10%, rgba(255, 126, 25, .2), transparent 34%), #100b07;
+}
+.home-burger-event-copy { padding: clamp(28px, 5vw, 58px); }
+.home-burger-event-copy .home-kicker { color: #ff9a2f; }
+.home-burger-event-copy h2 { margin: 12px 0 22px; color: #fff; font-family: var(--font-display); font-size: clamp(3.8rem, 8vw, 7.3rem); letter-spacing: -.075em; line-height: .83; }
+.home-burger-event-copy h2 strong { color: #ff9a2f; font-weight: inherit; }
+.home-burger-event-copy > p:not(.home-kicker) { max-width: 560px; color: #d3c5b8; font-size: clamp(.96rem, 1.8vw, 1.12rem); line-height: 1.65; }
+.home-burger-prices { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.home-burger-prices span { display: grid; gap: 4px; min-width: 145px; padding: 15px 18px; border: 1px solid rgba(255,255,255,.13); border-radius: 16px; background: rgba(255,255,255,.06); color: #d8cabc; font-size: .75rem; font-weight: 800; text-transform: uppercase; }
+.home-burger-prices strong { color: #ff9a2f; font-size: 1.2rem; }
+.home-burger-action { display: inline-flex; min-height: 50px; align-items: center; gap: 15px; margin-top: 28px; padding: 0 23px; border-radius: 999px; background: #ff9a2f; color: #160c05; font-size: .7rem; font-weight: 950; letter-spacing: .055em; text-transform: uppercase; }
+.home-burger-action .home-icon { width: 18px; }
+.home-burger-event-image { position: relative; width: 100%; aspect-ratio: 1280 / 511; margin: 0; order: -1; background: #070504; }
+.home-burger-event-image img { object-fit: contain; object-position: center; }
+
 .public-events-page { min-height: 100svh; padding: 28px clamp(16px, 5vw, 70px) 90px; background: radial-gradient(circle at 88% 2%, rgba(223,255,49,.1), transparent 27%), #090b08; color: white; }
 .public-events-header { display: flex; width: min(100%, 1180px); align-items: center; justify-content: space-between; gap: 20px; margin-inline: auto; }
 .public-events-header img { width: 170px; height: auto; }
@@ -7476,6 +7499,8 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .public-event-card h2 { margin: 18px 0 10px; font-size: clamp(1.8rem, 3vw, 2.7rem); letter-spacing: -.055em; line-height: .95; }
 .public-event-card-cover { position: relative; width: 100%; aspect-ratio: 16 / 9; margin: 10px 0 16px; overflow: hidden; border-radius: 14px; background: var(--surface-3); }
 .public-event-card-cover img, .event-public-cover img { object-fit: cover; }
+.public-event-card-cover.is-wide-banner, .event-public-cover.is-wide-banner { aspect-ratio: 1280 / 511; background: #070504; }
+.public-event-card-cover.is-wide-banner img, .event-public-cover.is-wide-banner img { object-fit: contain; }
 .public-event-card-copy > p { display: -webkit-box; margin: 0; overflow: hidden; color: #afb2aa; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .public-event-card dl { display: grid; gap: 7px; margin: 20px 0; }
 .public-event-card dl div { display: grid; grid-template-columns: 62px 1fr; gap: 10px; }
@@ -7515,6 +7540,15 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .event-registration-form > button:disabled { opacity: .55; cursor: wait; }
 .event-payment-notice { margin: 0; padding: 15px 17px; border: 1px solid rgba(255,254,21,.22); border-radius: 13px; color: var(--muted); font-size: .82rem; line-height: 1.55; }
 .event-payment-notice strong { color: var(--yellow); }
+.burger-options { display: grid; gap: 11px; margin: 0; padding: 18px; border: 1px solid rgba(255,154,47,.35); border-radius: 18px; background: rgba(255,154,47,.055); }
+.burger-options legend { padding: 0 8px; color: #ff9a2f; font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.burger-options > label { display: grid; grid-template-columns: 1fr 88px; gap: 16px; align-items: center; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.055); }
+.burger-options > label > span { display: grid; gap: 3px; }
+.burger-options > label strong { color: #fff; }
+.burger-options > label small { color: #c9bbae; }
+.burger-options input { min-height: 48px; text-align: center; }
+.burger-options > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 14px 4px; color: #ddd0c4; font-weight: 800; }
+.burger-options > div strong { color: #ff9a2f; font-size: 1.45rem; }
 .event-embedded-payment { display: grid; gap: 16px; min-width: 0; }
 .event-embedded-payment > header { padding: 20px 22px; border: 1px solid rgba(255,254,21,.25); border-radius: 18px; background: var(--surface-4); }
 .event-embedded-payment > header span { display: block; color: var(--yellow); font-size: .68rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
@@ -7594,6 +7628,7 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .admin-registration-table details button.is-danger { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ff9b9b; }
 
 @media (max-width: 850px) {
+  .home-burger-event { grid-template-columns: 1fr; }
   .public-events-grid { grid-template-columns: 1fr; }
   .event-public-hero, .event-registration-layout, .admin-events-layout { grid-template-columns: 1fr; }
   .admin-event-summary { grid-template-columns: 1fr 1fr; }
@@ -7601,6 +7636,10 @@ html[data-theme="light"] .home-useful-links-grid strong {
 }
 
 @media (max-width: 560px) {
+  .home-burger-event { width: calc(100% - 24px); border-radius: 23px; }
+  .home-burger-event-copy { padding: 28px 20px 32px; }
+  .home-burger-prices span { flex: 1; min-width: 120px; }
+  .burger-options > label { grid-template-columns: 1fr 72px; }
   .public-events-page { padding-inline: 14px; }
   .public-events-header img { width: 138px; }
   .public-events-header > a:last-child { padding-inline: 12px; }

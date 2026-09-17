@@ -35,6 +35,7 @@ export type ChurchEvent = {
   notes?: string;
   registrationSlug?: string;
   registrationLabel?: string;
+  timeLabel?: string;
 };
 
 export const SHOW_INTERNAL_EVENTS = false;
@@ -61,6 +62,13 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
   event("rede-mulheres-setembro", "Rede de Mulheres", "2026-09-11", "Mulheres"),
   event("encontrao-teens-setembro", "Encontrão Rede Teens", "2026-09-12", "Rede Teens"),
   event("rede-homens-setembro", "Rede de Homens", "2026-09-18", "Homens"),
+  event("hamburguer-da-casa-setembro", "Hambúrguer da Casa", "2026-09-20", "Eventos especiais", {
+    timeLabel: "Após o culto",
+    location: "Igreja Casa Forte Erechim",
+    description: "Hambúrguer simples por R$ 20 e duplo por R$ 30. Faça sua reserva e pague por Pix ou cartão.",
+    registrationSlug: "hamburguer-da-casa-20-09",
+    registrationLabel: "Reservas abertas",
+  }),
   event("rede-teens-setembro", "Rede Teens", "2026-09-26", "Rede Teens"),
   event("tarde-criancas", "Tarde das Crianças", "2026-10-10", "Crianças"),
   event("encontro-deus-mulheres", "Encontro com Deus de Mulheres", "2026-10-16", "Mulheres", { endDate: "2026-10-18", registrationSlug: "encontro-com-deus-mulheres-2026", registrationLabel: "Inscrições abertas" }),
@@ -263,6 +271,7 @@ export function formatEventPeriod(item: ChurchEvent) {
 }
 
 export function formatEventTime(item: ChurchEvent) {
+  if (item.timeLabel) return item.timeLabel;
   if (!item.startTime) return "Horário a definir";
   const [hour, minute] = item.startTime.split(":");
   const start = minute === "00" ? `${Number(hour)}h` : `${Number(hour)}h${minute}`;
