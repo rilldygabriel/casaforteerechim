@@ -147,7 +147,7 @@ export default async function Familia({
   const { data: profile, error: profileError } = await supabase
     .from("member_profiles")
     .select(
-      "full_name,phone,birth_date,gender,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,has_discipler,serves_ministry,photo_url,profile_completed,is_admin,approval_status",
+      "full_name,phone,birth_date,gender,address,church_since_month,jesus_year,attended_other_church,previous_church_name,baptized,married,spouse_name,has_discipler,serves_ministry,photo_url,profile_completed,is_admin,can_manage_events,approval_status",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -231,12 +231,14 @@ export default async function Familia({
   const canBookPastoralAgenda = Boolean(pastoralGroupMemberships.data?.length);
   const hasLeadershipArea = Boolean(
     profile.is_admin ||
+      profile.can_manage_events ||
       disciplerRole.data ||
       ministryLeaderRoles.data?.length ||
       ministryMemberRoles.data?.length,
   );
   const hasManagementPanel = Boolean(
     profile.is_admin ||
+      profile.can_manage_events ||
       disciplerRole.data ||
       ministryLeaderRoles.data?.length,
   );

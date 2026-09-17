@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ATTENDANCE_OPTIONS, EVENT_STATUSES, REGISTRATION_STATUSES, eventRegistrationState, optionLabel } from "@/lib/events";
+import { hasEventAdminAccess } from "@/lib/event-admin-auth";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { archiveEvent, archiveRegistration, saveEvent, saveRegistration } from "./actions";
@@ -38,8 +39,8 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
-  const { data: profile } = await supabase.from("member_profiles").select("is_admin,approval_status").eq("user_id", user.id).maybeSingle();
-  if (!profile?.is_admin || profile.approval_status !== "approved") redirect("/admin");
+  const { data: profile } = await supabase.from("member_profiles").select("is_admin,can_manage_events,approval_status").eq("user_id", user.id).maybeSingle();
+  if (!hasEventAdminAccess(profile)) redirect("/admin");
 
   const service = getSupabaseServiceClient();
   const [{ data: events }, { data: registrations }] = await Promise.all([
