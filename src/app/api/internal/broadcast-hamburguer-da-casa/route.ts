@@ -7,13 +7,17 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const CAMPAIGN = "hamburguer_da_casa_2026_09_20";
+const MANUAL_TOKEN_HASH = "0f0a71c85d19968aba992953a97b5b0a7990c12956fee1060201175d5c35104a";
 const TITLE = "Hambúrguer da Casa 🍔";
 const BODY = "Domingo, 20/09, após o culto. Reserve agora: simples R$ 20 ou duplo R$ 30. Pague por Pix ou cartão.";
 const EVENT_URL = "/eventos/hamburguer-da-casa-20-09";
 
 function authorized(request: Request) {
   const secret = process.env.CRON_SECRET;
-  return Boolean(secret && request.headers.get("authorization") === `Bearer ${secret}`);
+  const cronAuthorized = Boolean(secret && request.headers.get("authorization") === `Bearer ${secret}`);
+  const manualToken = request.headers.get("x-casa-manual-token") ?? "";
+  const manualAuthorized = createHash("sha256").update(manualToken).digest("hex") === MANUAL_TOKEN_HASH;
+  return cronAuthorized || manualAuthorized;
 }
 
 function announcementId() {
