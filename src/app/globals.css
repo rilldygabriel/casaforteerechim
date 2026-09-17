@@ -7521,11 +7521,17 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .event-public-hero h1 { max-width: 850px; margin: 0; font-family: var(--font-display); font-size: clamp(3.7rem, 8vw, 7.5rem); letter-spacing: -.075em; line-height: .86; }
 .event-public-hero > div > p:not(.home-kicker) { max-width: 700px; margin: 28px 0 0; color: #c8cac5; line-height: 1.75; }
 .event-public-cover { position: relative; width: 100%; aspect-ratio: 16 / 9; margin: 30px 0 0; overflow: hidden; border: 1px solid rgba(255,255,255,.15); border-radius: 22px; background: var(--surface-2); }
+.event-public-hero.is-burger { display: grid; grid-template-columns: 1fr; gap: 12px; width: min(100%, 1040px); margin-top: 42px; padding-bottom: 0; border-bottom: 0; }
+.event-public-hero.is-burger .event-public-cover { margin: 0; border-color: rgba(255,154,47,.3); }
+.burger-event-quick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; color: #efe3d7; font-size: .76rem; }
+.burger-event-quick strong { color: #ff9a2f; letter-spacing: .03em; text-transform: uppercase; }
+.burger-event-quick span { color: #c9bbae; }
 .event-public-hero dl { display: grid; gap: 1px; margin: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 20px; background: rgba(255,255,255,.1); }
 .event-public-hero dl > div { padding: 17px 19px; background: var(--surface-3); }
 .event-public-hero dt { color: var(--yellow); font-size: .63rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .event-public-hero dd { margin: 6px 0 0; color: white; line-height: 1.45; }
 .event-registration-layout { display: grid; width: min(100%, 1050px); grid-template-columns: minmax(260px, .65fr) minmax(0, 1fr); gap: clamp(30px, 7vw, 90px); margin: 70px auto 0; }
+.event-registration-layout.is-burger { display: block; width: min(100%, 560px); margin-top: 24px; }
 .event-registration-layout h2 { margin: 8px 0 18px; font-size: clamp(2.6rem, 5vw, 4.5rem); letter-spacing: -.06em; line-height: .94; }
 .event-registration-layout > div > p:last-child { color: var(--muted); line-height: 1.7; }
 .event-registration-form { display: grid; gap: 17px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255,254,21,.25); border-radius: 24px; background: var(--surface-4); }
@@ -7540,15 +7546,20 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .event-registration-form > button:disabled { opacity: .55; cursor: wait; }
 .event-payment-notice { margin: 0; padding: 15px 17px; border: 1px solid rgba(255,254,21,.22); border-radius: 13px; color: var(--muted); font-size: .82rem; line-height: 1.55; }
 .event-payment-notice strong { color: var(--yellow); }
-.burger-options { display: grid; gap: 11px; margin: 0; padding: 18px; border: 1px solid rgba(255,154,47,.35); border-radius: 18px; background: rgba(255,154,47,.055); }
+.event-registration-form.is-burger { gap: 12px; padding: clamp(18px, 4vw, 26px); border-color: rgba(255,154,47,.35); }
+.burger-options { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; background: transparent; }
 .burger-options legend { padding: 0 8px; color: #ff9a2f; font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
-.burger-options > label { display: grid; grid-template-columns: 1fr 88px; gap: 16px; align-items: center; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.055); }
+.burger-options > label { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 12px 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: rgba(255,255,255,.045); }
 .burger-options > label > span { display: grid; gap: 3px; }
 .burger-options > label strong { color: #fff; }
 .burger-options > label small { color: #c9bbae; }
-.burger-options input { min-height: 48px; text-align: center; }
-.burger-options > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 14px 4px; color: #ddd0c4; font-weight: 800; }
+.burger-stepper { display: grid !important; grid-template-columns: 40px 44px 40px; gap: 4px !important; align-items: center; }
+.burger-stepper button { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255,154,47,.42); border-radius: 12px; background: #181410; color: #ff9a2f; cursor: pointer; font: inherit; font-size: 1.35rem; font-weight: 800; line-height: 1; }
+.burger-stepper button:disabled { opacity: .3; cursor: default; }
+.burger-stepper output { display: grid; min-width: 44px; height: 40px; place-items: center; color: white; font-size: 1.08rem; font-weight: 900; }
+.burger-options > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 13px 4px 0; color: #ddd0c4; font-weight: 800; }
 .burger-options > div strong { color: #ff9a2f; font-size: 1.45rem; }
+.burger-payment-short { margin: 0; color: #a99c90; font-size: .72rem; text-align: center; }
 .event-embedded-payment { display: grid; gap: 16px; min-width: 0; }
 .event-embedded-payment > header { padding: 20px 22px; border: 1px solid rgba(255,254,21,.25); border-radius: 18px; background: var(--surface-4); }
 .event-embedded-payment > header span { display: block; color: var(--yellow); font-size: .68rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
@@ -7639,7 +7650,11 @@ html[data-theme="light"] .home-useful-links-grid strong {
   .home-burger-event { width: calc(100% - 24px); border-radius: 23px; }
   .home-burger-event-copy { padding: 28px 20px 32px; }
   .home-burger-prices span { flex: 1; min-width: 120px; }
-  .burger-options > label { grid-template-columns: 1fr 72px; }
+  .event-public-hero.is-burger { margin-top: 28px; }
+  .event-registration-layout.is-burger { margin-top: 16px; }
+  .burger-stepper { grid-template-columns: 38px 38px 38px; }
+  .burger-stepper button { width: 38px; height: 38px; }
+  .burger-stepper output { min-width: 38px; height: 38px; }
   .public-events-page { padding-inline: 14px; }
   .public-events-header img { width: 138px; }
   .public-events-header > a:last-child { padding-inline: 12px; }

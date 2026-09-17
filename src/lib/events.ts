@@ -42,16 +42,17 @@ export function validateEncounterRegistration(input: { fullName: string; email: 
   return null;
 }
 
-export function validateHamburgerRegistration(input: { fullName: string; email: string; phone: string; simpleQuantity: number; doubleQuantity: number; consent: boolean }) {
-  const contactError = validateEncounterRegistration(input);
-  if (contactError) return contactError;
+export function validateHamburgerRegistration(input: { phone?: string; simpleQuantity: number; doubleQuantity: number; isMember?: boolean }) {
+  if (!input.isMember) {
+    const phone = normalizePhone(input.phone ?? "");
+    if (phone.length < 10 || phone.length > 11) return "Informe um telefone ou WhatsApp válido com DDD.";
+  }
   if (!Number.isInteger(input.simpleQuantity) || !Number.isInteger(input.doubleQuantity) || input.simpleQuantity < 0 || input.doubleQuantity < 0) {
     return "Informe quantidades válidas.";
   }
   const total = input.simpleQuantity + input.doubleQuantity;
   if (total < 1) return "Escolha pelo menos um hambúrguer.";
   if (total > 100) return "O pedido pode ter no máximo 100 hambúrgueres.";
-  if (!input.consent) return "É necessário autorizar o uso dos dados para concluir a reserva.";
   return null;
 }
 

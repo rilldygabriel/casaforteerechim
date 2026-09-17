@@ -114,7 +114,7 @@ export default function CalendarExperience({ today, events }: { today: string; e
                     <p>{item.category}</p><h3>{item.title}</h3>
                     <strong>{formatEventTime(item)}</strong>
                     <button type="button" onClick={() => setSelectedEvent(item)}>Ver detalhes</button>
-                    <EventAttendanceButton event={item} confirmed={attendance.confirmed.has(item.id)} pending={attendance.pendingKey === item.id} onToggle={attendance.toggleAttendance} />
+                    {item.attendanceEnabled !== false ? <EventAttendanceButton event={item} confirmed={attendance.confirmed.has(item.id)} pending={attendance.pendingKey === item.id} onToggle={attendance.toggleAttendance} /> : null}
                     {item.registrationSlug ? <Link className="calendar-registration-link" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
                   </div>
                 </article>
@@ -207,7 +207,7 @@ function EventDetails({ item, close, closeButtonRef, confirmed, pending, onToggl
         {item.description ? <p>{item.description}</p> : null}
         {item.registrationLabel ? <p className="calendar-registration-status">{item.registrationLabel}</p> : null}
         {item.notes ? <aside><strong>Observação</strong><p>{item.notes}</p></aside> : null}
-        <EventAttendanceButton event={item} confirmed={confirmed} pending={pending} onToggle={onToggle} className="calendar-modal-attendance" />
+        {item.attendanceEnabled !== false ? <EventAttendanceButton event={item} confirmed={confirmed} pending={pending} onToggle={onToggle} className="calendar-modal-attendance" /> : null}
         {item.registrationSlug ? <Link className="calendar-modal-registration" href={`/eventos/${item.registrationSlug}`}>Quero me inscrever</Link> : null}
       </section>
     </div>
