@@ -31,6 +31,7 @@ export default async function CalendarPage() {
     featured: item.is_featured,
     registrationSlug: item.registration_enabled && item.registration_status === "open" ? item.slug : undefined,
     registrationLabel: item.registration_enabled ? item.registration_status === "open" ? "Inscrições abertas" : "Inscrições encerradas" : undefined,
+    timeLabel: item.slug === "hamburguer-da-casa-20-09" ? "Após o culto" : undefined,
     attendanceEnabled: item.slug !== "hamburguer-da-casa-20-09",
   }));
   const databaseRegistrationSlugs = new Set((data ?? []).map((item) => item.slug));
