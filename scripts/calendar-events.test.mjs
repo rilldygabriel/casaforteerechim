@@ -76,5 +76,6 @@ test("o Hambúrguer da Casa aparece em 20 de setembro com inscrição", () => {
   const event = CHURCH_EVENTS.find((item) => item.id === "hamburguer-da-casa-setembro");
   assert.equal(event?.startDate, "2026-09-20");
   assert.equal(event?.registrationSlug, "hamburguer-da-casa-20-09");
+  assert.equal(event?.attendanceEnabled, false);
   assert.equal(formatEventTime(event), "Após o culto");
 });

@@ -97,7 +97,7 @@ export default function ProgramsSection({ mapsUrl }: { mapsUrl: string }) {
               <h3>{event.title}</h3>
               <strong>{formatEventTime(event)}</strong>
               <div className="calendar-feature-actions">
-                <EventAttendanceButton event={event} confirmed={attendance.confirmed.has(event.id)} pending={attendance.pendingKey === event.id} onToggle={attendance.toggleAttendance} />
+                {event.attendanceEnabled !== false ? <EventAttendanceButton event={event} confirmed={attendance.confirmed.has(event.id)} pending={attendance.pendingKey === event.id} onToggle={attendance.toggleAttendance} /> : null}
                 <Link href={event.registrationSlug ? `/eventos/${event.registrationSlug}` : "/calendario"}>{event.registrationSlug ? "Quero me inscrever" : "Ver no calendário"}</Link>
               </div>
             </div>

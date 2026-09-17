@@ -36,6 +36,7 @@ export type ChurchEvent = {
   registrationSlug?: string;
   registrationLabel?: string;
   timeLabel?: string;
+  attendanceEnabled?: boolean;
 };
 
 export const SHOW_INTERNAL_EVENTS = false;
@@ -68,6 +69,7 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
     description: "Hambúrguer simples por R$ 20 e duplo por R$ 30. Faça sua reserva e pague por Pix ou cartão.",
     registrationSlug: "hamburguer-da-casa-20-09",
     registrationLabel: "Reservas abertas",
+    attendanceEnabled: false,
   }),
   event("rede-teens-setembro", "Rede Teens", "2026-09-26", "Rede Teens"),
   event("tarde-criancas", "Tarde das Crianças", "2026-10-10", "Crianças"),
