@@ -34,7 +34,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const { data: profile } = await service.from("member_profiles").select("full_name,email,phone,approval_status,is_admin").eq("user_id", user.id).maybeSingle();
         if (profile && (profile.approval_status === "approved" || profile.is_admin === true)) {
           isMember = true;
-          input.fullName = String(profile.full_name || user.user_metadata?.full_name || "Membro da Casa").trim();
           input.email = String(profile.email || user.email || `${user.id}@membros.casaforteerechim.app.br`).trim().toLowerCase();
           const profilePhone = normalizePhone(String(profile.phone || user.phone || ""));
           input.phone = profilePhone.length >= 10 && profilePhone.length <= 11 ? profilePhone : internalMemberPhone(user.id);
@@ -43,12 +42,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
     }
 
-    const validationError = isPostEncounter ? validatePostEncounterRegistration(input) : isEncounter ? validateEncounterRegistration(input) : isBurger ? validateHamburgerRegistration({ phone: input.phone, simpleQuantity: input.simpleQuantity, doubleQuantity: input.doubleQuantity, isMember }) : validateRegistration(input);
+    const validationError = isPostEncounter ? validatePostEncounterRegistration(input) : isEncounter ? validateEncounterRegistration(input) : isBurger ? validateHamburgerRegistration({ fullName: input.fullName, phone: input.phone, simpleQuantity: input.simpleQuantity, doubleQuantity: input.doubleQuantity, isMember }) : validateRegistration(input);
     if (validationError) return respond({ error: validationError }, { status: 400 });
 
     if (isBurger && !isMember) {
       const guestPhone = normalizePhone(input.phone);
-      input.fullName = `Pedido Hambúrguer ${guestPhone.slice(-4)}`;
       input.email = `hamburguer+${guestPhone}@casaforteerechim.app.br`;
       input.consent = true;
     }

@@ -42,7 +42,8 @@ export function validateEncounterRegistration(input: { fullName: string; email: 
   return null;
 }
 
-export function validateHamburgerRegistration(input: { phone?: string; simpleQuantity: number; doubleQuantity: number; isMember?: boolean }) {
+export function validateHamburgerRegistration(input: { fullName: string; phone?: string; simpleQuantity: number; doubleQuantity: number; isMember?: boolean }) {
+  if (input.fullName.trim().length < 3 || input.fullName.trim().length > 160) return "Informe o nome completo de quem fará a retirada.";
   if (!input.isMember) {
     const phone = normalizePhone(input.phone ?? "");
     if (phone.length < 10 || phone.length > 11) return "Informe um telefone ou WhatsApp válido com DDD.";

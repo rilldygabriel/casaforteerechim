@@ -26,10 +26,11 @@ test("valida os três dados da inscrição do Encontro com Deus", () => {
 });
 
 test("valida uma reserva de hambúrgueres simplificada", () => {
-  const base = { phone: "(54) 99999-9999", simpleQuantity: 1, doubleQuantity: 2 };
+  const base = { fullName: "Ana Casa Forte", phone: "(54) 99999-9999", simpleQuantity: 1, doubleQuantity: 2 };
   assert.equal(validateHamburgerRegistration(base), null);
-  assert.equal(validateHamburgerRegistration({ simpleQuantity: 2, doubleQuantity: 3, isMember: true }), null);
-  assert.match(validateHamburgerRegistration({ simpleQuantity: 1, doubleQuantity: 0 }) ?? "", /telefone/i);
+  assert.equal(validateHamburgerRegistration({ fullName: "Ana Casa Forte", simpleQuantity: 2, doubleQuantity: 3, isMember: true }), null);
+  assert.match(validateHamburgerRegistration({ fullName: "", simpleQuantity: 1, doubleQuantity: 0, isMember: true }) ?? "", /nome completo/i);
+  assert.match(validateHamburgerRegistration({ fullName: "Ana Casa Forte", simpleQuantity: 1, doubleQuantity: 0 }) ?? "", /telefone/i);
   assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 0, doubleQuantity: 0 }) ?? "", /pelo menos um/i);
   assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 60, doubleQuantity: 41 }) ?? "", /máximo 100/i);
 });
