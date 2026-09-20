@@ -1,37 +1,106 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cultPhotoPreview, type CultPhoto } from "@/lib/cult-album";
 
 const PAGE_SIZE = 24;
+const PHOTO_QUERY_PARAM = "foto";
+const PHOTO_HISTORY_KEY = "__casaFortePhoto";
 
 export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [preparedPhoto, setPreparedPhoto] = useState<{ photoId: string; file: File } | null>(null);
+  const ownsHistoryEntry = useRef(false);
   const active = activeIndex === null ? null : photos[activeIndex];
+  const photoFile = active && preparedPhoto?.photoId === active.id ? preparedPhoto.file : null;
+
+  const indexFromLocation = useCallback(() => {
+    const photoId = new URL(window.location.href).searchParams.get(PHOTO_QUERY_PARAM);
+    if (!photoId) return null;
+    const index = photos.findIndex((photo) => photo.id === photoId);
+    return index >= 0 ? index : null;
+  }, [photos]);
+
+  const setPhotoUrl = useCallback((index: number, mode: "push" | "replace") => {
+    const url = new URL(window.location.href);
+    url.searchParams.set(PHOTO_QUERY_PARAM, photos[index].id);
+    const state = { ...(window.history.state ?? {}), [PHOTO_HISTORY_KEY]: true };
+    window.history[mode === "push" ? "pushState" : "replaceState"](
+      state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  }, [photos]);
+
+  const openPhoto = useCallback((index: number) => {
+    setPhotoUrl(index, "push");
+    ownsHistoryEntry.current = true;
+    setActiveIndex(index);
+  }, [setPhotoUrl]);
+
+  const showPhoto = useCallback((index: number) => {
+    setPhotoUrl(index, "replace");
+    ownsHistoryEntry.current = true;
+    setActiveIndex(index);
+  }, [setPhotoUrl]);
+
+  const closePhoto = useCallback(() => {
+    if (ownsHistoryEntry.current && window.history.state?.[PHOTO_HISTORY_KEY]) {
+      window.history.back();
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete(PHOTO_QUERY_PARAM);
+    window.history.replaceState(
+      { ...(window.history.state ?? {}), [PHOTO_HISTORY_KEY]: undefined },
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+    ownsHistoryEntry.current = false;
+    setActiveIndex(null);
+  }, []);
+
+  useEffect(() => {
+    const syncPhotoFromHistory = () => {
+      const index = indexFromLocation();
+      ownsHistoryEntry.current = Boolean(window.history.state?.[PHOTO_HISTORY_KEY]);
+      setActiveIndex(index);
+    };
+
+    syncPhotoFromHistory();
+    window.addEventListener("popstate", syncPhotoFromHistory);
+    return () => window.removeEventListener("popstate", syncPhotoFromHistory);
+  }, [indexFromLocation]);
 
   useEffect(() => {
     if (activeIndex === null) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setActiveIndex(null);
-      if (event.key === "ArrowLeft") setActiveIndex((activeIndex - 1 + photos.length) % photos.length);
-      if (event.key === "ArrowRight") setActiveIndex((activeIndex + 1) % photos.length);
+      if (event.key === "Escape") closePhoto();
+      if (event.key === "ArrowLeft") showPhoto((activeIndex - 1 + photos.length) % photos.length);
+      if (event.key === "ArrowRight") showPhoto((activeIndex + 1) % photos.length);
     };
     window.addEventListener("keydown", onKey);
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKey); };
-  }, [activeIndex, photos.length]);
+  }, [activeIndex, closePhoto, photos.length, showPhoto]);
 
   useEffect(() => {
-    if (!active) { setPhotoFile(null); return; }
+    if (!active) return;
     let cancelled = false;
-    setPhotoFile(null);
     fetch(`/api/fotos/download?id=${encodeURIComponent(active.id)}`)
       .then((response) => response.ok ? response.blob() : Promise.reject())
-      .then((blob) => { if (!cancelled) setPhotoFile(new File([blob], active.filename, { type: blob.type || "image/jpeg" })); })
-      .catch(() => { if (!cancelled) setPhotoFile(null); });
+      .then((blob) => {
+        if (!cancelled) {
+          setPreparedPhoto({
+            photoId: active.id,
+            file: new File([blob], active.filename, { type: blob.type || "image/jpeg" }),
+          });
+        }
+      })
+      .catch(() => undefined);
     return () => { cancelled = true; };
   }, [active]);
 
@@ -49,24 +118,24 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
 
   return <>
     <section className="cult-album-grid" aria-label="Fotos do culto">
-      {photos.slice(0, visible).map((photo, index) => <button key={photo.id} type="button" data-orientation={photo.orientation} onClick={() => setActiveIndex(index)} aria-label={`Abrir foto ${index + 1} de ${photos.length}`}>
+      {photos.slice(0, visible).map((photo, index) => <button key={photo.id} type="button" data-orientation={photo.orientation} onClick={() => openPhoto(index)} aria-label={`Abrir foto ${index + 1} de ${photos.length}`}>
         <img src={cultPhotoPreview(photo.id, 720)} alt={`Culto de domingo na Casa Forte — foto ${index + 1}`} loading={index < 8 ? "eager" : "lazy"} />
         <span>Foto {index + 1}</span>
       </button>)}
     </section>
     {visible < photos.length ? <button className="cult-album-more" type="button" onClick={() => setVisible((current) => Math.min(current + PAGE_SIZE, photos.length))}>Carregar mais fotos</button> : null}
 
-    {active ? <div className="cult-lightbox" role="dialog" aria-modal="true" aria-label={`Foto ${activeIndex! + 1} de ${photos.length}`} onClick={() => setActiveIndex(null)}>
+    {active ? <div className="cult-lightbox" role="dialog" aria-modal="true" aria-label={`Foto ${activeIndex! + 1} de ${photos.length}`} onClick={closePhoto}>
       <div className="cult-lightbox-toolbar" onClick={(event) => event.stopPropagation()}>
         <span>{activeIndex! + 1} / {photos.length}</span>
         <button type="button" onClick={savePhoto} disabled={!photoFile}>
           {photoFile ? "Salvar foto" : "Preparando foto…"}
         </button>
       </div>
-      <button className="cult-lightbox-close" type="button" onClick={() => setActiveIndex(null)} aria-label="Fechar foto">×</button>
-      <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); setActiveIndex((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
+      <button className="cult-lightbox-close" type="button" onClick={closePhoto} aria-label="Fechar foto">×</button>
+      <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
       <img src={cultPhotoPreview(active.id, 2200)} alt={`Culto de domingo na Casa Forte — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} />
-      <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); setActiveIndex((activeIndex! + 1) % photos.length); }}>›</button>
+      <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! + 1) % photos.length); }}>›</button>
     </div> : null}
   </>;
 }

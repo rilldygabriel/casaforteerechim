@@ -51,7 +51,7 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
   return (
     <main className="photo-viewer-page">
       <header className="photo-viewer-header">
-        <Link href="/#o-que-esta-rolando">
+        <Link href="/fotos">
           <span aria-hidden="true">←</span>
           Voltar ao site
         </Link>
@@ -78,7 +78,7 @@ export default async function PhotoPage({ params }: PhotoPageProps) {
         <figcaption>{photo.alt}</figcaption>
       </figure>
 
-      <Link className="photo-viewer-back" href="/#o-que-esta-rolando">
+      <Link className="photo-viewer-back" href="/fotos">
         Voltar para as fotos do site
       </Link>
     </main>
