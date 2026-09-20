@@ -10,6 +10,18 @@ import {
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
+type AppSubscription = {
+  user_id: string;
+  user_agent: string | null;
+};
+
+function subscriptionPlatform(userAgent: string | null) {
+  const value = userAgent?.toLowerCase() ?? "";
+  if (/iphone|ipad|ipod/.test(value)) return "ios";
+  if (value.includes("android")) return "android";
+  return null;
+}
+
 export default async function AdminPage() {
   const supabase = await getSupabaseServerClient();
   const service = getSupabaseServiceClient();
@@ -54,6 +66,30 @@ export default async function AdminPage() {
 
   let pendingServeRequests = 0;
   let overdueVisitorSteps = 0;
+  let iosDownloadCount = 0;
+  let androidDownloadCount = 0;
+  let iosActiveMembers = 0;
+  let androidActiveMembers = 0;
+
+  if (isAdmin) {
+    const [iosDownloads, androidDownloads, subscriptionResult] = await Promise.all([
+      service.from("app_download_events").select("id", { count: "exact", head: true }).eq("platform", "ios"),
+      service.from("app_download_events").select("id", { count: "exact", head: true }).eq("platform", "android"),
+      service.from("web_push_subscriptions").select("user_id,user_agent").lt("failure_count", 3),
+    ]);
+    iosDownloadCount = iosDownloads.count ?? 0;
+    androidDownloadCount = androidDownloads.count ?? 0;
+
+    const iosMembers = new Set<string>();
+    const androidMembers = new Set<string>();
+    for (const subscription of (subscriptionResult.data ?? []) as AppSubscription[]) {
+      const platform = subscriptionPlatform(subscription.user_agent);
+      if (platform === "ios") iosMembers.add(subscription.user_id);
+      if (platform === "android") androidMembers.add(subscription.user_id);
+    }
+    iosActiveMembers = iosMembers.size;
+    androidActiveMembers = androidMembers.size;
+  }
   if (ministryCount > 0) {
     const leaderKeys = (leaderResult.data ?? []).map(
       ({ ministry_key }) => ministry_key,
@@ -94,6 +130,33 @@ export default async function AdminPage() {
         <p>{isAdmin ? "Você possui a visão administrativa completa da Casa." : "Aqui aparecem somente as áreas e pessoas confiadas à sua liderança."}</p>
       </section>
 
+      {isAdmin && <section className="admin-app-metrics" aria-labelledby="admin-app-metrics-title">
+        <header>
+          <div>
+            <span>Aplicativos da Casa</span>
+            <h2 id="admin-app-metrics-title">Downloads e uso</h2>
+          </div>
+          <Link href="/admin/presencas#device-audit-title">Ver membros identificados →</Link>
+        </header>
+        <div className="admin-app-metrics-grid">
+          <article data-platform="ios">
+            <div><AppleMark /><span>iPhone · iOS</span></div>
+            <dl>
+              <div><dt>Downloads iniciados</dt><dd>{iosDownloadCount}</dd></div>
+              <div><dt>Já usam o app</dt><dd>{iosActiveMembers}</dd></div>
+            </dl>
+          </article>
+          <article data-platform="android">
+            <div><AndroidMark /><span>Android</span></div>
+            <dl>
+              <div><dt>Downloads iniciados</dt><dd>{androidDownloadCount}</dd></div>
+              <div><dt>Já usam o app</dt><dd>{androidActiveMembers}</dd></div>
+            </dl>
+          </article>
+        </div>
+        <p>Os downloads iniciados contam aparelhos únicos que abriram as lojas pelos botões oficiais do site desde 20/09/2026. “Já usam” mostra membros com aparelho identificado e notificações ativas.</p>
+      </section>}
+
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
@@ -122,6 +185,14 @@ export default async function AdminPage() {
       <AdminCalendarTicker />
     </main>
   );
+}
+
+function AppleMark() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.7 12.8c0-2.1 1.7-3.2 1.8-3.3a4.1 4.1 0 0 0-3.2-1.7c-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8a4.4 4.4 0 0 0-3.7 2.3c-1.6 2.8-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.2 1.2 0 1.6-.7 3.1-.7 1.4 0 1.9.7 3.1.7 1.3 0 2.1-1.1 2.8-2.2.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.8-1.1-2.8-3.6ZM14.4 6.4c.6-.8 1-1.9.9-3-.9 0-2 .6-2.7 1.3-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.2Z" fill="currentColor" /></svg>;
+}
+
+function AndroidMark() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7.2 8.2-1.5-2.6.9-.5 1.6 2.7a9 9 0 0 1 7.6 0l1.6-2.7.9.5-1.5 2.6A7 7 0 0 1 20 13H4a7 7 0 0 1 3.2-4.8ZM8.5 11a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Zm7 0a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6ZM4 14h16v5.2c0 1-.8 1.8-1.8 1.8H5.8c-1 0-1.8-.8-1.8-1.8V14Z" fill="currentColor" /></svg>;
 }
 
 function Module({ number, href, title, copy, action, notice }: { number: string; href: string; title: string; copy: string; action: string; notice?: string }) {

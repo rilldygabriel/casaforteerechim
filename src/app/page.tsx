@@ -21,10 +21,6 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
-const APP_STORE_URL =
-  "https://apps.apple.com/br/app/casa-forte-erechim/id6740501695";
-const GOOGLE_PLAY_URL =
-  "https://play.google.com/store/apps/details?id=com.casaforteerechim.app&hl=pt_BR";
 // Este destaque sempre usa o vídeo publicado somente como Palavra, não o culto completo.
 const LATEST_MESSAGE_TITLE = "O QUE EU IMAGINAVA";
 const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=BZGdoH1VYyo";
@@ -213,7 +209,7 @@ export default function Home() {
           </span>
           <span className="home-app-downloads" aria-label="Baixar o aplicativo">
             <a
-              href={APP_STORE_URL}
+              href="/api/app-download/ios?source=home_header"
               target="_blank"
               rel="noreferrer"
               aria-label="Baixar Casa Forte Erechim na App Store"
@@ -222,7 +218,7 @@ export default function Home() {
               <span><small>Baixar no</small>iPhone</span>
             </a>
             <a
-              href={GOOGLE_PLAY_URL}
+              href="/api/app-download/android?source=home_header"
               target="_blank"
               rel="noreferrer"
               aria-label="Baixar Casa Forte Erechim no Google Play"
