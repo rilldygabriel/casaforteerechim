@@ -216,11 +216,34 @@ const PIX_PROCESSING_WINDOW_MS = 24 * 60 * 60_000;
 export async function expireStaleMercadoPagoPixPayments() {
   const service = getSupabaseServiceClient();
   const cutoff = new Date(Date.now() - PIX_PROCESSING_WINDOW_MS).toISOString();
-  const { data: stalePayments, error: selectError } = await service
+  const { data: recentPayments, error: recentSelectError } = await service
     .from("mercado_pago_payments")
     .select("id,provider_payment_id")
     .eq("payment_provider", "mercado_pago")
-    .eq("payment_method_id", "pix")
+    .in("status", PROCESSING_PAYMENT_STATUSES)
+    .not("provider_payment_id", "is", null)
+    .gte("created_at", cutoff)
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  if (recentSelectError) throw new Error("Não foi possível consultar os pagamentos em processamento.");
+
+  let synchronized = 0;
+  let synchronizationFailures = 0;
+  for (const payment of recentPayments ?? []) {
+    try {
+      await synchronizeMercadoPagoPayment(payment.provider_payment_id!);
+      synchronized += 1;
+    } catch (error) {
+      synchronizationFailures += 1;
+      console.error("mercado_pago_processing_sync_error", { paymentId: payment.id, error });
+    }
+  }
+
+  const { data: stalePayments, error: selectError } = await service
+    .from("mercado_pago_payments")
+    .select("id,provider_payment_id,payment_method_id,status")
+    .eq("payment_provider", "mercado_pago")
     .in("status", PROCESSING_PAYMENT_STATUSES)
     .lt("created_at", cutoff)
     .order("created_at", { ascending: true })
@@ -228,18 +251,18 @@ export async function expireStaleMercadoPagoPixPayments() {
 
   if (selectError) throw new Error("Não foi possível consultar os Pix pendentes.");
 
-  let synchronized = 0;
-  let synchronizationFailures = 0;
   const eligibleForExpiry: string[] = [];
   for (const payment of stalePayments ?? []) {
     if (!payment.provider_payment_id) {
-      eligibleForExpiry.push(payment.id);
+      if (payment.status === "created") eligibleForExpiry.push(payment.id);
       continue;
     }
     try {
       const result = await synchronizeMercadoPagoPayment(payment.provider_payment_id);
       synchronized += 1;
-      if (!result.ignored && PROCESSING_PAYMENT_STATUSES.includes(result.status)) eligibleForExpiry.push(payment.id);
+      if (!result.ignored && PROCESSING_PAYMENT_STATUSES.includes(result.status) && payment.payment_method_id === "pix") {
+        eligibleForExpiry.push(payment.id);
+      }
     } catch (error) {
       synchronizationFailures += 1;
       console.error("mercado_pago_stale_pix_sync_error", { paymentId: payment.id, error });
@@ -247,7 +270,7 @@ export async function expireStaleMercadoPagoPixPayments() {
   }
 
   if (!eligibleForExpiry.length) {
-    return { checked: stalePayments?.length ?? 0, synchronized, synchronizationFailures, expired: 0 };
+    return { checked: (recentPayments?.length ?? 0) + (stalePayments?.length ?? 0), synchronized, synchronizationFailures, expired: 0 };
   }
 
   const { data: expiredPayments, error: expireError } = await service
@@ -259,7 +282,6 @@ export async function expireStaleMercadoPagoPixPayments() {
     })
     .in("id", eligibleForExpiry)
     .eq("payment_provider", "mercado_pago")
-    .eq("payment_method_id", "pix")
     .in("status", PROCESSING_PAYMENT_STATUSES)
     .lt("created_at", cutoff)
     .select("id,registration_id");
@@ -275,7 +297,7 @@ export async function expireStaleMercadoPagoPixPayments() {
   }
 
   return {
-    checked: stalePayments?.length ?? 0,
+    checked: (recentPayments?.length ?? 0) + (stalePayments?.length ?? 0),
     synchronized,
     synchronizationFailures,
     expired: expiredPayments?.length ?? 0,
