@@ -72,7 +72,12 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
     attendanceEnabled: false,
   }),
   event("rede-teens-setembro", "Rede Teens", "2026-09-26", "Rede Teens"),
-  event("tarde-criancas", "Tarde das Crianças", "2026-10-10", "Crianças"),
+  event("tarde-criancas", "Tarde das Crianças", "2026-10-10", "Crianças", {
+    startTime: "14:00",
+    endTime: "18:00",
+    location: "Sede da Comil — Rua Reinaldo Kuka, 46 — Aeroporto, Erechim",
+    description: "Tarde da Alegria com histórias bíblicas, louvor, brincadeiras, piquenique e muita diversão. Traga um prato para compartilharmos juntos.",
+  }),
   event("encontro-deus-mulheres", "Encontro com Deus de Mulheres", "2026-10-16", "Mulheres", { endDate: "2026-10-18", registrationSlug: "encontro-com-deus-mulheres-2026", registrationLabel: "Inscrições abertas" }),
   event("encontrao-teens-outubro", "Encontrão Rede Teens", "2026-10-17", "Rede Teens", { notes: "Evento coincide com o Encontro com Deus de Mulheres. Aguardar definição pastoral." }),
   event("encontro-deus-homens", "Encontro com Deus de Homens", "2026-10-23", "Homens", { endDate: "2026-10-25", registrationSlug: "encontro-com-deus-homens-2026", registrationLabel: "Inscrições abertas" }),

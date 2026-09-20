@@ -3636,8 +3636,8 @@ a:focus-visible {
   position: relative;
   z-index: 2;
   display: grid;
-  width: min(100% - 72px, 950px);
-  grid-template-columns: 1fr 1fr;
+  width: min(100% - 72px, 1280px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: -66px auto 0;
 }
@@ -4643,8 +4643,13 @@ a:focus-visible {
 
   .home-entry-grid {
     width: calc(100% - 22px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
     margin-top: -38px;
+  }
+
+  .home-entry-grid > a:nth-child(3) {
+    grid-column: 1 / -1;
   }
 
   .home-entry-grid > a {

@@ -524,6 +524,12 @@ export default async function Familia({
         </article>
         <article className="family-menu-card">
           <span>03</span>
+          <h2>Notícias da Casa</h2>
+          <p>Veja convites, informações e tudo o que está acontecendo na nossa família.</p>
+          <Link href="/noticias">Abrir notícias</Link>
+        </article>
+        <article className="family-menu-card">
+          <span>04</span>
           <h2>Meu Devocional</h2>
           <p>Um espaço para fortalecer sua fé e caminhar com a Casa.</p>
           <a
@@ -535,19 +541,19 @@ export default async function Familia({
           </a>
         </article>
         <article className="family-menu-card">
-          <span>04</span>
+          <span>05</span>
           <h2>Agenda da Casa</h2>
           <p>Domingo às 19h, quarta às 19h30 e sexta às 19h30.</p>
           <Link href="/calendario">Ver calendário completo</Link>
         </article>
         <article className="family-menu-card">
-          <span>05</span>
+          <span>06</span>
           <h2>Pedidos de Oração</h2>
           <p>Envie seu pedido e permita que nossa equipe caminhe com você.</p>
           <Link href="/oracao">Enviar pedido</Link>
         </article>
         <article className="family-menu-card">
-          <span>06</span>
+          <span>07</span>
           <h2>Falar com um Pastor</h2>
           <p>Conte com orientação, cuidado e acompanhamento pastoral.</p>
           <a href={PASTOR_URL} target="_blank" rel="noreferrer">

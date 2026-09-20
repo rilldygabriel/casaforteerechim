@@ -194,6 +194,9 @@ export default function Home() {
             <Link className="home-nav-light" href="/eventos">
               Inscrições
             </Link>
+            <Link className="home-nav-light" href="/noticias">
+              Notícias
+            </Link>
             <a
               className="home-nav-light"
               href={WHATSAPP_URL}
@@ -275,6 +278,11 @@ export default function Home() {
           <Link href="/familia">
             <span>Esta é a minha igreja</span>
             <strong>Sou da Casa</strong>
+            <ArrowIcon />
+          </Link>
+          <Link href="/noticias">
+            <span>Informação e comunhão</span>
+            <strong>Notícias da Casa</strong>
             <ArrowIcon />
           </Link>
         </div>
