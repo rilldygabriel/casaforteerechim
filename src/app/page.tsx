@@ -20,6 +20,10 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
+const APP_STORE_URL =
+  "https://apps.apple.com/br/app/casa-forte-erechim/id6740501695";
+const GOOGLE_PLAY_URL =
+  "https://play.google.com/store/apps/details?id=com.casaforteerechim.app&hl=pt_BR";
 // Este destaque sempre usa o vídeo publicado somente como Palavra, não o culto completo.
 const LATEST_MESSAGE_TITLE = "O QUE EU IMAGINAVA";
 const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=BZGdoH1VYyo";
@@ -142,6 +146,25 @@ function LockIcon() {
   );
 }
 
+function AppleIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.1 12.7c0-2.4 2-3.6 2.1-3.7a4.5 4.5 0 0 0-3.6-2c-1.5-.2-3 .9-3.8.9-.8 0-2-1-3.3-.9a4.8 4.8 0 0 0-4 2.4c-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3.1 2.4 1.2-.1 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4a10.6 10.6 0 0 0 1.4-2.9 4.2 4.2 0 0 1-2.5-3.6ZM14.6 5.4a4.2 4.2 0 0 0 1-3 4.3 4.3 0 0 0-2.8 1.4 4 4 0 0 0-1 2.9 3.6 3.6 0 0 0 2.8-1.3Z" />
+    </svg>
+  );
+}
+
+function GooglePlayIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path fill="#00d1ff" d="M3.7 2.5c-.4.4-.7 1-.7 1.8v15.4c0 .8.3 1.4.7 1.8l.1.1 8.6-8.7v-.2L3.8 2.4l-.1.1Z" />
+      <path fill="#ffd500" d="m15.3 15.8-2.9-2.9v-.2l2.9-2.9.1.1 3.5 2c1 .6 1 1.5 0 2.1l-3.5 2-.1-.2Z" />
+      <path fill="#ff3a44" d="m15.4 15.9-3-3L3.7 21.6c.7.7 1.7.8 2.9.1l8.8-5.8Z" />
+      <path fill="#00e676" d="M15.4 9.9 6.6 2.3c-1.2-.7-2.2-.6-2.9.1l8.7 10.3 3-2.8Z" />
+    </svg>
+  );
+}
+
 export default function Home() {
   return (
     <main className="home-page">
@@ -179,6 +202,26 @@ export default function Home() {
           <Link className="home-nav-filled" href="/admin">
             Painel
           </Link>
+          <span className="home-app-downloads" aria-label="Baixar o aplicativo">
+            <a
+              href={APP_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Baixar Casa Forte Erechim na App Store"
+            >
+              <AppleIcon />
+              <span><small>Baixar no</small>iPhone</span>
+            </a>
+            <a
+              href={GOOGLE_PLAY_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Baixar Casa Forte Erechim no Google Play"
+            >
+              <GooglePlayIcon />
+              <span><small>Baixar no</small>Android</span>
+            </a>
+          </span>
         </nav>
       </header>
 
