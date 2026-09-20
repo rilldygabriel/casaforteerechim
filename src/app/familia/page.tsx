@@ -9,6 +9,7 @@ import LocationCheckin from "./location-checkin";
 import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
 import PushNotifications from "./push-notifications";
+import SiteNotificationBell from "@/components/site-notification-bell";
 import ThemeToggle from "@/components/theme-toggle";
 import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
@@ -248,12 +249,6 @@ export default async function Familia({
       disciplerRole.data ||
       ministryLeaderRoles.data?.length,
   );
-  const [{ data: announcements }, { data: announcementReads }] = await Promise.all([
-    supabase.from("family_announcements").select("id").order("created_at", { ascending: false }).limit(100),
-    supabase.from("family_announcement_reads").select("announcement_id").eq("user_id", user.id),
-  ]);
-  const readAnnouncementIds = new Set((announcementReads ?? []).map((item) => item.announcement_id));
-  const unreadNotifications = (announcements ?? []).filter((item) => !readAnnouncementIds.has(item.id)).length;
   let signedPhotoUrl: string | null = null;
   const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult, activeRelationshipResult] = await Promise.all([
     service.from("ministries").select("key,name").eq("active", true).order("sort_order"),
@@ -300,7 +295,7 @@ export default async function Familia({
 
   return (
     <main className="inner-page family-page">
-      <FamilyHeader signOut={signOut} unreadNotifications={unreadNotifications} />
+      <FamilyHeader signOut={signOut} />
 
       <section className="family-hero">
         <p className="section-eyebrow">
@@ -640,10 +635,8 @@ function DisciplerPhoto({ name, url }: { name: string; url?: string }) {
 
 function FamilyHeader({
   signOut,
-  unreadNotifications = 0,
 }: {
   signOut: () => Promise<void>;
-  unreadNotifications?: number;
 }) {
   return (
     <header className="inner-header">
@@ -656,14 +649,10 @@ function FamilyHeader({
         />
       </Link>
       <div className="family-header-actions">
+        <SiteNotificationBell />
         <SiteBackButton />
         <ThemeToggle />
         <SiteRefreshButton />
-        <Link className="family-notification-link" href="/familia/notificacoes" aria-label={`Notificações${unreadNotifications ? `, ${unreadNotifications} não lidas` : ""}`}>
-          <span aria-hidden="true">●</span>
-          <strong>Mensagens</strong>
-          {unreadNotifications > 0 ? <em>{unreadNotifications > 99 ? "99+" : unreadNotifications}</em> : null}
-        </Link>
         <Link className="inner-back" href="/">
           Voltar ao site
         </Link>
