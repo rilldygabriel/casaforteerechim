@@ -3,17 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_STATUS_VALUES, REGISTRATION_STATUS_VALUES, normalizePhone, slugifyEvent } from "@/lib/events";
-import { hasEventAdminAccess } from "@/lib/event-admin-auth";
+import { getEventAdminScope } from "@/lib/event-admin-server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 async function requireAdmin() {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
-  const { data: profile } = await supabase.from("member_profiles").select("is_admin,can_manage_events,approval_status").eq("user_id", user.id).maybeSingle();
-  if (!hasEventAdminAccess(profile)) redirect("/admin");
-  return getSupabaseServiceClient();
+  const scope = await getEventAdminScope(user.id);
+  if (!scope.hasAccess) redirect("/admin");
+  return scope;
 }
 
 function value(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
@@ -22,8 +21,10 @@ function moneyCents(input: string) { const normalized = input.replace(/\s/g, "")
 function back(message: string, tab = "eventos") { redirect(`/admin/eventos?tab=${tab}&mensagem=${encodeURIComponent(message)}`); }
 
 export async function saveEvent(formData: FormData) {
-  const service = await requireAdmin();
   const id = value(formData, "eventId");
+  const scope = await requireAdmin();
+  if ((!id && !scope.globalAccess) || (id && !scope.canManage(id))) redirect("/admin/eventos");
+  const service = scope.service;
   const title = value(formData, "title");
   const slug = slugifyEvent(value(formData, "slug") || title);
   const status = value(formData, "status");
@@ -64,22 +65,27 @@ export async function saveEvent(formData: FormData) {
 }
 
 export async function archiveEvent(formData: FormData) {
-  const service = await requireAdmin();
   const id = value(formData, "eventId");
   if (!id) back("Evento inválido.");
+  const scope = await requireAdmin();
+  if (!scope.canManage(id)) redirect("/admin/eventos");
+  const service = scope.service;
   const { error } = await service.from("events").update({ archived_at: new Date().toISOString(), registration_status: "closed", updated_at: new Date().toISOString() }).eq("id", id);
   if (error) back("Não foi possível arquivar o evento.");
   revalidatePath("/admin/eventos"); back("Evento arquivado.");
 }
 
 export async function saveRegistration(formData: FormData) {
-  const service = await requireAdmin();
   const id = value(formData, "registrationId");
   const fullName = value(formData, "fullName");
   const email = value(formData, "email").toLowerCase();
   const phone = value(formData, "phone");
   const status = value(formData, "status");
   if (!id || fullName.length < 3 || normalizePhone(phone).length < 10 || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || !REGISTRATION_STATUS_VALUES.includes(status as typeof REGISTRATION_STATUS_VALUES[number])) back("Revise os dados do participante.", "inscricoes");
+  const scope = await requireAdmin();
+  const { data: registration } = await scope.service.from("event_registrations").select("event_id").eq("id", id).maybeSingle();
+  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+  const service = scope.service;
   const { error } = await service.from("event_registrations").update({ full_name: fullName, email: email || null, phone, phone_normalized: normalizePhone(phone), attendance_duration: value(formData, "attendanceDuration"), notes: value(formData, "notes"), status, updated_at: new Date().toISOString() }).eq("id", id);
   if (error?.code === "23505") back("Este telefone já está inscrito neste evento.", "inscricoes");
   if (error) back("Não foi possível atualizar a inscrição.", "inscricoes");
@@ -87,9 +93,12 @@ export async function saveRegistration(formData: FormData) {
 }
 
 export async function archiveRegistration(formData: FormData) {
-  const service = await requireAdmin();
   const id = value(formData, "registrationId");
   if (!id) back("Inscrição inválida.", "inscricoes");
+  const scope = await requireAdmin();
+  const { data: registration } = await scope.service.from("event_registrations").select("event_id").eq("id", id).maybeSingle();
+  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+  const service = scope.service;
   const { error } = await service.from("event_registrations").update({ archived_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", id);
   if (error) back("Não foi possível arquivar a inscrição.", "inscricoes");
   revalidatePath("/admin/eventos"); back("Inscrição arquivada.", "inscricoes");

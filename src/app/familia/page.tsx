@@ -207,7 +207,8 @@ export default async function Familia({
   const completedProfileSteps = countProfileSteps(profile);
   const hasProfileStar = profile.profile_completed === true && completedProfileSteps === 11;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
-  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles, pastoralGroupMemberships] =
+  const service = getSupabaseServiceClient();
+  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles, pastoralGroupMemberships, eventAssignmentsResult] =
     await Promise.all([
       supabase
         .from("discipler_roles")
@@ -227,11 +228,14 @@ export default async function Familia({
         .select("group_key")
         .eq("member_id", user.id)
         .in("group_key", ["discipulador", "equipe_pastoral"]),
+      service.from("event_admin_members").select("event_id").eq("user_id", user.id),
     ]);
   const canBookPastoralAgenda = Boolean(pastoralGroupMemberships.data?.length);
+  const canManageAssignedEvent = Boolean(eventAssignmentsResult.data?.length);
   const hasLeadershipArea = Boolean(
     profile.is_admin ||
       profile.can_manage_events ||
+      canManageAssignedEvent ||
       disciplerRole.data ||
       ministryLeaderRoles.data?.length ||
       ministryMemberRoles.data?.length,
@@ -239,6 +243,7 @@ export default async function Familia({
   const hasManagementPanel = Boolean(
     profile.is_admin ||
       profile.can_manage_events ||
+      canManageAssignedEvent ||
       disciplerRole.data ||
       ministryLeaderRoles.data?.length,
   );
@@ -249,7 +254,6 @@ export default async function Familia({
   const readAnnouncementIds = new Set((announcementReads ?? []).map((item) => item.announcement_id));
   const unreadNotifications = (announcements ?? []).filter((item) => !readAnnouncementIds.has(item.id)).length;
   let signedPhotoUrl: string | null = null;
-  const service = getSupabaseServiceClient();
   const [ministriesResult, disciplerRolesResult, ministryRequestsResult, discipleshipRequestResult, activeRelationshipResult] = await Promise.all([
     service.from("ministries").select("key,name").eq("active", true).order("sort_order"),
     service.from("discipler_roles").select("member_id,available_for_member_choice"),

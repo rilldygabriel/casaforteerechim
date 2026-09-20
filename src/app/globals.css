@@ -7622,6 +7622,8 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .admin-event-list h3 { margin: 10px 0; font-size: 1.25rem; }
 .admin-event-list article > p { color: var(--muted); line-height: 1.55; }
 .admin-event-list article > div:last-child button { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ff9b9b; }
+.admin-event-restricted { align-content: center; min-height: 280px; }
+.admin-event-restricted > p:last-child { max-width: 520px; color: var(--muted); line-height: 1.65; }
 .admin-registrations { margin-top: 18px; }
 .admin-registration-filters { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)) auto auto auto; gap: 10px; align-items: end; }
 .admin-registration-filters label { display: grid; gap: 7px; color: var(--muted); font-size: .65rem; font-weight: 850; text-transform: uppercase; }
@@ -7637,6 +7639,11 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .admin-registration-table details form { display: grid; gap: 10px; margin-top: 14px; padding: 15px; border-radius: 14px; background: var(--background); }
 .admin-registration-table details label { display: grid; gap: 5px; color: var(--muted); font-size: .65rem; text-transform: uppercase; }
 .admin-registration-table details button.is-danger { border: 1px solid rgba(255,120,120,.3); background: transparent; color: #ff9b9b; }
+.admin-registration-export { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); }
+.admin-registration-export > div { display: grid; gap: 5px; }
+.admin-registration-export strong { color: white; font-size: 1rem; }
+.admin-registration-export span { color: var(--muted); font-size: .78rem; line-height: 1.5; }
+.admin-registration-export a { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0 18px; border-radius: 999px; background: var(--yellow); color: var(--surface-0); font-size: .68rem; font-weight: 900; text-transform: uppercase; }
 
 @media (max-width: 850px) {
   .home-burger-event { grid-template-columns: 1fr; }
@@ -7674,6 +7681,7 @@ html[data-theme="light"] .home-useful-links-grid strong {
   .event-public-hero { margin-top: 50px; }
   .admin-event-summary, .admin-registration-filters, .admin-event-editor form { grid-template-columns: 1fr; }
   .admin-event-editor .is-wide { grid-column: auto; }
+  .admin-registration-export { align-items: stretch; flex-direction: column; }
 }
 
 /* Confirmação de presença em cultos e eventos */
