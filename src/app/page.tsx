@@ -5,6 +5,7 @@ import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
 import SiteRefreshButton from "@/components/site-refresh-button";
+import SiteAssistantTrigger from "@/components/site-assistant-trigger";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import TestimonialsSection from "@/components/testimonials-section";
 import { GALLERY_PHOTOS } from "@/lib/gallery";
@@ -169,39 +170,47 @@ export default function Home() {
   return (
     <main className="home-page">
       <header className="home-header">
-        <Link className="home-brand" href="/" aria-label="Casa Forte — início">
-          <Image
-            src="/images/logo-casa-forte.png"
-            alt="Igreja Casa Forte"
-            width={220}
-            height={85}
-            priority
-          />
-        </Link>
+        <div className="home-header-topline">
+          <Link className="home-brand" href="/" aria-label="Casa Forte — início">
+            <Image
+              src="/images/logo-casa-forte.png"
+              alt="Igreja Casa Forte"
+              width={220}
+              height={85}
+              priority
+            />
+          </Link>
+
+          <div className="home-header-tools" aria-label="Controles do site">
+            <ThemeToggle />
+            <SiteRefreshButton />
+            <SiteAssistantTrigger />
+          </div>
+        </div>
 
         <nav className="home-nav" aria-label="Acesso rápido">
-          <ThemeToggle />
-          <SiteRefreshButton />
-          <Link className="home-nav-filled" href="/familia">
-            Área de membro
-          </Link>
-          <Link className="home-nav-light" href="/eventos">
-            Inscrições
-          </Link>
-          <a
-            className="home-nav-light"
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Fale conosco
-          </a>
-          <Link className="home-nav-filled" href="/generosidade">
-            Generosidade
-          </Link>
-          <Link className="home-nav-filled" href="/admin">
-            Painel
-          </Link>
+          <span className="home-nav-links">
+            <Link className="home-nav-filled" href="/familia">
+              Área de membro
+            </Link>
+            <Link className="home-nav-light" href="/eventos">
+              Inscrições
+            </Link>
+            <a
+              className="home-nav-light"
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Fale conosco
+            </a>
+            <Link className="home-nav-filled" href="/generosidade">
+              Generosidade
+            </Link>
+            <Link className="home-nav-admin" href="/admin">
+              Painel
+            </Link>
+          </span>
           <span className="home-app-downloads" aria-label="Baixar o aplicativo">
             <a
               href={APP_STORE_URL}

@@ -34,6 +34,11 @@ export default function SiteAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", text: "Oi! Sou a IA da Casa. Posso ajudar com cultos, eventos, visitas e caminhos do site. Como posso ajudar?" },
   ]);
+  useEffect(() => {
+    const openAssistant = () => setOpen(true);
+    window.addEventListener("casa-forte:open-assistant", openAssistant);
+    return () => window.removeEventListener("casa-forte:open-assistant", openAssistant);
+  }, []);
   useEffect(() => { if (open) messagesEnd.current?.scrollIntoView({ block: "end" }); }, [open, messages, busy]);
   async function send(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
