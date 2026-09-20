@@ -7569,6 +7569,88 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .event-payment-result .pix-qr { margin-top: 6px; }
 .event-payment-result small { color: var(--muted); }
 .event-copy-pix { min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--yellow); color: #111; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 900; text-transform: uppercase; }
+
+.event-regenerate-pix,
+.event-ticket-link {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.event-ticket-link { background: var(--yellow); border-color: var(--yellow); color: #111; }
+.event-regenerate-pix:disabled { cursor: wait; opacity: .55; }
+
+.event-ticket-page,
+.admin-ticket-page { min-height: 100svh; background: #0b0d0b; color: #f7f7f2; padding: max(22px, env(safe-area-inset-top)) clamp(18px, 5vw, 72px) 72px; }
+.event-ticket-page > header,
+.admin-ticket-page > .admin-section-header { width: min(1180px, 100%); margin: 0 auto 28px; }
+.event-ticket-page > header img { width: 172px; height: auto; object-fit: contain; }
+.event-ticket { width: min(480px, 100%); margin: 0 auto; padding: clamp(22px, 5vw, 34px); border: 1px solid rgba(231, 255, 56, .45); border-radius: 32px; background: linear-gradient(145deg, #171b17, #0d0f0d); box-shadow: 0 28px 80px rgba(0, 0, 0, .4); }
+.event-ticket-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.event-ticket-top p { margin: 0; color: var(--yellow); font-size: .72rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.event-ticket-top span { padding: 8px 12px; border-radius: 999px; background: var(--yellow); color: #111; font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.event-ticket[data-status="redeemed"] .event-ticket-top span { background: #d9d9d2; }
+.event-ticket[data-status="cancelled"] .event-ticket-top span { background: #c84b4b; color: #fff; }
+.event-ticket h1 { margin: 30px 0 8px; font-size: clamp(2rem, 9vw, 4rem); line-height: .9; letter-spacing: -.055em; }
+.event-ticket-owner { margin: 0 0 28px; color: #b9bdb6; }
+.event-ticket-owner strong { color: #fff; }
+.event-ticket dl,
+.event-ticket-result dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 24px; }
+.event-ticket dl div,
+.event-ticket-result dl div { padding: 16px 10px; border-radius: 18px; background: #f5f5ef; color: #111; text-align: center; }
+.event-ticket dt,
+.event-ticket-result dt { margin-bottom: 7px; font-size: .65rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.event-ticket dd,
+.event-ticket-result dd { margin: 0; font-size: 1.2rem; font-weight: 850; }
+.event-ticket-qr { padding: 22px; border-radius: 25px; background: #fff; color: #111; display: grid; justify-items: center; text-align: center; }
+.event-ticket-qr img { width: min(280px, 100%); height: auto; }
+.event-ticket-qr strong { font-size: 1.25rem; letter-spacing: .16em; }
+.event-ticket-qr small { max-width: 290px; margin-top: 10px; color: #565b56; line-height: 1.45; }
+.event-ticket-used,
+.event-ticket-invalid { margin: 18px 0 0; padding: 14px 16px; border-radius: 15px; background: rgba(255,255,255,.08); text-align: center; }
+
+.event-ticket-scanner { width: min(720px, 100%); margin: 0 auto; padding: clamp(20px, 4vw, 36px); border: 1px solid rgba(255,255,255,.13); border-radius: 28px; background: #151815; }
+.event-ticket-scanner-actions { display: flex; justify-content: center; }
+.event-ticket-scanner button,
+.admin-registration-export > div:last-child a { min-height: 46px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--yellow); color: #111; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font: inherit; font-size: .72rem; font-weight: 900; text-decoration: none; text-transform: uppercase; }
+#event-ticket-camera { overflow: hidden; margin: 18px auto 0; border-radius: 22px; background: #070807; }
+#event-ticket-camera:not([data-active="true"]) { min-height: 0; }
+.event-ticket-scanner-message { min-height: 24px; color: #c6cac4; text-align: center; }
+.event-ticket-scanner form { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; }
+.event-ticket-scanner form label { display: grid; gap: 7px; color: #d9ddd6; font-size: .72rem; font-weight: 850; text-transform: uppercase; }
+.event-ticket-scanner input { min-height: 48px; padding: 0 15px; border: 1px solid rgba(255,255,255,.17); border-radius: 14px; background: #090b09; color: #fff; font: inherit; }
+.event-ticket-result { margin-top: 24px; padding: 22px; border: 1px solid rgba(231,255,56,.45); border-radius: 24px; background: #090b09; }
+.event-ticket-result[data-status="redeemed"] { border-color: #e0a642; }
+.event-ticket-result[data-status="cancelled"] { border-color: #c84b4b; }
+.event-ticket-result header { display: flex; justify-content: space-between; gap: 12px; color: var(--yellow); font-size: .75rem; font-weight: 900; text-transform: uppercase; }
+.event-ticket-result h2 { margin: 20px 0; font-size: clamp(1.8rem, 6vw, 3rem); }
+.event-ticket-result > button { width: 100%; }
+.admin-ticket-link { display: block; margin-top: 7px; color: var(--yellow); font-size: .72rem; font-weight: 800; }
+.admin-registration-export > div:last-child { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 600px) {
+  .event-ticket-page,
+  .admin-ticket-page { padding-inline: 14px; }
+  .event-ticket { border-radius: 26px; }
+  .event-ticket-scanner form { grid-template-columns: 1fr; }
+  .event-ticket-scanner form button { width: 100%; }
+  .event-ticket dl,
+  .event-ticket-result dl { gap: 6px; }
+  .event-ticket dl div,
+  .event-ticket-result dl div { padding-inline: 5px; }
+}
 .event-pagbank-payment { display: grid; gap: 17px; padding: clamp(22px, 4vw, 34px); border: 1px solid rgba(255,254,21,.25); border-radius: 20px; background: var(--surface-4); }
 .event-pagbank-payment > label, .event-card-fields > label { display: grid; gap: 8px; color: #d7d8d4; font-size: .7rem; font-weight: 850; letter-spacing: .055em; text-transform: uppercase; }
 .event-pagbank-payment :is(input, select) { width: 100%; min-height: 50px; padding: 12px 15px; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; outline: 0; background: var(--background); color: white; font: inherit; }

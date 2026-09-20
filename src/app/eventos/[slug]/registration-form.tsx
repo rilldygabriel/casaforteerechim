@@ -40,9 +40,10 @@ export default function RegistrationForm({ slug, enabled, feeCents = 0, variant 
     try {
       const payload = variant === "burger" ? { fullName: form.fullName, phone: member ? "" : form.phone, simpleQuantity: form.simpleQuantity, doubleQuantity: form.doubleQuantity } : form;
       const response = await fetch(`/api/eventos/${encodeURIComponent(slug)}/inscricoes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const result = (await response.json()) as { error?: string; message?: string; accepted?: boolean; checkoutUrl?: string; paymentId?: string; amountCents?: number; payerName?: string; payerEmail?: string };
+      const result = (await response.json()) as { error?: string; message?: string; accepted?: boolean; checkoutUrl?: string; paymentId?: string; amountCents?: number; payerName?: string; payerEmail?: string; ticketUrl?: string };
       if (!response.ok) { setState("error"); setMessage(result.error || "Não foi possível enviar."); return; }
       if (result.checkoutUrl) { window.location.assign(result.checkoutUrl); return; }
+      if (result.ticketUrl) { window.location.assign(result.ticketUrl); return; }
       if (result.paymentId && result.amountCents) {
         localStorage.removeItem(storageKey);
         setPayment({ id: result.paymentId, amountCents: result.amountCents, fullName: result.payerName || form.fullName, email: result.payerEmail || form.email });

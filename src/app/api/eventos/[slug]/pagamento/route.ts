@@ -51,8 +51,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         status_detail: result.statusDetail || null,
         updated_at: new Date().toISOString(),
       }).eq("id", paymentId);
-      await synchronizeMercadoPagoPayment(result.providerPaymentId);
-      return NextResponse.json({ ok: true, paymentId, ...result });
+      const synchronized = await synchronizeMercadoPagoPayment(result.providerPaymentId);
+      return NextResponse.json({ ok: true, paymentId, ...result, ticketUrl: synchronized.ticketUrl });
     } catch (error) {
       if (!providerPaymentCreated) console.error("event_payment_provider_error", error instanceof Error ? error.message : "unknown");
       throw error;
