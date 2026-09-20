@@ -194,9 +194,6 @@ export default function Home() {
             <Link className="home-nav-light" href="/eventos">
               Inscrições
             </Link>
-            <Link className="home-nav-light" href="/noticias">
-              Notícias
-            </Link>
             <a
               className="home-nav-light"
               href={WHATSAPP_URL}
