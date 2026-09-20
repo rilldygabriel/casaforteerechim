@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
+import { canDiscardUnpaidRegistration, eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
 import { ensureEventTicket } from "@/lib/event-tickets";
 import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
 import { getSupabaseRouteClient } from "@/lib/supabase/route";
@@ -59,6 +59,28 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const phoneNormalized = normalizePhone(input.phone);
     const eligible = !isPostEncounter || input.completedEncounter === "yes";
     const initialStatus = !eligible ? "rejected" : feeCents > 0 ? "awaiting_payment" : isPostEncounter ? "confirmed" : "pending";
+
+    if (feeCents > 0) {
+      const { data: previous } = await service.from("event_registrations")
+        .select("id,status").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).maybeSingle();
+      if (previous) {
+        const { data: previousPayments, error: previousPaymentsError } = await service.from("mercado_pago_payments")
+          .select("status").eq("registration_id", previous.id);
+        if (previousPaymentsError) throw previousPaymentsError;
+        const disposable = canDiscardUnpaidRegistration({
+          registrationStatus: previous.status,
+          paymentStatuses: (previousPayments ?? []).map((payment) => payment.status),
+        });
+        if (disposable) {
+          const { error: ticketDeleteError } = await service.from("event_tickets").delete().eq("registration_id", previous.id);
+          if (ticketDeleteError) throw ticketDeleteError;
+          const { error: paymentDeleteError } = await service.from("mercado_pago_payments").delete().eq("registration_id", previous.id).neq("status", "approved");
+          if (paymentDeleteError) throw paymentDeleteError;
+          const { error: registrationDeleteError } = await service.from("event_registrations").delete().eq("id", previous.id).neq("status", "confirmed");
+          if (registrationDeleteError) throw registrationDeleteError;
+        }
+      }
+    }
 
     async function existingPaymentResponse() {
       const { data: existing } = await service.from("event_registrations").select("id,status,full_name,email,phone,order_total_cents").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
