@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validateRegistration } from "../src/lib/events.ts";
+import { canDiscardUnpaidRegistration, eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validateRegistration } from "../src/lib/events.ts";
 import { canManageEvent, hasEventAdminAccess, hasManualTicketSalesAccess, hasScopedEventAdminAccess } from "../src/lib/event-admin-auth.ts";
 import { paymentMethodLabel, summarizeBurgerOrders } from "../src/lib/event-report.ts";
 import { createHamburgerEventReportPdf } from "../src/lib/event-report-pdf.ts";
@@ -31,6 +31,14 @@ test("libera a venda manual somente com a permissão explícita e perfil aprovad
 test("normaliza telefone brasileiro para impedir duplicidades", () => {
   assert.equal(normalizePhone("+55 (54) 99999-9999"), "54999999999");
   assert.equal(normalizePhone("(54) 99999-9999"), "54999999999");
+});
+
+test("libera um novo pedido somente quando o anterior terminou sem pagamento", () => {
+  assert.equal(canDiscardUnpaidRegistration({ registrationStatus: "cancelled", paymentStatuses: ["cancelled"] }), true);
+  assert.equal(canDiscardUnpaidRegistration({ registrationStatus: "awaiting_payment", paymentStatuses: ["expired", "cancelled"] }), true);
+  assert.equal(canDiscardUnpaidRegistration({ registrationStatus: "cancelled", paymentStatuses: [] }), true);
+  assert.equal(canDiscardUnpaidRegistration({ registrationStatus: "awaiting_payment", paymentStatuses: ["pending", "cancelled"] }), false);
+  assert.equal(canDiscardUnpaidRegistration({ registrationStatus: "confirmed", paymentStatuses: ["approved"] }), false);
 });
 
 test("exige consentimento e dados válidos", () => {

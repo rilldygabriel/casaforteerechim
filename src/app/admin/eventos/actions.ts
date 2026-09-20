@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { EVENT_STATUS_VALUES, REGISTRATION_STATUS_VALUES, normalizePhone, slugifyEvent } from "@/lib/events";
+import { ACTIVE_EVENT_PAYMENT_STATUSES, EVENT_STATUS_VALUES, REGISTRATION_STATUS_VALUES, normalizePhone, slugifyEvent } from "@/lib/events";
 import { getEventAdminScope } from "@/lib/event-admin-server";
 import { deliverEventTicket } from "@/lib/event-ticket-delivery";
+import { cancelMercadoPagoPayment } from "@/lib/mercado-pago";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 async function requireAdmin() {
@@ -216,4 +217,54 @@ export async function archiveRegistration(formData: FormData) {
   const { error } = await service.from("event_registrations").update({ archived_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", id);
   if (error) back("Não foi possível arquivar a inscrição.", "inscricoes");
   revalidatePath("/admin/eventos"); back("Inscrição arquivada.", "inscricoes");
+}
+
+export async function deleteUnpaidRegistration(formData: FormData) {
+  const id = value(formData, "registrationId");
+  if (!id) back("Pedido inválido.", "inscricoes");
+  const scope = await requireAdmin();
+  const { data: registration } = await scope.service.from("event_registrations")
+    .select("id,event_id,status,full_name").eq("id", id).maybeSingle();
+  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+
+  const { data: payments, error: paymentLookupError } = await scope.service.from("mercado_pago_payments")
+    .select("id,status,payment_provider,provider_payment_id").eq("registration_id", id).order("created_at", { ascending: false });
+  if (paymentLookupError) back("Não foi possível conferir os pagamentos deste pedido.", "inscricoes");
+  if (registration.status === "confirmed" || (payments ?? []).some((payment) => payment.status === "approved")) {
+    back("Este pedido possui pagamento confirmado e não pode ser excluído.", "inscricoes");
+  }
+
+  for (const payment of payments ?? []) {
+    if (!(ACTIVE_EVENT_PAYMENT_STATUSES as readonly string[]).includes(payment.status)) continue;
+    if (payment.payment_provider !== "mercado_pago" || !payment.provider_payment_id) {
+      if (payment.provider_payment_id) back("Esta cobrança ainda está ativa no provedor e não pode ser excluída.", "inscricoes");
+      continue;
+    }
+    try {
+      const cancellation = await cancelMercadoPagoPayment(payment.provider_payment_id);
+      if (cancellation.status !== "cancelled") back("O Mercado Pago ainda não confirmou o cancelamento. Tente novamente.", "inscricoes");
+    } catch (error) {
+      console.error("event_unpaid_payment_cancel_error", { registrationId: id, paymentId: payment.id, error });
+      back("Não foi possível cancelar o Pix no Mercado Pago. O pedido foi preservado.", "inscricoes");
+    }
+  }
+
+  const { error: paymentDeleteError } = await scope.service.from("mercado_pago_payments")
+    .delete().eq("registration_id", id).neq("status", "approved");
+  if (paymentDeleteError) back("Não foi possível excluir as cobranças não pagas.", "inscricoes");
+  const { data: remainingPayments, error: remainingPaymentError } = await scope.service.from("mercado_pago_payments")
+    .select("id,status").eq("registration_id", id);
+  if (remainingPaymentError || (remainingPayments ?? []).length > 0) {
+    back("O pedido foi preservado porque existe um pagamento vinculado.", "inscricoes");
+  }
+
+  const { error: ticketDeleteError } = await scope.service.from("event_tickets").delete().eq("registration_id", id);
+  if (ticketDeleteError) back("Não foi possível remover o ingresso cancelado.", "inscricoes");
+  const { data: deleted, error: registrationDeleteError } = await scope.service.from("event_registrations")
+    .delete().eq("id", id).neq("status", "confirmed").select("id").maybeSingle();
+  if (registrationDeleteError || !deleted) back("O pedido foi preservado porque seu status mudou.", "inscricoes");
+
+  revalidatePath("/admin/eventos");
+  revalidatePath("/eventos");
+  back(`Pedido não pago de ${registration.full_name} excluído. A pessoa já pode fazer um novo pedido.`, "inscricoes");
 }

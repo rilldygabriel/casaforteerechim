@@ -23,8 +23,17 @@ export const EVENT_STATUSES = [["confirmed", "Confirmado"], ["tentative", "A con
 export const ATTENDANCE_VALUES = ATTENDANCE_OPTIONS.map(([value]) => value);
 export const REGISTRATION_STATUS_VALUES = REGISTRATION_STATUSES.map(([value]) => value);
 export const EVENT_STATUS_VALUES = EVENT_STATUSES.map(([value]) => value);
+export const ACTIVE_EVENT_PAYMENT_STATUSES = ["created", "pending", "in_process"] as const;
+export const TERMINAL_UNPAID_EVENT_PAYMENT_STATUSES = ["cancelled", "rejected", "expired"] as const;
 
 export type RegistrationInput = { fullName: string; phone: string; attendanceDuration: string; notes: string; consent: boolean };
+
+export function canDiscardUnpaidRegistration(input: { registrationStatus: string; paymentStatuses: readonly string[] }) {
+  if (input.registrationStatus === "confirmed" || input.paymentStatuses.includes("approved")) return false;
+  if (input.paymentStatuses.some((status) => (ACTIVE_EVENT_PAYMENT_STATUSES as readonly string[]).includes(status))) return false;
+  if (["cancelled", "rejected", "withdrew"].includes(input.registrationStatus) && input.paymentStatuses.length === 0) return true;
+  return input.paymentStatuses.length > 0 && input.paymentStatuses.every((status) => (TERMINAL_UNPAID_EVENT_PAYMENT_STATUSES as readonly string[]).includes(status));
+}
 
 export function validatePostEncounterRegistration(input: { fullName: string; phone: string; completedEncounter: string }) {
   if (input.fullName.trim().length < 3 || input.fullName.trim().length > 160) return "Informe seu nome completo.";
