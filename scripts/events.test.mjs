@@ -69,6 +69,8 @@ test("extrai o ingresso tanto do QR completo quanto do código manual", () => {
 });
 
 test("fecha inscrições lotadas, encerradas ou fora do prazo", () => {
+  assert.equal(eventRegistrationState({ registration_enabled: true, registration_status: "open", registration_deadline: null, capacity: 100, registration_count: 99 }).open, true);
+  assert.equal(eventRegistrationState({ registration_enabled: true, registration_status: "open", registration_deadline: null, capacity: 100, registration_count: 100 }).open, false);
   assert.equal(eventRegistrationState({ registration_enabled: true, registration_status: "open", registration_deadline: null, capacity: 20, registration_count: 20 }).label, "Vagas esgotadas");
   assert.equal(eventRegistrationState({ registration_enabled: true, registration_status: "closed", registration_deadline: null, capacity: null }).label, "Inscrições encerradas");
   assert.equal(eventRegistrationState({ registration_enabled: true, registration_status: "open", registration_deadline: "2020-01-01T00:00:00Z", capacity: null }).label, "Prazo encerrado");

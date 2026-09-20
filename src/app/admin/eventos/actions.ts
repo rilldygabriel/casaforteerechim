@@ -54,7 +54,7 @@ export async function createManualTicket(formData: FormData) {
   const { data: existing } = await scope.service.from("event_registrations").select("id")
     .eq("event_id", eventId).eq("phone_normalized", normalizedPhone).maybeSingle();
   if (existing) back("Este telefone já possui inscrição neste evento.", "inscricoes");
-  if (event.capacity !== null) {
+  if (!isBurger && event.capacity !== null) {
     const { data: active } = await scope.service.from("event_registrations")
       .select("simple_quantity,double_quantity,status").eq("event_id", eventId).is("archived_at", null);
     const reserved = (active ?? []).filter((item) => !["cancelled", "rejected", "withdrew"].includes(item.status))
@@ -65,22 +65,43 @@ export async function createManualTicket(formData: FormData) {
   let registrationId = "";
   let paymentId = "";
   try {
-    const { data: registration, error: registrationError } = await scope.service.from("event_registrations").insert({
-      event_id: eventId,
-      full_name: fullName,
-      email: email || null,
-      phone,
-      phone_normalized: normalizedPhone,
-      attendance_duration: "not_attending",
-      notes: "Ingresso manual · pagamento em dinheiro",
-      status: "confirmed",
-      consent: true,
-      simple_quantity: isBurger ? simpleQuantity : 0,
-      double_quantity: isBurger ? doubleQuantity : 0,
-      order_total_cents: amountCents,
-    }).select("id").single();
-    if (registrationError || !registration) throw registrationError ?? new Error("REGISTRATION_NOT_CREATED");
-    registrationId = registration.id;
+    if (isBurger) {
+      const { data: reserved, error: reservationError } = await scope.service.rpc("create_hamburger_registration", {
+        p_event_slug: event.slug,
+        p_full_name: fullName,
+        p_email: email || null,
+        p_phone: phone,
+        p_phone_normalized: normalizedPhone,
+        p_simple_quantity: simpleQuantity,
+        p_double_quantity: doubleQuantity,
+      });
+      if (reservationError) throw new Error(reservationError.message);
+      registrationId = String(reserved?.[0]?.registration_id ?? "");
+      if (!registrationId) throw new Error("REGISTRATION_NOT_CREATED");
+      const { error: confirmationError } = await scope.service.from("event_registrations").update({
+        notes: "Ingresso manual · pagamento em dinheiro",
+        status: "confirmed",
+        updated_at: new Date().toISOString(),
+      }).eq("id", registrationId);
+      if (confirmationError) throw confirmationError;
+    } else {
+      const { data: registration, error: registrationError } = await scope.service.from("event_registrations").insert({
+        event_id: eventId,
+        full_name: fullName,
+        email: email || null,
+        phone,
+        phone_normalized: normalizedPhone,
+        attendance_duration: "not_attending",
+        notes: "Ingresso manual · pagamento em dinheiro",
+        status: "confirmed",
+        consent: true,
+        simple_quantity: 0,
+        double_quantity: 0,
+        order_total_cents: amountCents,
+      }).select("id").single();
+      if (registrationError || !registration) throw registrationError ?? new Error("REGISTRATION_NOT_CREATED");
+      registrationId = registration.id;
+    }
 
     const { data: payment, error: paymentError } = await scope.service.from("mercado_pago_payments").insert({
       purpose: "event",
@@ -121,6 +142,15 @@ export async function createManualTicket(formData: FormData) {
     if (paymentId) await scope.service.from("mercado_pago_payments").delete().eq("id", paymentId);
     if (registrationId) await scope.service.from("event_registrations").delete().eq("id", registrationId);
     console.error("Falha ao cadastrar ingresso manual", error);
+    if (error instanceof Error && error.message.includes("CAPACITY_EXCEEDED")) {
+      back("O limite de 100 hambúrgueres foi atingido. As vendas estão encerradas.", "inscricoes");
+    }
+    if (error instanceof Error && error.message.includes("REGISTRATION_CLOSED")) {
+      back("As vendas deste evento estão encerradas.", "inscricoes");
+    }
+    if (error instanceof Error && (error.message.includes("DUPLICATE_REGISTRATION") || error.message.includes("duplicate key"))) {
+      back("Este telefone já possui inscrição neste evento.", "inscricoes");
+    }
     back("Não foi possível cadastrar o ingresso manual.", "inscricoes");
   }
 
