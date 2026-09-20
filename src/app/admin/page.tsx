@@ -12,10 +12,11 @@ import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
 export default async function AdminPage() {
   const supabase = await getSupabaseServerClient();
+  const service = getSupabaseServiceClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult, pastoralTeamResult] = await Promise.all([
+  const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult, pastoralTeamResult, eventAssignmentsResult] = await Promise.all([
     supabase.from("member_profiles").select("full_name,is_admin,approval_status,can_manage_finance,can_manage_events").eq("user_id", user.id).maybeSingle(),
     supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
     supabase.from("ministry_leaders").select("ministry_key").eq("member_id", user.id),
@@ -31,11 +32,12 @@ export default async function AdminPage() {
       .eq("member_id", user.id)
       .eq("group_key", "equipe_pastoral")
       .maybeSingle(),
+    service.from("event_admin_members").select("event_id").eq("user_id", user.id),
   ]);
 
   const isAdmin = Boolean(profile?.is_admin);
   const canManageFinance = Boolean(profile?.can_manage_finance);
-  const canManageEvents = Boolean(profile?.can_manage_events);
+  const canManageEvents = Boolean(profile?.can_manage_events || eventAssignmentsResult.data?.length);
   const isDiscipler = Boolean(disciplerResult.data);
   const ministryCount = leaderResult.data?.length ?? 0;
   const leadsConnect = Boolean(
@@ -56,7 +58,6 @@ export default async function AdminPage() {
     const leaderKeys = (leaderResult.data ?? []).map(
       ({ ministry_key }) => ministry_key,
     );
-    const service = getSupabaseServiceClient();
     const { count } = await service
       .from("ministry_membership_requests")
       .select("member_id", { count: "exact", head: true })
