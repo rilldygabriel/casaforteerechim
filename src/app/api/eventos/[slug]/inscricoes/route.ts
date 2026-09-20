@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
+import { ensureEventTicket } from "@/lib/event-tickets";
 import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
 import { getSupabaseRouteClient } from "@/lib/supabase/route";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
@@ -60,14 +61,40 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const initialStatus = !eligible ? "rejected" : feeCents > 0 ? "awaiting_payment" : isPostEncounter ? "confirmed" : "pending";
 
     async function existingPaymentResponse() {
-      const { data: existing } = await service.from("event_registrations").select("id,status").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
-      if (existing?.status === "awaiting_payment") {
-        const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents,payment_provider,provider_payment_id,provider_order_id,payer_name,payer_email").eq("registration_id", existing.id).in("status", ["created", "pending", "in_process"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      const { data: existing } = await service.from("event_registrations").select("id,status,full_name,email,phone,order_total_cents").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
+      if (existing) {
+        const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents,status,payment_provider,provider_payment_id,provider_order_id,payer_name,payer_email").eq("registration_id", existing.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+        if (existing.status === "confirmed" || payment?.status === "approved") {
+          if (isBurger) {
+            const ticket = await ensureEventTicket({ eventId, registrationId: existing.id });
+            return respond({ accepted: true, ticketUrl: ticket.url, message: "Seu pagamento já está confirmado. Abra o ingresso com QR para a retirada." });
+          }
+          return respond({ accepted: true, message: "Sua inscrição já está confirmada." });
+        }
+        if (["created", "pending", "in_process"].includes(payment?.status || "")) {
         if (payment?.payment_provider === "mercado_pago") return respond({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), payerName: payment.payer_name, payerEmail: payment.payer_email, message: "Continue o pagamento para confirmar sua inscrição." });
         if (payment?.payment_provider === "pagbank" && !payment.provider_payment_id && !payment.provider_order_id) {
           const { error: switchError } = await service.from("mercado_pago_payments").update({ payment_provider: "mercado_pago", updated_at: new Date().toISOString() }).eq("id", payment.id).eq("payment_provider", "pagbank");
           if (switchError) throw switchError;
           return respond({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), payerName: payment.payer_name, payerEmail: payment.payer_email, message: "Continue o pagamento para confirmar sua inscrição." });
+        }
+        }
+        if (isBurger && Number(existing.order_total_cents) > 0) {
+          const replacementId = randomUUID();
+          const { error: replacementError } = await service.from("mercado_pago_payments").insert({
+            id: replacementId,
+            purpose: "event",
+            payment_provider: "mercado_pago",
+            event_id: eventId,
+            registration_id: existing.id,
+            payer_name: existing.full_name,
+            payer_email: existing.email,
+            payer_phone: existing.phone,
+            amount_cents: existing.order_total_cents,
+          });
+          if (replacementError) throw replacementError;
+          await service.from("event_registrations").update({ status: "awaiting_payment", updated_at: new Date().toISOString() }).eq("id", existing.id);
+          return respond({ accepted: true, paymentId: replacementId, amountCents: Number(existing.order_total_cents), payerName: existing.full_name, payerEmail: existing.email, message: "Gere um novo Pix para confirmar seu pedido." });
         }
       }
       return null;

@@ -4,6 +4,7 @@ import { eventRegistrationState, normalizePhone, validateEncounterRegistration, 
 import { canManageEvent, hasEventAdminAccess, hasScopedEventAdminAccess } from "../src/lib/event-admin-auth.ts";
 import { summarizeBurgerOrders } from "../src/lib/event-report.ts";
 import { createHamburgerEventReportPdf } from "../src/lib/event-report-pdf.ts";
+import { parseEventTicketToken } from "../src/lib/event-ticket-token.ts";
 
 test("limita a administração de eventos a membros aprovados com a permissão específica", () => {
   assert.equal(hasEventAdminAccess({ is_admin: false, can_manage_events: true, approval_status: "approved" }), true);
@@ -43,6 +44,13 @@ test("valida uma reserva de hambúrgueres simplificada", () => {
   assert.match(validateHamburgerRegistration({ fullName: "Ana Casa Forte", simpleQuantity: 1, doubleQuantity: 0 }) ?? "", /telefone/i);
   assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 0, doubleQuantity: 0 }) ?? "", /pelo menos um/i);
   assert.match(validateHamburgerRegistration({ ...base, simpleQuantity: 60, doubleQuantity: 41 }) ?? "", /máximo 100/i);
+});
+
+test("extrai o ingresso tanto do QR completo quanto do código manual", () => {
+  const token = "6ab3d0ad-1de7-4d36-9ab7-5d7ec1e6f752";
+  assert.equal(parseEventTicketToken(token), token);
+  assert.equal(parseEventTicketToken(`https://www.casaforteerechim.app.br/ingressos/${token}`), token);
+  assert.equal(parseEventTicketToken("codigo-invalido"), "");
 });
 
 test("fecha inscrições lotadas, encerradas ou fora do prazo", () => {

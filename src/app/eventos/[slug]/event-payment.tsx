@@ -12,6 +12,7 @@ type PaymentResult = {
   paymentMethodId: string;
   qrCode?: string;
   qrCodeBase64?: string;
+  ticketUrl?: string;
 };
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -36,6 +37,8 @@ export default function EventPayment({
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const [activePaymentId, setActivePaymentId] = useState(paymentId);
+  const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
     if (publicKey) initMercadoPago(publicKey, { locale: "pt-BR", advancedFraudPrevention: true });
@@ -55,7 +58,7 @@ export default function EventPayment({
     const response = await fetch(`/api/eventos/${encodeURIComponent(slug)}/pagamento`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paymentId, formData: submission.formData }),
+      body: JSON.stringify({ paymentId: activePaymentId, formData: submission.formData }),
     });
     const payload = await response.json() as PaymentResult & { error?: string };
     if (!response.ok || !payload.providerPaymentId) {
@@ -64,6 +67,32 @@ export default function EventPayment({
     }
     setResult(payload);
     setMessage("");
+  }
+
+  async function regeneratePix() {
+    setRegenerating(true);
+    setMessage("Gerando um novo código Pix…");
+    try {
+      const response = await fetch(`/api/eventos/${encodeURIComponent(slug)}/refazer-pix`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: activePaymentId }),
+      });
+      const payload = await response.json() as PaymentResult & { paymentId?: string; error?: string };
+      if (!response.ok) {
+        if (payload.ticketUrl) setResult((current) => current ? { ...current, status: "approved", ticketUrl: payload.ticketUrl } : current);
+        throw new Error(payload.error || "Não foi possível gerar o novo Pix.");
+      }
+      if (!payload.paymentId || !payload.providerPaymentId) throw new Error("O novo Pix não foi confirmado.");
+      setActivePaymentId(payload.paymentId);
+      setResult(payload);
+      setCopied(false);
+      setMessage("Novo Pix gerado. O código anterior foi cancelado.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Não foi possível gerar o novo Pix.");
+    } finally {
+      setRegenerating(false);
+    }
   }
 
   async function copyPix() {
@@ -82,6 +111,9 @@ export default function EventPayment({
       <p>{approved ? "Seu pagamento foi aprovado e sua vaga está confirmada." : rejected ? "O Mercado Pago não aprovou este pagamento. Confira os dados e tente novamente." : result.paymentMethodId === "pix" ? "Pague pelo QR Code ou copie o código abaixo. A vaga será confirmada automaticamente após o pagamento." : "A confirmação será atualizada automaticamente assim que o Mercado Pago concluir a análise."}</p>
       {result.qrCodeBase64 ? <Image className="pix-qr" src={`data:image/png;base64,${result.qrCodeBase64}`} width={220} height={220} unoptimized alt="QR Code Mercado Pago para pagamento da inscrição por Pix" /> : null}
       {result.qrCode ? <button className="event-copy-pix" type="button" onClick={copyPix}>{copied ? "Código Pix copiado" : "Copiar código Pix"}</button> : null}
+      {!approved && !rejected && result.paymentMethodId === "pix" ? <button className="event-regenerate-pix" type="button" disabled={regenerating} onClick={regeneratePix}>{regenerating ? "Gerando novo Pix…" : "Gerar novo código Pix"}</button> : null}
+      {approved && result.ticketUrl ? <a className="event-ticket-link" href={result.ticketUrl}>Abrir meu ingresso com QR</a> : null}
+      {message ? <p className="payment-inline-message" role="status">{message}</p> : null}
       <small>Pagamento Mercado Pago {result.providerPaymentId}</small>
     </div>;
   }

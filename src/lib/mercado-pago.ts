@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { cancelEventTicket, ensureEventTicket } from "@/lib/event-tickets";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendWhatsappNotification } from "@/lib/whatsapp";
 
@@ -199,6 +200,15 @@ function mapPaymentStatus(value: string) {
   return "pending";
 }
 
+export async function cancelMercadoPagoPayment(providerPaymentId: string) {
+  if (!/^\d+$/.test(providerPaymentId)) throw new Error("Pagamento Mercado Pago inválido.");
+  const result = await mercadoPagoFetch(`/v1/payments/${providerPaymentId}`, {
+    method: "PUT",
+    body: JSON.stringify({ status: "cancelled" }),
+  });
+  return { status: mapPaymentStatus(text(result.status)) };
+}
+
 const PROCESSING_PAYMENT_STATUSES = ["created", "pending", "in_process"];
 const PIX_PROCESSING_WINDOW_MS = 24 * 60 * 60_000;
 
@@ -319,9 +329,19 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   }).eq("id", localPayment.id);
   if (updateError) throw new Error("Não foi possível atualizar o pagamento recebido.");
 
+  let ticketUrl = "";
   if (localPayment.registration_id) {
     const registrationStatus = status === "approved" ? "confirmed" : ["rejected", "cancelled", "refunded", "charged_back", "expired"].includes(status) ? "cancelled" : "awaiting_payment";
     await service.from("event_registrations").update({ status: registrationStatus, updated_at: new Date().toISOString() }).eq("id", localPayment.registration_id);
+    if (status === "approved" && localPayment.purpose === "event" && localPayment.event_id) {
+      const { data: ticketEvent } = await service.from("events").select("slug").eq("id", localPayment.event_id).maybeSingle();
+      if (ticketEvent?.slug === "hamburguer-da-casa-20-09") {
+        const ticket = await ensureEventTicket({ eventId: localPayment.event_id, registrationId: localPayment.registration_id });
+        ticketUrl = ticket.url;
+      }
+    } else if (["cancelled", "refunded", "charged_back"].includes(status)) {
+      await cancelEventTicket(localPayment.registration_id);
+    }
   }
 
   if (status === "approved") {
@@ -354,7 +374,7 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
       });
     }
   }
-  return { ignored: false, status, paymentId: localPayment.id };
+  return { ignored: false, status, paymentId: localPayment.id, ticketUrl: ticketUrl || undefined };
 }
 
 async function notifyContributionToPastor(input: {
