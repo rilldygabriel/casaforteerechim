@@ -15,5 +15,6 @@
 .site-assistant-panel form{display:flex;gap:8px;padding:10px 14px}.site-assistant-panel form input{flex:1;min-width:0;border:1px solid #636d5b;border-radius:999px;padding:12px 14px;background:#0d100c;color:#fff;font:inherit;font-size:14px}.site-assistant-panel form button{width:42px;border:0;border-radius:50%;background:#e7f755;color:#171914;font-size:24px;cursor:pointer}.site-assistant-panel form button:disabled{opacity:.5;cursor:default}
 .site-assistant-note{padding:0 16px 14px;color:#bdc5b6;font-size:10px;line-height:1.3}
 .site-assistant-root button:focus-visible,.site-assistant-root input:focus-visible{outline:3px solid #e7f755;outline-offset:2px}
+body:has(.home-assistant-trigger) .site-assistant-launcher{display:none}
 @media(max-width:500px){.site-assistant-root{right:12px;bottom:max(72px,calc(env(safe-area-inset-bottom) + 62px))}.site-assistant-panel{width:calc(100vw - 24px);height:min(520px,calc(100dvh - 165px))}}
 @media(prefers-reduced-motion:reduce){.site-assistant-typing i{animation:none}}
