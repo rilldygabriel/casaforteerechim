@@ -13,6 +13,8 @@ type PaymentResult = {
   qrCode?: string;
   qrCodeBase64?: string;
   ticketUrl?: string;
+  emailSent?: boolean;
+  whatsappSent?: boolean;
 };
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -39,10 +41,42 @@ export default function EventPayment({
   const [copied, setCopied] = useState(false);
   const [activePaymentId, setActivePaymentId] = useState(paymentId);
   const [regenerating, setRegenerating] = useState(false);
+  const paymentStatus = result?.status;
 
   useEffect(() => {
     if (publicKey) initMercadoPago(publicKey, { locale: "pt-BR", advancedFraudPrevention: true });
   }, [publicKey]);
+
+  useEffect(() => {
+    if (!paymentStatus || !["pending", "in_process"].includes(paymentStatus)) return;
+    let cancelled = false;
+
+    async function refreshStatus() {
+      try {
+        const response = await fetch(`/api/eventos/${encodeURIComponent(slug)}/pagamento?paymentId=${encodeURIComponent(activePaymentId)}`, {
+          cache: "no-store",
+        });
+        const payload = await response.json() as PaymentResult & { error?: string };
+        if (cancelled || !response.ok || !payload.status) return;
+        setResult((current) => current ? { ...current, ...payload } : current);
+        if (payload.status === "approved") {
+          if (payload.emailSent && payload.whatsappSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu e-mail e WhatsApp.");
+          else if (payload.emailSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu e-mail.");
+          else if (payload.whatsappSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu WhatsApp.");
+          else setMessage("Pagamento confirmado! Seu ingresso já está disponível abaixo.");
+        }
+      } catch {
+        // A próxima consulta automática tentará novamente sem interromper o pagamento.
+      }
+    }
+
+    const timer = window.setInterval(refreshStatus, 4_000);
+    void refreshStatus();
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [activePaymentId, paymentStatus, slug]);
 
   const initialization = useMemo(() => ({
     amount: amountCents / 100,
@@ -66,7 +100,14 @@ export default function EventPayment({
       throw new Error(payload.error || "Não foi possível processar o pagamento.");
     }
     setResult(payload);
-    setMessage("");
+    if (payload.status === "approved") {
+      if (payload.emailSent && payload.whatsappSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu e-mail e WhatsApp.");
+      else if (payload.emailSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu e-mail.");
+      else if (payload.whatsappSent) setMessage("Pagamento confirmado! Seu ingresso foi enviado para o seu WhatsApp.");
+      else setMessage("Pagamento confirmado! Seu ingresso já está disponível abaixo.");
+    } else {
+      setMessage("Aguardando a confirmação do pagamento. Esta tela será atualizada automaticamente.");
+    }
   }
 
   async function regeneratePix() {
@@ -108,7 +149,7 @@ export default function EventPayment({
     return <div className={`event-registration-success event-payment-result is-${result.status}`} role="status">
       <span aria-hidden="true">{approved ? "✓" : rejected ? "!" : "…"}</span>
       <h2>{approved ? "Inscrição confirmada" : rejected ? "Pagamento não aprovado" : result.paymentMethodId === "pix" ? "Pix gerado" : "Pagamento em análise"}</h2>
-      <p>{approved ? "Seu pagamento foi aprovado e sua vaga está confirmada." : rejected ? "O Mercado Pago não aprovou este pagamento. Confira os dados e tente novamente." : result.paymentMethodId === "pix" ? "Pague pelo QR Code ou copie o código abaixo. A vaga será confirmada automaticamente após o pagamento." : "A confirmação será atualizada automaticamente assim que o Mercado Pago concluir a análise."}</p>
+      <p>{approved ? result.emailSent && result.whatsappSent ? "Pagamento confirmado. Seu ingresso foi enviado para o seu e-mail e WhatsApp." : result.emailSent ? "Pagamento confirmado. Seu ingresso foi enviado para o seu e-mail." : result.whatsappSent ? "Pagamento confirmado. Seu ingresso foi enviado para o seu WhatsApp." : "Seu pagamento foi aprovado e seu ingresso está disponível abaixo." : rejected ? "O Mercado Pago não aprovou este pagamento. Confira os dados e tente novamente." : result.paymentMethodId === "pix" ? "Pague pelo QR Code ou copie o código abaixo. A vaga será confirmada automaticamente após o pagamento." : "A confirmação será atualizada automaticamente assim que o Mercado Pago concluir a análise."}</p>
       {result.qrCodeBase64 ? <Image className="pix-qr" src={`data:image/png;base64,${result.qrCodeBase64}`} width={220} height={220} unoptimized alt="QR Code Mercado Pago para pagamento da inscrição por Pix" /> : null}
       {result.qrCode ? <button className="event-copy-pix" type="button" onClick={copyPix}>{copied ? "Código Pix copiado" : "Copiar código Pix"}</button> : null}
       {!approved && !rejected && result.paymentMethodId === "pix" ? <button className="event-regenerate-pix" type="button" disabled={regenerating} onClick={regeneratePix}>{regenerating ? "Gerando novo Pix…" : "Gerar novo código Pix"}</button> : null}

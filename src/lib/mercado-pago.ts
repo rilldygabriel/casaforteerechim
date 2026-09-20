@@ -1,7 +1,8 @@
 import "server-only";
 
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { cancelEventTicket, ensureEventTicket } from "@/lib/event-tickets";
+import { deliverEventTicket } from "@/lib/event-ticket-delivery";
+import { cancelEventTicket } from "@/lib/event-tickets";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { sendWhatsappNotification } from "@/lib/whatsapp";
 
@@ -330,14 +331,26 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   if (updateError) throw new Error("Não foi possível atualizar o pagamento recebido.");
 
   let ticketUrl = "";
+  let emailSent = false;
+  let whatsappSent = false;
   if (localPayment.registration_id) {
     const registrationStatus = status === "approved" ? "confirmed" : ["rejected", "cancelled", "refunded", "charged_back", "expired"].includes(status) ? "cancelled" : "awaiting_payment";
     await service.from("event_registrations").update({ status: registrationStatus, updated_at: new Date().toISOString() }).eq("id", localPayment.registration_id);
     if (status === "approved" && localPayment.purpose === "event" && localPayment.event_id) {
-      const { data: ticketEvent } = await service.from("events").select("slug").eq("id", localPayment.event_id).maybeSingle();
-      if (ticketEvent?.slug === "hamburguer-da-casa-20-09") {
-        const ticket = await ensureEventTicket({ eventId: localPayment.event_id, registrationId: localPayment.registration_id });
-        ticketUrl = ticket.url;
+      try {
+        const delivery = await deliverEventTicket({
+          eventId: localPayment.event_id,
+          registrationId: localPayment.registration_id,
+        });
+        ticketUrl = delivery.ticketUrl;
+        emailSent = delivery.emailSent;
+        whatsappSent = delivery.whatsappSent;
+      } catch (error) {
+        console.error("event_ticket_delivery_error", {
+          paymentId: localPayment.id,
+          registrationId: localPayment.registration_id,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     } else if (["cancelled", "refunded", "charged_back"].includes(status)) {
       await cancelEventTicket(localPayment.registration_id);
@@ -374,7 +387,14 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
       });
     }
   }
-  return { ignored: false, status, paymentId: localPayment.id, ticketUrl: ticketUrl || undefined };
+  return {
+    ignored: false,
+    status,
+    paymentId: localPayment.id,
+    ticketUrl: ticketUrl || undefined,
+    emailSent,
+    whatsappSent,
+  };
 }
 
 async function notifyContributionToPastor(input: {
