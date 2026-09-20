@@ -10,7 +10,7 @@ type FormState = "idle" | "sending" | "success" | "rejected" | "error";
 const EMPTY = { fullName: "", email: "", phone: "", attendanceDuration: "", notes: "", consent: false, completedEncounter: "", simpleQuantity: 0, doubleQuantity: 0 };
 type MemberIdentity = { fullName: string; email: string; phone: string };
 
-export default function RegistrationForm({ slug, enabled, feeCents = 0, variant = "standard", mercadoPagoPublicKey = "", member = null }: { slug: string; enabled: boolean; feeCents?: number; variant?: "standard" | "post-encounter" | "encounter" | "burger"; mercadoPagoPublicKey?: string; member?: MemberIdentity | null }) {
+export default function RegistrationForm({ slug, enabled, closedLabel = "Inscrições encerradas", feeCents = 0, variant = "standard", mercadoPagoPublicKey = "", member = null }: { slug: string; enabled: boolean; closedLabel?: string; feeCents?: number; variant?: "standard" | "post-encounter" | "encounter" | "burger"; mercadoPagoPublicKey?: string; member?: MemberIdentity | null }) {
   const storageKey = `casaforte-event-registration-${slug}`;
   const [form, setForm] = useState({ ...EMPTY, ...(member ?? {}) });
   const [state, setState] = useState<FormState>("idle");
@@ -69,7 +69,7 @@ export default function RegistrationForm({ slug, enabled, feeCents = 0, variant 
     });
   }
 
-  if (!enabled) return <div className="event-registration-closed"><strong>Inscrições indisponíveis</strong><p>Este evento não está recebendo novas inscrições.</p></div>;
+  if (!enabled) return <div className="event-registration-closed"><strong>{closedLabel}</strong><p>{variant === "burger" && closedLabel === "Hambúrgueres esgotados" ? "As 100 unidades já foram reservadas e as vendas foram encerradas." : "Este evento não está recebendo novas inscrições."}</p></div>;
   if (payment) return <EventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} email={payment.email} publicKey={mercadoPagoPublicKey} maxInstallments={variant === "burger" ? 1 : 4} />;
   if (state === "success") return <div className="event-registration-success" role="status"><span aria-hidden="true">✓</span><h2>Inscrição confirmada</h2><p>{message}</p></div>;
   if (state === "rejected") return <div className="event-registration-rejected" role="status"><span aria-hidden="true">!</span><h2>Inscrição não aceita</h2><p>{message}</p></div>;
