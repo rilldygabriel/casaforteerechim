@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteBackButton from "@/components/site-back-button";
+import NotificationReadTracker from "@/components/notification-read-tracker";
 import ThemeToggle from "@/components/theme-toggle";
 import type { NewsPost } from "@/lib/news";
 import { coverForNews, sortNewsImages } from "@/lib/news";
@@ -44,6 +45,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <main className={styles.page}>
+      <NotificationReadTracker id={post.id} type="news" />
       <header className={styles.topbar}>
         <Link href="/noticias" aria-label="Voltar às notícias"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={190} height={74} style={{ width: "auto", height: "auto" }} priority /></Link>
         <div><SiteBackButton /><ThemeToggle /></div>

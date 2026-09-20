@@ -7,6 +7,7 @@ import ProgramsSection from "@/components/programs-section";
 import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import SiteAssistantTrigger from "@/components/site-assistant-trigger";
+import SiteNotificationBell from "@/components/site-notification-bell";
 import VerseOfDayCard from "@/components/verse-of-day-card";
 import TestimonialsSection from "@/components/testimonials-section";
 import { GALLERY_PHOTOS } from "@/lib/gallery";
@@ -179,6 +180,7 @@ export default function Home() {
           </Link>
 
           <div className="home-header-tools" aria-label="Controles do site">
+            <SiteNotificationBell />
             <SiteBackButton />
             <ThemeToggle />
             <SiteRefreshButton />

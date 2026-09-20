@@ -6,6 +6,7 @@ import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import ThemeToggle from "@/components/theme-toggle";
 import SiteAssistant from "@/components/site-assistant";
+import SiteNotificationBell from "@/components/site-notification-bell";
 import "./globals.css";
 import "./casa-ai-overrides.css";
 
@@ -93,6 +94,7 @@ export default function RootLayout({
       </head>
       <body>
         <ScrollToTop />
+        <SiteNotificationBell floating />
         <SiteBackButton floating />
         <SiteRefreshButton floating />
         <ThemeToggle floating />

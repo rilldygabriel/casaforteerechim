@@ -21,12 +21,25 @@ export async function markAllFamilyAnnouncementsRead() {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  const { data: announcements } = await supabase.from("family_announcements").select("id").limit(200);
-  if (!announcements?.length) return;
-  await supabase.from("family_announcement_reads").upsert(
-    announcements.map((item) => ({ announcement_id: item.id, user_id: user.id, read_at: new Date().toISOString() })),
-    { onConflict: "announcement_id,user_id" },
-  );
+  const [{ data: announcements }, { data: news }] = await Promise.all([
+    supabase.from("family_announcements").select("id").limit(200),
+    supabase.from("news_posts").select("id").eq("status", "published").limit(200),
+  ]);
+  const readAt = new Date().toISOString();
+  await Promise.all([
+    announcements?.length
+      ? supabase.from("family_announcement_reads").upsert(
+          announcements.map((item) => ({ announcement_id: item.id, user_id: user.id, read_at: readAt })),
+          { onConflict: "announcement_id,user_id" },
+        )
+      : Promise.resolve(),
+    news?.length
+      ? supabase.from("news_post_reads").upsert(
+          news.map((item) => ({ news_id: item.id, user_id: user.id, read_at: readAt })),
+          { onConflict: "news_id,user_id" },
+        )
+      : Promise.resolve(),
+  ]);
   revalidatePath("/familia");
   revalidatePath("/familia/notificacoes");
 }
