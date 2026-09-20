@@ -107,20 +107,12 @@ export default async function AdminPage() {
     overdueVisitorSteps = count ?? 0;
   }
 
-  async function signOut() {
-    "use server";
-    const serverSupabase = await getSupabaseServerClient();
-    await serverSupabase.auth.signOut({ scope: "local" });
-    redirect("/familia/login");
-  }
-
   return (
     <main className="admin-dashboard">
       <header className="admin-dashboard-header">
         <Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={190} height={74} priority />
         <div className="admin-dashboard-actions">
           <Link href="/familia">Área da Família</Link>
-          <form action={signOut}><button type="submit">Sair com segurança</button></form>
         </div>
       </header>
 

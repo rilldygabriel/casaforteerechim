@@ -4,6 +4,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
+import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import SiteAssistantTrigger from "@/components/site-assistant-trigger";
 import VerseOfDayCard from "@/components/verse-of-day-card";
@@ -178,6 +179,7 @@ export default function Home() {
           </Link>
 
           <div className="home-header-tools" aria-label="Controles do site">
+            <SiteBackButton />
             <ThemeToggle />
             <SiteRefreshButton />
             <SiteAssistantTrigger />

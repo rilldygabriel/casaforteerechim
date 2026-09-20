@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import ScrollToTop from "@/components/scroll-to-top";
+import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import ThemeToggle from "@/components/theme-toggle";
 import SiteAssistant from "@/components/site-assistant";
@@ -79,8 +81,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={GeistSans.variable} data-theme="dark" suppressHydrationWarning>
       <head>
-        <script id="casa-forte-theme" src="/theme-init.js" suppressHydrationWarning />
-        <script
+        <Script id="casa-forte-theme" src="/theme-init.js" strategy="beforeInteractive" />
+        <Script
+          id="casa-forte-scroll-restoration"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html:
               'if("scrollRestoration" in history){history.scrollRestoration="manual";}',
@@ -89,6 +93,7 @@ export default function RootLayout({
       </head>
       <body>
         <ScrollToTop />
+        <SiteBackButton floating />
         <SiteRefreshButton floating />
         <ThemeToggle floating />
         <SiteAssistant />
