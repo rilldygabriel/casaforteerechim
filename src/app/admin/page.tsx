@@ -29,7 +29,7 @@ export default async function AdminPage() {
   if (!user) redirect("/admin/login");
 
   const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult, pastoralTeamResult, eventAssignmentsResult] = await Promise.all([
-    supabase.from("member_profiles").select("full_name,is_admin,approval_status,can_manage_finance,can_manage_events").eq("user_id", user.id).maybeSingle(),
+    supabase.from("member_profiles").select("full_name,is_admin,approval_status,can_manage_finance,can_manage_events,can_manage_news").eq("user_id", user.id).maybeSingle(),
     supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
     supabase.from("ministry_leaders").select("ministry_key").eq("member_id", user.id),
     supabase
@@ -50,6 +50,7 @@ export default async function AdminPage() {
   const isAdmin = Boolean(profile?.is_admin);
   const canManageFinance = Boolean(profile?.can_manage_finance);
   const canManageEvents = Boolean(profile?.can_manage_events || eventAssignmentsResult.data?.length);
+  const canManageNews = Boolean(profile?.can_manage_news);
   const isDiscipler = Boolean(disciplerResult.data);
   const ministryCount = leaderResult.data?.length ?? 0;
   const leadsConnect = Boolean(
@@ -60,7 +61,7 @@ export default async function AdminPage() {
   const canManageVisitors = isAdmin || leadsConnect || isConnectMember;
   const isApproved = profile?.approval_status === "approved";
 
-  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && !isPastoralTeam && ministryCount === 0 && !isConnectMember && !canManageFinance && !canManageEvents)))) {
+  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && !isPastoralTeam && ministryCount === 0 && !isConnectMember && !canManageFinance && !canManageEvents && !canManageNews)))) {
     redirect("/familia");
   }
 
@@ -161,6 +162,7 @@ export default async function AdminPage() {
           <Module number="06" href="/admin/pedidos-oracao" title="Pedidos de oração" copy="Consulte os pedidos e registre o andamento do cuidado pastoral." action="Acessar pedidos" />
           <Module number="07" href="/admin/whatsapp" title="WhatsApp" copy="Leia e responda às mensagens recebidas no número oficial." action="Acessar conversas" />
           <Module number="08" href="/admin/notificacoes" title="Notificações" copy="Envie avisos para toda a Área da Família e para os celulares autorizados." action="Enviar aviso" />
+          {canManageNews && <Module number="N" href="/admin/noticias" title="Notícias" copy="Crie novas notícias, carregue fotos e edite as publicações da Casa." action="Gerenciar notícias" />}
           <Module number="IA" href="/admin/assistente" title="IA da Casa" copy="Ensine respostas verificadas e controle o que a assistente pode dizer no site." action="Ensinar a IA" />
           <Module number="09" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie eventos, acompanhe participantes, vagas e cada etapa das inscrições." action="Gerenciar eventos" />
           <Module number="10" href="/admin/financeiro" title="Financeiro" copy="Acompanhe contas, pagamentos, resumo mensal e entradas dos extratos." action="Abrir financeiro" />
@@ -173,6 +175,7 @@ export default async function AdminPage() {
         {!isAdmin && canManageVisitors && <Module number={isDiscipler && ministryCount > 0 ? "03" : isDiscipler || ministryCount > 0 ? "02" : "01"} href="/admin/visitantes" title="Visitantes" copy="Acolha as pessoas que preencheram o cadastro de visitante." action="Acessar visitantes" notice={overdueVisitorSteps > 0 ? `${overdueVisitorSteps} contatos pendentes` : undefined} />}
         {!isAdmin && canManageFinance && <Module number="F" href="/admin/financeiro" title="Financeiro" copy="Registre entradas de culto, contas, pagamentos e confira os resumos financeiros." action="Abrir financeiro" />}
         {!isAdmin && canManageEvents && <Module number="E" href="/admin/eventos" title="Eventos e Inscrições" copy="Crie e edite eventos, acompanhe inscrições e organize os participantes." action="Gerenciar eventos" />}
+        {!isAdmin && canManageNews && <Module number="N" href="/admin/noticias" title="Notícias" copy="Crie novas notícias, carregue fotos e edite as publicações da Casa." action="Gerenciar notícias" />}
       </section>
       <AdminCalendarTicker />
     </main>
