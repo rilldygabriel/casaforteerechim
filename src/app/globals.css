@@ -8744,13 +8744,15 @@ html[data-theme="light"] .event-attendance-button:not([aria-pressed="true"]) { c
 .theme-choice svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .theme-toggle-floating { position: fixed; z-index: 1000; top: calc(env(safe-area-inset-top, 0px) + 22px); right: max(18px, calc((100vw - 1240px) / 2)); box-shadow: 0 8px 28px rgba(0,0,0,.2); }
 body:has(.theme-toggle-inline) > .theme-toggle-floating { display: none; }
-.site-refresh-button { display:inline-flex;min-width:46px;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:var(--foreground);background:color-mix(in srgb,var(--surface-4) 86%,transparent);cursor:pointer;font:inherit;font-size:.62rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;transition:color 180ms ease,background 180ms ease,border-color 180ms ease,transform 180ms ease; }
-.site-refresh-button:hover { border-color:var(--accent);color:var(--accent);transform:translateY(-1px); }
+.site-refresh-button,.site-back-button { display:inline-flex;min-width:46px;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:var(--foreground);background:color-mix(in srgb,var(--surface-4) 86%,transparent);cursor:pointer;font:inherit;font-size:.62rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;transition:color 180ms ease,background 180ms ease,border-color 180ms ease,transform 180ms ease; }
+.site-refresh-button:hover,.site-back-button:hover { border-color:var(--accent);color:var(--accent);transform:translateY(-1px); }
 .site-refresh-button:disabled { cursor:wait;opacity:.72; }
-.site-refresh-button svg { width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.site-refresh-button svg,.site-back-button svg { width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
 .site-refresh-floating { position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 22px);right:max(76px,calc((100vw - 1240px) / 2 + 58px));box-shadow:0 8px 28px rgba(0,0,0,.2); }
 body:has(.site-refresh-inline) > .site-refresh-floating { display:none; }
-body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 136px; }
+.site-back-floating { position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 22px);right:max(134px,calc((100vw - 1240px) / 2 + 116px));box-shadow:0 8px 28px rgba(0,0,0,.2); }
+body:has(.site-back-inline) > .site-back-floating { display:none; }
+body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 194px; }
 
 html[data-theme="light"] body,
 html[data-theme="light"] .site-shell,
@@ -8800,7 +8802,7 @@ html[data-theme="light"] .theme-toggle { border-color: rgba(36,35,33,.22); color
 html[data-theme="light"] .theme-choice-row { border-color: rgba(36,35,33,.18); background: rgba(255,255,255,.96); box-shadow: 0 20px 48px rgba(28,29,27,.16); }
 html[data-theme="light"] .theme-choice { border-color: rgba(36,35,33,.16); color: #20231f; background: #ecece8; }
 html[data-theme="light"] .theme-choice[aria-pressed="true"] { border-color: var(--accent); color: #11130f; background: var(--accent); }
-html[data-theme="light"] .site-refresh-button { border-color:rgba(36,35,33,.22);color:#34312e;background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(56,43,33,.1); }
+html[data-theme="light"] :is(.site-refresh-button,.site-back-button) { border-color:rgba(36,35,33,.22);color:#34312e;background:rgba(255,255,255,.92);box-shadow:0 8px 24px rgba(56,43,33,.1); }
 html[data-theme="light"] :is(.home-block, .inner-page, .admin-dashboard, .admin-visitors-page, .calendar-page, .public-events-page, .event-public-page, .bible-page) :is(article,aside,fieldset,form) {
   border-color: rgba(32,35,32,.2);
 }
@@ -9168,7 +9170,10 @@ html[data-theme="light"] :is(.admin-auth-card,.calendar-feature-card,.calendar-d
   .site-refresh-button { min-width:42px;min-height:42px;padding-inline:11px; }
   .site-refresh-button span { display:none; }
   .site-refresh-floating { top:calc(env(safe-area-inset-top,0px) + 18px);right:70px; }
-  body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 112px; }
+  .site-back-button { min-width:42px;min-height:42px;padding-inline:11px; }
+  .site-back-button span { display:none; }
+  .site-back-floating { top:calc(env(safe-area-inset-top,0px) + 18px);right:122px; }
+  body:not(:has(.theme-toggle-inline)) :is(.inner-header,.calendar-header,.admin-section-header,.public-events-header,.event-public-header,.cult-album-header,.bible-site-header) { padding-right: 164px; }
   .theme-choice-row {
     position: fixed;
     top: calc(env(safe-area-inset-top, 0px) + 68px);
@@ -9856,7 +9861,7 @@ html[data-palette="navy"] :is(.home-header,.inner-header) {
   box-shadow: 0 18px 52px rgba(49,56,81,.11);
 }
 
-html[data-palette="navy"] :is(.theme-toggle,.site-refresh-button) {
+html[data-palette="navy"] :is(.theme-toggle,.site-refresh-button,.site-back-button) {
   border-color: rgba(49,56,81,.2);
   color: #313851;
   background: rgba(255,255,255,.95);
@@ -10625,7 +10630,7 @@ html[data-palette="heritage"] :is(.home-header,.inner-header) {
   box-shadow: 0 18px 52px rgba(22,35,46,.1);
 }
 
-html[data-palette="heritage"] :is(.theme-toggle,.site-refresh-button) {
+html[data-palette="heritage"] :is(.theme-toggle,.site-refresh-button,.site-back-button) {
   border-color: rgba(22,35,46,.22);
   color: var(--heritage-navy);
   background: rgba(255,253,249,.95);
@@ -10975,7 +10980,7 @@ html[data-palette="heritage"] ::selection {
   gap: 6px;
 }
 
-.home-header-tools :is(.theme-toggle, .site-refresh-button),
+.home-header-tools :is(.theme-toggle, .site-refresh-button, .site-back-button),
 .home-assistant-trigger {
   width: 42px;
   min-width: 42px;
@@ -10985,7 +10990,7 @@ html[data-palette="heritage"] ::selection {
   border-radius: 14px;
 }
 
-.home-header-tools :is(.theme-toggle, .site-refresh-button) > span {
+.home-header-tools :is(.theme-toggle, .site-refresh-button, .site-back-button) > span {
   display: none;
 }
 
@@ -11069,7 +11074,7 @@ html[data-palette="heritage"] ::selection {
     gap: 5px;
   }
 
-  .home-header-tools :is(.theme-toggle, .site-refresh-button),
+  .home-header-tools :is(.theme-toggle, .site-refresh-button, .site-back-button),
   .home-assistant-trigger {
     width: 40px;
     min-width: 40px;
@@ -11078,7 +11083,7 @@ html[data-palette="heritage"] ::selection {
     border-radius: 13px;
   }
 
-  .home-header-tools :is(.theme-toggle, .site-refresh-button) svg {
+  .home-header-tools :is(.theme-toggle, .site-refresh-button, .site-back-button) svg {
     width: 18px;
     height: 18px;
   }
@@ -11143,7 +11148,7 @@ html[data-palette="heritage"] ::selection {
     width: 112px;
   }
 
-  .home-header-tools :is(.theme-toggle, .site-refresh-button),
+  .home-header-tools :is(.theme-toggle, .site-refresh-button, .site-back-button),
   .home-assistant-trigger {
     width: 37px;
     min-width: 37px;

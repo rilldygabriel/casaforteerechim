@@ -10,6 +10,7 @@ import ProfileForm from "./profile-form";
 import { ProfilePhotoUploader } from "./profile-photo-uploader";
 import PushNotifications from "./push-notifications";
 import ThemeToggle from "@/components/theme-toggle";
+import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import { requestDiscipler } from "./discipleship-actions";
 
@@ -649,6 +650,7 @@ function FamilyHeader({
         />
       </Link>
       <div className="family-header-actions">
+        <SiteBackButton />
         <ThemeToggle />
         <SiteRefreshButton />
         <Link className="family-notification-link" href="/familia/notificacoes" aria-label={`Notificações${unreadNotifications ? `, ${unreadNotifications} não lidas` : ""}`}>
