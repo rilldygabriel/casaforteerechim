@@ -7708,6 +7708,12 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .admin-event-restricted > p:last-child { max-width: 520px; color: var(--muted); line-height: 1.65; }
 .admin-registrations { margin-top: 18px; }
 .admin-registration-filters { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)) auto auto auto; gap: 10px; align-items: end; }
+.admin-ticket-delivery { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 18px; padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: var(--surface-4); }
+.admin-ticket-delivery strong { color: white; }
+.admin-ticket-delivery p { margin: 4px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+.admin-ticket-delivery button { min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--yellow); color: var(--surface-0); cursor: pointer; font: inherit; font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.admin-ticket-delivery button:disabled { cursor: progress; opacity: .65; }
+.admin-ticket-delivery .admin-ticket-delivery-result { grid-column: 1 / -1; color: white; }
 .admin-registration-filters label { display: grid; gap: 7px; color: var(--muted); font-size: .65rem; font-weight: 850; text-transform: uppercase; }
 .admin-registration-table { margin-top: 14px; overflow-x: auto; }
 .admin-registration-table table { width: 100%; min-width: 1040px; border-collapse: collapse; }
@@ -7764,6 +7770,7 @@ html[data-theme="light"] .home-useful-links-grid strong {
   .admin-event-summary, .admin-registration-filters, .admin-event-editor form { grid-template-columns: 1fr; }
   .admin-event-editor .is-wide { grid-column: auto; }
   .admin-registration-export { align-items: stretch; flex-direction: column; }
+  .admin-ticket-delivery { grid-template-columns: 1fr; }
 }
 
 /* Confirmação de presença em cultos e eventos */
