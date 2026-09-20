@@ -7723,6 +7723,19 @@ html[data-theme="light"] .home-useful-links-grid strong {
 .admin-event-restricted { align-content: center; min-height: 280px; }
 .admin-event-restricted > p:last-child { max-width: 520px; color: var(--muted); line-height: 1.65; }
 .admin-registrations { margin-top: 18px; }
+.admin-manual-ticket { display: grid; grid-template-columns: minmax(240px, .7fr) minmax(0, 1.3fr); gap: clamp(22px, 5vw, 56px); margin-bottom: 14px; padding: clamp(24px, 4vw, 38px); border: 1px solid rgba(255,254,21,.28); border-radius: 22px; background: linear-gradient(135deg, rgba(255,254,21,.08), var(--surface-4) 44%); }
+.admin-manual-ticket h2 { margin: 8px 0 12px; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.055em; line-height: .95; }
+.admin-manual-ticket > div > p:last-child { max-width: 440px; color: var(--muted); line-height: 1.6; }
+.admin-manual-ticket form { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.admin-manual-ticket form > label, .admin-manual-ticket fieldset label { display: grid; gap: 7px; color: var(--muted); font-size: .66rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+.admin-manual-ticket :is(input, select) { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; background: var(--background); color: white; font: inherit; }
+.admin-manual-ticket fieldset { display: grid; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; }
+.admin-manual-ticket legend { padding: 0 7px; color: var(--yellow); font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.admin-manual-ticket fieldset small { grid-column: 1 / -1; color: var(--muted); }
+.admin-manual-ticket-payment { display: grid; align-content: center; gap: 3px; padding: 10px 14px; border: 1px solid rgba(255,254,21,.28); border-radius: 12px; }
+.admin-manual-ticket-payment span { color: var(--muted); font-size: .62rem; font-weight: 850; text-transform: uppercase; }
+.admin-manual-ticket-payment strong { color: var(--yellow); }
+.admin-manual-ticket button { min-height: 48px; border: 0; border-radius: 999px; background: var(--yellow); color: var(--surface-0); font-size: .68rem; font-weight: 900; text-transform: uppercase; cursor: pointer; }
 .admin-registration-filters { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)) auto auto auto; gap: 10px; align-items: end; }
 .admin-ticket-delivery { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 18px; padding: 20px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: var(--surface-4); }
 .admin-ticket-delivery strong { color: white; }
@@ -7752,7 +7765,7 @@ html[data-theme="light"] .home-useful-links-grid strong {
 @media (max-width: 850px) {
   .home-burger-event { grid-template-columns: 1fr; }
   .public-events-grid { grid-template-columns: 1fr; }
-  .event-public-hero, .event-registration-layout, .admin-events-layout { grid-template-columns: 1fr; }
+  .event-public-hero, .event-registration-layout, .admin-events-layout, .admin-manual-ticket { grid-template-columns: 1fr; }
   .admin-event-summary { grid-template-columns: 1fr 1fr; }
   .admin-registration-filters { grid-template-columns: 1fr 1fr; }
 }
@@ -7783,8 +7796,9 @@ html[data-theme="light"] .home-useful-links-grid strong {
   .event-public-header img { width: 138px; }
   .event-public-header > a:last-child { padding-inline: 12px; }
   .event-public-hero { margin-top: 50px; }
-  .admin-event-summary, .admin-registration-filters, .admin-event-editor form { grid-template-columns: 1fr; }
+  .admin-event-summary, .admin-registration-filters, .admin-event-editor form, .admin-manual-ticket form { grid-template-columns: 1fr; }
   .admin-event-editor .is-wide { grid-column: auto; }
+  .admin-manual-ticket fieldset { grid-template-columns: 1fr 1fr; }
   .admin-registration-export { align-items: stretch; flex-direction: column; }
   .admin-ticket-delivery { grid-template-columns: 1fr; }
 }

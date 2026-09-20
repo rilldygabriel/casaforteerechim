@@ -24,6 +24,7 @@ export function summarizeBurgerOrders(orders: readonly PaidBurgerOrder[]) {
 
 export function paymentMethodLabel(method: string) {
   if (method === "pix") return "Pix";
+  if (method === "cash") return "Dinheiro";
   if (["visa", "master", "amex", "elo", "hipercard"].includes(method)) return "Cartão";
   return method ? method.replaceAll("_", " ") : "Não informado";
 }

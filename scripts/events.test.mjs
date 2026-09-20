@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validateRegistration } from "../src/lib/events.ts";
-import { canManageEvent, hasEventAdminAccess, hasScopedEventAdminAccess } from "../src/lib/event-admin-auth.ts";
-import { summarizeBurgerOrders } from "../src/lib/event-report.ts";
+import { canManageEvent, hasEventAdminAccess, hasManualTicketSalesAccess, hasScopedEventAdminAccess } from "../src/lib/event-admin-auth.ts";
+import { paymentMethodLabel, summarizeBurgerOrders } from "../src/lib/event-report.ts";
 import { createHamburgerEventReportPdf } from "../src/lib/event-report-pdf.ts";
 import { parseEventTicketToken } from "../src/lib/event-ticket-token.ts";
 
@@ -19,6 +19,13 @@ test("limita um administrador específico somente ao evento atribuído", () => {
   assert.equal(canManageEvent(profile, ["evento-hamburguer"], "evento-hamburguer"), true);
   assert.equal(canManageEvent(profile, ["evento-hamburguer"], "outro-evento"), false);
   assert.equal(hasScopedEventAdminAccess({ ...profile, approval_status: "pending" }, ["evento-hamburguer"]), false);
+});
+
+test("libera a venda manual somente com a permissão explícita e perfil aprovado", () => {
+  assert.equal(hasManualTicketSalesAccess({ is_admin: true, can_sell_manual_tickets: false, approval_status: "approved" }), false);
+  assert.equal(hasManualTicketSalesAccess({ can_manage_events: true, can_sell_manual_tickets: false, approval_status: "approved" }), false);
+  assert.equal(hasManualTicketSalesAccess({ can_sell_manual_tickets: true, approval_status: "pending" }), false);
+  assert.equal(hasManualTicketSalesAccess({ can_sell_manual_tickets: true, approval_status: "approved" }), true);
 });
 
 test("normaliza telefone brasileiro para impedir duplicidades", () => {
@@ -65,6 +72,10 @@ test("resume somente os pedidos pagos usados no relatório", () => {
     { fullName: "João", simpleQuantity: 0, doubleQuantity: 2, grossCents: 6000, netCents: 5700, paymentMethod: "master" },
   ]);
   assert.deepEqual(summary, { paidOrders: 2, simpleQuantity: 2, doubleQuantity: 3, totalItems: 5, grossCents: 13000, feeCents: 370, netCents: 12630 });
+});
+
+test("identifica pagamento manual em dinheiro no relatório", () => {
+  assert.equal(paymentMethodLabel("cash"), "Dinheiro");
 });
 
 test("gera um PDF válido com o resumo do evento", async () => {
