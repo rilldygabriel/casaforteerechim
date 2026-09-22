@@ -24,10 +24,10 @@ const ACCEPT_JESUS_URL =
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 // Este destaque sempre usa o vídeo publicado somente como Palavra, não o culto completo.
-const LATEST_MESSAGE_TITLE = "O QUE EU IMAGINAVA";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=BZGdoH1VYyo";
+const LATEST_MESSAGE_TITLE = "A TEMPESTADE REVELA CRISTO";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=o4VAVkVp9FA";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/BZGdoH1VYyo?rel=0";
+  "https://www.youtube-nocookie.com/embed/o4VAVkVp9FA?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
