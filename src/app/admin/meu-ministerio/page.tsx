@@ -111,6 +111,12 @@ export default async function MyMinistryPage() {
         </p>
       </section>
 
+      <section className="role-panel-card">
+        <h2>Eventos do ministério</h2>
+        <p>Controle vendas, gastos e doações, acompanhe o saldo em caixinha e planeje os sonhos da equipe.</p>
+        <Link href="/admin/ministerios/eventos">Abrir eventos, caixinha e sonhos →</Link>
+      </section>
+
       <section
         className="role-panel-requests"
         data-has-pending={(pendingRequests ?? []).length > 0}
