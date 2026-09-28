@@ -151,7 +151,7 @@ export default async function AdminPage() {
       </section>}
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
-        {(isAdmin || ministryCount > 0) && <Module number="M" href="/admin/ministerios/eventos" title="Eventos dos ministérios" copy="Eventos, vendas, gastos, doações, caixinhas e metas de compra por ministério." action="Abrir caixinhas e sonhos" />}
+        {(isMinistryPastor(user.id) || ministryCount > 0) && <Module number="M" href="/admin/ministerios/eventos" title="Eventos dos ministérios" copy="Eventos, vendas, gastos, doações, caixinhas e metas de compra por ministério." action="Abrir caixinhas e sonhos" />}
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
           {isDiscipler && <Module number="02" href="/admin/meus-discipulos" title="Meus discípulos" copy="Acompanhe somente as pessoas confiadas ao seu cuidado pessoal." action="Abrir meus discípulos" />}
@@ -226,3 +226,4 @@ function CalendarEventGroup({ events, hidden = false }: { events: typeof CHURCH_
     </article>
   ))}</div>;
 }
+import { isMinistryPastor } from "@/lib/ministry-event-policy";

@@ -33,7 +33,7 @@ export async function createManualTicket(formData: FormData) {
   const normalizedPhone = normalizePhone(phone);
   const simpleQuantity = Number(value(formData, "simpleQuantity") || 0);
   const doubleQuantity = Number(value(formData, "doubleQuantity") || 0);
-  if (!eventId || !scope.canManage(eventId)) redirect("/admin/eventos?tab=inscricoes");
+  if (!eventId || !scope.canManageLegacy(eventId)) redirect("/admin/eventos?tab=inscricoes");
   if (fullName.length < 3 || normalizedPhone.length < 10 || normalizedPhone.length > 13 || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     back("Revise o nome e os dados de contato do participante.", "inscricoes");
   }
@@ -168,7 +168,7 @@ export async function createManualTicket(formData: FormData) {
 export async function saveEvent(formData: FormData) {
   const id = value(formData, "eventId");
   const scope = await requireAdmin();
-  if ((!id && !scope.globalAccess) || (id && !scope.canManage(id))) redirect("/admin/eventos");
+  if ((!id && !scope.globalAccess) || (id && !scope.canManageLegacy(id))) redirect("/admin/eventos");
   const service = scope.service;
   const title = value(formData, "title");
   const slug = slugifyEvent(value(formData, "slug") || title);
@@ -213,7 +213,7 @@ export async function archiveEvent(formData: FormData) {
   const id = value(formData, "eventId");
   if (!id) back("Evento inválido.");
   const scope = await requireAdmin();
-  if (!scope.canManage(id)) redirect("/admin/eventos");
+  if (!scope.canManageLegacy(id)) redirect("/admin/eventos");
   const service = scope.service;
   const { error } = await service.from("events").update({ archived_at: new Date().toISOString(), registration_status: "closed", updated_at: new Date().toISOString() }).eq("id", id);
   if (error) back("Não foi possível arquivar o evento.");
@@ -229,7 +229,7 @@ export async function saveRegistration(formData: FormData) {
   if (!id || fullName.length < 3 || normalizePhone(phone).length < 10 || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || !REGISTRATION_STATUS_VALUES.includes(status as typeof REGISTRATION_STATUS_VALUES[number])) back("Revise os dados do participante.", "inscricoes");
   const scope = await requireAdmin();
   const { data: registration } = await scope.service.from("event_registrations").select("event_id").eq("id", id).maybeSingle();
-  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+  if (!registration || !scope.canManageLegacy(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
   const service = scope.service;
   const { error } = await service.from("event_registrations").update({ full_name: fullName, email: email || null, phone, phone_normalized: normalizePhone(phone), attendance_duration: value(formData, "attendanceDuration"), notes: value(formData, "notes"), status, updated_at: new Date().toISOString() }).eq("id", id);
   if (error?.code === "23505") back("Este telefone já está inscrito neste evento.", "inscricoes");
@@ -242,7 +242,7 @@ export async function archiveRegistration(formData: FormData) {
   if (!id) back("Inscrição inválida.", "inscricoes");
   const scope = await requireAdmin();
   const { data: registration } = await scope.service.from("event_registrations").select("event_id").eq("id", id).maybeSingle();
-  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+  if (!registration || !scope.canManageLegacy(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
   const service = scope.service;
   const { error } = await service.from("event_registrations").update({ archived_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", id);
   if (error) back("Não foi possível arquivar a inscrição.", "inscricoes");
@@ -255,7 +255,7 @@ export async function deleteUnpaidRegistration(formData: FormData) {
   const scope = await requireAdmin();
   const { data: registration } = await scope.service.from("event_registrations")
     .select("id,event_id,status,full_name").eq("id", id).maybeSingle();
-  if (!registration || !scope.canManage(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
+  if (!registration || !scope.canManageLegacy(registration.event_id)) redirect("/admin/eventos?tab=inscricoes");
 
   const { data: payments, error: paymentLookupError } = await scope.service.from("mercado_pago_payments")
     .select("id,status,payment_provider,provider_payment_id").eq("registration_id", id).order("created_at", { ascending: false });

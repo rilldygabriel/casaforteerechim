@@ -4,6 +4,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
+import MinistryPublicEvents from "@/components/ministry-public-events";
 import SiteBackButton from "@/components/site-back-button";
 import SiteRefreshButton from "@/components/site-refresh-button";
 import SiteAssistantTrigger from "@/components/site-assistant-trigger";
@@ -298,6 +299,7 @@ export default function Home() {
       </section>
 
       <ProgramsSection mapsUrl={MAPS_URL} />
+      <MinistryPublicEvents />
 
       <section
         className="home-block home-generosity"

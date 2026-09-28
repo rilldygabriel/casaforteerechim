@@ -69,10 +69,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       .eq("id", paymentId).eq("purpose", "event").in("payment_provider", ["mercado_pago", "pagbank"]).maybeSingle();
     if (!payment?.event_id || !payment.registration_id) return NextResponse.json({ error: "Pagamento não encontrado." }, { status: 404 });
     const [{ data: event }, { data: registration }] = await Promise.all([
-      service.from("events").select("id,title,slug,registration_fee_cents").eq("id", payment.event_id).maybeSingle(),
-      service.from("event_registrations").select("id,status,order_total_cents").eq("id", payment.registration_id).maybeSingle(),
+      service.from("events").select("id,title,slug,registration_fee_cents,ministry_key,ministry_payment_methods").eq("id", payment.event_id).maybeSingle(),
+      service.from("event_registrations").select("id,status,order_total_cents,ministry_method").eq("id", payment.registration_id).maybeSingle(),
     ]);
-    const expectedAmountCents = event?.slug === "hamburguer-da-casa-20-09" ? Number(registration?.order_total_cents) : Number(event?.registration_fee_cents);
+    const expectedAmountCents = event?.ministry_key || event?.slug === "hamburguer-da-casa-20-09" ? Number(registration?.order_total_cents) : Number(event?.registration_fee_cents);
     if (!event || event.slug !== slug || !registration || Number(payment.amount_cents) !== expectedAmountCents) {
       return NextResponse.json({ error: "Os dados desta inscrição não conferem." }, { status: 409 });
     }
@@ -83,8 +83,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (payment.payment_provider === "pagbank") {
       if (!isPagBankConfigured()) return NextResponse.json({ error: "PagBank indisponível agora." }, { status: 503 });
       if (payment.provider_order_id) return NextResponse.json({ ok: true, ...await synchronizePagBankEventPayment(paymentId) });
+      if(event.ministry_key && (registration.status!=="awaiting_payment" || !["created","in_process"].includes(payment.status) || body.method!==registration.ministry_method || !event.ministry_payment_methods.includes(body.method) || Number(body.installments||1)!==1)) return NextResponse.json({error:"A forma de pagamento ou a reserva não está disponível. Volte ao evento para conferir seu pedido."},{status:409});
       const invalid = validateEventPaymentInput(body, slug);
       if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
+      if(event.ministry_key){const {error}=await service.rpc("begin_ministry_payment",{p_id:paymentId,p_method:body.method});if(error)return NextResponse.json({error:"Sua reserva mudou. Confira o pedido antes de pagar."},{status:409});}
       const result = await createPagBankEventPayment({
         paymentId, eventTitle: event.title, amountCents: Number(payment.amount_cents),
         payerName: payment.payer_name, payerEmail: payment.payer_email, payerPhone: payment.payer_phone || "",

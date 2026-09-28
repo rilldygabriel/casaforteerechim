@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const eventId = url.searchParams.get("evento"); const status = url.searchParams.get("status"); const search = url.searchParams.get("busca")?.toLowerCase() ?? "";
   if (eventId && !scope.canManage(eventId)) return new Response("Sem permissão", { status: 403 });
   let query = scope.service.from("event_registrations").select("*,events(title,start_date)").is("archived_at", null).order("created_at", { ascending: false });
-  if (!scope.globalAccess) query = query.in("event_id", scope.eventIds);
+  query = query.in("event_id", scope.eventIds);
   const { data } = await query;
   const rows = (data ?? []).filter((item) => (!eventId || item.event_id === eventId) && (!status || item.status === status) && (!search || item.full_name.toLowerCase().includes(search) || item.email?.toLowerCase().includes(search) || item.phone_normalized.includes(search.replace(/\D/g, ""))));
   const lines = [["Nome completo", "E-mail", "Telefone", "Tempo na Casa", "Fez o Encontro com Deus", "Hambúrguer simples", "Hambúrguer duplo", "Total do pedido", "Evento", "Data do evento", "Data da inscrição", "Status", "Observações"].map(csv).join(","), ...rows.map((item) => [item.full_name, item.email, item.phone, optionLabel(ATTENDANCE_OPTIONS, item.attendance_duration), item.completed_encounter === null ? "" : item.completed_encounter ? "Sim" : "Não", item.simple_quantity || "", item.double_quantity || "", item.order_total_cents ? Number(item.order_total_cents) / 100 : "", item.events?.title, item.events?.start_date, item.created_at, optionLabel(REGISTRATION_STATUSES, item.status), item.notes].map(csv).join(","))];

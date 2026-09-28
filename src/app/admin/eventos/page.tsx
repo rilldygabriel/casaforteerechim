@@ -44,10 +44,8 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
 
   let eventsQuery = scope.service.from("events").select("*").is("archived_at", null).order("start_date", { ascending: true });
   let registrationsQuery = scope.service.from("event_registrations").select("*,events(id,title,slug)").is("archived_at", null).order("created_at", { ascending: filters.ordem !== "antigas" });
-  if (!scope.globalAccess) {
-    eventsQuery = eventsQuery.in("id", scope.eventIds);
-    registrationsQuery = registrationsQuery.in("event_id", scope.eventIds);
-  }
+  eventsQuery = eventsQuery.in("id", scope.legacyEventIds);
+  registrationsQuery = registrationsQuery.in("event_id", scope.legacyEventIds);
   const [{ data: events }, { data: registrations }] = await Promise.all([eventsQuery, registrationsQuery]);
   const allEvents = events ?? [];
   const allRegistrations = registrations ?? [];

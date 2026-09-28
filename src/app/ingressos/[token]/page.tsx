@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { eventTicketUrl, TICKET_TOKEN } from "@/lib/event-tickets";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import type { MinistryOrderItem } from "@/lib/ministry-event-policy";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ingresso digital | Igreja Casa Forte", robots: { index: false, follow: false } };
@@ -20,7 +21,7 @@ export default async function EventTicketPage({ params }: { params: Promise<{ to
 
   const [{ data: event }, { data: registration }, { data: payment }] = await Promise.all([
     service.from("events").select("title,slug,start_date,start_time,location,image_url").eq("id", ticket.event_id).maybeSingle(),
-    service.from("event_registrations").select("full_name,simple_quantity,double_quantity,order_total_cents,status,archived_at").eq("id", ticket.registration_id).maybeSingle(),
+    service.from("event_registrations").select("full_name,simple_quantity,double_quantity,order_total_cents,status,archived_at,ministry_items,ministry_method").eq("id", ticket.registration_id).maybeSingle(),
     service.from("mercado_pago_payments").select("status,approved_at").eq("registration_id", ticket.registration_id).eq("status", "approved").order("approved_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (!event || !registration || registration.archived_at || !payment) notFound();
@@ -39,8 +40,7 @@ export default async function EventTicketPage({ params }: { params: Promise<{ to
       <h1>{event.title}</h1>
       <p className="event-ticket-owner">Pedido de <strong>{registration.full_name}</strong></p>
       <dl>
-        <div><dt>Simples</dt><dd>{Number(registration.simple_quantity)}</dd></div>
-        <div><dt>Duplos</dt><dd>{Number(registration.double_quantity)}</dd></div>
+        {registration.ministry_method?(registration.ministry_items as MinistryOrderItem[]).map(item=><div key={item.id}><dt>{item.name}</dt><dd>{item.quantity}</dd></div>):event.slug==="hamburguer-da-casa-20-09"?<><div><dt>Simples</dt><dd>{Number(registration.simple_quantity)}</dd></div><div><dt>Duplos</dt><dd>{Number(registration.double_quantity)}</dd></div></>:<div><dt>Ingresso</dt><dd>1</dd></div>}
         <div><dt>Total</dt><dd>{money.format(Number(registration.order_total_cents) / 100)}</dd></div>
       </dl>
       <div className="event-ticket-qr"><Image src={qrCode} width={280} height={280} unoptimized alt={`QR Code do ingresso ${code}`} /><strong>{code}</strong><small>Apresente este QR na retirada. Cada ingresso pode ser confirmado apenas uma vez.</small></div>

@@ -22,11 +22,11 @@ export async function POST(request: NextRequest) {
     if (!ticket || !scope.canManage(ticket.event_id)) return respond({ error: "Ingresso não encontrado para este evento." }, { status: 404 });
 
     const [{ data: event }, { data: registration }, { data: payment }] = await Promise.all([
-      scope.service.from("events").select("title,slug").eq("id", ticket.event_id).maybeSingle(),
-      scope.service.from("event_registrations").select("full_name,simple_quantity,double_quantity,order_total_cents,status,archived_at").eq("id", ticket.registration_id).maybeSingle(),
+      scope.service.from("events").select("title,slug,ministry_key").eq("id", ticket.event_id).maybeSingle(),
+      scope.service.from("event_registrations").select("full_name,simple_quantity,double_quantity,order_total_cents,status,archived_at,ministry_items").eq("id", ticket.registration_id).maybeSingle(),
       scope.service.from("mercado_pago_payments").select("status,approved_at").eq("registration_id", ticket.registration_id).eq("status", "approved").order("approved_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
-    if (!event || event.slug !== "hamburguer-da-casa-20-09" || !registration || registration.archived_at || !payment) {
+    if (!event || (!event.ministry_key && event.slug !== "hamburguer-da-casa-20-09") || !registration || registration.archived_at || !payment || registration.status!=="confirmed") {
       return respond({ error: "O pagamento deste ingresso não está confirmado." }, { status: 409 });
     }
 
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
         redeemedAt: currentTicket.redeemed_at,
         eventTitle: event.title,
         fullName: registration.full_name,
+        items: registration.ministry_items,
         simpleQuantity: Number(registration.simple_quantity),
         doubleQuantity: Number(registration.double_quantity),
         totalCents: Number(registration.order_total_cents),

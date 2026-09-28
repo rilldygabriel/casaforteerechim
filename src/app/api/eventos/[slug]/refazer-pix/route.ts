@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       .select("id,event_id,registration_id,payer_name,payer_email,payer_phone,amount_cents,status,provider_payment_id,provider_order_id,payment_provider")
       .eq("id", currentPaymentId).eq("purpose", "event").in("payment_provider", ["mercado_pago", "pagbank"]).maybeSingle();
     if (!current?.event_id || !current.registration_id) return NextResponse.json({ error: "Pedido não encontrado." }, { status: 404 });
-    const { data: event } = await service.from("events").select("slug").eq("id", current.event_id).maybeSingle();
+    const { data: event } = await service.from("events").select("slug,ministry_key").eq("id", current.event_id).maybeSingle();
     if (event?.slug !== slug) return NextResponse.json({ error: "Pedido não encontrado." }, { status: 404 });
 
     // Never create another payable charge while the previous one may still be paid.
@@ -37,6 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const { data: registration } = await service.from("event_registrations").select("status").eq("id", current.registration_id).single();
     if (status === "approved" || registration?.status === "confirmed") return NextResponse.json({ ok: true, status: "approved", ...await getEventTicketDeliveryState(current.registration_id) });
     if (!["rejected", "cancelled", "expired"].includes(status)) return NextResponse.json({ error: "A cobrança anterior ainda está ativa. Aguarde a confirmação ou o vencimento antes de gerar outra." }, { status: 409 });
+    if(event.ministry_key)return NextResponse.json({error:"Esta tentativa foi encerrada. Volte aos produtos e faça um novo pedido para conferir a disponibilidade atual."},{status:409});
 
     // Stable successor makes repeated clicks and retries resume the same attempt.
     const hex = createHash("sha256").update(`pagbank-retry:${current.id}`).digest("hex");

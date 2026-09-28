@@ -195,7 +195,7 @@ export async function deliverEventTicket(input: { eventId: string; registrationI
   const service = getSupabaseServiceClient();
   const [{ data: event }, { data: registration }] = await Promise.all([
     service.from("events").select("title").eq("id", input.eventId).maybeSingle(),
-    service.from("event_registrations").select("full_name,email,phone,phone_normalized,simple_quantity,double_quantity,status,archived_at").eq("id", input.registrationId).maybeSingle(),
+    service.from("event_registrations").select("full_name,email,phone,phone_normalized,simple_quantity,double_quantity,status,archived_at,ministry_items").eq("id", input.registrationId).maybeSingle(),
   ]);
   if (!event || !registration || registration.archived_at || registration.status !== "confirmed") throw new Error("Inscrição confirmada não encontrada.");
 
@@ -206,7 +206,8 @@ export async function deliverEventTicket(input: { eventId: string; registrationI
   const contacts = await resolveContacts(registration);
   const simple = Number(registration.simple_quantity);
   const double = Number(registration.double_quantity);
-  const details = simple + double > 0 ? `Pedido: ${simple} simples e ${double} duplos` : `Evento: ${event.title}`;
+  const items=registration.ministry_items as MinistryOrderItem[];
+  const details = items?.length?`Pedido: ${items.map(p=>`${p.quantity} × ${p.name}`).join(", ")}`:simple + double > 0 ? `Pedido: ${simple} simples e ${double} duplos` : `Evento: ${event.title}`;
   const common = { ticketId: ticket.id, name: registration.full_name, eventTitle: event.title, details, url: issued.url };
   const [email, whatsapp] = await Promise.all([
     contacts.email ? sendEmail({ ...common, email: contacts.email }) : Promise.resolve("unavailable" as const),
@@ -243,3 +244,4 @@ export async function deliverHamburgerTickets(eventId: string): Promise<TicketDe
   }
   return summary;
 }
+import type { MinistryOrderItem } from "@/lib/ministry-event-policy";

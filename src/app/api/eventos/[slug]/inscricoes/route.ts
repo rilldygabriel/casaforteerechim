@@ -22,8 +22,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const body = await request.json() as Record<string, unknown>;
     const input = { fullName: String(body.fullName ?? "").trim(), email: String(body.email ?? "").trim().toLowerCase(), phone: String(body.phone ?? "").trim(), attendanceDuration: String(body.attendanceDuration ?? ""), notes: String(body.notes ?? "").trim(), consent: body.consent === true, completedEncounter: String(body.completedEncounter ?? ""), simpleQuantity: Number(body.simpleQuantity ?? 0), doubleQuantity: Number(body.doubleQuantity ?? 0) };
     const service = getSupabaseServiceClient();
-    const { data: event } = await service.from("events").select("id,title,slug,registration_enabled,registration_status,registration_deadline,capacity,archived_at,is_public,registration_fee_cents").eq("slug", slug).maybeSingle();
+    const { data: event } = await service.from("events").select("id,title,slug,registration_enabled,registration_status,registration_deadline,capacity,archived_at,is_public,registration_fee_cents,ministry_key").eq("slug", slug).maybeSingle();
     if (!event || event.archived_at || !event.is_public) return respond({ error: "Este evento não está disponível." }, { status: 404 });
+    if(event.ministry_key)return respond({error:"Use a seleção de produtos na página do evento."},{status:400});
     const eventId = event.id;
     const feeCents = Number(event.registration_fee_cents || 0);
     const isPostEncounter = event.slug === "pos-encontro-agosto-2026";

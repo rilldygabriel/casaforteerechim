@@ -11278,3 +11278,4 @@ html[data-palette="heritage"] ::selection {
     font-size: 0.52rem;
   }
 }
+.home-ministry-events{padding:36px clamp(20px,5vw,64px);max-width:1440px;margin:auto}.home-ministry-events>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px}.home-ministry-events>div>a{display:block;overflow:hidden;border-radius:22px;background:#f6f3ed;color:#18201a;border:1px solid #91948c;padding:0 0 22px;text-decoration:none}.home-ministry-events img{width:100%;height:200px;object-fit:cover}.home-ministry-events h3,.home-ministry-events span,.home-ministry-events a p,.home-ministry-events a strong{display:block;margin:16px 22px 0;color:#18201a}.home-ministry-events h3{font-size:25px}.home-ministry-events a strong{color:#345626}
