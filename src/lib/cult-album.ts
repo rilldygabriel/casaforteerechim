@@ -1,11 +1,13 @@
+import { SEPTEMBER_TWENTY_SEVENTH_ALBUM } from "./cult-album-2026-09-27";
+
 export type CultPhoto = { id: string; filename: string; orientation: "horizontal" | "vertical" };
 
 export const LATEST_CULT_TITLE = "Culto de Domingo";
-export const LATEST_CULT_DATE_LABEL = "20 de setembro";
-export const LATEST_CULT_DATE_SHORT = "20/09";
+export const LATEST_CULT_DATE_LABEL = "27 de setembro";
+export const LATEST_CULT_DATE_SHORT = "27/09";
 export const LATEST_CULT_SOURCE_FOLDERS = [
-  "https://drive.google.com/drive/folders/1l8zNfzYr1L0jBnOnEGkB7waT_J2YUrA1",
-  "https://drive.google.com/drive/folders/1R5NOtDyoy4zRhzs1XyYvaoWiulT50LAF",
+  "https://drive.google.com/drive/folders/1ghPpTutVHD2EWwChqT5podzOt_1DJQ_2",
+  "https://drive.google.com/drive/folders/1niF8jZc46DS89qMOo__eL5TgFaqdxBTw",
 ] as const;
 
 const PREVIOUS_CULT_ALBUM = [
@@ -650,7 +652,7 @@ const SEPTEMBER_TWENTIETH_VERTICAL = [
 
 // O álbum completo do culto de 20/09 reúne as pastas HORIZONTAL e VERTICAL.
 // Os IDs são únicos e vêm diretamente das duas pastas atuais do Drive.
-export const LATEST_CULT_ALBUM: readonly CultPhoto[] = [
+export const SEPTEMBER_TWENTIETH_ALBUM: readonly CultPhoto[] = [
   ...SEPTEMBER_TWENTIETH_HORIZONTAL.map(([id, filename]) => ({
     id,
     filename,
@@ -662,6 +664,8 @@ export const LATEST_CULT_ALBUM: readonly CultPhoto[] = [
     orientation: "vertical" as const,
   })),
 ];
+
+export const LATEST_CULT_ALBUM: readonly CultPhoto[] = SEPTEMBER_TWENTY_SEVENTH_ALBUM;
 
 export function cultPhotoPreview(id: string, width = 1200) {
   return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
