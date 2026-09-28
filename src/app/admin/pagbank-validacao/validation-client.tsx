@@ -116,6 +116,6 @@ export default function PagBankValidation() {
     </form>}
     {error && <p className={styles.error} role="alert">{error}</p>}
     {Object.keys(allResults).length > 0 && <button className={styles.secondary} onClick={downloadLogs}>Baixar registros técnicos sem dados sensíveis</button>}
-    <p className={styles.small}>Após pagar, clique em verificar pagamento e avise nesta conversa. Os eventos continuam no Mercado Pago até a validação final.</p>
+    <p className={styles.small}>Homologação concluída em 28/09/2026. Novos pagamentos de eventos usam PagBank. Primícias, dízimos e ofertas permanecem no Mercado Pago.</p>
   </main>;
 }

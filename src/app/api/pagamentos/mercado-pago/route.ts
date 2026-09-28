@@ -1,6 +1,7 @@
 import { createMercadoPagoBrickPayment, isMercadoPagoBrickConfigured, synchronizeMercadoPagoPayment } from "@/lib/mercado-pago";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { CONTRIBUTION_PAYMENT_PROVIDER } from "@/lib/event-payment-policy";
 
 export const runtime = "nodejs";
 
@@ -32,11 +33,14 @@ export async function POST(request: Request) {
   const payerEmail = user?.email?.trim().toLowerCase() || null;
 
   const service = getSupabaseServiceClient();
-  const { data: existing } = await service.from("mercado_pago_payments").select("checkout_url").eq("id", paymentId).maybeSingle();
+  const { data: existing } = await service.from("mercado_pago_payments").select("checkout_url,purpose,payment_provider,status,amount_cents,tithe_cents,firstfruits_cents,offering_cents").eq("id", paymentId).maybeSingle();
+  if (existing && (existing.purpose !== "contribution" || existing.payment_provider !== CONTRIBUTION_PAYMENT_PROVIDER || Number(existing.amount_cents) !== amountCents || Number(existing.tithe_cents) !== titheCents || Number(existing.firstfruits_cents) !== firstfruitsCents || Number(existing.offering_cents) !== offeringCents)) return Response.json({ error: "Esta solicitação pertence a outro pagamento. Inicie uma nova contribuição." }, { status: 409 });
+  if (existing?.status === "approved") return Response.json({ error: "Esta contribuição já foi paga." }, { status: 409 });
   if (existing?.checkout_url) return Response.json({ ok: true, checkoutUrl: existing.checkout_url });
   const { error: insertError } = await service.from("mercado_pago_payments").insert({
     id: paymentId,
     purpose: "contribution",
+    payment_provider: CONTRIBUTION_PAYMENT_PROVIDER,
     payer_name: payerName,
     payer_email: payerEmail,
     payer_phone: null,

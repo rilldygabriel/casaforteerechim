@@ -6,6 +6,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { isOpenFinanceConfigured } from "@/lib/open-finance";
 import { isMercadoPagoConfigured } from "@/lib/mercado-pago";
+import { isPagBankConfigured } from "@/lib/pagbank";
 import { createPayable, togglePayableStatus } from "./actions";
 import OpenFinanceConnect from "./open-finance-connect";
 import ServiceIncomeForm from "./service-income-form";
@@ -98,7 +99,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       </section>
 
       <nav className="finance-section-nav" aria-label="Áreas do financeiro">
-        <a href="#mercado-pago">Mercado Pago</a>
+        <a href="#mercado-pago">Pagamentos online</a>
         <a href="#entradas-de-culto">Entradas de culto</a>
         <a href="#contas-a-pagar">Contas a pagar</a>
         <a href="#historico-financeiro">Histórico</a>
@@ -113,7 +114,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       {params.error ? <p className="finance-flash error">{params.error}</p> : null}
 
       <section className="finance-online-payments" id="mercado-pago">
-        <header><div><span>Recebimentos online</span><h2>Mercado Pago</h2><p>Somente pagamentos iniciados pelo checkout do site aparecem nesta área e recebem classificação automática.</p></div><strong data-configured={isMercadoPagoConfigured()}>{isMercadoPagoConfigured() ? "API conectada" : "Aguardando credenciais"}</strong></header>
+        <header><div><span>Recebimentos online</span><h2>PagBank e Mercado Pago</h2><p>Eventos: PagBank (PagSeguro). Primícias, dízimos e ofertas: Mercado Pago. Somente pagamentos do checkout do site são classificados aqui. Vendas antigas mantêm seu provedor original.</p></div><strong data-configured={isMercadoPagoConfigured() && isPagBankConfigured()}>{isMercadoPagoConfigured() && isPagBankConfigured() ? "APIs conectadas" : "Verificar configuração"}</strong></header>
         <div className="finance-online-summary" aria-label="Contribuições online confirmadas no mês"><article><span>Dízimos</span><strong>{money.format(onlineContributionTotals.tithe / 100)}</strong></article><article><span>Primícias</span><strong>{money.format(onlineContributionTotals.firstfruits / 100)}</strong></article><article><span>Ofertas</span><strong>{money.format(onlineContributionTotals.offering / 100)}</strong></article><article><span>Total</span><strong>{money.format(onlineContributionTotals.total / 100)}</strong></article></div>
         <div className="finance-online-grid">{visibleOnlinePayments.length ? visibleOnlinePayments.map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" || payment.status === "charged_back" ? "Estornado" : payment.status === "cancelled" ? "Cancelado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{money.format(Number(payment.tithe_cents) / 100)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{money.format(Number(payment.firstfruits_cents) / 100)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{money.format(Number(payment.offering_cents) / 100)}</b></li> : null}</ul> : null}<p>{payment.payment_provider === "pagbank" ? "PagBank" : "Mercado Pago"}{payment.payment_method_id ? ` · ${payment.payment_method_id}` : ""} · {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Nenhum pagamento confirmado ou em processamento nas últimas 24 horas.</p>}</div>
       </section>
@@ -208,7 +209,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-income-section">
         <header><div><span>Entradas confirmadas</span><h2>Últimos lançamentos</h2></div></header>
         <div>{(incomeEntries ?? []).length ? (incomeEntries ?? []).map((entry) => (
-          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
+          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : entry.source === "pagbank" ? "PagBank" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
         )) : <p className="finance-empty">As entradas identificadas nos extratos aparecerão aqui.</p>}</div>
       </section>
     </main>

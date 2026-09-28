@@ -331,7 +331,7 @@ export async function synchronizeMercadoPagoPayment(providerPaymentId: string) {
   const service = getSupabaseServiceClient();
   const { data: localPayment } = await service.from("mercado_pago_payments")
     .select("id,purpose,event_id,registration_id,payer_name,amount_cents,status,tithe_cents,offering_cents,firstfruits_cents,payment_method_id,whatsapp_notification_status")
-    .eq("id", externalReference).maybeSingle();
+    .eq("id", externalReference).eq("payment_provider", "mercado_pago").maybeSingle();
   if (!localPayment) return { ignored: true, status };
 
   const providerAmountCents = Math.round(number(provider.transaction_amount) * 100);

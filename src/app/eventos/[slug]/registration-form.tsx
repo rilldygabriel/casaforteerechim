@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ATTENDANCE_OPTIONS, validateEncounterRegistration, validateHamburgerRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
 
 const EventPayment = dynamic(() => import("./event-payment"), { ssr: false });
+const PagBankEventPayment = dynamic(() => import("./pagbank-event-payment"), { ssr: false });
 
 type FormState = "idle" | "sending" | "success" | "rejected" | "error";
 const EMPTY = { fullName: "", email: "", phone: "", attendanceDuration: "", notes: "", consent: false, completedEncounter: "", simpleQuantity: 0, doubleQuantity: 0 };
@@ -15,7 +16,7 @@ export default function RegistrationForm({ slug, enabled, closedLabel = "Inscri�
   const [form, setForm] = useState({ ...EMPTY, ...(member ?? {}) });
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
-  const [payment, setPayment] = useState<{ id: string; amountCents: number; fullName: string; email: string } | null>(null);
+  const [payment, setPayment] = useState<{ id: string; amountCents: number; fullName: string; email: string; provider: string } | null>(null);
   const burgerTotalCents = form.simpleQuantity * 2000 + form.doubleQuantity * 3000;
 
   useEffect(() => {
@@ -40,13 +41,13 @@ export default function RegistrationForm({ slug, enabled, closedLabel = "Inscri�
     try {
       const payload = variant === "burger" ? { fullName: form.fullName, phone: member ? "" : form.phone, simpleQuantity: form.simpleQuantity, doubleQuantity: form.doubleQuantity } : form;
       const response = await fetch(`/api/eventos/${encodeURIComponent(slug)}/inscricoes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const result = (await response.json()) as { error?: string; message?: string; accepted?: boolean; checkoutUrl?: string; paymentId?: string; amountCents?: number; payerName?: string; payerEmail?: string; ticketUrl?: string };
+      const result = (await response.json()) as { error?: string; message?: string; accepted?: boolean; checkoutUrl?: string; paymentId?: string; paymentProvider?: string; amountCents?: number; payerName?: string; payerEmail?: string; ticketUrl?: string };
       if (!response.ok) { setState("error"); setMessage(result.error || "Não foi possível enviar."); return; }
       if (result.checkoutUrl) { window.location.assign(result.checkoutUrl); return; }
       if (result.ticketUrl) { window.location.assign(result.ticketUrl); return; }
       if (result.paymentId && result.amountCents) {
         localStorage.removeItem(storageKey);
-        setPayment({ id: result.paymentId, amountCents: result.amountCents, fullName: result.payerName || form.fullName, email: result.payerEmail || form.email });
+        setPayment({ id: result.paymentId, amountCents: result.amountCents, fullName: result.payerName || form.fullName, email: result.payerEmail || form.email, provider: result.paymentProvider || "pagbank" });
         setState("idle");
         setMessage("");
         return;
@@ -70,7 +71,9 @@ export default function RegistrationForm({ slug, enabled, closedLabel = "Inscri�
   }
 
   if (!enabled) return <div className="event-registration-closed"><strong>{closedLabel}</strong><p>{variant === "burger" && closedLabel === "Hambúrgueres esgotados" ? "As 100 unidades já foram reservadas e as vendas foram encerradas." : "Este evento não está recebendo novas inscrições."}</p></div>;
-  if (payment) return <EventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} email={payment.email} publicKey={mercadoPagoPublicKey} maxInstallments={variant === "burger" ? 1 : 4} />;
+  if (payment) return payment.provider === "pagbank"
+    ? <PagBankEventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} maxInstallments={variant === "burger" ? 1 : 4} />
+    : <EventPayment slug={slug} paymentId={payment.id} amountCents={payment.amountCents} fullName={payment.fullName} email={payment.email} publicKey={mercadoPagoPublicKey} maxInstallments={variant === "burger" ? 1 : 4} />;
   if (state === "success") return <div className="event-registration-success" role="status"><span aria-hidden="true">✓</span><h2>Inscrição confirmada</h2><p>{message}</p></div>;
   if (state === "rejected") return <div className="event-registration-rejected" role="status"><span aria-hidden="true">!</span><h2>Inscrição não aceita</h2><p>{message}</p></div>;
 

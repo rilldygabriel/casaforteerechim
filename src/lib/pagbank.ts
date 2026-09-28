@@ -2,11 +2,14 @@ import "server-only";
 
 import { createHash, timingSafeEqual } from "node:crypto";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { deliverEventTicket, getEventTicketDeliveryState } from "@/lib/event-ticket-delivery";
+import { cancelEventTicket } from "@/lib/event-tickets";
+import { pagBankPaymentStatus } from "@/lib/event-payment-policy";
+import QRCode from "qrcode";
 
 const API_URL = "https://api.pagseguro.com";
 const SITE_URL = "https://www.casaforteerechim.app.br";
 type Json = Record<string, unknown>;
-type PagBankStatus = "created" | "pending" | "in_process" | "approved" | "rejected" | "cancelled" | "refunded" | "charged_back" | "expired";
 
 function object(value: unknown): Json {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Json : {};
@@ -96,20 +99,9 @@ async function pagBankFetch(path: string, init: RequestInit = {}) {
   return result;
 }
 
-function normalizeStatus(value: string): PagBankStatus {
-  const status = value.toUpperCase();
-  if (status === "PAID") return "approved";
-  if (status === "WAITING") return "pending";
-  if (status === "IN_ANALYSIS" || status === "AUTHORIZED") return "in_process";
-  if (status === "DECLINED") return "rejected";
-  if (status === "CANCELED") return "cancelled";
-  if (status === "EXPIRED") return "expired";
-  return "pending";
-}
-
 function phoneParts(value: string) {
   const digits = value.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
-  if (!/^\d{10,11}$/.test(digits)) throw new Error("Informe um WhatsApp válido.");
+  if (!/^[1-9]\d{9,10}$/.test(digits)) return null;
   return { country: "55", area: digits.slice(0, 2), number: digits.slice(2), type: "MOBILE" };
 }
 
@@ -134,18 +126,8 @@ function qrCodeFromCharge(charge: Json) {
 }
 
 async function qrCodeBase64FromCharge(charge: Json) {
-  const link = array(charge.links).map(object).find((item) => text(item.rel) === "QRCODE.PNG");
-  const href = text(link?.href);
-  if (!href) return "";
-  const url = new URL(href);
-  if (url.protocol !== "https:" || !url.hostname.endsWith("pagseguro.com")) return "";
-  try {
-    const response = await fetch(url, { headers: { Authorization: `Bearer ${token()}` }, cache: "no-store", signal: AbortSignal.timeout(10_000) });
-    if (!response.ok) return "";
-    return Buffer.from(await response.arrayBuffer()).toString("base64");
-  } catch {
-    return "";
-  }
+  const code = qrCodeFromCharge(charge);
+  return code ? (await QRCode.toBuffer(code, { width: 280, margin: 2 })).toString("base64") : "";
 }
 
 export async function createPagBankEventPayment(input: {
@@ -187,7 +169,7 @@ export async function createPagBankEventPayment(input: {
         name: input.payerName,
         email: input.payerEmail,
         tax_id: taxId,
-        phones: [phoneParts(input.payerPhone)],
+        ...(phoneParts(input.payerPhone) ? { phones: [phoneParts(input.payerPhone)] } : {}),
       },
       items: [{ reference_id: input.paymentId, name: `Inscrição · ${input.eventTitle}`.slice(0, 100), quantity: 1, unit_amount: input.amountCents }],
       charges: [{
@@ -206,7 +188,7 @@ export async function createPagBankEventPayment(input: {
   return {
     providerOrderId: orderId,
     providerPaymentId: chargeId,
-    status: normalizeStatus(text(charge.status)),
+    status: pagBankPaymentStatus(text(charge.status)),
     statusDetail: text(object(charge.payment_response).message),
     paymentMethodId: input.method === "pix" ? "pix" : "credit_card",
     qrCode: qrCodeFromCharge(charge),
@@ -214,20 +196,30 @@ export async function createPagBankEventPayment(input: {
   };
 }
 
-export async function synchronizePagBankEventPayment(paymentId: string) {
+export async function synchronizePagBankEventPayment(paymentId: string, webhookOrderId?: string) {
   const service = getSupabaseServiceClient();
   const { data: localPayment } = await service.from("mercado_pago_payments")
     .select("id,event_id,registration_id,payer_name,amount_cents,status,provider_order_id")
     .eq("id", paymentId).eq("purpose", "event").eq("payment_provider", "pagbank").maybeSingle();
-  if (!localPayment?.provider_order_id) return { ignored: true };
-  const order = await pagBankFetch(`/orders/${encodeURIComponent(localPayment.provider_order_id)}`);
+  if (!localPayment) return { ignored: true as const };
+  const orderId = localPayment.provider_order_id || webhookOrderId;
+  if (!orderId || !/^ORDE_[A-F0-9-]+$/i.test(orderId)) return { ignored: true as const };
+  const order = await pagBankFetch(`/orders/${encodeURIComponent(orderId)}`);
+  if (text(order.reference_id) !== paymentId) throw new Error("A referência do pedido PagBank não confere.");
   const charge = chargeFromOrder(order, paymentId);
   const providerAmount = number(object(charge.amount).value);
   if (providerAmount !== Number(localPayment.amount_cents)) throw new Error("O valor confirmado pelo PagBank diverge da inscrição.");
-  const status = normalizeStatus(text(charge.status));
+  if (text(charge.reference_id) !== paymentId) throw new Error("A referência da cobrança PagBank não confere.");
+  const status = pagBankPaymentStatus(text(charge.status));
+  // A delayed WAITING response must not undo a payment confirmed by the webhook.
+  if (localPayment.status === "approved" && ["pending", "in_process"].includes(status)) {
+    return { ignored: false as const, status: "approved", paymentId: localPayment.id, providerPaymentId: text(charge.id), paymentMethodId: text(object(charge.payment_method).type).toLowerCase(), ...await getEventTicketDeliveryState(localPayment.registration_id) };
+  }
+  if (status === "approved" && number(object(object(charge.amount).summary).paid) !== Number(localPayment.amount_cents)) throw new Error("O PagBank ainda não confirmou o valor integral.");
   const approvedAt = status === "approved" ? text(charge.paid_at) || new Date().toISOString() : null;
-  const { error: updateError } = await service.from("mercado_pago_payments").update({
+  const { data: updated, error: updateError } = await service.from("mercado_pago_payments").update({
     provider_payment_id: text(charge.id) || null,
+    provider_order_id: orderId,
     status,
     status_detail: text(object(charge.payment_response).message) || null,
     payment_method_id: text(object(charge.payment_method).type).toLowerCase() || null,
@@ -237,15 +229,19 @@ export async function synchronizePagBankEventPayment(paymentId: string) {
     pix_qr_code: qrCodeFromCharge(charge) || null,
     approved_at: approvedAt,
     updated_at: new Date().toISOString(),
-  }).eq("id", localPayment.id);
-  if (updateError) throw new Error("Não foi possível atualizar o pagamento PagBank.");
+  }).eq("id", localPayment.id).eq("status", localPayment.status).select("id");
+  if (updateError || !updated?.length) throw new Error("A confirmação mudou durante a consulta. Consulte novamente.");
   if (localPayment.registration_id) {
-    const registrationStatus = status === "approved" ? "confirmed" : ["rejected", "cancelled", "expired"].includes(status) ? "cancelled" : "awaiting_payment";
-    await service.from("event_registrations").update({ status: registrationStatus, updated_at: new Date().toISOString() }).eq("id", localPayment.registration_id);
+    // An older failed attempt must not undo a different, already-paid attempt.
+    const { data: otherPaid } = await service.from("mercado_pago_payments").select("id").eq("registration_id", localPayment.registration_id).eq("status", "approved").neq("id", paymentId).limit(1);
+    const registrationStatus = status === "approved" || otherPaid?.length ? "confirmed" : ["rejected", "cancelled", "expired", "refunded", "charged_back"].includes(status) ? "cancelled" : "awaiting_payment";
+    const { error } = await service.from("event_registrations").update({ status: registrationStatus, updated_at: new Date().toISOString() }).eq("id", localPayment.registration_id);
+    if (error) throw new Error("Não foi possível confirmar a inscrição.");
+    if (registrationStatus === "cancelled") await cancelEventTicket(localPayment.registration_id);
   }
   if (status === "approved") {
     const fingerprint = createHash("sha256").update(`pagbank|${text(charge.id)}`).digest("hex");
-    await service.from("finance_income_entries").upsert({
+    const { error } = await service.from("finance_income_entries").upsert({
       transaction_date: approvedAt!.slice(0, 10),
       description: "Inscrição de evento via PagBank",
       amount_cents: Number(localPayment.amount_cents),
@@ -253,8 +249,13 @@ export async function synchronizePagBankEventPayment(paymentId: string) {
       source: "pagbank",
       mercado_pago_payment_id: localPayment.id,
     }, { onConflict: "fingerprint", ignoreDuplicates: true });
+    if (error) throw new Error("Não foi possível registrar o recebimento PagBank.");
   }
-  return { ignored: false, status, paymentId: localPayment.id };
+  let delivery = localPayment.registration_id ? await getEventTicketDeliveryState(localPayment.registration_id) : { ticketUrl: undefined, emailSent: false, whatsappSent: false };
+  if (status === "approved" && localPayment.event_id && localPayment.registration_id) {
+    delivery = await deliverEventTicket({ eventId: localPayment.event_id, registrationId: localPayment.registration_id });
+  }
+  return { ignored: false as const, status, paymentId: localPayment.id, providerPaymentId: text(charge.id), paymentMethodId: text(object(charge.payment_method).type).toLowerCase(), qrCode: qrCodeFromCharge(charge), qrCodeBase64: status === "pending" ? await qrCodeBase64FromCharge(charge) : "", ...delivery };
 }
 
 export async function expireStalePagBankPixPayments() {

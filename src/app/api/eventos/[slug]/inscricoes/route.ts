@@ -2,7 +2,8 @@ import { createHash, randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { canDiscardUnpaidRegistration, eventRegistrationState, normalizePhone, validateEncounterRegistration, validateHamburgerRegistration, validatePostEncounterRegistration, validateRegistration } from "@/lib/events";
 import { ensureEventTicket } from "@/lib/event-tickets";
-import { isMercadoPagoBrickConfigured } from "@/lib/mercado-pago";
+import { isPagBankConfigured } from "@/lib/pagbank";
+import { EVENT_PAYMENT_PROVIDER } from "@/lib/event-payment-policy";
 import { getSupabaseRouteClient } from "@/lib/supabase/route";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (input.email && !EMAIL.test(input.email)) return respond({ error: "Informe um e-mail válido." }, { status: 400 });
     if (feeCents > 0 && !EMAIL.test(input.email)) return respond({ error: "Não foi possível identificar sua conta para o pagamento." }, { status: 400 });
-    if (feeCents > 0 && !isMercadoPagoBrickConfigured()) return respond({ error: "O pagamento Mercado Pago deste evento está sendo ativado. Tente novamente em instantes." }, { status: 503 });
+    if (feeCents > 0 && !isPagBankConfigured()) return respond({ error: "O pagamento PagBank deste evento está indisponível. Tente novamente em instantes." }, { status: 503 });
 
     const phoneNormalized = normalizePhone(input.phone);
     const eligible = !isPostEncounter || input.completedEncounter === "yes";
@@ -93,20 +94,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           }
           return respond({ accepted: true, message: "Sua inscrição já está confirmada." });
         }
-        if (["created", "pending", "in_process"].includes(payment?.status || "")) {
-        if (payment?.payment_provider === "mercado_pago") return respond({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), payerName: payment.payer_name, payerEmail: payment.payer_email, message: "Continue o pagamento para confirmar sua inscrição." });
-        if (payment?.payment_provider === "pagbank" && !payment.provider_payment_id && !payment.provider_order_id) {
-          const { error: switchError } = await service.from("mercado_pago_payments").update({ payment_provider: "mercado_pago", updated_at: new Date().toISOString() }).eq("id", payment.id).eq("payment_provider", "pagbank");
-          if (switchError) throw switchError;
-          return respond({ accepted: true, paymentId: payment.id, amountCents: Number(payment.amount_cents), payerName: payment.payer_name, payerEmail: payment.payer_email, message: "Continue o pagamento para confirmar sua inscrição." });
-        }
+        if (payment && ["created", "pending", "in_process"].includes(payment.status)) {
+          // Existing provider charges remain with their original processor.
+          return respond({ accepted: true, paymentProvider: payment.payment_provider, paymentId: payment.id, amountCents: Number(payment.amount_cents), payerName: payment.payer_name, payerEmail: payment.payer_email, message: "Continue o pagamento para confirmar sua inscrição." });
         }
         if (isBurger && Number(existing.order_total_cents) > 0) {
           const replacementId = randomUUID();
           const { error: replacementError } = await service.from("mercado_pago_payments").insert({
             id: replacementId,
             purpose: "event",
-            payment_provider: "mercado_pago",
+            payment_provider: EVENT_PAYMENT_PROVIDER,
             event_id: eventId,
             registration_id: existing.id,
             payer_name: existing.full_name,
@@ -116,7 +113,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           });
           if (replacementError) throw replacementError;
           await service.from("event_registrations").update({ status: "awaiting_payment", updated_at: new Date().toISOString() }).eq("id", existing.id);
-          return respond({ accepted: true, paymentId: replacementId, amountCents: Number(existing.order_total_cents), payerName: existing.full_name, payerEmail: existing.email, message: "Gere um novo Pix para confirmar seu pedido." });
+          return respond({ accepted: true, paymentProvider: EVENT_PAYMENT_PROVIDER, paymentId: replacementId, amountCents: Number(existing.order_total_cents), payerName: existing.full_name, payerEmail: existing.email, message: "Gere um novo Pix para confirmar seu pedido." });
         }
       }
       return null;
@@ -164,9 +161,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (amountCents > 0) {
       const paymentId = randomUUID();
       try {
-        const { error: paymentError } = await service.from("mercado_pago_payments").insert({ id: paymentId, purpose: "event", payment_provider: "mercado_pago", event_id: event.id, registration_id: registration.id, payer_name: input.fullName, payer_email: input.email, payer_phone: input.phone, amount_cents: amountCents });
+        const { error: paymentError } = await service.from("mercado_pago_payments").insert({ id: paymentId, purpose: "event", payment_provider: EVENT_PAYMENT_PROVIDER, event_id: event.id, registration_id: registration.id, payer_name: input.fullName, payer_email: input.email, payer_phone: input.phone, amount_cents: amountCents });
         if (paymentError) throw paymentError;
-        return respond({ accepted: true, paymentId, amountCents, payerName: input.fullName, payerEmail: input.email, message: isBurger ? "Pedido reservado. Conclua o pagamento para confirmar." : "Inscrição reservada. Conclua o pagamento para confirmar." }, { status: 201 });
+        return respond({ accepted: true, paymentProvider: EVENT_PAYMENT_PROVIDER, paymentId, amountCents, payerName: input.fullName, payerEmail: input.email, message: isBurger ? "Pedido reservado. Conclua o pagamento para confirmar." : "Inscrição reservada. Conclua o pagamento para confirmar." }, { status: 201 });
       } catch (checkoutError) {
         await service.from("mercado_pago_payments").delete().eq("registration_id", registration.id).eq("status", "created");
         await service.from("event_registrations").delete().eq("id", registration.id).eq("status", "awaiting_payment");

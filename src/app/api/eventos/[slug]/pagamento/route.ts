@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getEventTicketDeliveryState } from "@/lib/event-ticket-delivery";
 import { createMercadoPagoBrickPayment, isMercadoPagoBrickConfigured, synchronizeMercadoPagoPayment } from "@/lib/mercado-pago";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
+import { createPagBankEventPayment, isPagBankConfigured, synchronizePagBankEventPayment } from "@/lib/pagbank";
+import { validateEventPaymentInput } from "@/lib/event-payment-policy";
 
 export const runtime = "nodejs";
 
@@ -15,14 +17,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const service = getSupabaseServiceClient();
     const { data: payment } = await service.from("mercado_pago_payments")
-      .select("id,event_id,registration_id,status,provider_payment_id,payment_method_id")
-      .eq("id", paymentId).eq("purpose", "event").eq("payment_provider", "mercado_pago").maybeSingle();
+      .select("id,event_id,registration_id,status,provider_payment_id,provider_order_id,payment_method_id,payment_provider")
+      .eq("id", paymentId).eq("purpose", "event").in("payment_provider", ["mercado_pago", "pagbank"]).maybeSingle();
     if (!payment?.event_id || !payment.registration_id) return NextResponse.json({ error: "Pagamento não encontrado." }, { status: 404 });
 
     const { data: event } = await service.from("events").select("slug").eq("id", payment.event_id).maybeSingle();
     if (!event || event.slug !== slug) return NextResponse.json({ error: "Pagamento não encontrado." }, { status: 404 });
 
-    if (payment.provider_payment_id && /^\d+$/.test(payment.provider_payment_id)) {
+    if (payment.payment_provider === "pagbank" && payment.provider_order_id) {
+      return NextResponse.json({ ok: true, paymentProvider: "pagbank", ...await synchronizePagBankEventPayment(paymentId) }, { headers: { "Cache-Control": "no-store" } });
+    }
+    if (payment.payment_provider === "mercado_pago" && payment.provider_payment_id && /^\d+$/.test(payment.provider_payment_id)) {
       const synchronized = await synchronizeMercadoPagoPayment(payment.provider_payment_id);
       return NextResponse.json({
         ok: true,
@@ -50,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
-  if (!isMercadoPagoBrickConfigured()) return NextResponse.json({ error: "O pagamento Mercado Pago deste evento está sendo ativado." }, { status: 503 });
+  if (request.headers.get("origin") && request.headers.get("origin") !== new URL(request.url).origin) return NextResponse.json({ error: "Origem inválida." }, { status: 403 });
   try {
     const { slug } = await params;
     const body = await request.json().catch(() => ({})) as Record<string, unknown>;
@@ -60,8 +65,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
     const service = getSupabaseServiceClient();
     const { data: payment } = await service.from("mercado_pago_payments")
-      .select("id,event_id,registration_id,payer_name,payer_email,payer_phone,amount_cents,purpose,status,payment_provider")
-      .eq("id", paymentId).eq("purpose", "event").eq("payment_provider", "mercado_pago").maybeSingle();
+      .select("id,event_id,registration_id,payer_name,payer_email,payer_phone,amount_cents,purpose,status,payment_provider,provider_order_id,provider_payment_id")
+      .eq("id", paymentId).eq("purpose", "event").in("payment_provider", ["mercado_pago", "pagbank"]).maybeSingle();
     if (!payment?.event_id || !payment.registration_id) return NextResponse.json({ error: "Pagamento não encontrado." }, { status: 404 });
     const [{ data: event }, { data: registration }] = await Promise.all([
       service.from("events").select("id,title,slug,registration_fee_cents").eq("id", payment.event_id).maybeSingle(),
@@ -74,6 +79,30 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (registration.status === "confirmed" || payment.status === "approved") {
       return NextResponse.json({ error: "Esta inscrição já está paga e confirmada." }, { status: 409 });
     }
+
+    if (payment.payment_provider === "pagbank") {
+      if (!isPagBankConfigured()) return NextResponse.json({ error: "PagBank indisponível agora." }, { status: 503 });
+      if (payment.provider_order_id) return NextResponse.json({ ok: true, ...await synchronizePagBankEventPayment(paymentId) });
+      const invalid = validateEventPaymentInput(body, slug);
+      if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
+      const result = await createPagBankEventPayment({
+        paymentId, eventTitle: event.title, amountCents: Number(payment.amount_cents),
+        payerName: payment.payer_name, payerEmail: payment.payer_email, payerPhone: payment.payer_phone || "",
+        taxId: String(body.taxId), method: body.method as "pix" | "card",
+        encryptedCard: typeof body.encryptedCard === "string" ? body.encryptedCard : undefined,
+        cardHolder: typeof body.cardHolder === "string" ? body.cardHolder : undefined,
+        installments: Number(body.installments || 1),
+      });
+      // Persist the order even if its webhook wins the race. Do not overwrite status here.
+      const { error: saveError } = await service.from("mercado_pago_payments").update({
+        provider_order_id: result.providerOrderId, provider_payment_id: result.providerPaymentId,
+        payment_method_id: result.paymentMethodId, pix_qr_code: result.qrCode || null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", paymentId).eq("payment_provider", "pagbank");
+      if (saveError) throw new Error("O pedido foi enviado. Verifique a confirmação antes de tentar novamente.");
+      return NextResponse.json({ ok: true, paymentId, ...result, ...await synchronizePagBankEventPayment(paymentId) });
+    }
+    if (!isMercadoPagoBrickConfigured()) return NextResponse.json({ error: "Mercado Pago indisponível para esta cobrança antiga." }, { status: 503 });
 
     let providerPaymentCreated = false;
     try {
@@ -109,9 +138,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
   } catch (error) {
     console.error("event_payment_error", error instanceof Error ? error.message : "unknown");
-    const message = error instanceof Error && !/Mercado Pago respondeu/.test(error.message)
-      ? error.message
-      : "Não foi possível processar o pagamento no Mercado Pago agora. Confira os dados e tente novamente.";
+    const message = "Não foi possível concluir agora. Confira os dados e consulte a confirmação antes de tentar novamente. Não refaça um pagamento já debitado.";
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }
