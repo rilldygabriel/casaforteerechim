@@ -1,0 +1,190 @@
+/* Optional theme. Every palette override is scoped; the original themes stay intact. */
+.theme-choice-row { grid-template-columns: repeat(2, minmax(110px, 1fr)); }
+html .theme-choice[data-theme-option="natural"] {
+  color: #171916;
+  background: #f5df38;
+  border-color: #a28e16;
+}
+html .theme-choice:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+
+html[data-theme="light"][data-palette="natural"] {
+  --background: #f2efe7;
+  --surface-0: #fffdf7;
+  --surface-1: #f5f2ea;
+  --surface-2: #e7e3d9;
+  --surface-3: #dedbd2;
+  --surface-4: #d4d0c5;
+  --surface: var(--surface-1);
+  --foreground: #171916;
+  --muted: #53564e;
+  --accent: #f5df38;
+  --accent-on-dark: #f5df38;
+  --yellow: #f5df38;
+  --yellow-soft: rgba(245,223,56,.16);
+  --line: rgba(40,42,34,.24);
+  --natural-dark: #252525;
+  --natural-paper: #fffdf7;
+  --natural-shadow: 0 16px 36px rgba(36,38,29,.12), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* A fixed, non-interactive decoration avoids scroll jank from background-attachment. */
+html[data-palette="natural"] body { isolation: isolate; }
+html[data-palette="natural"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #f2efe7 url("/images/themes/natural-stone.webp") center / 100% 100% no-repeat;
+}
+html[data-theme="light"][data-palette="natural"] :is(
+  .site-shell,main,.home-page,.inner-page,.admin-dashboard,.admin-visitors-page,
+  .calendar-page,.public-events-page,.event-public-page,.bible-page,.admin-auth-page
+) { background: transparent !important; }
+
+html[data-theme="light"][data-palette="natural"] :is(.home-header,.inner-header) {
+  background: rgba(255,253,247,.94);
+  border-color: var(--line);
+  box-shadow: 0 8px 24px rgba(36,38,29,.1);
+}
+html[data-theme="light"][data-palette="natural"] :is(h1,h2,h3,h4) { letter-spacing: -.045em; }
+html[data-theme="light"][data-palette="natural"] :is(h1,h2) > strong { color: #171916; }
+html[data-theme="light"][data-palette="natural"] .home-hero :is(h1,h2) > strong { color: #fffdf7; }
+html[data-theme="light"][data-palette="natural"] :is(.section-eyebrow,.home-kicker,[class*="eyebrow"]) {
+  color: #454b30 !important;
+}
+html[data-theme="light"][data-palette="natural"] .home-hero .home-kicker { color: #f5df38 !important; }
+html[data-theme="light"][data-palette="natural"] .home-header .home-nav-admin { color: #171916 !important; }
+html[data-theme="light"][data-palette="natural"] .home-header [aria-label="Baixar o aplicativo"] a,
+html[data-theme="light"][data-palette="natural"] .home-header [aria-label="Baixar o aplicativo"] a :is(span,strong,svg) { color: #fffdf7 !important; }
+html[data-theme="light"][data-palette="natural"] :is(.theme-toggle,.site-refresh-button,.site-back-button,.site-notification-button) {
+  color: #171916;
+  border-color: var(--line);
+  background: #fffdf7;
+}
+html[data-theme="light"][data-palette="natural"] .theme-choice[aria-pressed="true"] {
+  color: #171916; background: #f5df38; border-color: #171916;
+}
+html[data-theme="light"][data-palette="natural"] :is(a,button,input,select,textarea,summary):focus-visible {
+  outline: 3px solid #5b652f; outline-offset: 4px;
+}
+
+/* Primary actions: black on yellow, never white on yellow. */
+html[data-theme="light"][data-palette="natural"] :is(
+  .home-nav .home-nav-filled,.home-entry-grid > a:nth-child(odd),
+  .admin-auth-form button,.home-prayer-cta,.home-jesus-card > a,
+  .calendar-filters button[aria-pressed="true"],.calendar-baptism-date,
+  .finance-month-filter button,.finance-create-panel button,.finance-statement-upload button,
+  .finance-analysis-review > button,.finance-service-income-form > .primary,
+  .finance-open-finance-actions button,.finance-open-finance-actions > a
+) {
+  color: #171916 !important; background: #f5df38 !important;
+  border-color: #c3ad21; box-shadow: 0 3px 0 #c9b633, 0 9px 22px rgba(35,36,26,.12);
+}
+html[data-theme="light"][data-palette="natural"] .home-entry-grid > a:nth-child(even) {
+  color: #fffdf7; background: #252525; border-color: #4b4b4b;
+}
+html[data-theme="light"][data-palette="natural"] .home-entry-grid > a:nth-child(odd) :is(span,strong,svg),
+html[data-theme="light"][data-palette="natural"] .calendar-baptism-date :is(strong,span,small) { color: #171916 !important; }
+html[data-theme="light"][data-palette="natural"] .home-entry-grid > a:nth-child(even) :is(span,strong,svg) { color: #fffdf7 !important; }
+
+/* Matte charcoal sections with warm-white nested cards. */
+html[data-theme="light"][data-palette="natural"] :is(
+  .home-block,.birthday-carousel,.calendar-weekly,.calendar-baptism,.family-permissions,
+  .role-panel-card,.finance-summary-card,.family-menu-card,.admin-calendar-group article
+) {
+  color: #fffdf7; background: #252525 !important;
+  border: 1px solid #484c40; border-radius: 24px;
+  box-shadow: 0 18px 42px rgba(25,28,20,.16), inset 0 1px rgba(255,255,255,.1);
+}
+html[data-theme="light"][data-palette="natural"] :is(
+  .home-block,.birthday-carousel,.calendar-weekly,.calendar-baptism,.family-permissions,
+  .role-panel-card,.finance-summary-card,.family-menu-card,.admin-calendar-group article
+) :is(h1,h2,h3,h4,strong) { color: #fffdf7; }
+html[data-theme="light"][data-palette="natural"] :is(
+  .home-block,.birthday-carousel,.calendar-weekly,.calendar-baptism,.family-permissions,
+  .role-panel-card,.finance-summary-card,.family-menu-card,.admin-calendar-group article
+) :is(p,small,time,label) { color: #dbdfd3; }
+html[data-theme="light"][data-palette="natural"] :is(
+  .home-block,.birthday-carousel,.calendar-baptism,.family-permissions,.role-panel-card,.family-menu-card
+) :is(.section-eyebrow,.home-kicker,[class*="eyebrow"]) { color: #f5df38 !important; }
+
+html[data-theme="light"][data-palette="natural"] .home-block :is(
+  .testimonial-card,.home-useful-links-grid > a,.home-program-card,.home-generosity-grid > article,
+  .home-jesus-card,.home-photo-links,.home-pastor-card
+),
+html[data-theme="light"][data-palette="natural"] :is(
+  .family-member-summary,.family-profile-section,.family-discipler-choice,.family-menu-card:nth-child(even),
+  .calendar-month-controls,.calendar-feature-card,.calendar-day,.calendar-modal,.admin-auth-card,.wa-inbox
+) {
+  color: #171916; background: #fffdf7 !important;
+  border-color: var(--line); border-radius: 22px;
+  box-shadow: var(--natural-shadow);
+}
+html[data-theme="light"][data-palette="natural"] .home-block :is(
+  .testimonial-card,.home-useful-links-grid > a,.home-program-card,.home-generosity-grid > article,
+  .home-jesus-card,.home-photo-links,.home-pastor-card
+) :is(h1,h2,h3,h4,strong,p,small,time,label,a),
+html[data-theme="light"][data-palette="natural"] :is(
+  .family-member-summary,.family-profile-section,.family-discipler-choice,.family-menu-card:nth-child(even)
+) :is(h1,h2,h3,h4,strong,p,small,time,label) { color: #171916; }
+html[data-theme="light"][data-palette="natural"] .home-block :is(
+  .testimonial-card,.home-useful-links-grid > a,.home-program-card,.home-generosity-grid > article,
+  .home-jesus-card,.home-photo-links,.home-pastor-card
+) :is(.home-kicker,.section-eyebrow,[class*="eyebrow"]),
+html[data-theme="light"][data-palette="natural"] :is(.family-profile-section,.family-discipler-choice,.family-menu-card:nth-child(even)) :is(.section-eyebrow,[class*="eyebrow"]) {
+  color: #454b30 !important;
+}
+html[data-theme="light"][data-palette="natural"] .home-useful-icon { color: #171916; background: #f5df38; border-color: #c3ad21; }
+html[data-theme="light"][data-palette="natural"] .home-photo-links a { color: #171916 !important; }
+html[data-theme="light"][data-palette="natural"] .home-photo-links-more-label,
+html[data-theme="light"][data-palette="natural"] .testimonial-card :is(button,span,summary) { color: #454b30 !important; }
+html[data-theme="light"][data-palette="natural"] .home-useful-links { background: #252525 !important; }
+html[data-theme="light"][data-palette="natural"] .contribution-total strong { color: #171916; }
+html[data-theme="light"][data-palette="natural"] .home-pastor-grid :is(small,strong) { color: #fffdf7 !important; }
+html[data-theme="light"][data-palette="natural"] .home-pastor-grid :is(em,span > a) { color: #171916 !important; background: #f5df38 !important; }
+html[data-theme="light"][data-palette="natural"] .home-generosity-grid button { color: #171916 !important; background: #f5df38 !important; }
+html[data-theme="light"][data-palette="natural"] .home-generosity-grid article > span { color: #454b30 !important; }
+html[data-theme="light"][data-palette="natural"] [aria-label="Controles da programação"] button { color: #171916 !important; background: #f5df38 !important; }
+html[data-theme="light"][data-palette="natural"] .home-block .home-prayer-card {
+  background: #252525 !important; border-color: #555;
+}
+html[data-theme="light"][data-palette="natural"] .home-block .home-prayer-card :is(h2,h3,p) { color: #fffdf7 !important; }
+html[data-theme="light"][data-palette="natural"] :is(.calendar-feature-visual,.home-program-card .calendar-feature-visual) { background: #252525 !important; }
+html[data-theme="light"][data-palette="natural"] :is(.calendar-feature-visual,.home-program-card .calendar-feature-visual) :is(span,small,em) { color: #f5df38 !important; }
+html[data-theme="light"][data-palette="natural"] :is(.birthday-day-card,.calendar-baptism-grid > article,.calendar-weekday) { background: #30352a; color: #fffdf7; }
+html[data-theme="light"][data-palette="natural"] .calendar-day-empty { background: #dedbd2; }
+
+/* Administrative cards have explicit surface/text pairs, including nested headings. */
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a { background: #252525; border-color: #484848; box-shadow: var(--natural-shadow); }
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a :is(h2,h3,p,span,strong,em) { color: #fffdf7 !important; }
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a:nth-child(4n + 1),
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a:nth-child(4n + 4) { background: #f5df38; border-color: #c3ad21; }
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a:nth-child(4n + 1) :is(h2,h3,p,span,strong,em),
+html[data-theme="light"][data-palette="natural"] .admin-dashboard-grid > a:nth-child(4n + 4) :is(h2,h3,p,span,strong,em) { color: #171916 !important; }
+html[data-theme="light"][data-palette="natural"] .admin-calendar-group article :is(h2,h3,p,time,span,small) { color: #fffdf7 !important; }
+html[data-theme="light"][data-palette="natural"] :is(
+  .finance-online-payments,.finance-service-income-panel,.finance-create-panel,.finance-statement-panel,
+  .finance-open-finance-panel,.finance-ledger-section
+) { background: #dedbd2 !important; border-color: #9c9d90; }
+html[data-theme="light"][data-palette="natural"] :is(
+  .finance-online-summary article,.finance-online-grid article,.finance-service-totals article,
+  .finance-service-records > article,.finance-bank-accounts article,.finance-ledger-totals article,.finance-ledger-list > article
+) { background: #fffdf7; border-color: var(--line); }
+html[data-theme="light"][data-palette="natural"] :is(
+  .finance-online-summary,.finance-online-grid,.finance-service-totals,.finance-service-records,.finance-ledger-totals,.finance-ledger-list
+) :is(strong,h3,h4,dd) { color: #171916 !important; }
+html[data-theme="light"][data-palette="natural"] .finance-section-nav a { color: #171916; background: #fffdf7; border-color: #9c9d90; }
+html[data-theme="light"][data-palette="natural"] .finance-section-nav a:first-child { color: #171916; background: #f5df38; }
+html[data-theme="light"][data-palette="natural"] input::placeholder,
+html[data-theme="light"][data-palette="natural"] textarea::placeholder { color: #66685e; }
+html[data-theme="light"][data-palette="natural"] ::selection { background: #f5df38; color: #171916; }
+
+@media (max-width: 760px) {
+  .theme-choice-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-palette="natural"] body::before { background-image: url("/images/themes/natural-stone-mobile.webp"); }
+  html[data-theme="light"][data-palette="natural"] :is(.home-block,.family-menu-card) { border-radius: 20px; }
+}
+@media print {
+  html[data-palette="natural"] body::before { display: none; }
+}
