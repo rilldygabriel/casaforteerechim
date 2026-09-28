@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, ignored: true });
   }
   try {
-    await synchronizePagBankEventPayment(paymentId);
+    await synchronizePagBankEventPayment(paymentId, providerObjectId);
     await service.from("pagbank_webhook_events").update({ status: "processed", processed_at: new Date().toISOString() }).eq("id", audit.id);
     return Response.json({ ok: true });
   } catch (error) {

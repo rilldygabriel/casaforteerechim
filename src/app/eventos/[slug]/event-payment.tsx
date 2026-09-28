@@ -4,6 +4,7 @@ import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { useEffect, useMemo, useState } from "react";
+import PagBankEventPayment from "./pagbank-event-payment";
 
 type BrickSubmission = Parameters<NonNullable<ComponentProps<typeof Payment>["onSubmit"]>>[0];
 type PaymentResult = {
@@ -41,6 +42,7 @@ export default function EventPayment({
   const [copied, setCopied] = useState(false);
   const [activePaymentId, setActivePaymentId] = useState(paymentId);
   const [regenerating, setRegenerating] = useState(false);
+  const [pagBankId, setPagBankId] = useState("");
   const paymentStatus = result?.status;
 
   useEffect(() => {
@@ -119,11 +121,12 @@ export default function EventPayment({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paymentId: activePaymentId }),
       });
-      const payload = await response.json() as PaymentResult & { paymentId?: string; error?: string };
+      const payload = await response.json() as PaymentResult & { paymentId?: string; paymentProvider?: string; error?: string };
       if (!response.ok) {
         if (payload.ticketUrl) setResult((current) => current ? { ...current, status: "approved", ticketUrl: payload.ticketUrl } : current);
         throw new Error(payload.error || "Não foi possível gerar o novo Pix.");
       }
+      if (payload.paymentProvider === "pagbank" && payload.paymentId) { setPagBankId(payload.paymentId); return; }
       if (!payload.paymentId || !payload.providerPaymentId) throw new Error("O novo Pix não foi confirmado.");
       setActivePaymentId(payload.paymentId);
       setResult(payload);
@@ -143,6 +146,7 @@ export default function EventPayment({
     window.setTimeout(() => setCopied(false), 2500);
   }
 
+  if (pagBankId) return <PagBankEventPayment slug={slug} paymentId={pagBankId} amountCents={amountCents} fullName={fullName} maxInstallments={maxInstallments} />;
   if (result) {
     const approved = result.status === "approved";
     const rejected = ["rejected", "cancelled", "refunded", "charged_back", "expired"].includes(result.status);
