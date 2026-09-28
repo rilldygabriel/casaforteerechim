@@ -9,6 +9,7 @@ import SiteAssistant from "@/components/site-assistant";
 import SiteNotificationBell from "@/components/site-notification-bell";
 import "./globals.css";
 import "./casa-ai-overrides.css";
+import "./theme-natural.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.casaforteerechim.app.br"),

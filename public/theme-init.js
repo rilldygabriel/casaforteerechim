@@ -7,7 +7,8 @@ try {
   if (
     casaForteTheme !== "dark" &&
     casaForteTheme !== "navy" &&
-    casaForteTheme !== "heritage"
+    casaForteTheme !== "heritage" &&
+    casaForteTheme !== "natural"
   ) {
     casaForteTheme = "dark";
   }
@@ -24,7 +25,7 @@ try {
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute(
       "content",
-      casaForteTheme === "heritage" ? "#f6f1e9" : casaForteIsLight ? "#f6f3ed" : "#080908",
+      casaForteTheme === "natural" ? "#f2efe7" : casaForteTheme === "heritage" ? "#f6f1e9" : casaForteIsLight ? "#f6f3ed" : "#080908",
     );
 } catch (error) {
   document.documentElement.dataset.theme = "dark";

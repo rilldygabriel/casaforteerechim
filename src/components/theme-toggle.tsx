@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 
-type Theme = "dark" | "navy" | "heritage";
+type Theme = "dark" | "navy" | "heritage" | "natural";
 
 const THEME_EVENT = "casa-forte-theme-change";
 
@@ -10,6 +10,7 @@ const THEME_LABELS: Record<Theme, string> = {
   dark: "Original",
   navy: "Marfim e azul",
   heritage: "Azul e dourado",
+  natural: "Natural e amarelo",
 };
 
 function applyTheme(theme: Theme) {
@@ -24,17 +25,25 @@ function applyTheme(theme: Theme) {
   }
 
   root.style.colorScheme = lightTheme ? "light" : "dark";
-  localStorage.setItem("casa-forte-theme", theme);
+  try { localStorage.setItem("casa-forte-theme", theme); } catch { /* Keep the selector usable when storage is restricted. */ }
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute(
       "content",
-      theme === "dark" ? "#080908" : theme === "heritage" ? "#f6f1e9" : "#f6f3ed",
+      theme === "dark" ? "#080908" : theme === "natural" ? "#f2efe7" : theme === "heritage" ? "#f6f1e9" : "#f6f3ed",
     );
   window.dispatchEvent(new Event(THEME_EVENT));
 }
 
 function ThemeIcon({ theme }: { theme: Theme }) {
+  if (theme === "natural") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 3C8 2 3 7 5 15c8 4 15-2 15-12Z" />
+        <path d="M3 21 15 9M8 16v-5M8 16h5" />
+      </svg>
+    );
+  }
   if (theme === "navy") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -65,7 +74,7 @@ function ThemeIcon({ theme }: { theme: Theme }) {
 function readTheme(): Theme {
   if (typeof document === "undefined") return "dark";
   const palette = document.documentElement.dataset.palette;
-  return palette === "navy" || palette === "heritage" ? palette : "dark";
+  return palette === "navy" || palette === "heritage" || palette === "natural" ? palette : "dark";
 }
 
 function subscribeTheme(onStoreChange: () => void) {
@@ -79,10 +88,11 @@ export default function ThemeToggle({ floating = false }: { floating?: boolean }
   const theme = useSyncExternalStore<Theme>(subscribeTheme, readTheme, () => "dark");
 
   useEffect(() => {
-    const saved = localStorage.getItem("casa-forte-theme");
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("casa-forte-theme"); } catch { return; }
     const active: Theme =
-      saved === "heritage"
-        ? "heritage"
+      saved === "heritage" || saved === "natural"
+        ? saved
         : saved === "navy" || saved === "light" || saved === "editorial"
           ? "navy"
           : "dark";
@@ -113,6 +123,7 @@ export default function ThemeToggle({ floating = false }: { floating?: boolean }
             className="theme-choice"
             type="button"
             key={option}
+            data-theme-option={option}
             aria-label={`Usar tema ${THEME_LABELS[option]}`}
             aria-pressed={theme === option}
             onClick={(event) => selectTheme(option, event.currentTarget)}
