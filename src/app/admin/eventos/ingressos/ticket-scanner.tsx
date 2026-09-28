@@ -9,6 +9,7 @@ type Ticket = {
   redeemedAt: string | null;
   eventTitle: string;
   fullName: string;
+  items?: {id:string;name:string;quantity:number}[];
   simpleQuantity: number;
   doubleQuantity: number;
   totalCents: number;
@@ -91,7 +92,7 @@ export default function TicketScanner() {
     {ticket ? <article className="event-ticket-result" data-status={ticket.status}>
       <header><span>{ticket.status === "valid" ? "Pagamento confirmado" : ticket.status === "redeemed" ? "Pedido já retirado" : "Ingresso cancelado"}</span><strong>{ticket.code}</strong></header>
       <h2>{ticket.fullName}</h2>
-      <dl><div><dt>Simples</dt><dd>{ticket.simpleQuantity}</dd></div><div><dt>Duplos</dt><dd>{ticket.doubleQuantity}</dd></div><div><dt>Total</dt><dd>{money.format(ticket.totalCents / 100)}</dd></div></dl>
+      <p>{ticket.eventTitle}</p><dl>{ticket.items?.length?ticket.items.map(item=><div key={item.id}><dt>{item.name}</dt><dd>{item.quantity}</dd></div>):<><div><dt>Simples</dt><dd>{ticket.simpleQuantity}</dd></div><div><dt>Duplos</dt><dd>{ticket.doubleQuantity}</dd></div></>}<div><dt>Total</dt><dd>{money.format(ticket.totalCents / 100)}</dd></div></dl>
       {ticket.status === "valid" ? <button type="button" disabled={loading} onClick={() => lookup(token, true)}>Confirmar retirada</button> : null}
       {ticket.status === "redeemed" && ticket.redeemedAt ? <p>Retirada confirmada em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(ticket.redeemedAt))}.</p> : null}
     </article> : null}

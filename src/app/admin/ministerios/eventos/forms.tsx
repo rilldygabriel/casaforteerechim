@@ -18,7 +18,7 @@ export function EventForm({ministryKey,id,event,today}:{ministryKey:string;id:st
     <label>Data<input name="event_date" type="date" required min="2000-01-01" max="2100-12-31" defaultValue={event?.event_date??today}/></label>
     <label>Descrição<textarea name="description" maxLength={2000} rows={3} defaultValue={event?.description} placeholder="Objetivo, organização e observações"/></label>
     <label>Situação<select name="status" defaultValue={event?.status??"planned"}><option value="planned">Planejado / em andamento</option><option value="completed">Realizado</option><option value="archived">Arquivado</option></select></label>
-    <p>Controle interno do ministério. Não publica inscrições nem cria cobranças.</p>
+    <p>Crie o evento e abra seu painel para adicionar foto, produtos e formas de pagamento. A publicação acontece somente quando clicar em Publicar no site.</p>
   </FundForm>;
 }
 export function DreamForm({ministryKey,id,dream}:{ministryKey:string;id:string;dream?:FundDream}) {
@@ -42,7 +42,7 @@ export function EntryForm({ministryKey,id,events,dreams,today,eventId=""}:{minis
       <label>Evento{kind==="sale"?" (obrigatório)":" (opcional)"}<select name="event_id" defaultValue={eventId} required={kind==="sale"}><option value="">Caixinha geral / sem evento</option>{events.filter(e=>e.status!=="archived").map(e=><option key={e.id} value={e.id}>{e.title}</option>)}</select></label>
       <label>Destinar a um sonho (opcional)<select name="dream_id" defaultValue=""><option value="">Sem destinação específica</option>{dreams.filter(d=>d.status!=="archived").map(d=><option key={d.id} value={d.id}>{d.title}</option>)}</select></label>
     </>}
-    <p>{kind==="in_kind"?"Materiais e serviços doados ficam registrados, mas não aumentam o dinheiro da caixinha.":"Registre somente valores efetivamente recebidos ou pagos. Não há importação automática do checkout; não lance duas vezes o mesmo recebimento."}</p>
+    <p>{kind==="in_kind"?"Materiais e serviços doados ficam registrados, mas não aumentam o dinheiro da caixinha.":"Registre somente valores efetivamente recebidos ou pagos fora dos pedidos do site. Os pedidos pagos já entram automaticamente: não lance novamente o mesmo recebimento."}</p>
   </FundForm>;
 }
 export function VoidForm({ministryKey,id}:{ministryKey:string;id:string}) {

@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { MINISTRIES } from "@/app/familia/servir/ministries";
+import { isMinistryPastor } from "@/lib/ministry-event-policy";
 
 export async function ministryFundAccess() {
   const db=await getSupabaseServerClient();
@@ -11,8 +12,8 @@ export async function ministryFundAccess() {
     db.from("ministry_leaders").select("ministry_key").eq("member_id",user.id),
   ]);
   if(profile.error||leaders.error) throw new Error("Não foi possível verificar suas permissões. Tente novamente.");
-  if(!profile.data || (!profile.data.is_admin && profile.data.approval_status!=="approved")) return null;
-  const isAdmin=Boolean(profile.data.is_admin);
+  if(!profile.data || profile.data.approval_status!=="approved") return null;
+  const isAdmin=isMinistryPastor(user.id);
   const keys=new Set((leaders.data??[]).map(row=>row.ministry_key));
   const ministries=MINISTRIES.filter(m=>isAdmin||keys.has(m.key)).map(({key,label})=>({key,label}));
   return ministries.length?{db,user,isAdmin,ministries}:null;

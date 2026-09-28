@@ -9,9 +9,9 @@ type Result = { status: string; providerPaymentId?: string; paymentMethodId?: st
 type Sdk = { encryptCard: (data: Record<string, string>) => { hasErrors: boolean; encryptedCard?: string } };
 const money = (cents: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 
-export default function PagBankEventPayment({ slug, paymentId, amountCents, fullName, maxInstallments = 4 }: { slug: string; paymentId: string; amountCents: number; fullName: string; maxInstallments?: number }) {
+export default function PagBankEventPayment({ slug, paymentId, amountCents, fullName, maxInstallments = 4, allowedMethods = ["pix","card"] }: { slug: string; paymentId: string; amountCents: number; fullName: string; maxInstallments?: number; allowedMethods?: ("pix"|"card")[] }) {
   const [activeId, setActiveId] = useState(paymentId);
-  const [method, setMethod] = useState<"pix" | "card">("pix");
+  const [method, setMethod] = useState<"pix" | "card">(allowedMethods[0]);
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -24,7 +24,7 @@ export default function PagBankEventPayment({ slug, paymentId, amountCents, full
     const response = await fetch(`${endpoint}?paymentId=${encodeURIComponent(activeId)}`, { cache: "no-store" });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Não foi possível consultar o pagamento.");
-    if (data.providerPaymentId || data.status === "approved") setResult(data);
+    if (data.providerPaymentId || ["approved","expired","cancelled","rejected","refunded","charged_back"].includes(data.status)) setResult(data);
     return data;
   }, [activeId, endpoint]);
 
@@ -93,7 +93,7 @@ export default function PagBankEventPayment({ slug, paymentId, amountCents, full
   const retryable = result && ["rejected", "cancelled", "expired"].includes(result.status);
   return <section className={styles.checkout} aria-label="Pagamento do evento pelo PagBank">
     <Script src="https://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js" onReady={() => setSdkReady(true)} onError={() => setMessage("Não foi possível carregar o cartão. O Pix continua disponível.")} />
-    <header><span>PAGAMENTO DO EVENTO · PAGBANK</span><h2>{approved ? "Inscrição confirmada" : "Conclua sua inscrição"}</h2><strong>{money(amountCents)}</strong><p>Pix ou cartão {maxInstallments === 1 ? "em 1 vez" : `em até ${maxInstallments} vezes`}, sem sair do site.</p></header>
+    <header><span>PAGAMENTO DO EVENTO · PAGBANK</span><h2>{approved ? "Inscrição confirmada" : "Conclua sua inscrição"}</h2><strong>{money(amountCents)}</strong><p>{allowedMethods.map(m=>m==="pix"?"Pix":`Cartão ${maxInstallments===1?"em 1 vez":`em até ${maxInstallments} vezes`}`).join(" ou ")}, sem sair do site.</p></header>
     {loading ? <p role="status">Verificando sua inscrição…</p> : result ? <div role="status">
       <h3>{approved ? "Pagamento confirmado!" : retryable ? "Pagamento não concluído" : ["refunded", "charged_back"].includes(result.status) ? "Pagamento estornado" : result.paymentMethodId === "pix" ? "Aguardando o Pix" : "Pagamento em análise"}</h3>
       <p>{approved ? result.emailSent && result.whatsappSent ? "Seu ingresso foi enviado para seu e-mail e WhatsApp." : result.emailSent ? "Seu ingresso foi enviado para seu e-mail." : result.whatsappSent ? "Seu ingresso foi enviado para seu WhatsApp." : "Sua inscrição foi confirmada. Acesse seu ingresso abaixo." : retryable ? "Você pode tentar novamente abaixo." : "A confirmação aparecerá automaticamente nesta página. Não pague novamente se o valor já foi debitado."}</p>
@@ -106,7 +106,7 @@ export default function PagBankEventPayment({ slug, paymentId, amountCents, full
       {approved && result.ticketUrl && <a className={styles.ticket} href={result.ticketUrl}>Abrir meu ingresso com QR Code</a>}
       {retryable && <button disabled={busy} onClick={retry}>{busy ? "Verificando…" : "Refazer pagamento / novo Pix"}</button>}
     </div> : <>
-      <div className={styles.tabs} aria-label="Forma de pagamento"><button disabled={busy} aria-pressed={method === "pix"} onClick={() => setMethod("pix")}>Pix</button><button disabled={busy} aria-pressed={method === "card"} onClick={() => setMethod("card")}>Cartão de crédito</button></div>
+      <div className={styles.tabs} aria-label="Forma de pagamento">{allowedMethods.map(m=><button key={m} disabled={busy} aria-pressed={method===m} onClick={()=>setMethod(m)}>{m==="pix"?"Pix":"Cartão de crédito"}</button>)}</div>
       <form key={method} onSubmit={submit} autoComplete="off">
         <label>CPF do pagador<input name="cpf" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /></label>
         {method === "card" && <>

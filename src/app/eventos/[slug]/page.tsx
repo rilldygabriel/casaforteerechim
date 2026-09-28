@@ -8,14 +8,20 @@ import { eventRegistrationState } from "@/lib/events";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import RegistrationForm from "./registration-form";
+import MinistryOrderForm from "./ministry-order-form";
 
 export const dynamic = "force-dynamic";
 
 const getEvent = cache(async (slug: string) => {
   const supabase = await getSupabaseServerClient();
-  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,image_url,status,registration_enabled,registration_status,registration_deadline,capacity,is_public,registration_fee_cents").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("events").select("id,title,slug,description,category,start_date,end_date,start_time,end_time,location,image_url,status,registration_enabled,registration_status,registration_deadline,capacity,is_public,registration_fee_cents,ministry_key,ministry_products,ministry_payment_methods").eq("slug", slug).is("archived_at",null).eq("is_public",true).maybeSingle();
   if (!data) return null;
   const registrations = getSupabaseServiceClient().from("event_registrations");
+  if(data.ministry_key){
+    let units=0;
+    for(let from=0;;from+=1000){const {data:orders,error}=await getSupabaseServiceClient().from("event_registrations").select("ministry_quantity").eq("event_id",data.id).is("archived_at",null).not("status","in","(cancelled,rejected,withdrew)").order("id").range(from,from+999);if(error)throw new Error("Não foi possível conferir a disponibilidade.");units+=(orders??[]).reduce((sum,row)=>sum+row.ministry_quantity,0);if((orders?.length??0)<1000)break;}
+    return {...data,registration_count:units};
+  }
   if (data.slug === "hamburguer-da-casa-20-09") {
     const { data: orders } = await registrations.select("simple_quantity,double_quantity,status").eq("event_id", data.id).is("archived_at", null);
     const units = (orders ?? []).filter((item) => !["cancelled", "rejected", "withdrew"].includes(item.status)).reduce((sum, item) => sum + Number(item.simple_quantity) + Number(item.double_quantity), 0);
@@ -61,7 +67,7 @@ export default async function EventRegistrationPage({ params }: { params: Promis
   const remaining = event.capacity === null ? null : Math.max(event.capacity - event.registration_count, 0);
   const burgerSoldOut = isBurger && event.capacity !== null && event.registration_count >= event.capacity;
   let burgerMember: { fullName: string; email: string; phone: string } | null = null;
-  if (isBurger) {
+  if (isBurger || event.ministry_key) {
     const supabase = await getSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -71,6 +77,7 @@ export default async function EventRegistrationPage({ params }: { params: Promis
       }
     }
   }
+  if(event.ministry_key)return <main className="event-public-page"><header className="event-public-header"><Link href="/eventos">← Todos os eventos</Link><Link href="/">Casa Forte</Link></header><section className="event-public-hero"><div><p className="home-kicker">Evento do ministério</p><h1>{event.title}</h1><p style={{whiteSpace:"pre-line"}}>{event.description}</p>{event.image_url&&<figure className="event-public-cover"><Image src={event.image_url} alt={event.title} fill priority sizes="(max-width:850px) 100vw,55vw"/></figure>}</div><div className="event-public-summary"><h2>{formatDate(event.start_date)}</h2><p>{formatTime(event.start_time)} · {event.location}</p><p>{remaining===null?"Escolha seus produtos abaixo":`${remaining} unidades disponíveis`}</p></div></section><MinistryOrderForm slug={event.slug} products={event.ministry_products} methods={event.ministry_payment_methods} enabled={availability.open} member={burgerMember}/></main>;
   return <main className="event-public-page">
     <header className="event-public-header"><Link href="/"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={180} height={70} priority /></Link><Link href="/calendario">Voltar ao calendário</Link></header>
     {isBurger ? <section className="event-public-hero is-burger">
