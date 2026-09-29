@@ -10,6 +10,7 @@
 }
 .heading { margin-bottom: 22px; }
 :global(.home-page) > .section { width: min(100% - 40px, 1280px); margin-inline: auto; }
+:global(.family-page) > .section { width: min(100% - 48px, 1120px); margin-inline: auto; }
 .section.section .eyebrow { color: #f6ef56 !important; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; }
 .section.section h2 { color: #fff !important; font-size: clamp(28px, 4vw, 42px); line-height: 1.1; margin: 0 0 12px; letter-spacing: -.035em; }
 .section.section p { color: #d5dad4 !important; font-size: 15px; line-height: 1.6; }
