@@ -246,8 +246,6 @@ export default function Home() {
         </nav>
       </header>
 
-      <LiveWorship />
-
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero-panel">
           <div className="home-hero-copy">
@@ -302,6 +300,7 @@ export default function Home() {
       </section>
 
       <ProgramsSection mapsUrl={MAPS_URL} />
+      <LiveWorship />
       <MinistryPublicEvents />
 
       <section

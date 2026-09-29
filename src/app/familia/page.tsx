@@ -298,8 +298,6 @@ export default async function Familia({
     <main className="inner-page family-page">
       <FamilyHeader signOut={signOut} />
 
-      <LiveWorship />
-
       <section className="family-hero">
         <p className="section-eyebrow">
           <span aria-hidden="true" />
@@ -351,6 +349,8 @@ export default async function Familia({
         </div>
         <Link href="/generosidade">Contribua</Link>
       </section>
+
+      <LiveWorship />
 
       {canBookPastoralAgenda && (
         <section className="family-leadership-access family-pastoral-agenda-access family-access-yellow">
