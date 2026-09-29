@@ -1,0 +1,27 @@
+.card.card {
+  margin: 18px 0;
+  padding: clamp(20px, 3vw, 36px);
+  border: 1px solid #494b43;
+  border-radius: 26px;
+  background: #191d1b !important;
+  color: #fff !important;
+  min-width: 0;
+  overflow: hidden;
+}
+.top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.card.card h2 { color: #fff !important; font-size: clamp(23px, 3vw, 36px); line-height: 1.15; margin: 10px 0; letter-spacing: -.035em; }
+.card.card .eyebrow { display: flex; align-items: center; gap: 8px; color: #f6ef56 !important; font-size: 12px; letter-spacing: .13em; font-weight: 800; text-transform: uppercase; margin: 0; }
+.dot, .liveDot { width: 8px; height: 8px; border-radius: 50%; background: #f6ef56; flex-shrink: 0; }
+.liveDot { background: #ff7979; box-shadow: 0 0 0 4px #ff79791f; }
+.card.card .schedule { color: #e1e4de !important; font-size: 15px; margin: 0; line-height: 1.6; }
+.schedule span { display: block; font-size: 12px; color: #bfc5be; }
+.card.card .action { display: inline-flex; align-items: center; gap: 12px; min-height: 46px; padding: 12px 20px; border-radius: 99px; background: #f6ef56 !important; color: #121710 !important; text-decoration: none; font-size: 14px; font-weight: 750; flex-shrink: 0; }
+.card.card a:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+.player { aspect-ratio: 16/9; width: 100%; background: #000; border-radius: 14px; overflow: hidden; margin-top: 22px; }
+.player iframe { width: 100%; height: 100%; border: 0; display: block; }
+.card.card .details p { color: #e1e4de !important; font-size: 15px; line-height: 1.65; margin: 20px 0 12px; }
+.card.card .details a { color: #f6ef56 !important; font-size: 14px; text-underline-offset: 4px; display: inline-block; padding: 8px 0; }
+@media (max-width: 600px) {
+  .top { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .card.card { border-radius: 20px; }
+}
