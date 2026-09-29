@@ -1,0 +1,27 @@
+.section {
+  margin: 24px 0;
+  padding: clamp(18px, 3vw, 32px);
+  border: 1px solid #454940;
+  border-radius: 26px;
+  background: #191d1b !important;
+  color: #fff !important;
+  min-width: 0;
+  scroll-margin-top: 90px;
+}
+.heading { margin-bottom: 22px; }
+.section.section .eyebrow { color: #f6ef56 !important; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; }
+.section.section h2 { color: #fff !important; font-size: clamp(28px, 4vw, 42px); line-height: 1.1; margin: 0 0 12px; letter-spacing: -.035em; }
+.section.section p { color: #d5dad4 !important; font-size: 15px; line-height: 1.6; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.card { min-width: 0; padding: 16px; border: 1px solid #454940; border-radius: 18px; background: #111512 !important; }
+.section.section h3 { color: #fff !important; font-size: 17px; line-height: 1.4; margin: 0 0 16px; min-height: 48px; }
+.card iframe { display: block; width: 100%; height: 352px; border: 0; border-radius: 12px; background: #282828; }
+.section.section a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 8px; color: #f6ef56 !important; font-size: 14px; font-weight: 700; text-underline-offset: 4px; }
+.section.section a:focus-visible { outline: 2px solid #f6ef56; outline-offset: 4px; }
+.section.section .note { font-size: 12px; margin: 18px 0 0; }
+@media (max-width: 700px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .section { padding: 16px; border-radius: 20px; }
+  .card { padding: 12px; }
+  .section.section h3 { min-height: 0; }
+}

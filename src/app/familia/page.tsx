@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import LiveWorship from "@/components/live-worship";
+import HousePlaylists from "@/components/house-playlists";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import LocationCheckin from "./location-checkin";
@@ -417,6 +418,8 @@ export default async function Familia({
         </div>
         <Link href="/familia/testemunhos">Abrir testemunhos</Link>
       </section>
+
+      <HousePlaylists />
 
       <BirthdayCarousel variant="family" />
 
