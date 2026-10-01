@@ -1,1 +1,13 @@
 /* Ajustes visuais confirmados pelo pastor via WhatsApp. */
+
+@media (max-width: 500px) {
+  .site-assistant-launcher {
+    gap: 7px;
+    padding: 10px 15px;
+    font-size: .9rem;
+  }
+
+  .site-assistant-launcher span:first-child {
+    font-size: 18px;
+  }
+}
