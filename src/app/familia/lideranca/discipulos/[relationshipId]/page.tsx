@@ -142,11 +142,12 @@ export default async function DiscipleDetailPage({
           <p>Ofereça no máximo duas datas e horários. O discípulo escolherá uma opção na Área da Família.</p>
         </header>
         {activeInvitation && <div className="discipleship-current-invite"><strong>{activeInvitation.status === "accepted" ? "Horário aceito" : "Aguardando escolha"}</strong>{(activeOptions ?? []).map((option) => <span key={option.id} data-selected={option.id === activeInvitation.accepted_option_id}>{formatDateTime(option.starts_at)}</span>)}</div>}
-        {activeInvitation?.status !== "pending" ? <form action={createDiscipleshipInvitation}>
+        {activeInvitation?.status === "pending" && <p className="discipleship-pending-note">Você pode enviar novas opções ou cadastrar o horário combinado. O convite pendente será substituído, sem apagar o histórico.</p>}
+        <form action={createDiscipleshipInvitation}>
           <input type="hidden" name="relationshipId" value={relationshipId} />
           {[1, 2].map((index) => <label key={index}>Opção {index}<input type="datetime-local" name={`option${index}`} min={minimumDateTime} required /></label>)}
           <DiscipleshipSubmitButton pendingLabel="Enviando…">Enviar duas opções</DiscipleshipSubmitButton>
-        </form> : <p className="discipleship-pending-note">O discípulo ainda não respondeu. Um novo convite e outro WhatsApp ficam bloqueados até esta resposta.</p>}
+        </form>
       </section>
 
       <section className="discipleship-manual-panel">
