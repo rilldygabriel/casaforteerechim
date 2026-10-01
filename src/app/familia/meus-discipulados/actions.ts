@@ -82,38 +82,19 @@ export async function createDiscipleshipInvitation(formData: FormData) {
     go(detailPath, "erro", "Você não possui permissão para enviar este convite.");
   }
 
-  const { data: pendingInvitation } = await service.from("discipleship_invitations")
-    .select("id").eq("relationship_id", relationshipId).eq("status", "pending").maybeSingle();
-  if (pendingInvitation) {
-    go(detailPath, "erro", "Já existe um convite aguardando resposta. Não enviamos outro WhatsApp.");
-  }
-  const { data: request } = await service.from("discipleship_scheduling_requests")
-    .select("id").eq("relationship_id", relationshipId).eq("status", "pending").maybeSingle();
-  const expiresAt = new Date(Math.max(...dates.map((date) => date.getTime()))).toISOString();
-  const { data: invitation, error } = await service.from("discipleship_invitations").insert({
-    relationship_id: relationshipId,
-    request_id: request?.id ?? null,
-    created_by: user.id,
-    expires_at: expiresAt,
-  }).select("id").single();
+  const { data: invitation, error } = await service.rpc("save_discipleship_invitation", {
+    p_relationship_id: relationshipId,
+    p_actor_id: user.id,
+    p_dates: dates.map((date) => date.toISOString()),
+    p_manual: false,
+  }).single<{ id: string; created: boolean }>();
   if (error || !invitation) go(detailPath, "erro", "Não foi possível criar o convite.");
-
-  const { error: optionError } = await service.from("discipleship_invitation_options").insert(
-    dates.map((date, index) => ({ invitation_id: invitation.id, starts_at: date.toISOString(), sort_order: index + 1 })),
-  );
-  if (optionError) {
-    await service.from("discipleship_invitations").delete().eq("id", invitation.id);
-    go(detailPath, "erro", "Não foi possível salvar as duas opções.");
+  if (!invitation.created) {
+    revalidatePath(detailPath);
+    go(detailPath, "sucesso", "Essas opções já foram enviadas. Nenhum aviso duplicado foi enviado.");
   }
-  if (request) await service.from("discipleship_scheduling_requests").update({ status: "answered", answered_at: new Date().toISOString() }).eq("id", request.id);
 
   const { data: disciple } = await service.from("member_profiles").select("full_name,phone").eq("user_id", relationship.disciple_id).maybeSingle();
-  await service.from("discipleship_conversation_messages").insert({
-    relationship_id: relationshipId,
-    sender_id: user.id,
-    message_type: "invitation",
-    invitation_id: invitation.id,
-  });
   await sendDiscipleshipWhatsappOnce({
     invitationId: invitation.id,
     recipientId: relationship.disciple_id,
@@ -198,56 +179,30 @@ export async function createManualDiscipleshipBooking(formData: FormData) {
   }
 
   const service = getSupabaseServiceClient();
-  const [{ data: relationship }, { data: profile }, { data: pendingInvitation }] = await Promise.all([
+  const [{ data: relationship }, { data: profile }] = await Promise.all([
     service.from("discipleship_relationships").select("id,discipler_id,disciple_id").eq("id", relationshipId).is("ended_at", null).maybeSingle(),
     service.from("member_profiles").select("is_admin").eq("user_id", user.id).maybeSingle(),
-    service.from("discipleship_invitations").select("id").eq("relationship_id", relationshipId).eq("status", "pending").maybeSingle(),
   ]);
   if (!relationship || (relationship.discipler_id !== user.id && !profile?.is_admin)) {
     go(detailPath, "erro", "Você não possui permissão para cadastrar este discipulado.");
   }
-  if (pendingInvitation) {
-    go(detailPath, "erro", "Há um convite aguardando resposta. Resolva esse convite antes do cadastro manual.");
-  }
-
-  const { data: invitation, error: invitationError } = await service.from("discipleship_invitations").insert({
-    relationship_id: relationshipId,
-    created_by: user.id,
-    invitation_type: "manual",
-    expires_at: startsAt.toISOString(),
-  }).select("id").single();
+  const { data: invitation, error: invitationError } = await service.rpc("save_discipleship_invitation", {
+    p_relationship_id: relationshipId,
+    p_actor_id: user.id,
+    p_dates: [startsAt.toISOString()],
+    p_manual: true,
+  }).single<{ id: string; created: boolean }>();
   if (invitationError || !invitation) go(detailPath, "erro", "Não foi possível criar o agendamento manual.");
-
-  const { data: option, error: optionError } = await service.from("discipleship_invitation_options").insert({
-    invitation_id: invitation.id,
-    starts_at: startsAt.toISOString(),
-    sort_order: 1,
-  }).select("id").single();
-  if (optionError || !option) {
-    await service.from("discipleship_invitations").delete().eq("id", invitation.id);
-    go(detailPath, "erro", "Não foi possível salvar a data do discipulado.");
+  if (!invitation.created) {
+    revalidatePath(detailPath);
+    go(detailPath, "sucesso", "Este horário já está confirmado. Nenhum aviso duplicado foi enviado.");
   }
-
-  const { error: acceptError } = await service.from("discipleship_invitations").update({
-    status: "accepted",
-    accepted_option_id: option.id,
-    accepted_at: new Date().toISOString(),
-  }).eq("id", invitation.id).eq("status", "pending");
-  if (acceptError) go(detailPath, "erro", "Não foi possível confirmar o agendamento manual.");
 
   const { data: people } = await service.from("member_profiles").select("user_id,full_name,phone")
     .in("user_id", [relationship.disciple_id, relationship.discipler_id]);
   const disciple = people?.find((person) => person.user_id === relationship.disciple_id);
   const discipler = people?.find((person) => person.user_id === relationship.discipler_id);
   const when = formatDiscipleshipDate(startsAt.toISOString());
-
-  await service.from("discipleship_conversation_messages").insert({
-    relationship_id: relationshipId,
-    sender_id: user.id,
-    message_type: "manual_booking",
-    invitation_id: invitation.id,
-    scheduled_at: startsAt.toISOString(),
-  });
 
   for (const recipient of [
     { id: relationship.discipler_id, phone: discipler?.phone, message: `Discipulado com ${disciple?.full_name || "seu discípulo"} cadastrado para ${when}.` },
