@@ -12,7 +12,7 @@ import OpenFinanceConnect from "./open-finance-connect";
 import ServiceIncomeForm from "./service-income-form";
 import ServiceIncomeRecordActions from "./service-income-record-actions";
 import StatementAnalyzer from "./statement-analyzer";
-import { REPORT_PAUSE_START, isHistoricalReceipt, paymentPurpose, receiptReportDescription, receiptReportValue } from "@/lib/finance-report-visibility";
+import { REPORT_PAUSE_START, isHistoricalReceipt, isReceiptVisibleInReport, paymentPurpose, receiptReportDescription, receiptReportValue } from "@/lib/finance-report-visibility";
 import "./finance.css";
 
 export const metadata: Metadata = { title: "Financeiro | Painel administrativo", robots: { index: false, follow: false } };
@@ -88,10 +88,12 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const historicalDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit" && isHistoricalReceipt(entry.transaction_date)).reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
   const ledgerDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
   const visibleOnlinePayments = (onlinePayments ?? []).filter((payment) => {
+    if (!isReceiptVisibleInReport(payment.purpose, payment.approved_at || payment.created_at)) return false;
     if (payment.status === "expired") return false;
     if (!["created", "pending", "in_process"].includes(payment.status)) return true;
     return isWithinProcessingWindow(payment.created_at);
   });
+  const visibleIncomeEntries = (incomeEntries ?? []).filter((entry) => isReceiptVisibleInReport(paymentPurpose(entry.payment), entry.transaction_date));
 
   return (
     <main className="finance-page">
@@ -122,7 +124,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
 
       <section className="finance-online-payments" id="mercado-pago">
         <header><div><span>Recebimentos online</span><h2>PagBank e Mercado Pago</h2><p>Eventos: PagBank (PagSeguro). Primícias, dízimos e ofertas: Mercado Pago. Somente pagamentos do checkout do site são classificados aqui. Vendas antigas mantêm seu provedor original.</p></div><strong data-configured={isMercadoPagoConfigured() && isPagBankConfigured()}>{isMercadoPagoConfigured() && isPagBankConfigured() ? "APIs conectadas" : "Verificar configuração"}</strong></header>
-        <p className="finance-flash" role="status">Registros e valores das contribuições preservados até 03/10/2026, inclusive. A partir de 04/10, seus valores ficam sem preenchimento neste relatório. Os pagamentos continuam funcionando normalmente e os relatórios de eventos seguem atualizados.</p>
+        <p className="finance-flash" role="status">Contribuições exibidas até 03/10/2026, inclusive. As posteriores não aparecem neste relatório. Os pagamentos e seus registros continuam preservados, e os relatórios de eventos seguem atualizados.</p>
         <div className="finance-online-summary" aria-label="Contribuições do mês até 03/10/2026"><article><span>Dízimos</span><strong>{historicalMonthValue(contributionTotals.tithe)}</strong></article><article><span>Primícias</span><strong>{historicalMonthValue(contributionTotals.firstfruits)}</strong></article><article><span>Ofertas</span><strong>{historicalMonthValue(contributionTotals.offering)}</strong></article><article><span>Total até 03/10</span><strong>{historicalMonthValue(contributionTotals.total)}</strong></article></div>
         <div className="finance-online-grid">{visibleOnlinePayments.length ? visibleOnlinePayments.map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" || payment.status === "charged_back" ? "Estornado" : payment.status === "cancelled" ? "Cancelado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{receiptReportValue(Number(payment.amount_cents), payment.purpose, payment.approved_at || payment.created_at)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{receiptReportValue(Number(payment.tithe_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{receiptReportValue(Number(payment.firstfruits_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{receiptReportValue(Number(payment.offering_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}</ul> : null}<p>{payment.payment_provider === "pagbank" ? "PagBank" : "Mercado Pago"}{payment.payment_method_id ? ` · ${payment.payment_method_id}` : ""} · {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Nenhum pagamento confirmado ou em processamento nas últimas 24 horas.</p>}</div>
       </section>
@@ -216,7 +218,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
 
       <section className="finance-income-section">
         <header><div><span>Entradas confirmadas</span><h2>Últimos lançamentos</h2></div></header>
-        <div>{(incomeEntries ?? []).length ? (incomeEntries ?? []).map((entry) => (
+        <div>{visibleIncomeEntries.length ? visibleIncomeEntries.map((entry) => (
           <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{receiptReportDescription(entry.description, paymentPurpose(entry.payment), entry.transaction_date)}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : entry.source === "pagbank" ? "PagBank" : "Extrato"}</small></strong><b>{receiptReportValue(Number(entry.amount_cents), paymentPurpose(entry.payment), entry.transaction_date)}</b></article>
         )) : <p className="finance-empty">As entradas identificadas nos extratos aparecerão aqui.</p>}</div>
       </section>
