@@ -12,8 +12,12 @@ export function isHistoricalReceipt(date?: string | null) {
   return Number.isFinite(timestamp) && timestamp < Date.parse(REPORT_PAUSE_START);
 }
 
+export function isReceiptVisibleInReport(purpose?: string | null, date?: string | null) {
+  return purpose === "event" || isHistoricalReceipt(date);
+}
+
 export function receiptReportValue(amountCents: number, purpose?: string | null, date?: string | null) {
-  return purpose === "event" || isHistoricalReceipt(date) ? money.format(amountCents / 100) : PAUSED_REPORT_VALUE;
+  return isReceiptVisibleInReport(purpose, date) ? money.format(amountCents / 100) : PAUSED_REPORT_VALUE;
 }
 
 export function paymentPurpose(relation: { purpose?: string } | { purpose?: string }[] | null) {
