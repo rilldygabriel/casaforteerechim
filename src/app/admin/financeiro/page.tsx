@@ -12,6 +12,7 @@ import OpenFinanceConnect from "./open-finance-connect";
 import ServiceIncomeForm from "./service-income-form";
 import ServiceIncomeRecordActions from "./service-income-record-actions";
 import StatementAnalyzer from "./statement-analyzer";
+import { REPORT_PAUSE_START, isHistoricalReceipt, paymentPurpose, receiptReportDescription, receiptReportValue } from "@/lib/finance-report-visibility";
 import "./finance.css";
 
 export const metadata: Metadata = { title: "Financeiro | Painel administrativo", robots: { index: false, follow: false } };
@@ -49,17 +50,20 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonthKey();
   const range = monthRange(month);
   const service = getSupabaseServiceClient();
-  const [{ data: payables }, { data: incomeEntries }, { data: monthlyIncome }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }, { data: monthlyOnlineContributions }, { data: ledgerEntries }] = await Promise.all([
+  const [{ data: payables }, { data: incomeEntries, error: incomeError }, { data: monthlyIncome, error: monthlyIncomeError }, { data: bankConnections }, { data: bankAccounts }, { data: serviceIncomeRecords }, { data: onlinePayments }, { data: ledgerEntries }, { data: historicalContributions, error: contributionError }] = await Promise.all([
     service.from("finance_payables").select("id,description,vendor,category,due_date,amount_cents,status,payment_date,notes").order("status").order("due_date"),
-    service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source").is("report_excluded_at", null).order("transaction_date", { ascending: false }).limit(30),
-    service.from("finance_income_entries").select("amount_cents").is("report_excluded_at", null).gte("transaction_date", range.start).lt("transaction_date", range.end),
+    service.from("finance_income_entries").select("id,transaction_date,description,amount_cents,source,payment:mercado_pago_payments(purpose)").is("report_excluded_at", null).order("transaction_date", { ascending: false }).limit(30),
+    service.from("finance_income_entries").select("amount_cents,payment:mercado_pago_payments!inner(purpose,status,report_excluded_at)").eq("payment.purpose", "event").eq("payment.status", "approved").is("payment.report_excluded_at", null).is("report_excluded_at", null).gte("transaction_date", range.start).lt("transaction_date", range.end),
     service.from("finance_bank_connections").select("id,institution_name,status,last_synced_at").order("created_at"),
     service.from("finance_bank_accounts").select("id,connection_id,name,current_balance_cents,currency_code").order("name"),
     service.from("finance_service_income_records").select("id,service_date,cash_cents,pix_cents,counted_by,created_at").gte("service_date", range.start).lt("service_date", range.end).order("service_date", { ascending: false }).order("created_at", { ascending: false }),
     service.from("mercado_pago_payments").select("id,purpose,payer_name,amount_cents,tithe_cents,offering_cents,firstfruits_cents,status,payment_provider,payment_method_id,payment_type_id,approved_at,created_at").is("report_excluded_at", null).order("created_at", { ascending: false }).limit(40),
-    service.from("mercado_pago_payments").select("amount_cents,tithe_cents,offering_cents,firstfruits_cents").is("report_excluded_at", null).eq("purpose", "contribution").eq("status", "approved").gte("approved_at", `${range.start}T03:00:00.000Z`).lt("approved_at", `${range.end}T03:00:00.000Z`),
     service.from("finance_ledger_entries").select("id,transaction_date,description,category,account_name,amount_cents,direction,source").gte("transaction_date", range.start).lt("transaction_date", range.end).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }),
+    service.from("mercado_pago_payments").select("purpose,amount_cents,tithe_cents,offering_cents,firstfruits_cents").is("report_excluded_at", null).in("purpose", ["contribution", "tithe", "firstfruits", "offering"]).eq("status", "approved").gte("approved_at", `${range.start}T03:00:00.000Z`).lt("approved_at", `${range.end}T03:00:00.000Z`).lt("approved_at", REPORT_PAUSE_START),
   ]);
+  if (incomeError || monthlyIncomeError || contributionError) {
+    throw new Error("Não foi possível carregar os recebimentos dos eventos. Tente novamente.");
+  }
   const allPayables = payables ?? [];
   const dueInMonth = allPayables.filter((item) => item.due_date >= range.start && item.due_date < range.end);
   const paidInMonth = allPayables.filter((item) => item.status === "paid" && item.payment_date && item.payment_date >= range.start && item.payment_date < range.end);
@@ -69,16 +73,19 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
   const pending = dueInMonth.filter((item) => item.status === "pending").reduce((sum, item) => sum + Number(item.amount_cents), 0);
   const received = (monthlyIncome ?? []).reduce((sum, item) => sum + Number(item.amount_cents), 0);
   const connectionNames = new Map((bankConnections ?? []).map((connection) => [connection.id, connection.institution_name]));
-  const serviceIncomeInMonth = serviceIncomeRecords ?? [];
-  const serviceCashTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.cash_cents), 0);
-  const servicePixTotal = serviceIncomeInMonth.reduce((sum, record) => sum + Number(record.pix_cents), 0);
-  const onlineContributionTotals = (monthlyOnlineContributions ?? []).reduce((totals, payment) => ({
-    tithe: totals.tithe + Number(payment.tithe_cents),
-    firstfruits: totals.firstfruits + Number(payment.firstfruits_cents),
-    offering: totals.offering + Number(payment.offering_cents),
+  const historicalServices = (serviceIncomeRecords ?? []).filter((record) => isHistoricalReceipt(record.service_date));
+  const historicalCash = historicalServices.reduce((sum, record) => sum + Number(record.cash_cents), 0);
+  const historicalPix = historicalServices.reduce((sum, record) => sum + Number(record.pix_cents), 0);
+  const contributionTotals = (historicalContributions ?? []).reduce((totals, payment) => ({
+    tithe: totals.tithe + Number(payment.purpose === "tithe" ? payment.amount_cents : payment.tithe_cents),
+    firstfruits: totals.firstfruits + Number(payment.purpose === "firstfruits" ? payment.amount_cents : payment.firstfruits_cents),
+    offering: totals.offering + Number(payment.purpose === "offering" ? payment.amount_cents : payment.offering_cents),
     total: totals.total + Number(payment.amount_cents),
   }), { tithe: 0, firstfruits: 0, offering: 0, total: 0 });
-  const ledgerCredits = (ledgerEntries ?? []).filter((entry) => entry.direction === "credit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
+  // October keeps only receipts through 03/10; later months remain blank.
+  const historicalMonthValue = (amount: number) => receiptReportValue(amount, null, range.start);
+  const historicalCredits = (ledgerEntries ?? []).filter((entry) => entry.direction === "credit" && isHistoricalReceipt(entry.transaction_date)).reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
+  const historicalDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit" && isHistoricalReceipt(entry.transaction_date)).reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
   const ledgerDebits = (ledgerEntries ?? []).filter((entry) => entry.direction === "debit").reduce((sum, entry) => sum + Number(entry.amount_cents), 0);
   const visibleOnlinePayments = (onlinePayments ?? []).filter((payment) => {
     if (payment.status === "expired") return false;
@@ -115,14 +122,15 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
 
       <section className="finance-online-payments" id="mercado-pago">
         <header><div><span>Recebimentos online</span><h2>PagBank e Mercado Pago</h2><p>Eventos: PagBank (PagSeguro). Primícias, dízimos e ofertas: Mercado Pago. Somente pagamentos do checkout do site são classificados aqui. Vendas antigas mantêm seu provedor original.</p></div><strong data-configured={isMercadoPagoConfigured() && isPagBankConfigured()}>{isMercadoPagoConfigured() && isPagBankConfigured() ? "APIs conectadas" : "Verificar configuração"}</strong></header>
-        <div className="finance-online-summary" aria-label="Contribuições online confirmadas no mês"><article><span>Dízimos</span><strong>{money.format(onlineContributionTotals.tithe / 100)}</strong></article><article><span>Primícias</span><strong>{money.format(onlineContributionTotals.firstfruits / 100)}</strong></article><article><span>Ofertas</span><strong>{money.format(onlineContributionTotals.offering / 100)}</strong></article><article><span>Total</span><strong>{money.format(onlineContributionTotals.total / 100)}</strong></article></div>
-        <div className="finance-online-grid">{visibleOnlinePayments.length ? visibleOnlinePayments.map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" || payment.status === "charged_back" ? "Estornado" : payment.status === "cancelled" ? "Cancelado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{money.format(Number(payment.amount_cents) / 100)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{money.format(Number(payment.tithe_cents) / 100)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{money.format(Number(payment.firstfruits_cents) / 100)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{money.format(Number(payment.offering_cents) / 100)}</b></li> : null}</ul> : null}<p>{payment.payment_provider === "pagbank" ? "PagBank" : "Mercado Pago"}{payment.payment_method_id ? ` · ${payment.payment_method_id}` : ""} · {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Nenhum pagamento confirmado ou em processamento nas últimas 24 horas.</p>}</div>
+        <p className="finance-flash" role="status">Registros e valores das contribuições preservados até 03/10/2026, inclusive. A partir de 04/10, seus valores ficam sem preenchimento neste relatório. Os pagamentos continuam funcionando normalmente e os relatórios de eventos seguem atualizados.</p>
+        <div className="finance-online-summary" aria-label="Contribuições do mês até 03/10/2026"><article><span>Dízimos</span><strong>{historicalMonthValue(contributionTotals.tithe)}</strong></article><article><span>Primícias</span><strong>{historicalMonthValue(contributionTotals.firstfruits)}</strong></article><article><span>Ofertas</span><strong>{historicalMonthValue(contributionTotals.offering)}</strong></article><article><span>Total até 03/10</span><strong>{historicalMonthValue(contributionTotals.total)}</strong></article></div>
+        <div className="finance-online-grid">{visibleOnlinePayments.length ? visibleOnlinePayments.map((payment) => <article key={payment.id} data-status={payment.status}><div><span>{payment.purpose === "event" ? "Evento" : payment.purpose === "contribution" ? "Contribuição" : payment.purpose === "tithe" ? "Dízimo" : payment.purpose === "firstfruits" ? "Primícias" : "Oferta"}</span><b>{payment.status === "approved" ? "Confirmado" : payment.status === "rejected" ? "Recusado" : payment.status === "refunded" || payment.status === "charged_back" ? "Estornado" : payment.status === "cancelled" ? "Cancelado" : "Processando"}</b></div><h3>{payment.payer_name}</h3><strong>{receiptReportValue(Number(payment.amount_cents), payment.purpose, payment.approved_at || payment.created_at)}</strong>{payment.purpose === "contribution" ? <ul className="finance-payment-breakdown">{Number(payment.tithe_cents) > 0 ? <li><span>Dízimo</span><b>{receiptReportValue(Number(payment.tithe_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}{Number(payment.firstfruits_cents) > 0 ? <li><span>Primícias</span><b>{receiptReportValue(Number(payment.firstfruits_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}{Number(payment.offering_cents) > 0 ? <li><span>Oferta</span><b>{receiptReportValue(Number(payment.offering_cents), payment.purpose, payment.approved_at || payment.created_at)}</b></li> : null}</ul> : null}<p>{payment.payment_provider === "pagbank" ? "PagBank" : "Mercado Pago"}{payment.payment_method_id ? ` · ${payment.payment_method_id}` : ""} · {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(payment.approved_at || payment.created_at))}</p></article>) : <p className="finance-empty">Nenhum pagamento confirmado ou em processamento nas últimas 24 horas.</p>}</div>
       </section>
 
       <section className="finance-service-income-panel" id="entradas-de-culto">
         <header className="finance-service-income-heading">
           <div><span>Entradas de culto</span><h2>Contagem das ofertas</h2><p>Informe somente a data e os valores recebidos. O responsável será identificado automaticamente pelo login.</p></div>
-          <div className="finance-service-totals"><article><span>Dinheiro no mês</span><strong>{money.format(serviceCashTotal / 100)}</strong></article><article><span>Pix no mês</span><strong>{money.format(servicePixTotal / 100)}</strong></article><article><span>Total dos cultos</span><strong>{money.format((serviceCashTotal + servicePixTotal) / 100)}</strong></article></div>
+          <div className="finance-service-totals"><article><span>Dinheiro até 03/10</span><strong>{historicalMonthValue(historicalCash)}</strong></article><article><span>Pix até 03/10</span><strong>{historicalMonthValue(historicalPix)}</strong></article><article><span>Total dos cultos até 03/10</span><strong>{historicalMonthValue(historicalCash + historicalPix)}</strong></article></div>
         </header>
         <ServiceIncomeForm month={month} />
         <div className="finance-service-history">
@@ -130,8 +138,8 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
           <div className="finance-service-records">{(serviceIncomeRecords ?? []).length ? (serviceIncomeRecords ?? []).map((record) => {
             const pixTotal = Number(record.pix_cents);
             return <article key={record.id}>
-              <header><div><time>{formatDate(record.service_date)}</time><h4>Entrada do culto</h4></div><strong>{money.format((Number(record.cash_cents) + pixTotal) / 100)}</strong></header>
-              <dl><div><dt>Dinheiro</dt><dd>{money.format(Number(record.cash_cents) / 100)}</dd></div><div><dt>Pix</dt><dd>{money.format(pixTotal / 100)}</dd></div></dl>
+              <header><div><time>{formatDate(record.service_date)}</time><h4>Entrada do culto</h4></div><strong>{receiptReportValue(Number(record.cash_cents) + pixTotal, null, record.service_date)}</strong></header>
+              <dl><div><dt>Dinheiro</dt><dd>{receiptReportValue(Number(record.cash_cents), null, record.service_date)}</dd></div><div><dt>Pix</dt><dd>{receiptReportValue(pixTotal, null, record.service_date)}</dd></div></dl>
               <p><b>Contagem feita por:</b> {record.counted_by.join(", ")}</p>
               <ServiceIncomeRecordActions id={record.id} month={month} serviceDate={record.service_date} cashCents={Number(record.cash_cents)} pixCents={pixTotal} />
             </article>;
@@ -140,7 +148,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       </section>
 
       <section className="finance-summary" aria-label="Resumo financeiro mensal">
-        <Summary label="Entradas no mês" value={received} detail={`${monthlyIncome?.length ?? 0} recebimento(s) confirmado(s)`} />
+        <Summary label="Eventos recebidos no mês" value={received} detail={`${monthlyIncome?.length ?? 0} pagamento(s) de evento confirmado(s)`} />
         <Summary label="Gasto no mês" value={spent} detail="Pagamentos realizados neste mês" />
         <Summary label="Contas do mês" value={totalDue} detail={`${dueInMonth.length} conta(s) com vencimento`} />
         <Summary label="Já pago" value={paidDue} detail="Das contas que vencem neste mês" />
@@ -150,13 +158,13 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-ledger-section" id="historico-financeiro">
         <header>
           <div><span>Histórico completo</span><h2>Entradas e saídas</h2><p>Lançamentos importados e discriminados do controle financeiro da igreja.</p></div>
-          <div className="finance-ledger-totals"><article><span>Entradas</span><strong>{money.format(ledgerCredits / 100)}</strong></article><article><span>Saídas</span><strong>{money.format(ledgerDebits / 100)}</strong></article><article data-negative={ledgerCredits - ledgerDebits < 0}><span>Resultado</span><strong>{money.format((ledgerCredits - ledgerDebits) / 100)}</strong></article></div>
+          <div className="finance-ledger-totals"><article><span>Entradas até 03/10</span><strong>{historicalMonthValue(historicalCredits)}</strong></article><article><span>Saídas</span><strong>{money.format(ledgerDebits / 100)}</strong></article><article><span>Resultado até 03/10</span><strong>{historicalMonthValue(historicalCredits - historicalDebits)}</strong></article></div>
         </header>
         <div className="finance-ledger-list">{(ledgerEntries ?? []).length ? (ledgerEntries ?? []).map((entry) => (
           <article key={entry.id} data-direction={entry.direction}>
             <time>{formatDate(entry.transaction_date)}</time>
-            <div><strong>{entry.description}</strong><small>{[entry.category, entry.account_name, entry.source === "mobills" ? "Mobills" : entry.source].filter(Boolean).join(" · ")}</small></div>
-            <b>{entry.direction === "credit" ? "+" : "−"}{money.format(Number(entry.amount_cents) / 100)}</b>
+            <div><strong>{receiptReportDescription(entry.description, entry.direction === "debit" ? "event" : null, entry.transaction_date)}</strong><small>{[entry.category, entry.account_name, entry.source === "mobills" ? "Mobills" : entry.source].filter(Boolean).join(" · ")}</small></div>
+            <b>{entry.direction === "debit" ? `−${money.format(Number(entry.amount_cents) / 100)}` : receiptReportValue(Number(entry.amount_cents), null, entry.transaction_date)}</b>
           </article>
         )) : <p className="finance-empty">Nenhuma movimentação neste mês. Escolha outro mês acima para consultar o histórico.</p>}</div>
       </section>
@@ -209,7 +217,7 @@ export default async function FinancePage({ searchParams }: { searchParams: Prom
       <section className="finance-income-section">
         <header><div><span>Entradas confirmadas</span><h2>Últimos lançamentos</h2></div></header>
         <div>{(incomeEntries ?? []).length ? (incomeEntries ?? []).map((entry) => (
-          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{entry.description}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : entry.source === "pagbank" ? "PagBank" : "Extrato"}</small></strong><b>{money.format(Number(entry.amount_cents) / 100)}</b></article>
+          <article key={entry.id}><time>{formatDate(entry.transaction_date)}</time><strong>{receiptReportDescription(entry.description, paymentPurpose(entry.payment), entry.transaction_date)}<small>{entry.source === "open_finance" ? "Open Finance" : entry.source === "mercado_pago" ? "Mercado Pago" : entry.source === "pagbank" ? "PagBank" : "Extrato"}</small></strong><b>{receiptReportValue(Number(entry.amount_cents), paymentPurpose(entry.payment), entry.transaction_date)}</b></article>
         )) : <p className="finance-empty">As entradas identificadas nos extratos aparecerão aqui.</p>}</div>
       </section>
     </main>
