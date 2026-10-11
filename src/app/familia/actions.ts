@@ -277,9 +277,11 @@ export async function updateMemberProfile(
     .maybeSingle();
 
   if (error || !savedProfile) {
+    // Diagnostic code only: never log the member's personal form fields.
+    console.error("member_profile_save_failed", { code: error?.code ?? "NO_ROW_RETURNED" });
     return {
       kind: "error",
-      message: "Não foi possível salvar agora. Nenhum dado foi perdido.",
+      message: "Não foi possível salvar agora. Seus campos continuam preenchidos; tente novamente.",
       earnedStar: null,
     };
   }

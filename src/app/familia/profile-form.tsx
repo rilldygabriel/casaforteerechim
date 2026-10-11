@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import {
   type MemberProfileActionState,
   updateMemberProfile,
@@ -97,7 +97,13 @@ export default function ProfileForm({
   }
 
   return (
-    <form className="family-profile-form" action={formAction}>
+    <form className="family-profile-form" method="post" onSubmit={(event) => {
+      // React resets uncontrolled inputs after a form action resolves, including
+      // validation-error responses. Dispatch manually to preserve the draft.
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      startTransition(() => formAction(formData));
+    }}>
       <div className="family-profile-form-heading">
         <div>
           <p className="section-eyebrow">
