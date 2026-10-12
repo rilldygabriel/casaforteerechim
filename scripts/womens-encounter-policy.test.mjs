@@ -19,3 +19,9 @@ test('trava de vagas serializa reservas e dinheiro é uma transação privada', 
   assert.match(sql,/grant execute.*to service_role/);
   assert.doesNotMatch(sql,/security definer/i);
 });
+
+test('contador público usa a mesma base de reservas da trava', () => {
+  const page=readFileSync(new URL('../src/app/eventos/[slug]/page.tsx',import.meta.url),'utf8');
+  assert.match(page,/data.slug !== WOMENS_ENCOUNTER_SLUG\) countQuery = countQuery.not/);
+  assert.match(page,/const \{ count, error \} = await countQuery/);
+});

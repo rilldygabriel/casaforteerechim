@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import EventAttendanceControl from "@/components/event-attendance-control";
 import { eventRegistrationState } from "@/lib/events";
+import { WOMENS_ENCOUNTER_SLUG } from "@/lib/womens-encounter-policy";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import RegistrationForm from "./registration-form";
@@ -27,7 +28,11 @@ const getEvent = cache(async (slug: string) => {
     const units = (orders ?? []).filter((item) => !["cancelled", "rejected", "withdrew"].includes(item.status)).reduce((sum, item) => sum + Number(item.simple_quantity) + Number(item.double_quantity), 0);
     return { ...data, registration_count: units };
   }
-  const { count } = await registrations.select("id", { count: "exact", head: true }).eq("event_id", data.id).is("archived_at", null).not("status", "in", "(cancelled,rejected,withdrew)");
+  let countQuery = registrations.select("id", { count: "exact", head: true }).eq("event_id", data.id).is("archived_at", null);
+  // The final two women's reservations use the same baseline as the DB gate.
+  if (data.slug !== WOMENS_ENCOUNTER_SLUG) countQuery = countQuery.not("status", "in", "(cancelled,rejected,withdrew)");
+  const { count, error } = await countQuery;
+  if (error) throw new Error("Não foi possível conferir a disponibilidade.");
   return { ...data, registration_count: count ?? 0 };
 });
 
