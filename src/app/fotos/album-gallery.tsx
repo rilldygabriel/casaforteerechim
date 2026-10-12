@@ -7,7 +7,7 @@ const PAGE_SIZE = 24;
 const PHOTO_QUERY_PARAM = "foto";
 const PHOTO_HISTORY_KEY = "__casaFortePhoto";
 
-export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] }) {
+export default function AlbumGallery({ photos, title = "Culto de domingo na Casa Forte" }: { photos: readonly CultPhoto[]; title?: string }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [preparedPhoto, setPreparedPhoto] = useState<{ photoId: string; file: File } | null>(null);
@@ -117,9 +117,9 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
   }
 
   return <>
-    <section className="cult-album-grid" aria-label="Fotos do culto">
+    <section className="cult-album-grid" aria-label={`Fotos: ${title}`}>
       {photos.slice(0, visible).map((photo, index) => <button key={photo.id} type="button" data-orientation={photo.orientation} onClick={() => openPhoto(index)} aria-label={`Abrir foto ${index + 1} de ${photos.length}`}>
-        <img src={cultPhotoPreview(photo.id, 720)} alt={`Culto de domingo na Casa Forte — foto ${index + 1}`} loading={index < 8 ? "eager" : "lazy"} />
+        <img src={cultPhotoPreview(photo.id, 720)} alt={`${title} — foto ${index + 1}`} loading={index < 8 ? "eager" : "lazy"} />
         <span>Foto {index + 1}</span>
       </button>)}
     </section>
@@ -134,7 +134,7 @@ export default function AlbumGallery({ photos }: { photos: readonly CultPhoto[] 
       </div>
       <button className="cult-lightbox-close" type="button" onClick={closePhoto} aria-label="Fechar foto">×</button>
       <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
-      <img src={cultPhotoPreview(active.id, 2200)} alt={`Culto de domingo na Casa Forte — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} />
+      <img src={cultPhotoPreview(active.id, 2200)} alt={`${title} — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} />
       <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! + 1) % photos.length); }}>›</button>
     </div> : null}
   </>;

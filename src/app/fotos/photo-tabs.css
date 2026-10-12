@@ -1,0 +1,32 @@
+.photo-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 24px;
+}
+.photo-category-tabs a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 20px;
+  border: 1px solid #70766b;
+  border-radius: 999px;
+  background: #20251d;
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.photo-category-tabs a[aria-current="page"] {
+  background: #fffe15;
+  border-color: #fffe15;
+  color: #10140b;
+}
+.photo-category-tabs a:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+@media (max-width: 480px) {
+  .photo-category-tabs a { flex: 1; padding: 12px 10px; font-size: .8rem; }
+}

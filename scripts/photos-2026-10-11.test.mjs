@@ -37,6 +37,6 @@ test('datas, pastas e arquivo anterior permanecem consistentes', () => {
     assert.ok(position>=0);
     if(i)assert.ok(position>home.indexOf('date: "'+dates[i-1]+'"'));
   }
-  for(const id of ['1HalGO7dtimrRMF8Wh3ceoGBl7VVdI2Cd','1vUL12fNtUNUppi7GWHcfl_2JZpdvJkNW','1q2Zo4082yHWynwZSTRrJtSzTIIoKSBOc','1XIaJ0tQIDvqZBT-cMeOrS2C3hdR7eEKF'])assert.ok(home.includes(id));
+  for(const id of ['/fotos/eventos','1vUL12fNtUNUppi7GWHcfl_2JZpdvJkNW','1q2Zo4082yHWynwZSTRrJtSzTIIoKSBOc','1XIaJ0tQIDvqZBT-cMeOrS2C3hdR7eEKF'])assert.ok(home.includes(id));
   assert.match(home, /PHOTO_ARCHIVE_FOLDERS\.slice\(0, 5\)/);
 });

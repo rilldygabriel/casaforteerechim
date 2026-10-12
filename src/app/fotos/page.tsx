@@ -7,6 +7,7 @@ import {
   LATEST_CULT_TITLE,
 } from "@/lib/cult-album";
 import AlbumGallery from "./album-gallery";
+import PhotoTabs from "./photo-tabs";
 import "./album.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function PhotosPage() {
       <Link href="/#o-que-esta-rolando"><Image src="/images/logo-casa-forte.png" alt="Igreja Casa Forte" width={170} height={66} priority /></Link>
       <Link href="/#o-que-esta-rolando">Voltar ao site</Link>
     </header>
+    <PhotoTabs active="cultos" />
     <section className="cult-album-hero">
       <p><span /> Momentos da Casa</p>
       <h1>Álbum completo</h1>
