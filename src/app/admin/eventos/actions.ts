@@ -7,6 +7,7 @@ import { getEventAdminScope } from "@/lib/event-admin-server";
 import { deliverEventTicket } from "@/lib/event-ticket-delivery";
 import { cancelMercadoPagoPayment } from "@/lib/mercado-pago";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { canCreateCashRegistration, WOMENS_ENCOUNTER_SLUG } from "@/lib/womens-encounter-policy";
 
 async function requireAdmin() {
   const supabase = await getSupabaseServerClient();
@@ -45,6 +46,22 @@ export async function createManualTicket(formData: FormData) {
     .select("id,title,slug,status,archived_at,capacity,registration_fee_cents")
     .eq("id", eventId).maybeSingle();
   if (!event || event.archived_at || event.status === "cancelled") back("Este evento não está disponível para venda.", "inscricoes");
+  if (!canCreateCashRegistration(scope.userId, event.slug, scope.manualTicketAccess)) {
+    back("Somente o Pastor Rilldy pode cadastrar inscrições em dinheiro neste evento.", "inscricoes");
+  }
+  if (event.slug === WOMENS_ENCOUNTER_SLUG) {
+    const { error } = await scope.service.rpc("create_womens_cash_registration", {
+      p_actor: scope.userId, p_full_name: fullName, p_phone: phone,
+      p_phone_normalized: normalizedPhone, p_email: email || null,
+    });
+    if (error) {
+      console.error("womens_cash_registration_error", error.code);
+      back(error.code === "23505" ? "Este telefone já possui inscrição neste evento." : "Não foi possível registrar. Nenhum lançamento parcial foi salvo.", "inscricoes");
+    }
+    revalidatePath("/admin/eventos");
+    revalidatePath(`/eventos/${event.slug}`);
+    back("Inscrição em dinheiro confirmada. Recebimento registrado no relatório do evento.", "inscricoes");
+  }
   const isBurger = event.slug === "hamburguer-da-casa-20-09";
   const itemQuantity = isBurger ? simpleQuantity + doubleQuantity : 1;
   const amountCents = isBurger ? simpleQuantity * 2_000 + doubleQuantity * 3_000 : Number(event.registration_fee_cents);
