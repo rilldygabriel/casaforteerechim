@@ -38,9 +38,24 @@ const GROUP_URL =
   "https://chat.whatsapp.com/Ix3EKdZymHEAhYpgVqUzQG?mode=gi_t";
 const PHOTO_ARCHIVE_FOLDERS = [
   {
-    date: "04/10",
+    date: "11/10",
     title: "Culto de Domingo",
     url: "/fotos",
+  },
+  {
+    date: "10/10",
+    title: "Tarde das Crianças",
+    url: "https://drive.google.com/drive/folders/1HalGO7dtimrRMF8Wh3ceoGBl7VVdI2Cd",
+  },
+  {
+    date: "07/10",
+    title: "Culto de Quarta",
+    url: "https://drive.google.com/drive/folders/1vUL12fNtUNUppi7GWHcfl_2JZpdvJkNW",
+  },
+  {
+    date: "04/10",
+    title: "Culto de Domingo",
+    url: "https://drive.google.com/drive/folders/1q2Zo4082yHWynwZSTRrJtSzTIIoKSBOc",
   },
   {
     date: "27/09",
