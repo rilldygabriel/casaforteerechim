@@ -56,7 +56,7 @@ export async function createManualTicket(formData: FormData) {
     });
     if (error) {
       console.error("womens_cash_registration_error", error.code);
-      back(error.code === "23505" ? "Este telefone já possui inscrição neste evento." : "Não foi possível registrar. Nenhum lançamento parcial foi salvo.", "inscricoes");
+      back(error.code === "23505" ? "Esta participante já possui inscrição com este telefone." : "Não foi possível registrar. Nenhum lançamento parcial foi salvo.", "inscricoes");
     }
     revalidatePath("/admin/eventos");
     revalidatePath(`/eventos/${event.slug}`);

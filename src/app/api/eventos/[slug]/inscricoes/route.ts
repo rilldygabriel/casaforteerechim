@@ -4,6 +4,7 @@ import { canDiscardUnpaidRegistration, eventRegistrationState, normalizePhone, v
 import { ensureEventTicket } from "@/lib/event-tickets";
 import { isPagBankConfigured } from "@/lib/pagbank";
 import { EVENT_PAYMENT_PROVIDER } from "@/lib/event-payment-policy";
+import { eventContactParticipantKey } from "@/lib/womens-encounter-policy";
 import { getSupabaseRouteClient } from "@/lib/supabase/route";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -59,12 +60,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (feeCents > 0 && !isPagBankConfigured()) return respond({ error: "O pagamento PagBank deste evento está indisponível. Tente novamente em instantes." }, { status: 503 });
 
     const phoneNormalized = normalizePhone(input.phone);
+    const participantKey = eventContactParticipantKey(event.slug, input.fullName);
     const eligible = !isPostEncounter || input.completedEncounter === "yes";
     const initialStatus = !eligible ? "rejected" : feeCents > 0 ? "awaiting_payment" : isPostEncounter ? "confirmed" : "pending";
 
     if (feeCents > 0) {
-      const { data: previous } = await service.from("event_registrations")
-        .select("id,status").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).maybeSingle();
+      let previousQuery = service.from("event_registrations")
+        .select("id,status").eq("event_id", eventId).eq("phone_normalized", phoneNormalized);
+      if (participantKey !== null) previousQuery = previousQuery.eq("contact_participant_key", participantKey);
+      const { data: previous, error: previousError } = await previousQuery.maybeSingle();
+      if (previousError) throw previousError;
       if (previous) {
         const { data: previousPayments, error: previousPaymentsError } = await service.from("mercado_pago_payments")
           .select("status").eq("registration_id", previous.id);
@@ -85,7 +90,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     async function existingPaymentResponse() {
-      const { data: existing } = await service.from("event_registrations").select("id,status,full_name,email,phone,order_total_cents").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).is("archived_at", null).maybeSingle();
+      let existingQuery = service.from("event_registrations").select("id,status,full_name,email,phone,order_total_cents").eq("event_id", eventId).eq("phone_normalized", phoneNormalized).is("archived_at", null);
+      if (participantKey !== null) existingQuery = existingQuery.eq("contact_participant_key", participantKey);
+      const { data: existing, error: existingError } = await existingQuery.maybeSingle();
+      if (existingError) throw existingError;
       if (existing) {
         const { data: payment } = await service.from("mercado_pago_payments").select("id,amount_cents,status,payment_provider,provider_payment_id,provider_order_id,payer_name,payer_email").eq("registration_id", existing.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
         if (existing.status === "confirmed" || payment?.status === "approved") {
@@ -145,6 +153,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       registration = { id: String(created.registration_id) };
       amountCents = Number(created.total_amount_cents);
     } else {
+      // Existing participants may resume their own payment after the last seat
+      // is reserved. Never look up a shared contact by phone alone.
+      if (participantKey !== null) {
+        const existing = await existingPaymentResponse();
+        if (existing) return existing;
+      }
       const { count } = await service.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", event.id).is("archived_at", null);
       const availability = eventRegistrationState({ ...event, registration_count: count ?? 0 });
       if (!availability.open) return respond({ error: availability.label }, { status: 409 });
@@ -152,7 +166,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       if (error?.code === "23505") {
         const existing = await existingPaymentResponse();
         if (existing) return existing;
-        return respond({ error: "Já existe uma inscrição com este telefone para este evento." }, { status: 409 });
+        return respond({ error: participantKey !== null ? "Esta participante já possui inscrição com este telefone." : "Já existe uma inscrição com este telefone para este evento." }, { status: 409 });
       }
       if (error?.message?.includes("CAPACITY_EXCEEDED") || error?.message?.includes("REGISTRATION_CLOSED")) {
         return respond({ error: "As vagas deste evento foram preenchidas. Inscrições encerradas." }, { status: 409 });
