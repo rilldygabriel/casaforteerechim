@@ -154,6 +154,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         if (existing) return existing;
         return respond({ error: "Já existe uma inscrição com este telefone para este evento." }, { status: 409 });
       }
+      if (error?.message?.includes("CAPACITY_EXCEEDED") || error?.message?.includes("REGISTRATION_CLOSED")) {
+        return respond({ error: "As vagas deste evento foram preenchidas. Inscrições encerradas." }, { status: 409 });
+      }
       if (error || !data) throw error || new Error("Inscrição não criada.");
       registration = data;
     }
