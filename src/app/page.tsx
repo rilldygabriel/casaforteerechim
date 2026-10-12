@@ -44,8 +44,8 @@ const PHOTO_ARCHIVE_FOLDERS = [
   },
   {
     date: "10/10",
-    title: "Tarde das Crianças",
-    url: "https://drive.google.com/drive/folders/1HalGO7dtimrRMF8Wh3ceoGBl7VVdI2Cd",
+    title: "Tarde da Alegria",
+    url: "/fotos/eventos",
   },
   {
     date: "07/10",
@@ -401,6 +401,10 @@ export default function Home() {
           href="/fotos"
         >
           Ver todas as fotos e baixar em alta qualidade
+          <ArrowIcon />
+        </Link>
+        <Link className="home-gallery-download" href="/fotos/eventos">
+          Fotos de eventos · Tarde da Alegria
           <ArrowIcon />
         </Link>
       </section>

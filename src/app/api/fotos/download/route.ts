@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LATEST_CULT_ALBUM } from "@/lib/cult-album";
+import { TARDE_DA_ALEGRIA_ALBUM } from "@/lib/event-album-2026-10-10";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("id") ?? "";
-  const photo = LATEST_CULT_ALBUM.find((item) => item.id === id);
+  const photo = LATEST_CULT_ALBUM.find((item) => item.id === id)
+    ?? TARDE_DA_ALEGRIA_ALBUM.find((item) => item.id === id);
   if (!photo) return NextResponse.json({ error: "Foto não encontrada." }, { status: 404 });
 
   const source = await fetch(`https://drive.usercontent.google.com/download?id=${encodeURIComponent(photo.id)}&export=download`, { cache: "no-store", signal: AbortSignal.timeout(30000) });
