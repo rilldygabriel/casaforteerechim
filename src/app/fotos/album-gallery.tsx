@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { cultPhotoPreview, type CultPhoto } from "@/lib/cult-album";
 
 const PAGE_SIZE = 24;
 const PHOTO_QUERY_PARAM = "foto";
 const PHOTO_HISTORY_KEY = "__casaFortePhoto";
+
+function loadOriginalOnPreviewError(event: SyntheticEvent<HTMLImageElement>, photoId: string) {
+  const image = event.currentTarget;
+  if (image.dataset.originalFallback === photoId) return;
+  image.dataset.originalFallback = photoId;
+  image.src = `/api/fotos/download?id=${encodeURIComponent(photoId)}`;
+}
 
 export default function AlbumGallery({ photos, title = "Culto de domingo na Casa Forte" }: { photos: readonly CultPhoto[]; title?: string }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
@@ -119,7 +126,7 @@ export default function AlbumGallery({ photos, title = "Culto de domingo na Casa
   return <>
     <section className="cult-album-grid" aria-label={`Fotos: ${title}`}>
       {photos.slice(0, visible).map((photo, index) => <button key={photo.id} type="button" data-orientation={photo.orientation} onClick={() => openPhoto(index)} aria-label={`Abrir foto ${index + 1} de ${photos.length}`}>
-        <img src={cultPhotoPreview(photo.id, 720)} alt={`${title} — foto ${index + 1}`} loading={index < 8 ? "eager" : "lazy"} />
+        <img src={cultPhotoPreview(photo.id, 720)} alt={`${title} — foto ${index + 1}`} loading={index < 8 ? "eager" : "lazy"} onError={(event) => loadOriginalOnPreviewError(event, photo.id)} />
         <span>Foto {index + 1}</span>
       </button>)}
     </section>
@@ -134,7 +141,7 @@ export default function AlbumGallery({ photos, title = "Culto de domingo na Casa
       </div>
       <button className="cult-lightbox-close" type="button" onClick={closePhoto} aria-label="Fechar foto">×</button>
       <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
-      <img src={cultPhotoPreview(active.id, 2200)} alt={`${title} — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} />
+      <img key={active.id} src={cultPhotoPreview(active.id, 2200)} alt={`${title} — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} onError={(event) => loadOriginalOnPreviewError(event, active.id)} />
       <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! + 1) % photos.length); }}>›</button>
     </div> : null}
   </>;
