@@ -21,3 +21,11 @@ test('evento tem página interna, abas e download autorizado somente por lista',
   assert.match(api, /if \(!photo\).*status: 404/);
   assert.match(read('src/app/page.tsx'), /title: "Tarde da Alegria",\s+url: "\/fotos\/eventos"/);
 });
+
+test('miniatura com falha carrega original sem repetir indefinidamente', () => {
+  const gallery = read('src/app/fotos/album-gallery.tsx');
+  assert.match(gallery, /if \(image.dataset.originalFallback === photoId\) return/);
+  assert.match(gallery, /image.src = `\/api\/fotos\/download/);
+  assert.equal((gallery.match(/onError=\{/g) ?? []).length, 2);
+  assert.match(gallery, /key=\{active.id\}/);
+});
