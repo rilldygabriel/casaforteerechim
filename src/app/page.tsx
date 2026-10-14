@@ -27,10 +27,10 @@ const ACCEPT_JESUS_URL =
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 // Exibe a transmissão mais recente enquanto a Palavra separada ainda não está disponível.
-const LATEST_MESSAGE_TITLE = "DOMINGO NA CASA | 11 de outubro";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=n0uIazXhmjs";
+const LATEST_MESSAGE_TITLE = "COMPRE A CAUSA | Pr. Rilldy";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=wbLw1tlJW4c";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/n0uIazXhmjs?rel=0";
+  "https://www.youtube-nocookie.com/embed/wbLw1tlJW4c?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
