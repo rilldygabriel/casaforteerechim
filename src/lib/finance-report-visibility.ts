@@ -3,6 +3,9 @@
 export const PAUSED_REPORT_VALUE = "—";
 export const REPORT_LAST_VISIBLE_DATE = "2026-10-03";
 export const REPORT_PAUSE_START = "2026-10-04T03:00:00.000Z";
+// Single receipt authorized by the owner on 15/10/2026. No change to payments.
+export const REPORT_RECEIPT_EXCEPTIONS: readonly string[] = ["246f3e47-a43e-4a6b-b18d-b3caea576ad4"];
+export const REPORT_CONTRIBUTION_FILTER = `approved_at.lt.${REPORT_PAUSE_START},id.in.(${REPORT_RECEIPT_EXCEPTIONS.join(",")})`;
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export function isHistoricalReceipt(date?: string | null) {
@@ -12,20 +15,20 @@ export function isHistoricalReceipt(date?: string | null) {
   return Number.isFinite(timestamp) && timestamp < Date.parse(REPORT_PAUSE_START);
 }
 
-export function isReceiptVisibleInReport(purpose?: string | null, date?: string | null) {
-  return purpose === "event" || isHistoricalReceipt(date);
+export function isReceiptVisibleInReport(purpose?: string | null, date?: string | null, paymentId?: string | null) {
+  return purpose === "event" || isHistoricalReceipt(date) || Boolean(paymentId && REPORT_RECEIPT_EXCEPTIONS.includes(paymentId));
 }
 
-export function receiptReportValue(amountCents: number, purpose?: string | null, date?: string | null) {
-  return isReceiptVisibleInReport(purpose, date) ? money.format(amountCents / 100) : PAUSED_REPORT_VALUE;
+export function receiptReportValue(amountCents: number, purpose?: string | null, date?: string | null, paymentId?: string | null) {
+  return isReceiptVisibleInReport(purpose, date, paymentId) ? money.format(amountCents / 100) : PAUSED_REPORT_VALUE;
 }
 
 export function paymentPurpose(relation: { purpose?: string } | { purpose?: string }[] | null) {
   return Array.isArray(relation) ? relation[0]?.purpose : relation?.purpose;
 }
 
-export function receiptReportDescription(description: string, purpose?: string | null, date?: string | null) {
-  if (purpose === "event" || isHistoricalReceipt(date)) return description;
+export function receiptReportDescription(description: string, purpose?: string | null, date?: string | null, paymentId?: string | null) {
+  if (isReceiptVisibleInReport(purpose, date, paymentId)) return description;
   // Legacy contribution descriptions contain the monetary breakdown themselves.
   return description.replace(/R\$\s*[\d.,]+/g, PAUSED_REPORT_VALUE);
 }
