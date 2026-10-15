@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { PAUSED_REPORT_VALUE, isHistoricalReceipt, isReceiptVisibleInReport, receiptReportValue, receiptReportDescription, paymentPurpose } from '../src/lib/finance-report-visibility.ts';
+import { PAUSED_REPORT_VALUE, REPORT_RECEIPT_EXCEPTIONS, REPORT_CONTRIBUTION_FILTER, isHistoricalReceipt, isReceiptVisibleInReport, receiptReportValue, receiptReportDescription, paymentPurpose } from '../src/lib/finance-report-visibility.ts';
+
+test('somente a primícia autorizada de 15/10 aparece após a pausa', () => {
+  const id = '246f3e47-a43e-4a6b-b18d-b3caea576ad4';
+  assert.deepEqual(REPORT_RECEIPT_EXCEPTIONS, [id]);
+  assert.equal(isReceiptVisibleInReport('contribution', '2026-10-15T21:34:18Z', id), true);
+  assert.match(receiptReportValue(7600, 'contribution', '2026-10-15', id), /76,00/);
+  assert.equal(receiptReportDescription('Primícia R$ 76,00', 'contribution', '2026-10-15', id), 'Primícia R$ 76,00');
+  assert.equal(isReceiptVisibleInReport('contribution', '2026-10-15', 'another-payment'), false);
+  assert.equal(receiptReportValue(7600, 'contribution', '2026-10-15', 'another-payment'), PAUSED_REPORT_VALUE);
+  assert.equal(REPORT_CONTRIBUTION_FILTER, `approved_at.lt.2026-10-04T03:00:00.000Z,id.in.(${id})`);
+});
 
 test('remove cards sem valor sem alterar eventos nem registros até 03/10', () => {
   const records = [
@@ -59,11 +70,11 @@ test('painel mantém estrutura e restringe o resumo de recebimentos a eventos ap
   assert.match(page, /eq\("payment.purpose", "event"\)/);
   assert.match(page, /eq\("payment.status", "approved"\)/);
   assert.match(page, /is\("payment.report_excluded_at", null\)/);
-  assert.match(page, /lt\("approved_at", REPORT_PAUSE_START\)/);
-  assert.match(page, /receiptReportValue\(Number\(payment.amount_cents\), payment.purpose, payment.approved_at \|\| payment.created_at\)/);
-  assert.match(page, /receiptReportValue\(Number\(entry.amount_cents\), paymentPurpose\(entry.payment\), entry.transaction_date\)/);
+  assert.ok(page.includes(".or(REPORT_CONTRIBUTION_FILTER)"));
+  assert.match(page, /receiptReportValue\(Number\(payment.amount_cents\), payment.purpose, payment.approved_at \|\| payment.created_at, payment.id\)/);
+  assert.match(page, /receiptReportValue\(Number\(entry.amount_cents\), paymentPurpose\(entry.payment\), entry.transaction_date, entry.mercado_pago_payment_id\)/);
   assert.match(page, /isHistoricalReceipt\(record.service_date\)/);
   assert.match(page, /isHistoricalReceipt\(entry.transaction_date\)/);
-  assert.match(page, /isReceiptVisibleInReport\(payment.purpose, payment.approved_at \|\| payment.created_at\)/);
+  assert.match(page, /isReceiptVisibleInReport\(payment.purpose, payment.approved_at \|\| payment.created_at, payment.id\)/);
   assert.match(page, /visibleIncomeEntries.map\(/);
 });
