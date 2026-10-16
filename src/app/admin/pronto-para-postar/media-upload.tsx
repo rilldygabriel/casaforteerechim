@@ -46,7 +46,7 @@ export default function MediaUpload({ onClose, onSaved }: { onClose: () => void;
           setProgress(i / files.length * 100);
           if (!upload.complete) await new Promise<void>((resolve, reject) => {
             const task = new Upload(files[i], {
-              endpoint: `${endpoint.origin}/storage/v1/upload/resumable`,
+endpoint: `${endpoint.origin}/storage/v1/upload/resumable/sign`,
               headers: { "x-signature": upload.token!, apikey: publishableKey },
               chunkSize: 6 * 1024 * 1024,
               retryDelays: [0, 3000, 5000, 10000, 20000],
