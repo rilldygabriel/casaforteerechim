@@ -10,7 +10,7 @@ const GROUPS = [
   { key: "discipulador", name: "Discipulador", description: "Pode acompanhar discípulos e acessar o painel de discipulado." },
   { key: "equipe_pastoral", name: "Equipe Pastoral", description: "Faz parte da equipe de apoio dos pastores." },
   { key: "sendo_discipulado", name: "Sendo Discipulado", description: "Está em caminhada de discipulado na Casa." },
-  { key: "midia", name: "Mídia", description: "Acessa Pronto para postar: envia materiais, baixa originais e controla o que já foi publicado." },
+  { key: "midia", name: "Mídias", description: "Ao salvar esta classificação, libera automaticamente o acesso a Pronto para postar: enviar materiais, baixar originais e marcar publicações." },
 ] as const;
 
 export default function MemberGroupEditor({
