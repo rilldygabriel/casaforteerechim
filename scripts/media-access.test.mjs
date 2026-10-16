@@ -2,13 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
-import { canManageMediaAccess, MEDIA_ACCESS_OWNER_ID, parseMediaAccessChange } from '../src/lib/media-access-policy.ts';
+import { canManageMediaAccess, canRevokeMediaAccess, MEDIA_ACCESS_OWNER_ID, parseMediaAccessChange } from '../src/lib/media-access-policy.ts';
 
 const memberId = '4233f7fd-d931-445d-afab-d775d221a68e';
-test('somente o proprietário aprovado e administrador gerencia esta tela', () => {
+test('proprietário ou membro aprovado de Mídias pode adicionar; só o proprietário pode retirar', () => {
   assert.equal(canManageMediaAccess(MEDIA_ACCESS_OWNER_ID, { is_admin: true, approval_status: 'approved' }), true);
   for (const profile of [null, {is_admin:false,approval_status:'approved'}, {is_admin:true,approval_status:'pending'}]) assert.equal(canManageMediaAccess(MEDIA_ACCESS_OWNER_ID, profile), false);
   assert.equal(canManageMediaAccess(memberId, {is_admin:true,approval_status:'approved'}), false);
+  assert.equal(canManageMediaAccess(memberId, {is_admin:false,approval_status:'approved'}, true), true);
+  assert.equal(canManageMediaAccess(memberId, {is_admin:false,approval_status:'pending'}, true), false);
+  assert.equal(canManageMediaAccess(memberId, {is_admin:false,approval_status:'approved'}, false), false);
+  assert.equal(canRevokeMediaAccess(memberId, {is_admin:false,approval_status:'approved'}), false);
+  assert.equal(canRevokeMediaAccess(MEDIA_ACCESS_OWNER_ID, {is_admin:true,approval_status:'approved'}), true);
 });
 test('exige UUID e booleano; ignora qualquer grupo ou permissão adicional no payload', () => {
   assert.deepEqual(parseMediaAccessChange({ memberId, enabled: true, group_key:'equipe_pastoral',is_admin:true }), { memberId,enabled:true });
@@ -19,7 +24,7 @@ test('exige UUID e booleano; ignora qualquer grupo ou permissão adicional no pa
 const source = readFileSync(new URL('../src/app/api/admin/midias/acessos/route.ts', import.meta.url), 'utf8');
 const runtime = stripTypeScriptTypes(source.replace(/^import .*;\n/gm, ''));
 class MediaError extends Error { constructor(message,status=400){super(message);this.status=status;} }
-const harness = { allowed:true, enabled:false, calls:[], pages:[], admin:false, fail:false };
+const harness = { allowed:true, canRevoke:true, actorId:MEDIA_ACCESS_OWNER_ID, enabled:false, calls:[], pages:[], admin:false, fail:false };
 const client = { from(table) {
   const query = { filters:[], action:'select', select(){return this;}, order(){return this;},
     eq(key,value){this.filters.push([key,value]);return this;},
@@ -39,13 +44,13 @@ const client = { from(table) {
 }};
 globalThis.__mediaTestDeps={
   revalidatePath:()=>{}, parseMediaAccessChange, MediaError,
-  requireMediaAccessManager:async()=>{if(!harness.allowed)throw new MediaError('Forbidden',403);return {supabase:client,user:{id:MEDIA_ACCESS_OWNER_ID}};},
+  requireMediaAccessManager:async()=>{if(!harness.allowed)throw new MediaError('Forbidden',403);return {supabase:client,user:{id:harness.actorId},canRevoke:harness.canRevoke};},
   checkMediaOrigin:request=>{if(request.headers.get('origin')!==new URL(request.url).origin)throw new MediaError('Origin',403);},
   readMediaJson:request=>request.json(),
   mediaError:error=>Response.json({error:error.message},{status:error.status??500}),
 };
 const route=await import('data:text/javascript;base64,'+Buffer.from('const {revalidatePath,parseMediaAccessChange,MediaError,requireMediaAccessManager,checkMediaOrigin,readMediaJson,mediaError}=globalThis.__mediaTestDeps;\n'+runtime).toString('base64'));
-function reset(){Object.assign(harness,{allowed:true,enabled:false,calls:[],pages:[],admin:false,fail:false});}
+function reset(){Object.assign(harness,{allowed:true,canRevoke:true,actorId:MEDIA_ACCESS_OWNER_ID,enabled:false,calls:[],pages:[],admin:false,fail:false});}
 function request(enabled,origin='https://example.test'){return new Request('https://example.test/api/admin/midias/acessos',{method:'PATCH',headers:{origin,'content-type':'application/json'},body:JSON.stringify({memberId,enabled,group_key:'equipe_pastoral'})});}
 test('lista todos os cadastros com paginação e apenas a classificação Mídias',async()=>{
   reset();const profile={user_id:memberId,full_name:'Teste',is_admin:false,approval_status:'approved',member_group_memberships:[{group_key:'voluntario'}]};
@@ -60,7 +65,7 @@ test('marca e desmarca somente midia, com confirmação de persistência',async(
   response=await route.PATCH(request(false));assert.equal(response.status,200);assert.deepEqual(await response.json(),{enabled:false});
   const deletion=harness.calls.find(call=>call.action==='delete');assert.deepEqual(deletion.filters,[['member_id',memberId],['group_key','midia']]);
 });
-test('bloqueia visitante ou não proprietário e não consulta nem altera cadastros',async()=>{
+test('bloqueia visitante ou pessoa sem Mídias e não consulta nem altera cadastros',async()=>{
   reset();harness.allowed=false;assert.equal((await route.GET()).status,403);assert.equal((await route.PATCH(request(true))).status,403);assert.equal(harness.calls.length,0);
 });
 test('bloqueia outra origem, permissões herdadas e falhas no banco sem anunciar sucesso',async()=>{
@@ -68,6 +73,14 @@ test('bloqueia outra origem, permissões herdadas e falhas no banco sem anunciar
   harness.admin=true;assert.equal((await route.PATCH(request(true))).status,409);assert.equal(harness.calls.some(call=>call.action==='upsert'),false);
   reset();harness.fail=true;assert.equal((await route.PATCH(request(true))).status,500);
 });
-test('não adiciona envio de aviso, WhatsApp ou push e usa sessão/RLS, não service role',()=>{
-  assert.doesNotMatch(source,/whatsapp|announcement|web_push|sendNotification|ServiceClient/);
+test('equipe de Mídias adiciona com autoria própria, mas não pode retirar acesso',async()=>{
+  reset();harness.canRevoke=false;harness.actorId=memberId;
+  assert.equal((await route.GET()).status,200);
+  assert.equal((await route.PATCH(request(true))).status,200);
+  assert.equal(harness.calls.find(call=>call.action==='upsert').row.assigned_by,memberId);
+  harness.calls=[];assert.equal((await route.PATCH(request(false))).status,403);
+  assert.equal(harness.calls.length,0);
+});
+test('não adiciona envio de aviso, WhatsApp ou push',()=>{
+  assert.doesNotMatch(source,/whatsapp|announcement|web_push|sendNotification/);
 });

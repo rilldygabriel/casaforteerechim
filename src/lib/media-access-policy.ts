@@ -1,7 +1,13 @@
 export const MEDIA_ACCESS_OWNER_ID = "34944370-8853-4c1b-866b-8c80b4e59829";
 
-export function canManageMediaAccess(userId: string, profile: { is_admin?: boolean; approval_status?: string } | null) {
+type MediaAccessProfile = { is_admin?: boolean; approval_status?: string } | null;
+
+export function canRevokeMediaAccess(userId: string, profile: MediaAccessProfile) {
   return userId === MEDIA_ACCESS_OWNER_ID && profile?.is_admin === true && profile.approval_status === "approved";
+}
+
+export function canManageMediaAccess(userId: string, profile: MediaAccessProfile, hasActiveMediaMembership = false) {
+  return canRevokeMediaAccess(userId, profile) || (profile?.approval_status === "approved" && hasActiveMediaMembership === true);
 }
 
 export function parseMediaAccessChange(value: unknown): { memberId: string; enabled: boolean } | null {
