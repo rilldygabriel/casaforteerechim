@@ -7,7 +7,7 @@ import listStyles from "./access-list.module.css";
 
 const normalize = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
 
-export default function AccessList() {
+export default function AccessList({ canRevoke }: { canRevoke: boolean }) {
   const [members, setMembers] = useState<MediaAccessMember[] | null>(null);
   const [search, setSearch] = useState("");
   const [pending, setPending] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export default function AccessList() {
     {members && <><p className={styles.count}>{members.length} cadastros · {members.filter((member) => member.media_enabled && !member.is_admin).length} pessoas selecionadas para Mídias</p>
       <ul className={listStyles.list}>{visible.map((member) => <li key={member.user_id}>
         <label className={listStyles.person}>
-          <input type="checkbox" checked={member.media_enabled || member.is_admin} disabled={member.is_admin || Boolean(pending)} onChange={(event) => void changeAccess(member, event.target.checked)} aria-label={`Liberar Mídias para ${member.full_name || "cadastro sem nome"}`} />
+          <input type="checkbox" checked={member.media_enabled || member.is_admin} disabled={member.is_admin || Boolean(pending) || (member.media_enabled && !canRevoke)} onChange={(event) => void changeAccess(member, event.target.checked)} aria-label={`Liberar Mídias para ${member.full_name || "cadastro sem nome"}`} />
           <span><strong>{member.full_name || "Cadastro sem nome"}</strong><small>{pending === member.user_id ? "Salvando…" : member.is_admin ? "Administrador · acesso já incluído" : member.approval_status !== "approved" ? "Cadastro ainda não aprovado" : member.media_enabled ? "Acesso liberado" : "Sem acesso a Mídias"}</small></span>
         </label>
       </li>)}</ul>

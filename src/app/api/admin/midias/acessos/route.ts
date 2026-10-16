@@ -30,9 +30,10 @@ export async function GET() {
 export async function PATCH(request: Request) {
   try {
     checkMediaOrigin(request);
-    const { supabase, user } = await requireMediaAccessManager();
+    const { supabase, user, canRevoke } = await requireMediaAccessManager();
     const change = parseMediaAccessChange(await readMediaJson(request));
     if (!change) throw new MediaError("Seleção inválida.");
+    if (!change.enabled && !canRevoke) throw new MediaError("Você pode adicionar pessoas. Somente o pastor responsável pode retirar acessos.", 403);
     const { data: member, error: memberError } = await supabase.from("member_profiles")
       .select("user_id,is_admin").eq("user_id", change.memberId).maybeSingle();
     if (memberError) throw memberError;
