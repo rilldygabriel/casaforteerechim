@@ -20,6 +20,8 @@ test('ZIP names retain original file format and sortable order',()=>{
   assert.equal(mediaFilename({name:'original.JPEG',role:'slide'},0),'01-slide.jpeg');
   assert.equal(mediaFilename({name:'original.webp',role:'slide'},8),'09-slide.webp');
   assert.equal(mediaFilename({name:'original.MOV',role:'video'},0),'video-final.mov');
+  const names = Array.from({length:200}, (_,i)=>mediaFilename({name:'original.png',role:'slide'},i,200));
+  assert.deepEqual([...names].sort(), names);
 });
 test('search combines accent-insensitive caption/title, type and publication filters',()=>{
   const p={...base,posted:false};

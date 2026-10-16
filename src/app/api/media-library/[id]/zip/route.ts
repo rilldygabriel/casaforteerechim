@@ -33,7 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         if (bytes !== asset.size) throw new Error("Download incompleto.");
       })());
       source.on("error", error => archive.destroy(error));
-      archive.append(source, { name: mediaFilename(asset, i) });
+      archive.append(source, { name: mediaFilename(asset, i, post.assets.length) });
     }
     archive.append(Buffer.from(post.caption, "utf8"), { name: "legenda.txt" });
     void archive.finalize().catch(error => archive.destroy(error));
