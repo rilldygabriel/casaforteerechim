@@ -68,7 +68,7 @@ export async function POST(request:Request) {
       if(!init.ok) throw new Error(`Iniciar ${kind}: ${data.error}`);
       for(let i=0;i<files.length;i++) {
         const spec=data.uploads[i];paths.push(spec.path);
-await new Promise<void>((resolve,reject)=>new Upload(files[i].bytes,{endpoint:url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable',headers:{'x-signature':spec.token,apikey:publishableKey},metadata:{bucketName:MEDIA_BUCKET,objectName:spec.path,contentType:files[i].mime,cacheControl:'3600'},chunkSize:6*1024*1024,uploadDataDuringCreation:true,retryDelays:[0,1000],onError:(e)=>{const response='originalResponse' in e?e.originalResponse:null;let detail='';try {const body=JSON.parse(response?.getBody()||'{}');detail=String(body.message||body.error||'').replace(/eyJ[\w.-]+/g,'[redacted]').slice(0,250);}catch{}reject(new Error(`Envio TUS ${kind}: HTTP ${response?.getStatus()} ${detail}`));},onSuccess:()=>resolve()}).start());
+await new Promise<void>((resolve,reject)=>new Upload(files[i].bytes,{endpoint:url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable/sign',headers:{'x-signature':spec.token,apikey:publishableKey},metadata:{bucketName:MEDIA_BUCKET,objectName:spec.path,contentType:files[i].mime,cacheControl:'3600'},chunkSize:6*1024*1024,uploadDataDuringCreation:true,retryDelays:[0,1000],onError:(e)=>{const response='originalResponse' in e?e.originalResponse:null;let detail='';try {const body=JSON.parse(response?.getBody()||'{}');detail=String(body.message||body.error||'').replace(/eyJ[\w.-]+/g,'[redacted]').slice(0,250);}catch{}reject(new Error(`Envio TUS ${kind}: HTTP ${response?.getStatus()} ${detail}`));},onSuccess:()=>resolve()}).start());
       }
       const done=await call(`/api/media-library/${id}`,'PATCH',{action:'complete'});const completion=await done.json();
       if(!done.ok) throw new Error(`Finalizar ${kind}: ${completion.error}`);
@@ -89,7 +89,7 @@ await new Promise<void>((resolve,reject)=>new Upload(files[i].bytes,{endpoint:ur
     const {data:token}=await service.storage.from(MEDIA_BUCKET).createSignedUploadUrl(probePath);
     if(!token)throw new Error('Preparar teste de limite');
     const metadata={bucketName:MEDIA_BUCKET,objectName:probePath,contentType:'video/mp4'};
-    const large=await fetch(url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable',{method:'POST',headers:{'Tus-Resumable':'1.0.0','Upload-Length':String(MAX_MEDIA_BYTES),'Upload-Metadata':Object.entries(metadata).map(([k,v])=>`${k} ${Buffer.from(v).toString('base64')}`).join(','),'x-signature':token.token,apikey:publishableKey}});
+    const large=await fetch(url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable/sign',{method:'POST',headers:{'Tus-Resumable':'1.0.0','Upload-Length':String(MAX_MEDIA_BYTES),'Upload-Metadata':Object.entries(metadata).map(([k,v])=>`${k} ${Buffer.from(v).toString('base64')}`).join(','),'x-signature':token.token,apikey:publishableKey}});
     assert(large.status===201,'Reserva TUS aceita 5 GB (sem transferência de 5 GB)');
     const uploadLocation=large.headers.get('location');if(uploadLocation)await fetch(new URL(uploadLocation,url),{method:'DELETE',headers:{'Tus-Resumable':'1.0.0','x-signature':token.token,apikey:publishableKey}});
     await service.from('member_group_memberships').delete().eq('member_id',users[0]).eq('group_key','midia');
