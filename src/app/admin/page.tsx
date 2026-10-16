@@ -153,7 +153,7 @@ export default async function AdminPage() {
       </section>}
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
-        {canManageMedia && <Module number="MD" href="/admin/pronto-para-postar" title="Pronto para postar" copy="Artes, carrosséis e Reels da Casa com originais, legendas e histórico de publicação." action="Abrir biblioteca de mídia" />}
+        {canManageMedia && <Module number="MD" href="/admin/midias" title="Mídias" copy="Pronto para postar: artes, carrosséis, vídeos e materiais da Casa." action="Abrir Mídias" />}
         {(isMinistryPastor(user.id) || ministryCount > 0) && <Module number="M" href="/admin/ministerios/eventos" title="Eventos dos ministérios" copy="Eventos, vendas, gastos, doações, caixinhas e metas de compra por ministério." action="Abrir caixinhas e sonhos" />}
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />
