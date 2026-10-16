@@ -30,9 +30,9 @@ export function normalizeUpload(input: unknown) {
   return { id: value.id, title: value.title.trim(), caption: value.caption, kind, files };
 }
 
-export function mediaFilename(asset: MediaAsset, index: number) {
+export function mediaFilename(asset: MediaAsset, index: number, total = 99) {
   const extension = asset.name.split(".").pop()!.toLowerCase();
-  return asset.role === "slide" ? `${String(index + 1).padStart(2, "0")}-slide.${extension}` : `${asset.role === "video" ? "video-final" : asset.role === "cover" ? "capa" : "arte"}.${extension}`;
+  return asset.role === "slide" ? `${String(index + 1).padStart(Math.max(2, String(total).length), "0")}-slide.${extension}` : `${asset.role === "video" ? "video-final" : asset.role === "cover" ? "capa" : "arte"}.${extension}`;
 }
 
 export function mediaSize(size: number) {

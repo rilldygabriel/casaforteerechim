@@ -14,13 +14,24 @@ const page = (content: string) => new Response(`<!doctype html><html lang="pt-BR
 export async function GET() {
   const {user}=await requireMediaAccess();
   if(user.id!==OWNER) return new Response("Não autorizado",{status:403});
-  return page('<p>Testes isolados da nova biblioteca: contas temporárias, permissões, três formatos, envio, downloads e status. Nenhuma mensagem será enviada.</p><form method="post"><button style="padding:16px">Executar verificação</button></form>');
+  return page('<p>Testes isolados da nova biblioteca: contas temporárias, permissões, três formatos, envio, downloads e status. Nenhuma mensagem será enviada.</p><form method="post"><button style="padding:16px">Executar verificação</button></form><form method="post"><input type="hidden" name="action" value="cleanup-ui"><button>Remover somente o Reel descartável de verificação da interface</button></form>');
 }
 export async function POST(request:Request) {
   checkMediaOrigin(request);
   const {user}=await requireMediaAccess();
   if(user.id!==OWNER) return new Response("Não autorizado",{status:403});
   const service=getSupabaseServiceClient();
+  const form=await request.formData();
+  if(form.get('action')==='cleanup-ui') {
+    const {data,error}=await service.from('media_ready_posts').select('id,assets').eq('created_by',OWNER).eq('title','[QA interface] Reel').gte('created_at','2026-10-16T16:00:00Z');
+    if(error)throw error;
+    for(const post of data??[]) {
+      const paths=post.assets.map((a:{path:string})=>a.path).filter((p:string)=>p.startsWith(`${OWNER}/${post.id}/`));
+      const removed=await service.storage.from(MEDIA_BUCKET).remove(paths);if(removed.error)throw removed.error;
+      const deleted=await service.from('media_ready_posts').delete().eq('id',post.id).eq('created_by',OWNER);if(deleted.error)throw deleted.error;
+    }
+    return page(`<p>${data?.length??0} material descartável removido. Nenhum outro material foi alterado.</p>`);
+  }
   const {url,publishableKey}=getSupabaseConfig();
   const base="https://www.casaforteerechim.app.br";
   const users:string[]=[];const posts:string[]=[];const paths:string[]=[];const report:string[]=[];
@@ -57,7 +68,7 @@ export async function POST(request:Request) {
       if(!init.ok) throw new Error(`Iniciar ${kind}: ${data.error}`);
       for(let i=0;i<files.length;i++) {
         const spec=data.uploads[i];paths.push(spec.path);
-        await new Promise<void>((resolve,reject)=>new Upload(files[i].bytes,{endpoint:url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable',headers:{'x-signature':spec.token,apikey:publishableKey},metadata:{bucketName:MEDIA_BUCKET,objectName:spec.path,contentType:files[i].mime,cacheControl:'3600'},chunkSize:6*1024*1024,uploadDataDuringCreation:true,retryDelays:[0,1000],onError:()=>reject(new Error('Envio TUS '+kind)),onSuccess:()=>resolve()}).start());
+await new Promise<void>((resolve,reject)=>new Upload(files[i].bytes,{endpoint:url.replace('.supabase.co','.storage.supabase.co')+'/storage/v1/upload/resumable',headers:{'x-signature':spec.token,apikey:publishableKey},metadata:{bucketName:MEDIA_BUCKET,objectName:spec.path,contentType:files[i].mime,cacheControl:'3600'},chunkSize:6*1024*1024,uploadDataDuringCreation:true,retryDelays:[0,1000],onError:(e)=>{const response='originalResponse' in e?e.originalResponse:null;let detail='';try {const body=JSON.parse(response?.getBody()||'{}');detail=String(body.message||body.error||'').replace(/eyJ[\w.-]+/g,'[redacted]').slice(0,250);}catch{}reject(new Error(`Envio TUS ${kind}: HTTP ${response?.getStatus()} ${detail}`));},onSuccess:()=>resolve()}).start());
       }
       const done=await call(`/api/media-library/${id}`,'PATCH',{action:'complete'});const completion=await done.json();
       if(!done.ok) throw new Error(`Finalizar ${kind}: ${completion.error}`);

@@ -81,7 +81,7 @@ function MediaCard({ post, onChange }: { post: MediaPost; onChange: () => Promis
       if (!response.ok) throw new Error("Não foi possível preparar as fotos. Tente novamente ou baixe os originais.");
       const blob = await response.blob();
       if (blob.size !== asset.size) throw new Error("Uma imagem não chegou completa. Tente novamente.");
-      files.push(new File([blob], mediaFilename(asset, index), { type: asset.mime }));
+      files.push(new File([blob], mediaFilename(asset, index, post.assets.length), { type: asset.mime }));
     }
     if (!navigator.canShare({ files })) { setMessage("O aparelho não aceita esse conjunto de arquivos no compartilhamento. Use o ZIP ou os originais e importe pelo aplicativo Arquivos."); return; }
     setShareFiles(files); setMessage("Fotos preparadas. Toque em Compartilhar fotos. No iPhone, escolha Salvar imagens, se disponível, e conclua a ação no aparelho.");
