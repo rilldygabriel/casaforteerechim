@@ -28,7 +28,7 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult, pastoralTeamResult, eventAssignmentsResult] = await Promise.all([
+  const [{ data: profile }, disciplerResult, leaderResult, connectMemberResult, pastoralTeamResult, eventAssignmentsResult, mediaAccessResult] = await Promise.all([
     supabase.from("member_profiles").select("full_name,is_admin,approval_status,can_manage_finance,can_manage_events,can_manage_news").eq("user_id", user.id).maybeSingle(),
     supabase.from("discipler_roles").select("member_id").eq("member_id", user.id).maybeSingle(),
     supabase.from("ministry_leaders").select("ministry_key").eq("member_id", user.id),
@@ -45,6 +45,7 @@ export default async function AdminPage() {
       .eq("group_key", "equipe_pastoral")
       .maybeSingle(),
     service.from("event_admin_members").select("event_id").eq("user_id", user.id),
+    supabase.rpc("can_access_media_library"),
   ]);
 
   const isAdmin = Boolean(profile?.is_admin);
@@ -60,8 +61,9 @@ export default async function AdminPage() {
   const isPastoralTeam = Boolean(pastoralTeamResult.data);
   const canManageVisitors = isAdmin || leadsConnect || isConnectMember;
   const isApproved = profile?.approval_status === "approved";
+  const canManageMedia = mediaAccessResult.data === true;
 
-  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && !isPastoralTeam && ministryCount === 0 && !isConnectMember && !canManageFinance && !canManageEvents && !canManageNews)))) {
+  if (!profile || (!isAdmin && (!isApproved || (!isDiscipler && !isPastoralTeam && ministryCount === 0 && !isConnectMember && !canManageFinance && !canManageEvents && !canManageNews && !canManageMedia)))) {
     redirect("/familia");
   }
 
@@ -151,6 +153,7 @@ export default async function AdminPage() {
       </section>}
 
       <section className="admin-dashboard-grid" aria-label="Módulos do painel">
+        {canManageMedia && <Module number="MD" href="/admin/pronto-para-postar" title="Pronto para postar" copy="Artes, carrosséis e Reels da Casa com originais, legendas e histórico de publicação." action="Abrir biblioteca de mídia" />}
         {(isMinistryPastor(user.id) || ministryCount > 0) && <Module number="M" href="/admin/ministerios/eventos" title="Eventos dos ministérios" copy="Eventos, vendas, gastos, doações, caixinhas e metas de compra por ministério." action="Abrir caixinhas e sonhos" />}
         {isAdmin && <>
           <Module number="01" href="/admin/lideranca/discipuladores" title="Discipuladores" copy="Classifique discipuladores e acompanhe todos os discípulos." action="Gerenciar discipuladores" />

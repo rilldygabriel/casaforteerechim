@@ -21,6 +21,7 @@ const MEMBER_GROUP_KEYS = new Set([
   "discipulador",
   "equipe_pastoral",
   "sendo_discipulado",
+  "midia",
 ]);
 
 export type MemberGroupState = {
@@ -73,6 +74,8 @@ export async function saveMemberGroups(
   revalidatePath("/admin/meus-discipulos");
   revalidatePath("/familia");
   revalidatePath("/familia/lideranca");
+  revalidatePath("/admin");
+  revalidatePath("/admin/pronto-para-postar");
 
   return { kind: "success", message: "Classificação salva e grupos atualizados." };
 }
