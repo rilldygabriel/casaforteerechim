@@ -26,11 +26,11 @@ const ACCEPT_JESUS_URL =
   "https://wa.me/5554992640253?text=Ol%C3%A1%21%20Eu%20quero%20aceitar%20Jesus%20e%20preciso%20de%20ajuda%20para%20dar%20meu%20pr%C3%B3ximo%20passo.";
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
-// Exibe a transmissão mais recente enquanto a Palavra separada ainda não está disponível.
-const LATEST_MESSAGE_TITLE = "COMPRE A CAUSA | Pr. Rilldy";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=wbLw1tlJW4c";
+// Exibe a Palavra mais recente publicada no canal da igreja.
+const LATEST_MESSAGE_TITLE = "EDIFIQUE EM TEMPOS DE PAZ | Pr. Rilldy";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=hhUTJ02ezZw";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/wbLw1tlJW4c?rel=0";
+  "https://www.youtube-nocookie.com/embed/hhUTJ02ezZw?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
