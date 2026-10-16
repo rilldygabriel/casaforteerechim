@@ -212,7 +212,7 @@ export default async function Familia({
   const hasProfileStar = profile.profile_completed === true && completedProfileSteps === 11;
   const memberName = profile.full_name || user.email || "Membro Casa Forte";
   const service = getSupabaseServiceClient();
-  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles, pastoralGroupMemberships, eventAssignmentsResult] =
+  const [disciplerRole, ministryLeaderRoles, ministryMemberRoles, pastoralGroupMemberships, eventAssignmentsResult, mediaAccessResult] =
     await Promise.all([
       supabase
         .from("discipler_roles")
@@ -233,10 +233,13 @@ export default async function Familia({
         .eq("member_id", user.id)
         .in("group_key", ["discipulador", "equipe_pastoral"]),
       service.from("event_admin_members").select("event_id").eq("user_id", user.id),
+      supabase.rpc("can_access_media_library"),
     ]);
   const canBookPastoralAgenda = Boolean(pastoralGroupMemberships.data?.length);
   const canManageAssignedEvent = Boolean(eventAssignmentsResult.data?.length);
+  const canManageMedia = mediaAccessResult.data === true;
   const hasLeadershipArea = Boolean(
+    canManageMedia ||
     profile.is_admin ||
       profile.can_manage_events ||
       canManageAssignedEvent ||
@@ -245,6 +248,7 @@ export default async function Familia({
       ministryMemberRoles.data?.length,
   );
   const hasManagementPanel = Boolean(
+    canManageMedia ||
     profile.is_admin ||
       profile.can_manage_events ||
       canManageAssignedEvent ||
@@ -363,6 +367,11 @@ export default async function Familia({
           <Link href="/familia/agenda-pastoral">Ver horários disponíveis</Link>
         </section>
       )}
+
+      {canManageMedia && <section className="family-leadership-access family-access-light">
+        <div><p className="section-eyebrow"><span aria-hidden="true" />Equipe de mídia</p><h2>Pronto para postar</h2><p>Baixe os materiais originais da Casa, copie a legenda e acompanhe o que já foi publicado.</p></div>
+        <Link href="/admin/pronto-para-postar">Abrir biblioteca de mídia</Link>
+      </section>}
 
       {hasLeadershipArea && (
         <section className="family-leadership-access family-access-light">
