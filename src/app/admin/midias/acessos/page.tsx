@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireMediaAccessManager } from "@/lib/media-access-server";
 import { MediaError } from "@/lib/media-library-server";
+import SiteNotificationBell from "@/components/site-notification-bell";
+import SiteRefreshButton from "@/components/site-refresh-button";
+import ThemeToggle from "@/components/theme-toggle";
 import AccessList from "./access-list";
 import styles from "../../pronto-para-postar/media-library.module.css";
 
@@ -16,7 +19,7 @@ export default async function MediaAccessPage() {
     throw error;
   });
   return <main className={styles.root}>
-    <nav className={styles.nav} aria-label="Navegação de acessos"><Link href="/admin/midias">← Mídias</Link></nav>
+    <header className={styles.nav}><nav aria-label="Navegação de acessos"><Link href="/admin/midias">← Voltar para Mídias</Link></nav><div className="home-header-tools"><SiteNotificationBell /><SiteRefreshButton /><ThemeToggle /></div></header>
     <header className={styles.hero}><p className={styles.eyebrow}>Sua equipe</p><h1>Cadastrar pessoas<span>.</span></h1><p>Marque para liberar Mídias e Pronto para postar. Desmarque para retirar esse acesso. Cada alteração é salva automaticamente.</p></header>
     <AccessList />
   </main>;
