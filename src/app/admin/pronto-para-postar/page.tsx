@@ -17,7 +17,7 @@ export default async function MediaLibraryPage() {
     return <main className={styles.root}><header className={styles.hero}><p>Equipe de mídia</p><h1>Acesso restrito</h1><p>Esta biblioteca está disponível para administradores e membros com a classificação Mídia. Solicite ao pastor a liberação na sua ficha.</p><Link href="/familia">Voltar à Área da Família</Link></header></main>;
   }
   return <main className={styles.root}>
-    <header className={styles.nav}><nav aria-label="Navegação da biblioteca"><Link href="/admin/midias">← Mídias</Link></nav><div className="home-header-tools"><SiteNotificationBell /><SiteRefreshButton /><ThemeToggle /></div></header>
+    <header className={styles.nav}><nav aria-label="Navegação da biblioteca"><Link href="/admin/midias">← Voltar para Mídias</Link></nav><div className="home-header-tools"><SiteNotificationBell /><SiteRefreshButton /><ThemeToggle /></div></header>
     <header className={styles.hero}><p className={styles.eyebrow}>Da Casa para o mundo</p><h1>Pronto para postar<span>.</span></h1><p>O material final, a legenda certa e tudo organizado. Baixe, publique nas redes e marque quando terminar.</p></header>
     <MediaLibrary />
   </main>;
