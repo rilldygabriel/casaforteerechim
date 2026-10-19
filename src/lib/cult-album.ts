@@ -1,13 +1,13 @@
-import { OCTOBER_ELEVENTH_ALBUM } from "./cult-album-2026-10-11";
+import { OCTOBER_EIGHTEENTH_ALBUM } from "./cult-album-2026-10-18";
 
 export type CultPhoto = { id: string; filename: string; orientation: "horizontal" | "vertical" };
 
 export const LATEST_CULT_TITLE = "Culto de Domingo";
-export const LATEST_CULT_DATE_LABEL = "11 de outubro";
-export const LATEST_CULT_DATE_SHORT = "11/10";
+export const LATEST_CULT_DATE_LABEL = "18 de outubro";
+export const LATEST_CULT_DATE_SHORT = "18/10";
 export const LATEST_CULT_SOURCE_FOLDERS = [
-  "https://drive.google.com/drive/folders/1VrU_TgosiQaf6vEIvJ48RJeAyUwyoZys",
-  "https://drive.google.com/drive/folders/1IRrx0wVxy4xoCxnap27XuYVfVCJBmqSM",
+  "https://drive.google.com/drive/folders/1uJvLKxLj330UmlpDqfwqKJQiPeFtZDB4",
+  "https://drive.google.com/drive/folders/155bXrAfaQ0KAHuAsR_ZDCgy7mFP6iR9b",
 ] as const;
 
 const PREVIOUS_CULT_ALBUM = [
@@ -665,7 +665,7 @@ export const SEPTEMBER_TWENTIETH_ALBUM: readonly CultPhoto[] = [
   })),
 ];
 
-export const LATEST_CULT_ALBUM: readonly CultPhoto[] = OCTOBER_ELEVENTH_ALBUM;
+export const LATEST_CULT_ALBUM: readonly CultPhoto[] = OCTOBER_EIGHTEENTH_ALBUM;
 
 export function cultPhotoPreview(id: string, width = 1200) {
   return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
