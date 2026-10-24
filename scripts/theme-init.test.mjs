@@ -11,17 +11,35 @@ function boot(saved, blocked = false) {
   vm.runInNewContext(source, context);
   return {root, meta};
 }
-for (const theme of ['dark','navy','heritage','natural']) {
+for (const theme of ['dark','navy','heritage','natural','impact']) {
   test(`restaura ${theme} antes da hidratação`, () => {
     const {root,meta} = boot(theme);
-    assert.equal(root.dataset.theme, theme === 'dark' ? 'dark' : 'light');
+    assert.equal(root.dataset.theme, ['dark','impact'].includes(theme) ? 'dark' : 'light');
     assert.equal(root.dataset.palette, theme === 'dark' ? undefined : theme);
-    assert.equal(root.style.colorScheme, theme === 'dark' ? 'dark' : 'light');
+    assert.equal(root.style.colorScheme, ['dark','impact'].includes(theme) ? 'dark' : 'light');
     if (theme === 'natural') assert.equal(meta.content, '#f2efe7');
+    if (theme === 'impact') assert.equal(meta.content, '#ffd600');
   });
 }
 test('preserva migração dos antigos temas claros', () => {
   for (const old of ['light','editorial']) assert.equal(boot(old).root.dataset.palette,'navy');
+});
+test('Impacto Amarelo mantém contraste AA e CSS restrito à nova opção', () => {
+  for (const [fg,bg] of [['141414','ffd600'],['303030','ffd600'],['faf9f4','202020'],['c5c5bd','202020'],['ffd600','353535']]) {
+    const [a,b]=[luminance(fg),luminance(bg)].sort((x,y)=>y-x);
+    assert.ok((a+.05)/(b+.05)>=4.5,`${fg} on ${bg}`);
+  }
+  const css=fs.readFileSync(new URL('../src/app/theme-impact.css',import.meta.url),'utf8');
+  assert.match(css,/prefers-reduced-motion/);
+  assert.ok(!css.includes('@import'));
+  // Every actual style rule is palette-scoped; at-rules only wrap those rules.
+  const selectors=css.replace(/\/\*[\s\S]*?\*\//g,'').split('}').flatMap(part=>part.split('{').slice(0,-1));
+  for(const selector of selectors.map(s=>s.trim()).filter(s=>s && !s.startsWith('@'))) {
+    assert.ok(selector.startsWith('html[data-palette="impact"]'),selector);
+  }
+  const toggle=fs.readFileSync(new URL('../src/components/theme-toggle.tsx',import.meta.url),'utf8');
+  assert.match(toggle,/impact: "Impacto Amarelo"/);
+  assert.match(toggle,/saved === "impact"/);
 });
 test('armazenamento bloqueado ou opção inválida não impede carregamento', () => {
   for (const result of [boot('unknown'),boot(null),boot('natural',true)]) assert.equal(result.root.dataset.theme,'dark');

@@ -8,14 +8,15 @@ try {
     casaForteTheme !== "dark" &&
     casaForteTheme !== "navy" &&
     casaForteTheme !== "heritage" &&
-    casaForteTheme !== "natural"
+    casaForteTheme !== "natural" &&
+    casaForteTheme !== "impact"
   ) {
     casaForteTheme = "dark";
   }
 
-  var casaForteIsLight = casaForteTheme !== "dark";
+  var casaForteIsLight = casaForteTheme !== "dark" && casaForteTheme !== "impact";
   document.documentElement.dataset.theme = casaForteIsLight ? "light" : "dark";
-  if (casaForteIsLight) {
+  if (casaForteTheme !== "dark") {
     document.documentElement.dataset.palette = casaForteTheme;
   } else {
     delete document.documentElement.dataset.palette;
@@ -25,7 +26,7 @@ try {
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute(
       "content",
-      casaForteTheme === "natural" ? "#f2efe7" : casaForteTheme === "heritage" ? "#f6f1e9" : casaForteIsLight ? "#f6f3ed" : "#080908",
+      casaForteTheme === "impact" ? "#ffd600" : casaForteTheme === "natural" ? "#f2efe7" : casaForteTheme === "heritage" ? "#f6f1e9" : casaForteIsLight ? "#f6f3ed" : "#080908",
     );
 } catch (error) {
   document.documentElement.dataset.theme = "dark";

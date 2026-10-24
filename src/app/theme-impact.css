@@ -1,0 +1,180 @@
+/* Optional palette. Graphite interiors retain the original dark-mode semantics. */
+html[data-palette="impact"] {
+  --background: #141414;
+  --surface-0: #191919;
+  --surface-1: #202020;
+  --surface-2: #292929;
+  --surface-3: #242424;
+  --surface-4: #202020;
+  --foreground: #faf9f4;
+  --muted: #c5c5bd;
+  --accent: #ffd600;
+  --accent-on-dark: #ffd600;
+  --yellow: #ffd600;
+  --yellow-soft: rgba(255, 214, 0, .12);
+  --line: rgba(255, 255, 255, .22);
+  --impact-shadow: 0 5px 0 #101010, 0 15px 28px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .17);
+  background: #ffd600;
+}
+
+html[data-palette="impact"] body { background: #ffd600; }
+html[data-palette="impact"] :is(h1, .home-section-heading h2, .home-message h2) {
+  font-weight: 950;
+  letter-spacing: -.055em;
+  line-height: .98;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+html[data-palette="impact"] :is(.inner-page, .admin-dashboard, .admin-visitors-page, .calendar-page, .public-events-page, .event-public-page, .finance-page, .bible-page, .cult-album-page, .admin-events-page) {
+  border-top: 7px solid #ffd600;
+}
+html[data-palette="impact"] .home-page { background: #ffd600; }
+html[data-palette="impact"] .home-header {
+  background: #ffd600;
+  border-color: rgba(20, 20, 20, .24);
+  border-radius: 22px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+html[data-palette="impact"] .home-brand img { filter: brightness(0); }
+html[data-palette="impact"] .home-header :is(.home-nav-filled, .home-nav-admin) {
+  color: #faf9f4;
+  background: #202020;
+  border-color: #464646;
+}
+html[data-palette="impact"] .home-header .home-nav-light {
+  color: #141414;
+  background: #fff5ba;
+  border-color: rgba(20, 20, 20, .35);
+}
+html[data-palette="impact"] .home-header :is(.theme-toggle, .site-refresh-button, .site-back-button, .site-notification-button, .site-assistant-trigger) {
+  color: #141414;
+  background: #ffe45c;
+  border-color: rgba(20, 20, 20, .4);
+}
+html[data-palette="impact"] .theme-choice-row { background: #202020; border-color: #777; }
+html[data-palette="impact"] .theme-choice { background: #303030; color: #faf9f4; border-color: #777; }
+html[data-palette="impact"] .theme-choice[aria-pressed="true"] { background: #ffd600; color: #141414; border-color: #ffd600; }
+
+/* Editorial yellow opening; no extra images, overlays or animation downloads. */
+html[data-palette="impact"] .home-hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  aspect-ratio: auto;
+  background: #ffd600;
+  border: 0;
+  box-shadow: none;
+  min-height: 520px;
+  overflow: visible;
+}
+html[data-palette="impact"] .home-hero-panel::before { display: none; }
+html[data-palette="impact"] .home-hero-copy { position: relative; inset: auto; width: 100%; padding: clamp(28px, 4vw, 64px); }
+html[data-palette="impact"] .home-hero-copy :is(h1, h1 strong, .home-kicker) { color: #141414; }
+html[data-palette="impact"] .home-hero h1 { font-size: clamp(3.1rem, 6.5vw, 7rem); line-height: .92; }
+html[data-palette="impact"] .home-hero h1 strong { margin-top: 0; }
+html[data-palette="impact"] .home-hero-copy > p:not(.home-kicker) { color: #303030; font-weight: 600; }
+html[data-palette="impact"] .home-inline-link {
+  min-height: 48px;
+  padding: 14px 20px;
+  border: 1px solid #555;
+  border-radius: 14px;
+  color: #faf9f4;
+  background: #202020;
+  box-shadow: var(--impact-shadow);
+}
+html[data-palette="impact"] .home-hero-cover {
+  position: relative;
+  inset: auto;
+  min-height: 480px;
+  margin: 20px 24px 28px 0;
+  border: 2px solid #202020;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: var(--impact-shadow);
+}
+html[data-palette="impact"] .home-hero-cover::before,
+html[data-palette="impact"] .home-hero-cover::after { display: none; }
+html[data-palette="impact"] .home-entry-grid {
+  width: 100%;
+  margin: 0 auto 16px;
+  gap: 14px;
+}
+html[data-palette="impact"] .home-entry-grid > a {
+  min-width: 0;
+  min-height: 130px;
+  border: 1px solid #555;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #353535, #191919);
+  color: #faf9f4;
+  box-shadow: var(--impact-shadow);
+}
+html[data-palette="impact"] .home-entry-grid > a span { color: #ffd600; }
+html[data-palette="impact"] .home-entry-grid > a strong { color: #faf9f4; font-size: clamp(1.35rem, 2.5vw, 2.5rem); }
+html[data-palette="impact"] .home-entry-grid .home-icon {
+  padding: 9px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #666;
+  border-radius: 12px;
+  background: #ffd600;
+  color: #141414;
+}
+
+/* The same tactile card treatment in public and signed-in areas. */
+html[data-palette="impact"] :is(.home-block, .family-member-summary, .family-permissions, .birthday-carousel, .calendar-weekly, .admin-auth-card) {
+  border-color: #555;
+  border-radius: 24px;
+  background: #202020;
+  box-shadow: var(--impact-shadow);
+}
+html[data-palette="impact"] :is(.family-menu-card, .admin-dashboard-grid > a, .calendar-feature-card, .home-useful-links-grid > a, .home-program-card, .testimonial-card) {
+  border-color: #555;
+  border-radius: 20px;
+  box-shadow: var(--impact-shadow);
+}
+html[data-palette="impact"] .home-useful-icon {
+  color: #ffd600;
+  background: linear-gradient(145deg, #3c3c3c, #191919);
+  border-color: #777;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 #101010, inset 0 1px rgba(255, 255, 255, .2);
+}
+html[data-palette="impact"] :is(.home-generosity-grid button, .home-prayer-cta, .home-jesus-card > a, .admin-auth-form button) {
+  background: #ffd600;
+  color: #141414;
+  border-color: #b09400;
+  box-shadow: 0 4px 0 #ad9000, inset 0 1px rgba(255, 255, 255, .55);
+}
+html[data-palette="impact"] :is(.home-prayer-card, .home-jesus-card) :is(h2, p) { color: #faf9f4; }
+html[data-palette="impact"] :is(.home-prayer-card, .home-jesus-card) .home-kicker { color: #ffd600; }
+html[data-palette="impact"] .home-section-heading > p:last-child:not(.home-kicker) { color: #c5c5bd; }
+html[data-palette="impact"] :is(a, button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid #faf9f4;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #141414;
+}
+html[data-palette="impact"] ::selection { background: #ffd600; color: #141414; }
+
+@media (max-width: 760px) {
+  html[data-palette="impact"] .home-header { border-radius: 16px; }
+  html[data-palette="impact"] .home-page :is(.home-section-heading h2, .home-message h2) { font-size: clamp(1.5rem, 7vw, 2rem); letter-spacing: -.045em; line-height: 1.05; }
+  html[data-palette="impact"] .home-hero-panel { min-height: 0; grid-template-columns: minmax(0, 1fr); }
+  html[data-palette="impact"] .home-hero-copy { padding: 30px 16px; }
+  html[data-palette="impact"] .home-hero h1 { max-width: 100%; font-size: clamp(2.7rem, 12vw, 4.8rem); }
+  html[data-palette="impact"] .home-hero-copy .home-kicker { font-size: .62rem; }
+  html[data-palette="impact"] .home-hero-copy > p:not(.home-kicker) { display: block; margin-top: 20px; font-size: .95rem; }
+  html[data-palette="impact"] .home-inline-link { font-size: .7rem; }
+  html[data-palette="impact"] .home-hero-cover { min-height: 0; aspect-ratio: 3 / 2; margin: 0 0 22px; border-radius: 20px; }
+  html[data-palette="impact"] .home-entry-grid { gap: 12px; }
+  html[data-palette="impact"] .home-entry-grid > a { min-height: 104px; padding: 20px 60px 20px 20px; border-radius: 18px; }
+  html[data-palette="impact"] .home-entry-grid .home-icon { right: 16px; }
+  html[data-palette="impact"] :is(.home-block, .family-menu-card) { border-radius: 20px; }
+}
+@media (max-width: 380px) {
+  html[data-palette="impact"] .home-entry-grid { grid-template-columns: minmax(0, 1fr); }
+  html[data-palette="impact"] .home-entry-grid > a { grid-column: auto; min-height: 86px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-palette="impact"] .home-hero-copy > * { animation: none; }
+  html[data-palette="impact"] :is(.home-entry-grid > a, .home-hero-cover img) { transition: none; transform: none; }
+}
