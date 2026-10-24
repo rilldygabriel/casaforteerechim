@@ -37,6 +37,9 @@ html[data-palette="impact"] .home-header {
   backdrop-filter: none;
 }
 html[data-palette="impact"] .home-brand img { filter: brightness(0); }
+html[data-palette="impact"] .home-footer { color: #303030; }
+html[data-palette="impact"] .home-footer img { filter: brightness(0); }
+html[data-palette="impact"] .home-footer a { color: #141414; border-color: #141414; }
 html[data-palette="impact"] .home-header :is(.home-nav-filled, .home-nav-admin) {
   color: #faf9f4;
   background: #202020;
