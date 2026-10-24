@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "@/components/theme-toggle";
+import ThemedHomeCover from "@/components/themed-home-cover";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
@@ -294,15 +295,7 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="home-hero-cover">
-            <Image
-              src="/images/capa-inicial-casaforte.webp"
-              alt="Pastores Rilldy e Lisy ministrando na Igreja Casa Forte"
-              fill
-              priority
-              sizes="(max-width: 760px) 100vw, 56vw"
-            />
-          </div>
+          <ThemedHomeCover />
         </div>
 
         <div className="home-entry-grid" aria-label="Escolha seu acesso">

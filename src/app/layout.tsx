@@ -11,6 +11,7 @@ import "./globals.css";
 import "./casa-ai-overrides.css";
 import "./theme-natural.css";
 import "./theme-impact.css";
+import "./home-cover.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.casaforteerechim.app.br"),

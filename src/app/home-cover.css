@@ -1,0 +1,72 @@
+/* Model 9 uses one immutable photograph plus a theme-specific outer frame.
+   No color filter or generated variant is ever applied to the central photo. */
+html .home-hero .home-hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, .75fr) minmax(0, 1.5fr);
+  align-items: center;
+  aspect-ratio: auto;
+  min-height: 0;
+}
+html .home-hero .home-hero-panel::before { display: none; }
+html .home-hero .home-entry-grid { margin-top: 16px; }
+html .home-hero .home-hero-copy {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(24px, 3vw, 48px);
+}
+html .home-hero .home-hero-copy h1 {
+  max-width: 100%;
+  font-size: clamp(2.4rem, 4.2vw, 4.6rem);
+}
+html[data-palette="natural"] .home-hero .home-hero-panel { background: #252525; }
+html .home-hero .home-cover-model-nine {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  aspect-ratio: 1672 / 941;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: none;
+}
+html .home-hero .home-cover-model-nine::before,
+html .home-hero .home-cover-model-nine::after {
+  display: none;
+}
+html .home-hero .home-cover-model-nine img,
+html .home-hero-panel:hover .home-cover-model-nine img {
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  transition: none;
+  filter: none;
+}
+.home-cover-theme-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  -webkit-mask: url("/images/capas/modelo-09-frame-mask.svg") center / 100% 100% no-repeat;
+  mask: url("/images/capas/modelo-09-frame-mask.svg") center / 100% 100% no-repeat;
+}
+html[data-palette="navy"] .home-cover-theme-frame {
+  background-image: url("/images/capas/modelo-09-navy.webp");
+}
+html[data-palette="heritage"] .home-cover-theme-frame {
+  background-image: url("/images/capas/modelo-09-heritage.webp");
+}
+html[data-palette="natural"] .home-cover-theme-frame {
+  background-image: url("/images/capas/modelo-09-natural.webp");
+}
+@media (max-width: 760px) {
+  html .home-hero .home-hero-panel { grid-template-columns: minmax(0, 1fr); }
+  html .home-hero .home-hero-copy { padding: 26px 22px; }
+  html .home-hero .home-hero-copy h1 { font-size: clamp(2.5rem, 10vw, 3.8rem); }
+  html .home-hero .home-kicker { font-size: .65rem; }
+}
