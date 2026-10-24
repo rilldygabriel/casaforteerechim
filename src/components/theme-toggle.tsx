@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 
-type Theme = "dark" | "navy" | "heritage" | "natural";
+type Theme = "dark" | "navy" | "heritage" | "natural" | "impact";
 
 const THEME_EVENT = "casa-forte-theme-change";
 
@@ -11,14 +11,15 @@ const THEME_LABELS: Record<Theme, string> = {
   navy: "Marfim e azul",
   heritage: "Azul e dourado",
   natural: "Natural e amarelo",
+  impact: "Impacto Amarelo",
 };
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const lightTheme = theme !== "dark";
+  const lightTheme = theme !== "dark" && theme !== "impact";
 
   root.dataset.theme = lightTheme ? "light" : "dark";
-  if (lightTheme) {
+  if (theme !== "dark") {
     root.dataset.palette = theme;
   } else {
     delete root.dataset.palette;
@@ -30,12 +31,19 @@ function applyTheme(theme: Theme) {
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute(
       "content",
-      theme === "dark" ? "#080908" : theme === "natural" ? "#f2efe7" : theme === "heritage" ? "#f6f1e9" : "#f6f3ed",
+      theme === "impact" ? "#ffd600" : theme === "dark" ? "#080908" : theme === "natural" ? "#f2efe7" : theme === "heritage" ? "#f6f1e9" : "#f6f3ed",
     );
   window.dispatchEvent(new Event(THEME_EVENT));
 }
 
 function ThemeIcon({ theme }: { theme: Theme }) {
+  if (theme === "impact") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m13 2-9 12h7l-1 8 10-13h-8l1-7Z" />
+      </svg>
+    );
+  }
   if (theme === "natural") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -74,7 +82,7 @@ function ThemeIcon({ theme }: { theme: Theme }) {
 function readTheme(): Theme {
   if (typeof document === "undefined") return "dark";
   const palette = document.documentElement.dataset.palette;
-  return palette === "navy" || palette === "heritage" || palette === "natural" ? palette : "dark";
+  return palette === "navy" || palette === "heritage" || palette === "natural" || palette === "impact" ? palette : "dark";
 }
 
 function subscribeTheme(onStoreChange: () => void) {
@@ -91,7 +99,7 @@ export default function ThemeToggle({ floating = false }: { floating?: boolean }
     let saved: string | null = null;
     try { saved = localStorage.getItem("casa-forte-theme"); } catch { return; }
     const active: Theme =
-      saved === "heritage" || saved === "natural"
+      saved === "heritage" || saved === "natural" || saved === "impact"
         ? saved
         : saved === "navy" || saved === "light" || saved === "editorial"
           ? "navy"
