@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   CHURCH_EVENTS,
+  eventsForMonth,
   formatEventTime,
 } from "../src/lib/calendar-events.ts";
 
@@ -55,7 +56,7 @@ test("o batismo de setembro e o seminário de intercessão não aparecem", () =>
   assert.equal(CHURCH_EVENTS.some((item) => item.startDate === "2026-09-13" && item.title === "Ceia do Senhor"), true);
 });
 
-test("reuniões de equipes ocupam a primeira e a segunda terça-feira", () => {
+test("reuniões de equipes preservam a recorrência, com inversão somente em novembro", () => {
   const investmentDates = CHURCH_EVENTS.filter((item) =>
     item.title.includes("Equipe de Investimento"),
   ).map((item) => item.startDate);
@@ -63,8 +64,16 @@ test("reuniões de equipes ocupam a primeira e a segunda terça-feira", () => {
     item.title.includes("Voluntários e Servos"),
   ).map((item) => item.startDate);
 
-  assert.deepEqual(investmentDates, ["2026-08-04", "2026-09-01", "2026-10-06", "2026-11-03", "2026-12-01"]);
-  assert.deepEqual(volunteerDates, ["2026-08-11", "2026-09-08", "2026-10-13", "2026-11-10", "2026-12-08"]);
+  assert.deepEqual(investmentDates, ["2026-08-04", "2026-09-01", "2026-10-06", "2026-11-10", "2026-12-01"]);
+  assert.deepEqual(volunteerDates, ["2026-08-11", "2026-09-08", "2026-10-13", "2026-11-03", "2026-12-08"]);
+});
+
+test("troca de novembro mantém chaves de presença, horários e ordem sem duplicar reuniões", () => {
+  const meetings = eventsForMonth(11, "Equipes");
+  assert.deepEqual(meetings.map(({ id, startDate, startTime }) => ({ id, startDate, startTime })), [
+    { id: "voluntarios-2026-11-10", startDate: "2026-11-03", startTime: "19:30" },
+    { id: "investimento-2026-11-03", startDate: "2026-11-10", startTime: "19:30" },
+  ]);
 });
 
 test("eventos internos e o Encontrão de 14 de novembro não aparecem", () => {
