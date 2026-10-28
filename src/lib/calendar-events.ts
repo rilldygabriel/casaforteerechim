@@ -205,7 +205,16 @@ function createRecurringEvents() {
   return events;
 }
 
+// One-off November swap. Keep event keys stable to preserve attendance links.
+const EVENT_DATE_OVERRIDES: Readonly<Record<string, string>> = {
+  "voluntarios-2026-11-10": "2026-11-03",
+  "investimento-2026-11-03": "2026-11-10",
+};
+
 export const CHURCH_EVENTS = [...createRecurringEvents(), ...SPECIAL_EVENTS]
+  .map((item) => EVENT_DATE_OVERRIDES[item.id]
+    ? { ...item, startDate: EVENT_DATE_OVERRIDES[item.id] }
+    : item)
   .filter((item) => SHOW_INTERNAL_EVENTS || !item.internal)
   .sort(compareEvents);
 
