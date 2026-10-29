@@ -139,7 +139,7 @@ export default function AlbumGallery({ photos, title = "Culto de domingo na Casa
           {photoFile ? "Salvar foto" : "Preparando foto…"}
         </button>
       </div>
-      <button className="cult-lightbox-close" type="button" onClick={closePhoto} aria-label="Fechar foto">×</button>
+      <button className="cult-lightbox-close" type="button" onClick={(event) => { event.stopPropagation(); closePhoto(); }} aria-label="Fechar foto">×</button>
       <button className="cult-lightbox-arrow cult-lightbox-previous" type="button" aria-label="Foto anterior" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! - 1 + photos.length) % photos.length); }}>‹</button>
       <img key={active.id} src={cultPhotoPreview(active.id, 2200)} alt={`${title} — foto ${activeIndex! + 1}`} onClick={(event) => event.stopPropagation()} onError={(event) => loadOriginalOnPreviewError(event, active.id)} />
       <button className="cult-lightbox-arrow cult-lightbox-next" type="button" aria-label="Próxima foto" onClick={(event) => { event.stopPropagation(); showPhoto((activeIndex! + 1) % photos.length); }}>›</button>
