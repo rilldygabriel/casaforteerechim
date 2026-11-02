@@ -1,92 +1,32 @@
 export type GalleryPhoto = { slug: string; src: string; alt: string; className: string };
 
 const FEATURED_PHOTOS = [
-  [
-    "1r33t1_1ZfQV_goBfOz8XVOGPyilDpUWy",
-    "horizontal"
-  ],
-  [
-    "18ytviZlwSWCT6RdNKjH1bXvwU2eCHs0a",
-    "vertical"
-  ],
-  [
-    "13PCTxivpSxw_2HOBiAv4tJy6f6WHT5zL",
-    "horizontal"
-  ],
-  [
-    "1ALq1WGP5ejbUhy-zVOCMe2C_ubHsk0tj",
-    "vertical"
-  ],
-  [
-    "1-5aOkJBqTNdIV0bExmN9bFauSvMNbVP8",
-    "horizontal"
-  ],
-  [
-    "1RgLZyJLKqR7eCiY1UpWyJtfqWK9TXXfQ",
-    "vertical"
-  ],
-  [
-    "1clv2bo6zlpRBqKf6VMl8TdPFurCBf45D",
-    "horizontal"
-  ],
-  [
-    "15w-7MwiS_UaTuLejpvQi28fNYD373l98",
-    "vertical"
-  ],
-  [
-    "1oTwXOYdj8ALSmTtxRcl-MhubcBO7QQS9",
-    "horizontal"
-  ],
-  [
-    "17UZzuraMJXEvvTv2Tt2XoyS-_F-DSfRL",
-    "vertical"
-  ],
-  [
-    "1Ys4kxAQcpAy01R-7ahbB_6I8-uJN7y7T",
-    "horizontal"
-  ],
-  [
-    "1EmiG8ugMzLoGzQrsB4JZuMML9qJBTu_L",
-    "vertical"
-  ],
-  [
-    "19b_cR3J7-e1Btvc5I7Ga3-UBUGp7M_Td",
-    "horizontal"
-  ],
-  [
-    "12J1EvRijLchFips9EwbXEOJPRqIo0WtR",
-    "vertical"
-  ],
-  [
-    "1AX5aEt1LVfynUfiFoMzYa298GGCRD5cG",
-    "horizontal"
-  ],
-  [
-    "1i0Rc21gU261V_BxPhgq-NLLBNwLhqzAF",
-    "vertical"
-  ],
-  [
-    "1huXcqkJ6iqpZAxwFGjtZ7l7dbQz4KLQS",
-    "horizontal"
-  ],
-  [
-    "1vlvDV86kHYSJQBNbnzhHNABRtFwc4d5Q",
-    "vertical"
-  ],
-  [
-    "1ZpyyemFVQQ2t_oVb_Mol8NEJC_dy9cNx",
-    "horizontal"
-  ],
-  [
-    "1BTW6diSNJs-ZKkg6S3a1bi58mnOyuY6R",
-    "vertical"
-  ]
+  ["1LsoOlXLDthiVtw3Tr40hsGRE9poOD4Qo", "horizontal"],
+  ["1FkCtB_dkAinT1rmurR5wEvwoacuCx8lF", "vertical"],
+  ["19sySO3Je0GNOgvk9tVsIAX6_cZk8s_68", "horizontal"],
+  ["1NzW3th8ZfoTFtsJ8fT7gX81jpFGuOmy0", "vertical"],
+  ["1Ko5MCJb-f3f2br01qTOMCG5Rvoqvs-IV", "horizontal"],
+  ["1gk7Y1dthnDxUb4BEeJmzGOwGmMhdEIUG", "vertical"],
+  ["1Dexo_4zrMRG6dt91Eqrz4Avahe6aQvLZ", "horizontal"],
+  ["1gJWlZ1AItyvZNo6U5X_D_eljzNG9oDwG", "vertical"],
+  ["1TQx5JygGI8Q5h9Qgw29lpf2jP_qcKHHw", "horizontal"],
+  ["1MbUNe4Tbe5ID9GF6rV3D0qzlm4NCjw_Q", "vertical"],
+  ["1nB1m0o2k4GMoxBAVulPtpsG9FT0yuWGz", "horizontal"],
+  ["1uzG8O01T8iYS0j1kQPDB_oq_KyRZSzwN", "vertical"],
+  ["1NytLpfdH7tKtfm25gxlXUahuu6KSm0sV", "horizontal"],
+  ["1n067S4MADYDhXpjE3SksKuFiGErpUOjF", "vertical"],
+  ["1gNhJxFD3V8jhFWtYONEUA21-UF30aHI6", "horizontal"],
+  ["10r_TLjbWB4s0bS9XuDwxJOpGglu4Ka6j", "vertical"],
+  ["18asmV37rt2p8mCgKlvDsXMmLGKa99wzD", "horizontal"],
+  ["1AZ7z3T5msM9s-c-7b6tUNvVYreuj1ggq", "vertical"],
+  ["1lCmxKXTVE42LssDF_6JkaWXbUT8Reabi", "vertical"],
+  ["125eAY7EM-yObFF6YnEft6E3zUc3rOCQm", "vertical"],
 ] as const;
 
 export const GALLERY_PHOTOS: GalleryPhoto[] = FEATURED_PHOTOS.map(([id, orientation], index) => ({
-  slug: `culto-de-domingo-25-10-foto-${String(index + 1).padStart(2, "0")}`,
+  slug: `culto-de-domingo-01-11-foto-${String(index + 1).padStart(2, "0")}`,
   src: `https://lh3.googleusercontent.com/d/${id}=w1400`,
-  alt: `Momento do Culto de Domingo na Casa em 25 de outubro — foto ${String(index + 1).padStart(2, "0")}`,
+  alt: `Momento do Culto de Domingo na Casa em 1º de novembro — foto ${String(index + 1).padStart(2, "0")}`,
   className: orientation === "vertical" ? "home-gallery-tall" : "home-gallery-wide",
 }));
 
