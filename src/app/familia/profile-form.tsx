@@ -102,6 +102,18 @@ export default function ProfileForm({
       // validation-error responses. Dispatch manually to preserve the draft.
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
+      // An ordinary profile edit must not replace an existing approval request.
+      if ((formData.get("hasDiscipler") ?? "") === choiceValue(initialProfile.hasDiscipler)
+        && (formData.get("disciplerId") ?? "") === (hasDiscipler === "sim" ? initialDisciplerId : "")) {
+        formData.delete("hasDiscipler");
+        formData.delete("disciplerId");
+      }
+      const selected = formData.getAll("ministryKeys").map(String).sort();
+      if ((formData.get("servesMinistry") ?? "") === choiceValue(initialProfile.servesMinistry)
+        && JSON.stringify(selected) === JSON.stringify(servesMinistry === "sim" ? [...initialMinistryKeys].sort() : [])) {
+        formData.delete("servesMinistry");
+        formData.delete("ministryKeys");
+      }
       startTransition(() => formAction(formData));
     }}>
       <div className="family-profile-form-heading">
@@ -147,15 +159,15 @@ export default function ProfileForm({
           <legend>Data de nascimento</legend>
           <input name="birthDate" type="hidden" value={birthDateValue} />
           <div>
-            <select aria-label="Dia de nascimento" value={birthDate.day} onChange={(event) => updateBirthDate("day", event.target.value)} required>
+            <select aria-label="Dia de nascimento" value={birthDate.day} onChange={(event) => updateBirthDate("day", event.target.value)} required={Boolean(birthDate.day || birthDate.month || birthDate.year)}>
               <option value="">Dia</option>
               {Array.from({ length: daysInSelectedMonth }, (_, index) => String(index + 1).padStart(2, "0")).map((day) => <option value={day} key={day}>{day}</option>)}
             </select>
-            <select aria-label="Mês de nascimento" value={birthDate.month} onChange={(event) => updateBirthDate("month", event.target.value)} required>
+            <select aria-label="Mês de nascimento" value={birthDate.month} onChange={(event) => updateBirthDate("month", event.target.value)} required={Boolean(birthDate.day || birthDate.month || birthDate.year)}>
               <option value="">Mês</option>
               {[["01", "Janeiro"], ["02", "Fevereiro"], ["03", "Março"], ["04", "Abril"], ["05", "Maio"], ["06", "Junho"], ["07", "Julho"], ["08", "Agosto"], ["09", "Setembro"], ["10", "Outubro"], ["11", "Novembro"], ["12", "Dezembro"]].map(([value, label]) => <option value={value} key={value}>{label}</option>)}
             </select>
-            <select aria-label="Ano de nascimento" value={birthDate.year} onChange={(event) => updateBirthDate("year", event.target.value)} required>
+            <select aria-label="Ano de nascimento" value={birthDate.year} onChange={(event) => updateBirthDate("year", event.target.value)} required={Boolean(birthDate.day || birthDate.month || birthDate.year)}>
               <option value="">Ano</option>
               {Array.from({ length: currentYear - 1899 }, (_, index) => String(currentYear - index)).map((year) => <option value={year} key={year}>{year}</option>)}
             </select>
@@ -167,11 +179,11 @@ export default function ProfileForm({
           <legend>Sexo</legend>
           <div className="family-profile-choices">
             <label>
-              <input name="gender" type="radio" value="masculino" defaultChecked={initialProfile.gender === "masculino"} required />
+              <input name="gender" type="radio" value="masculino" defaultChecked={initialProfile.gender === "masculino"} />
               Masculino
             </label>
             <label>
-              <input name="gender" type="radio" value="feminino" defaultChecked={initialProfile.gender === "feminino"} required />
+              <input name="gender" type="radio" value="feminino" defaultChecked={initialProfile.gender === "feminino"} />
               Feminino
             </label>
           </div>
@@ -187,7 +199,6 @@ export default function ProfileForm({
             maxLength={500}
             placeholder="Rua, número, bairro e cidade"
             defaultValue={initialProfile.address}
-            required
           />
         </label>
 
@@ -200,7 +211,6 @@ export default function ProfileForm({
             min="1900-01"
             max={currentMonth}
             defaultValue={initialProfile.churchSinceMonth}
-            required
           />
           <small>Informe o mês e o ano.</small>
         </label>
@@ -215,7 +225,6 @@ export default function ProfileForm({
             min={1900}
             max={currentYear}
             defaultValue={initialProfile.jesusYear ?? ""}
-            required
           />
         </label>
 
@@ -229,7 +238,6 @@ export default function ProfileForm({
                 value="sim"
                 checked={attendedOtherChurch === "sim"}
                 onChange={() => setAttendedOtherChurch("sim")}
-                required
               />
               Sim
             </label>
@@ -240,7 +248,6 @@ export default function ProfileForm({
                 value="nao"
                 checked={attendedOtherChurch === "nao"}
                 onChange={() => setAttendedOtherChurch("nao")}
-                required
               />
               Não
             </label>
@@ -272,7 +279,6 @@ export default function ProfileForm({
                 type="radio"
                 value="sim"
                 defaultChecked={initialProfile.baptized === true}
-                required
               />
               Sim
             </label>
@@ -282,7 +288,6 @@ export default function ProfileForm({
                 type="radio"
                 value="nao"
                 defaultChecked={initialProfile.baptized === false}
-                required
               />
               Não
             </label>
@@ -299,7 +304,6 @@ export default function ProfileForm({
                 value="sim"
                 checked={married === "sim"}
                 onChange={() => setMarried("sim")}
-                required
               />
               Sim
             </label>
@@ -310,7 +314,6 @@ export default function ProfileForm({
                 value="nao"
                 checked={married === "nao"}
                 onChange={() => setMarried("nao")}
-                required
               />
               Não
             </label>
@@ -337,12 +340,12 @@ export default function ProfileForm({
         <fieldset className="family-profile-field-wide family-profile-role-choice">
           <legend>Você tem discipulador?</legend>
           <div className="family-profile-choices">
-            <label><input name="hasDiscipler" type="radio" value="sim" checked={hasDiscipler === "sim"} onChange={() => setHasDiscipler("sim")} required />Sim</label>
-            <label><input name="hasDiscipler" type="radio" value="nao" checked={hasDiscipler === "nao"} onChange={() => setHasDiscipler("nao")} required />Não</label>
+            <label><input name="hasDiscipler" type="radio" value="sim" checked={hasDiscipler === "sim"} onChange={() => setHasDiscipler("sim")} />Sim</label>
+            <label><input name="hasDiscipler" type="radio" value="nao" checked={hasDiscipler === "nao"} onChange={() => setHasDiscipler("nao")} />Não</label>
           </div>
           {hasDiscipler === "sim" ? (
             <label className="family-profile-conditional" htmlFor="profile-discipler">Quem é seu discipulador?
-              <select id="profile-discipler" name="disciplerId" defaultValue={initialDisciplerId} required>
+              <select id="profile-discipler" name="disciplerId" defaultValue={initialDisciplerId}>
                 <option value="">Escolha uma pessoa</option>
                 {disciplers.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}
               </select>
@@ -353,8 +356,8 @@ export default function ProfileForm({
         <fieldset className="family-profile-field-wide family-profile-role-choice">
           <legend>Você já serve em algum ministério?</legend>
           <div className="family-profile-choices">
-            <label><input name="servesMinistry" type="radio" value="sim" checked={servesMinistry === "sim"} onChange={() => setServesMinistry("sim")} required />Sim</label>
-            <label><input name="servesMinistry" type="radio" value="nao" checked={servesMinistry === "nao"} onChange={() => setServesMinistry("nao")} required />Não</label>
+            <label><input name="servesMinistry" type="radio" value="sim" checked={servesMinistry === "sim"} onChange={() => setServesMinistry("sim")} />Sim</label>
+            <label><input name="servesMinistry" type="radio" value="nao" checked={servesMinistry === "nao"} onChange={() => setServesMinistry("nao")} />Não</label>
           </div>
           {servesMinistry === "sim" ? (
             <div className="family-profile-ministry-options" aria-label="Ministérios em que você serve">
@@ -371,7 +374,7 @@ export default function ProfileForm({
           aria-live="polite"
         >
           {state.kind === "idle"
-            ? "Preencha todos os campos para liberar sua recompensa."
+            ? "Você pode salvar por etapas. Complete todos os campos para ganhar sua estrela."
             : state.message}
         </p>
         <button type="submit" disabled={isPending}>

@@ -87,9 +87,9 @@ export async function updateMemberProfile(
   }
 
   if (
-    !isValidIsoDate(birthDate) ||
+    birthDate && (!isValidIsoDate(birthDate) ||
     birthDate < "1900-01-01" ||
-    birthDate > today
+    birthDate > today)
   ) {
     return {
       kind: "error",
@@ -98,7 +98,7 @@ export async function updateMemberProfile(
     };
   }
 
-  if (gender !== "masculino" && gender !== "feminino") {
+  if (gender && gender !== "masculino" && gender !== "feminino") {
     return {
       kind: "error",
       message: "Escolha masculino ou feminino.",
@@ -106,7 +106,7 @@ export async function updateMemberProfile(
     };
   }
 
-  if (address.length < 8 || address.length > 500) {
+  if (address && (address.length < 8 || address.length > 500)) {
     return {
       kind: "error",
       message: "Digite seu endereço completo.",
@@ -115,9 +115,9 @@ export async function updateMemberProfile(
   }
 
   if (
-    !/^\d{4}-\d{2}$/.test(churchSinceMonth) ||
+    churchSinceMonth && (!/^\d{4}-\d{2}$/.test(churchSinceMonth) ||
     churchSinceMonth < "1900-01" ||
-    churchSinceMonth > currentMonth
+    churchSinceMonth > currentMonth)
   ) {
     return {
       kind: "error",
@@ -127,21 +127,13 @@ export async function updateMemberProfile(
   }
 
   if (
-    !Number.isInteger(jesusYear) ||
+    jesusYearValue && (!Number.isInteger(jesusYear) ||
     jesusYear < 1900 ||
-    jesusYear > currentYear
+    jesusYear > currentYear)
   ) {
     return {
       kind: "error",
       message: "Informe um ano válido para quando aceitou Jesus.",
-      earnedStar: null,
-    };
-  }
-
-  if (attendedOtherChurch === null) {
-    return {
-      kind: "error",
-      message: "Responda se já frequentou outra igreja evangélica.",
       earnedStar: null,
     };
   }
@@ -157,22 +149,6 @@ export async function updateMemberProfile(
     };
   }
 
-  if (baptized === null) {
-    return {
-      kind: "error",
-      message: "Responda se já é batizado nas águas.",
-      earnedStar: null,
-    };
-  }
-
-  if (married === null) {
-    return {
-      kind: "error",
-      message: "Responda se é casado.",
-      earnedStar: null,
-    };
-  }
-
   if (married && (spouseName.length < 3 || spouseName.length > 160)) {
     return {
       kind: "error",
@@ -181,8 +157,10 @@ export async function updateMemberProfile(
     };
   }
 
-  if (hasDiscipler === null || servesMinistry === null) {
-    return { kind: "error", message: "Responda sobre discipulado e ministérios.", earnedStar: null };
+  for (const key of ["attendedOtherChurch", "baptized", "married", "hasDiscipler", "servesMinistry"]) {
+    if (formData.has(key) && parseChoice(formData.get(key)) === null) {
+      return { kind: "error", message: "Revise a opção selecionada.", earnedStar: null };
+    }
   }
   if (hasDiscipler && !/^[0-9a-f-]{36}$/i.test(disciplerId)) {
     return { kind: "error", message: "Escolha quem é seu discipulador.", earnedStar: null };
@@ -238,20 +216,31 @@ export async function updateMemberProfile(
     return { kind: "error", message: "O discipulador escolhido não está disponível.", earnedStar: null };
   }
 
-  await Promise.all([
-    admin.from("ministry_membership_requests").delete().eq("member_id", user.id),
-    admin.from("discipleship_requests").delete().eq("member_id", user.id),
-  ]);
-  const requestResults = await Promise.all([
-    servesMinistry
-      ? admin.from("ministry_membership_requests").insert(ministryKeys.map((ministryKey) => ({ member_id: user.id, ministry_key: ministryKey })))
-      : Promise.resolve({ error: null }),
-    hasDiscipler
-      ? admin.from("discipleship_requests").insert({ member_id: user.id, discipler_id: disciplerId })
-      : Promise.resolve({ error: null }),
-  ]);
-  if (requestResults.some((result) => result.error)) {
-    return { kind: "error", message: "Não foi possível enviar suas escolhas para aprovação.", earnedStar: null };
+  // Only touch requests for a choice that was actually edited. Keep the review
+  // status of retained ministries, including approvals made by leadership.
+  const requestError = { kind: "error" as const, message: "Não foi possível salvar suas escolhas. Tente novamente.", earnedStar: null };
+  if (servesMinistry !== null) {
+    const existing = await admin.from("ministry_membership_requests").select("ministry_key").eq("member_id", user.id);
+    if (existing.error) return requestError;
+    const selectedKeys = servesMinistry ? ministryKeys : [];
+    const removed = (existing.data ?? []).map(row => row.ministry_key).filter(key => !selectedKeys.includes(key));
+    if (selectedKeys.length) {
+      const added = await admin.from("ministry_membership_requests").upsert(
+        selectedKeys.map(ministry_key => ({ member_id: user.id, ministry_key })),
+        { onConflict: "member_id,ministry_key", ignoreDuplicates: true },
+      );
+      if (added.error) return requestError;
+    }
+    if (removed.length) {
+      const deleted = await admin.from("ministry_membership_requests").delete().eq("member_id", user.id).in("ministry_key", removed);
+      if (deleted.error) return requestError;
+    }
+  }
+  if (hasDiscipler !== null) {
+    const request = hasDiscipler
+      ? await admin.from("discipleship_requests").upsert({ member_id: user.id, discipler_id: disciplerId, status: "pending", reviewed_by: null, reviewed_at: null }, { onConflict: "member_id" })
+      : await admin.from("discipleship_requests").delete().eq("member_id", user.id);
+    if (request.error) return requestError;
   }
 
   const { data: savedProfile, error } = await supabase
@@ -259,18 +248,16 @@ export async function updateMemberProfile(
     .update({
       full_name: fullName,
       phone,
-      birth_date: birthDate,
-      gender,
-      address,
-      church_since_month: `${churchSinceMonth}-01`,
-      jesus_year: jesusYear,
-      attended_other_church: attendedOtherChurch,
-      previous_church_name: attendedOtherChurch ? previousChurchName : "",
-      baptized,
-      married,
-      spouse_name: married ? spouseName : "",
-      has_discipler: hasDiscipler,
-      serves_ministry: servesMinistry,
+      ...(formData.has("birthDate") && { birth_date: birthDate || null }),
+      ...(gender && { gender }),
+      ...(formData.has("address") && { address }),
+      ...(formData.has("churchSinceMonth") && { church_since_month: churchSinceMonth ? `${churchSinceMonth}-01` : null }),
+      ...(formData.has("jesusYear") && { jesus_year: jesusYearValue ? jesusYear : null }),
+      ...(attendedOtherChurch !== null && { attended_other_church: attendedOtherChurch, previous_church_name: attendedOtherChurch ? previousChurchName : "" }),
+      ...(baptized !== null && { baptized }),
+      ...(married !== null && { married, spouse_name: married ? spouseName : "" }),
+      ...(hasDiscipler !== null && { has_discipler: hasDiscipler }),
+      ...(servesMinistry !== null && { serves_ministry: servesMinistry }),
     })
     .eq("user_id", user.id)
     .select("profile_completed")
