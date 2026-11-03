@@ -7,14 +7,16 @@ import ts from 'typescript';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-function actionHarness({ signedIn = true, approved = true, saveError = null } = {}) {
+function actionHarness({ signedIn = true, approved = true, saveError = null, completed = true } = {}) {
   const writes = [];
+  const tables = [];
   const client = { auth: { getUser: async () => ({ data: { user: signedIn ? { id: 'own-member-id' } : null } }) }, from(table) {
+    tables.push(table);
     let update;
     const chain = {
       select() { return chain; }, eq(key, value) { if (update) writes.push({ table, key, value, update }); return chain; },
       update(data) { update = data; return chain; },
-      maybeSingle: async () => update ? { data: saveError ? null : { profile_completed: true }, error: saveError } : { data: { is_admin: false, approval_status: approved ? 'approved' : 'pending' } },
+      maybeSingle: async () => update ? { data: saveError ? null : { profile_completed: completed }, error: saveError } : { data: { is_admin: false, approval_status: approved ? 'approved' : 'pending' } },
       delete() { return chain; },
     }; return chain;
   } };
@@ -28,7 +30,7 @@ function actionHarness({ signedIn = true, approved = true, saveError = null } = 
       return nativeRequire(name);
     },
   });
-  return { run: exports.updateMemberProfile, writes };
+  return { run: exports.updateMemberProfile, writes, tables };
 }
 
 function validForm(gender = 'masculino') {
@@ -90,4 +92,36 @@ test('salvamento continua autenticado e limitado ao próprio membro', () => {
   assert.match(action, /data: savedProfile, error \} = await supabase/);
   assert.match(action, /\.eq\("user_id", user.id\)\s*\.select\("profile_completed"\)/);
   assert.match(action, /member_profile_save_failed/);
+});
+
+test('salva perfil incompleto sem mexer em solicitações de aprovação', async () => {
+  const { run, writes, tables } = actionHarness({ completed: false });
+  const form = new FormData();
+  form.set('fullName', 'Membro de Teste');
+  form.set('phone', '54999990000');
+  form.set('address', 'Rua do Teste, 10');
+  form.set('churchSinceMonth', '');
+  form.set('birthDate', '');
+  form.set('jesusYear', '');
+  const saved = await run({}, form);
+  assert.equal(saved.kind, 'success');
+  assert.equal(saved.earnedStar, false);
+  assert.match(saved.message, /Perfil salvo/);
+  assert.equal(writes[0].update.birth_date, null);
+  assert.equal(writes[0].update.jesus_year, null);
+  assert.equal(writes[0].update.church_since_month, null);
+  for (const key of ['gender', 'married', 'has_discipler', 'serves_ministry']) {
+    assert.equal(Object.hasOwn(writes[0].update, key), false);
+  }
+  assert.ok(tables.every(t => t === 'member_profiles'));
+});
+
+test('respostas condicionais novas exigem detalhes válidos', async () => {
+  for (const key of ['hasDiscipler', 'servesMinistry', 'married', 'attendedOtherChurch']) {
+    const { run, writes } = actionHarness();
+    const form = validForm();
+    form.set(key, 'sim');
+    assert.equal((await run({}, form)).kind, 'error');
+    assert.equal(writes.length, 0);
+  }
 });
