@@ -27,10 +27,10 @@ const ACCEPT_JESUS_URL =
 const MAPS_URL = "https://maps.app.goo.gl/wAtHfmS7cFcFP5UC9?g_st=ic";
 const YOUTUBE_URL = "https://youtube.com/@igrejacasaforte-erechim5031";
 // Exibe a Palavra mais recente publicada no canal da igreja.
-const LATEST_MESSAGE_TITLE = "O PESO DE UMA PALAVRA | Pr. Rilldy";
-const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=Km47QvYbADc";
+const LATEST_MESSAGE_TITLE = "HONRE A MESA | Pr. Rilldy";
+const LATEST_MESSAGE_URL = "https://www.youtube.com/watch?v=V9-4ZECMx8U";
 const LATEST_MESSAGE_EMBED_URL =
-  "https://www.youtube-nocookie.com/embed/Km47QvYbADc?rel=0";
+  "https://www.youtube-nocookie.com/embed/V9-4ZECMx8U?rel=0";
 const INSTAGRAM_URL = "https://www.instagram.com/casaforteerechim";
 const CASA_MUSIC_URL = "https://youtube.com/@casafortemusic";
 const PASTOR_CHANNEL_URL = "https://ig.me/j/AbbdKixwGYdyTwoi/";
