@@ -26,8 +26,8 @@ export type WhatsappBroadcastResult = {
 export type WhatsappBroadcastAudience = "members" | "disciplers";
 
 async function getApprovedTemplate() {
-  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+  const accountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim();
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
   if (!accountId || !accessToken) throw new Error("WhatsApp não configurado.");
 
   const url = new URL(
@@ -50,14 +50,14 @@ async function getApprovedTemplate() {
     template?.status !== "APPROVED" ||
     template.category !== "MARKETING"
   ) {
-    throw new Error("O modelo de marketing ainda não está disponível.");
+    throw new Error(`Modelo indisponível: HTTP ${response.status}; Meta ${payload?.error?.code ?? "-"}; status ${template?.status ?? "ausente"}; categoria ${template?.category ?? "ausente"}.`);
   }
 
   return template;
 }
 
 export async function verifyWhatsappBroadcastTemplate() {
-  await getApprovedTemplate();
+  return await getApprovedTemplate();
 }
 
 export async function sendWhatsappBroadcast(
@@ -65,13 +65,14 @@ export async function sendWhatsappBroadcast(
   campaign: string,
   audience: WhatsappBroadcastAudience = "members",
   businessPhoneNumberId?: string,
+  maxRecipients?: number,
 ): Promise<WhatsappBroadcastResult> {
   const cleanMessage = sanitizeWhatsappTemplateParameter(message);
   if (!cleanMessage) throw new Error("Mensagem vazia.");
 
   const template = await getApprovedTemplate();
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  const phoneNumberId = businessPhoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN?.trim();
+  const phoneNumberId = (businessPhoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID)?.trim();
   if (!accessToken || !isMetaBusinessPhoneNumberId(phoneNumberId)) throw new Error("WhatsApp não configurado.");
 
   const service = getSupabaseServiceClient();
@@ -129,8 +130,11 @@ export async function sendWhatsappBroadcast(
   let rejected = 0;
   let skipped = 0;
 
-  for (let index = 0; index < (conversations ?? []).length; index += 10) {
-    const batch = (conversations ?? []).slice(index, index + 10);
+  const pending = (conversations ?? []).filter((item) => !alreadySent.has(item.id));
+  skipped = (conversations ?? []).length - pending.length;
+  const selected = maxRecipients === undefined ? pending : pending.slice(0, Math.max(0, maxRecipients));
+  for (let index = 0; index < selected.length; index += 10) {
+    const batch = selected.slice(index, index + 10);
     await Promise.all(
       batch.map(async (conversation) => {
         if (alreadySent.has(conversation.id)) {
