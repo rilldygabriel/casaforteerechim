@@ -84,7 +84,6 @@ const SPECIAL_EVENTS: ChurchEvent[] = [
   event("rede-teens-outubro", "Rede Teens", "2026-10-31", "Rede Teens"),
   event("encontro-adolescentes", "Encontro de Adolescentes", "2026-11-13", "Encontros", { endDate: "2026-11-15" }),
   event("nucleo-teens-novembro", "Núcleo Teens", "2026-11-28", "Rede Teens"),
-  event("vigilia-novembro", "Vigília de Oração", "2026-11-28", "Oração", { notes: "Início após o Núcleo Teens." }),
   event("jantar-voluntarios", "Jantar de Encerramento dos Voluntários", "2026-12-05", "Equipes", { startTime: "19:00", internal: true }),
   event("festa-teens", "Festa de Encerramento da Rede Teens 2026", "2026-12-12", "Rede Teens"),
   event("seminario-adoracao", "Seminário de Adoração", "2026-12-19", "Seminários", { status: "tentative" }),

@@ -6,6 +6,13 @@ import {
   formatEventTime,
 } from "../src/lib/calendar-events.ts";
 
+test("vigília de 28 de novembro removida, mantendo Núcleo Teens e histórico", () => {
+  assert.equal(CHURCH_EVENTS.some((item) => item.id === "vigilia-novembro"), false);
+  assert.equal(eventsForMonth(11, "Oração").some((item) => item.startDate === "2026-11-28"), false);
+  assert.ok(CHURCH_EVENTS.some((item) => item.id === "nucleo-teens-novembro" && item.startDate === "2026-11-28"));
+  assert.ok(CHURCH_EVENTS.some((item) => item.id === "vigilia-agosto"));
+});
+
 test("o Ekklesia de 19 de setembro não aparece", () => {
   assert.equal(CHURCH_EVENTS.some((item) => item.id === "seminario-ekklesia"), false);
   assert.equal(CHURCH_EVENTS.some((item) => item.startDate === "2026-09-19" && /ekklesia|eclesia/i.test(item.title)), false);
