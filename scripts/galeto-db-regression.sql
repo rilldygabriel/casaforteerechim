@@ -1,0 +1,33 @@
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','34944370-8853-4c1b-866b-8c80b4e59829',true);
+do $$
+declare r public.galeto_allocations; fixture uuid := gen_random_uuid(); caught boolean;
+begin
+  r := public.save_galeto_allocation(fixture,0,'__TESTE_GALETO_ROLLBACK__',5,0,0,false,'teste transacional');
+  if r.version <> 1 then raise exception 'initial version failed'; end if;
+  r := public.save_galeto_allocation(fixture,0,'__TESTE_GALETO_ROLLBACK__',5,0,0,false,'teste transacional');
+  if (select count(*) from public.galeto_changes where allocation_id=fixture) <> 1 then raise exception 'duplicate creation'; end if;
+  r := public.save_galeto_allocation(fixture,1,r.name,5,2,0,true,'acerto parcial');
+  if r.settled<>2 or r.picked_up<>0 or r.version<>2 then raise exception 'settlement failed'; end if;
+  caught := false;
+  begin perform public.save_galeto_allocation(fixture,1,r.name,5,2,1,true,'stale'); exception when serialization_failure then caught := true; end;
+  if not caught then raise exception 'stale version accepted'; end if;
+  caught := false;
+  begin perform public.save_galeto_allocation(fixture,2,r.name,5,2,6,true,'overflow'); exception when check_violation then caught := true; end;
+  if not caught then raise exception 'over capacity accepted'; end if;
+  perform set_config('request.jwt.claim.sub','4233f7fd-d931-445d-afab-d775d221a68e',true);
+  r := public.save_galeto_allocation(fixture,2,r.name,5,2,3,true,'retirada parcial Lisi');
+  if r.settled<>2 or r.picked_up<>3 or r.version<>3 then raise exception 'independent pickup failed'; end if;
+  r := public.save_galeto_allocation(fixture,3,r.name,5,2,2,true,'correção');
+  if (select count(*) from public.galeto_changes where allocation_id=fixture)<>4 then raise exception 'audit failed'; end if;
+  perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000099',true);
+  if exists(select 1 from public.galeto_allocations) or exists(select 1 from public.galeto_changes) then raise exception 'private data visible'; end if;
+  caught := false;
+  begin perform public.save_galeto_allocation(fixture,4,r.name,5,5,5,true,'forbidden'); exception when insufficient_privilege then caught:=true; end;
+  if not caught then raise exception 'unauthorized mutation accepted'; end if;
+  caught := false;
+  begin insert into public.galeto_allocations(id,name,allocated) values(gen_random_uuid(),'__FORBIDDEN__',1); exception when insufficient_privilege then caught:=true; end;
+  if not caught then raise exception 'direct insert allowed'; end if;
+end $$;
+rollback;

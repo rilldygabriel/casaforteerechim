@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { canManageGaleto } from "@/lib/galeto";
 import { canCreateCashRegistration, WOMENS_ENCOUNTER_SLUG } from "@/lib/womens-encounter-policy";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -71,7 +72,7 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
     <section className="admin-events-hero"><p className="section-eyebrow"><span aria-hidden="true" />Organização da Casa</p><h1>Eventos e Inscrições</h1><p>Crie eventos, acompanhe participantes e organize cada próximo passo.</p></section>
     <section className="admin-event-summary"><article><span>Eventos ativos</span><strong>{activeEvents.length}</strong></article><article><span>Total de inscrições</span><strong>{allRegistrations.length}</strong></article><article><span>Pendentes</span><strong>{pending}</strong></article><article><span>Confirmadas</span><strong>{confirmed}</strong></article></section>
     {filters.mensagem ? <p className="admin-event-feedback" role="status">{filters.mensagem}</p> : null}
-    <nav className="admin-event-tabs" aria-label="Seções"><Link data-active={filters.tab !== "inscricoes"} href="/admin/eventos?tab=eventos">Eventos</Link><Link data-active={filters.tab === "inscricoes"} href="/admin/eventos?tab=inscricoes">Inscrições</Link>{allEvents.some((event) => event.slug === "hamburguer-da-casa-20-09") ? <Link href="/admin/eventos/ingressos">Ler ingressos</Link> : null}</nav>
+    <nav className="admin-event-tabs" aria-label="Seções"><Link data-active={filters.tab !== "inscricoes"} href="/admin/eventos?tab=eventos">Eventos</Link><Link data-active={filters.tab === "inscricoes"} href="/admin/eventos?tab=inscricoes">Inscrições</Link>{canManageGaleto(user.id) ? <Link href="/admin/eventos/galeto">Galeto · Controle</Link> : null}{allEvents.some((event) => event.slug === "hamburguer-da-casa-20-09") ? <Link href="/admin/eventos/ingressos">Ler ingressos</Link> : null}</nav>
     {filters.tab === "inscricoes" ? <RegistrationsTab events={allEvents} registrations={filtered} tickets={tickets ?? []} filters={filters} canSellManualTickets={scope.manualTicketAccess} userId={user.id} /> : <EventsTab events={allEvents} registrations={allRegistrations} editing={editing} canCreateEvents={scope.globalAccess} />}
   </main>;
 }
