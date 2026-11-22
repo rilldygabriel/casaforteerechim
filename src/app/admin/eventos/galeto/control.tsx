@@ -1,121 +1,122 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { galetoTotals, GALETO_MANAGERS, type GaletoAllocation, type GaletoChange, type GaletoInput } from "@/lib/galeto";
 import { saveGaleto } from "./actions";
 import styles from "./galeto.module.css";
 
-type Mode = "new" | "settle" | "pickup" | "edit";
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-const labels: Record<Mode, string> = { new: "Adicionar pessoa", settle: "Registrar acerto", pickup: "Registrar retirada", edit: "Editar / corrigir" };
 
 export default function GaletoControl({ rows, history }: { rows: GaletoAllocation[]; history: GaletoChange[] }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [editing, setEditing] = useState<{ item: GaletoInput; mode: Mode } | null>(null);
-  const [message, setMessage] = useState("");
+  const [overrides, setOverrides] = useState<Record<string, GaletoAllocation>>({});
+  const [newItem, setNewItem] = useState<GaletoAllocation | null>(null);
   const [refreshing, refresh] = useTransition();
-  const totals = galetoTotals(rows);
-  const shown = rows.filter(row => normalize(row.name).includes(normalize(search)) &&
-    (filter === "all" || (filter === "settle" && row.settled < row.allocated) ||
-      (filter === "pickup" && row.picked_up < row.allocated) || (filter === "review" && !row.settlement_reviewed)));
-  function open(item: GaletoInput, mode: Mode) { setMessage(""); setEditing({ item, mode }); }
-  function reload() { refresh(() => router.refresh()); }
+  const allRows = rows.map(row => overrides[row.id]?.version > row.version ? overrides[row.id] : row);
+  for (const row of Object.values(overrides)) if (!rows.some(item => item.id === row.id)) allRows.push(row);
+  const totals = galetoTotals(allRows);
+  const matches = (row: GaletoAllocation) => normalize(row.name).includes(normalize(search)) &&
+    (filter === "all" || (filter === "sell" && row.sold !== null && row.sold < row.allocated) ||
+      (filter === "settle" && row.sold !== null && row.settled < row.sold) ||
+      (filter === "pickup" && row.sold !== null && row.picked_up < row.sold) || (filter === "review" && row.sold === null));
+  function saved(row: GaletoAllocation) {
+    setOverrides(previous => ({ ...previous, [row.id]: row }));
+    refresh(() => router.refresh());
+  }
   return <>
+    <p className={styles.hint}>{totals.allocated} ingressos entregues a {allRows.length} pessoas. Resumo dos dados salvos:</p>
     <section className={styles.metrics} aria-label="Resumo dos ingressos">
-      <Metric label="Ingressos entregues" value={totals.allocated} detail={`${rows.length} pessoas na lista`} />
-      <Metric label="Acertos registrados" value={totals.settled} detail={`${totals.allocated - totals.settled} sem acerto registrado`} />
-      <Metric label="Refeições retiradas" value={totals.picked_up} detail={`${totals.allocated - totals.picked_up} ainda por retirar`} />
+      <Metric label="Vendidos" value={allRows.length > 0 && totals.salesUnknown === allRows.length ? "—" : totals.sold} />
+      <Metric label="Falta vender" value={allRows.length > 0 && totals.salesUnknown === allRows.length ? "—" : totals.unsold} />
+      <Metric label="Acertados" value={totals.settled} />
+      <Metric label="Falta acertar" value={allRows.length > 0 && totals.salesUnknown === allRows.length ? "—" : totals.unsettled} />
+      <Metric label="Retirados" value={totals.picked_up} />
+      <Metric label="Falta retirar" value={allRows.length > 0 && totals.salesUnknown === allRows.length ? "—" : totals.uncollected} />
     </section>
-    {totals.unreviewed > 0 && <p className={styles.hint}>{totals.unreviewed} pessoas com pagamento ainda a conferir. “Sem acerto registrado” não significa que o pagamento não ocorreu.</p>}
+    {totals.salesUnknown > 0 && <p className={styles.hint}>Vendas ainda não informadas para {totals.salesUnknown} pessoas. Os saldos “falta” consideram somente quem já tem a quantidade vendida informada.</p>}
+    <p className={styles.hint}>Falta vender = entregues − vendidos. Falta acertar = vendidos − acertados. Falta retirar = vendidos − retirados.</p>
     <div className={styles.toolbar}>
-      <button className={styles.primary} onClick={() => open({ id: crypto.randomUUID(), name: "", allocated: 1, settled: 0, picked_up: 0, settlement_reviewed: false, notes: "", version: 0 }, "new")} disabled={!!editing}>+ Adicionar pessoa</button>
-      <button onClick={reload} disabled={refreshing || !!editing}>{refreshing ? "Atualizando…" : "Atualizar lista"}</button>
+      <button className={styles.primary} disabled={!!newItem} onClick={() => setNewItem({ id: crypto.randomUUID(), name: "", allocated: 1, sold: 0, settled: 0, picked_up: 0, settlement_reviewed: false, notes: "", version: 0, updated_at: "" })}>+ Adicionar pessoa</button>
+      <button disabled={refreshing} onClick={() => refresh(() => router.refresh())}>{refreshing ? "Atualizando…" : "Atualizar lista"}</button>
     </div>
-    <div role="status" aria-live="polite">{message && <p className={styles.feedback}>{message}</p>}</div>
-    {editing && <Editor key={`${editing.item.id}-${editing.mode}`} item={editing.item} mode={editing.mode}
-      onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); setMessage("Registro salvo. Os totais foram atualizados."); reload(); }} />}
+    {newItem && <AllocationCard row={newItem} isNew onSaved={row => { saved(row); setNewItem(null); }} onCancel={() => setNewItem(null)} />}
     <div className={styles.filters}>
       <label>Buscar pessoa<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Digite o nome…" /></label>
-      <label>Mostrar<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Todas as pessoas</option><option value="settle">Com acertos pendentes de registro</option><option value="pickup">Com refeições por retirar</option><option value="review">Pagamento a conferir</option></select></label>
+      <label>Mostrar<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Todas as pessoas</option><option value="sell">Falta vender</option><option value="settle">Falta acertar</option><option value="pickup">Falta retirar</option><option value="review">Vendas não informadas</option></select></label>
     </div>
-    <p className={styles.resultCount}>{shown.length} de {rows.length} pessoas</p>
+    <p className={styles.resultCount}>{allRows.filter(matches).length} de {allRows.length} pessoas</p>
     <section className={styles.list} aria-label="Controle por pessoa">
-      {shown.map(row => <article className={styles.card} key={row.id}>
-        <div className={styles.cardHeading}><h2>{row.name}</h2><span>{row.allocated} ingressos</span></div>
-        <div className={styles.counts}>
-          <div><span>Acertados</span><strong>{row.settled} <small>/ {row.allocated}</small></strong><p>{!row.settlement_reviewed ? "Pagamento a conferir" : row.settled === row.allocated ? "Tudo acertado" : `${row.allocated - row.settled} a acertar`}</p></div>
-          <div><span>Refeições retiradas</span><strong>{row.picked_up} <small>/ {row.allocated}</small></strong><p>{row.picked_up === row.allocated ? "Tudo retirado" : `${row.allocated - row.picked_up} por retirar`}</p></div>
-        </div>
-        {row.notes && <p className={styles.notes}>{row.notes}</p>}
-        <div className={styles.cardActions}>
-          <button disabled={!!editing || row.settled >= row.allocated} onClick={() => open(row, "settle")}>Acertar</button>
-          <button className={styles.primary} disabled={!!editing || row.picked_up >= row.allocated} onClick={() => open(row, "pickup")}>Retirar refeição</button>
-          <button className={styles.edit} disabled={!!editing} onClick={() => open(row, "edit")}>Editar / corrigir</button>
-        </div>
-      </article>)}
-      {!shown.length && <p>Nenhuma pessoa encontrada com este filtro.</p>}
+      {allRows.map(row => <AllocationCard key={row.id} row={row} hidden={!matches(row)} onSaved={saved} />)}
+      {!allRows.some(matches) && <p>Nenhuma pessoa encontrada com este filtro.</p>}
     </section>
     <details className={styles.history}><summary>Histórico das últimas alterações</summary>
       <p>Até 100 registros mais recentes. Correções ficam registradas aqui.</p>
       <ol>{history.map(change => <li key={change.id}><strong>{change.after_state.name}</strong>
-        <span>{change.before_state ? `Ingressos: ${change.before_state.allocated} → ${change.after_state.allocated} · Acertos: ${change.before_state.settled} → ${change.after_state.settled} · Retiradas: ${change.before_state.picked_up} → ${change.after_state.picked_up}` : `Cadastro · ${change.after_state.allocated} ingressos`}</span>
+        <span>{change.before_state ? `Ingressos: ${change.before_state.allocated} → ${change.after_state.allocated} · Vendidos: ${change.before_state.sold ?? "não informado"} → ${change.after_state.sold ?? "não informado"} · Acertos: ${change.before_state.settled} → ${change.after_state.settled} · Retiradas: ${change.before_state.picked_up} → ${change.after_state.picked_up}` : `Cadastro · ${change.after_state.allocated} ingressos`}</span>
         <small>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(change.created_at))} · {change.actor_id === GALETO_MANAGERS[0] ? "Rilldy" : "Lisi"}</small>
       </li>)}</ol>
     </details>
   </>;
 }
 
-function Metric({ label, value, detail }: { label: string; value: number; detail: string }) {
-  return <article><span>{label}</span><strong>{value}</strong><small>{detail}</small></article>;
+function Metric({ label, value }: { label: string; value: number | string }) {
+  return <article><span>{label}</span><strong>{value}</strong></article>;
 }
 
-function Editor({ item, mode, onCancel, onSaved }: { item: GaletoInput; mode: Mode; onCancel: () => void; onSaved: () => void }) {
-  const [draft, setDraft] = useState(item);
-  const [quantity, setQuantity] = useState(1);
-  const [error, setError] = useState("");
+function AllocationCard({ row, hidden, isNew, onSaved, onCancel }: {
+  row: GaletoAllocation; hidden?: boolean; isNew?: boolean;
+  onSaved: (row: GaletoAllocation) => void; onCancel?: () => void;
+}) {
+  // Preserve unsaved fields and their version while other cards refresh.
+  const [draft, setDraft] = useState<GaletoInput | null>(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState(false);
   const [pending, setPending] = useState(false);
   const busy = useRef(false);
-  const panel = useRef<HTMLElement>(null);
-  const maximum = mode === "settle" ? item.allocated - item.settled : item.allocated - item.picked_up;
-  useEffect(() => { panel.current?.scrollIntoView({ behavior: "smooth", block: "center" }); panel.current?.focus({ preventScroll: true }); }, []);
+  const item = draft ?? row;
+  const count = (n: number | null) => n !== null && Number.isFinite(n) ? n : "";
+  const sold = Number.isFinite(item.sold) ? item.sold : null;
+  function change(patch: Partial<GaletoInput>) { setDraft(previous => ({ ...(previous ?? row), ...patch })); setMessage(""); }
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy.current) return;
-    busy.current = true; setPending(true); setError("");
+    busy.current = true; setPending(true); setMessage("");
     try {
-      const next = mode === "settle" ? { ...draft, settled: item.settled + quantity, settlement_reviewed: true }
-        : mode === "pickup" ? { ...draft, picked_up: item.picked_up + quantity } : draft;
-      const result = await saveGaleto(next);
-      if (result.ok) onSaved(); else setError(result.message);
-    } catch { setError("Não foi possível confirmar o salvamento. Feche a edição e atualize a lista antes de tentar novamente."); }
+      const result = await saveGaleto(item);
+      if (result.ok && result.row) { onSaved(result.row); setDraft(null); setError(false); setMessage("Salvo. Totais atualizados."); }
+      else { setError(true); setMessage(result.message); }
+    } catch { setError(true); setMessage("Falha de conexão. Atualize a lista e confira antes de reenviar; seus campos foram preservados."); }
     finally { busy.current = false; setPending(false); }
   }
-  return <section ref={panel} tabIndex={-1} className={styles.editor} aria-label={labels[mode]}>
-    <h2>{labels[mode]}{mode !== "new" ? ` · ${item.name}` : ""}</h2>
+  return <article className={styles.card} hidden={hidden} aria-label={isNew ? "Adicionar pessoa" : row.name}>
+    <div className={styles.cardHeading}><h2>{isNew ? "Adicionar pessoa" : row.name}</h2><span>{item.allocated} ingressos entregues</span></div>
+    <div className={styles.balances} aria-live="polite">
+      <span>Falta vender <strong>{sold === null ? "—" : Math.max(0, item.allocated - sold)}</strong></span>
+      <span>Falta acertar <strong>{sold === null || !Number.isFinite(item.settled) ? "—" : Math.max(0, sold - item.settled)}</strong></span>
+      <span>Falta retirar <strong>{sold === null || !Number.isFinite(item.picked_up) ? "—" : Math.max(0, sold - item.picked_up)}</strong></span>
+    </div>
     <form onSubmit={submit}>
-      <fieldset disabled={pending}>
-        {mode === "new" || mode === "edit" ? <>
-          <label>Nome / apelido<input required maxLength={100} value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} /></label>
-          <label>Total de ingressos entregues<input type="number" required min={Math.max(draft.settled, draft.picked_up)} max={10000} step={1} value={draft.allocated} onChange={e => setDraft({ ...draft, allocated: e.target.valueAsNumber })} /></label>
-          {mode === "edit" && <>
-            <label>Total de ingressos já acertados<input type="number" min={0} max={draft.allocated} step={1} required value={draft.settled} onChange={e => setDraft({ ...draft, settled: e.target.valueAsNumber, settlement_reviewed: true })} /></label>
-            <label>Total de refeições já retiradas<input type="number" min={0} max={draft.allocated} step={1} required value={draft.picked_up} onChange={e => setDraft({ ...draft, picked_up: e.target.valueAsNumber })} /></label>
-            <label className={styles.checkbox}><input type="checkbox" checked={draft.settlement_reviewed} onChange={e => setDraft({ ...draft, settlement_reviewed: e.target.checked })} /> Pagamento conferido</label>
-            <p>Os campos acima são totais acumulados. Ajuste-os para corrigir um lançamento; o histórico será preservado.</p>
-          </>}
-        </> : <>
-          <p>{mode === "settle" ? "Quantos ingressos esta pessoa está acertando agora?" : "Quantas refeições serão retiradas agora em nome desta pessoa?"}</p>
-          <label>Quantidade neste lançamento<input type="number" required min={1} max={maximum} step={1} value={quantity} onChange={e => setQuantity(e.target.valueAsNumber)} /></label>
-          <p>Após confirmar: <strong>{(mode === "settle" ? item.settled : item.picked_up) + (Number.isFinite(quantity) ? quantity : 0)} de {item.allocated} {mode === "settle" ? "acertados" : "retiradas"}</strong>.</p>
-          {mode === "pickup" && <p>A retirada da refeição não altera o pagamento.</p>}
-        </>}
-        <label>Observações (opcional)<textarea rows={2} maxLength={1000} value={draft.notes} onChange={e => setDraft({ ...draft, notes: e.target.value })} placeholder="Ex.: retirado por outra pessoa; acerto parcial…" /></label>
-        <div className={styles.toolbar}><button className={styles.primary} type="submit">{pending ? "Salvando…" : mode === "pickup" ? "Confirmar retirada" : mode === "settle" ? "Confirmar acerto" : "Salvar"}</button><button type="button" onClick={onCancel}>Cancelar</button></div>
+      <fieldset disabled={pending} className={styles.cardFields}>
+        <div className={styles.quantityFields}>
+          <label>Vendidos<input aria-label={`Vendidos · ${row.name || "nova pessoa"}`} type="number" min={0} max={item.allocated} step={1} required inputMode="numeric" placeholder="Informe" value={count(item.sold)} onChange={e => change({ sold: e.target.value === "" ? null : e.target.valueAsNumber })} /></label>
+          <label>Acertados<input aria-label={`Acertados · ${row.name || "nova pessoa"}`} type="number" min={0} max={sold ?? item.allocated} step={1} required inputMode="numeric" value={count(item.settled)} onChange={e => change({ settled: e.target.valueAsNumber, settlement_reviewed: true })} /></label>
+          <label>Retirados<input aria-label={`Retirados · ${row.name || "nova pessoa"}`} type="number" min={0} max={sold ?? item.allocated} step={1} required inputMode="numeric" value={count(item.picked_up)} onChange={e => change({ picked_up: e.target.valueAsNumber })} /></label>
+        </div>
+        <p className={styles.cardHint}>Preencha os totais acumulados, não apenas os deste lançamento. Retirados = refeições entregues.</p>
+        <details open={isNew || undefined} className={styles.settings}><summary>Nome, ingressos e observações</summary>
+          <label>Nome / apelido<input required maxLength={100} value={item.name} onChange={e => change({ name: e.target.value })} /></label>
+          <label>Ingressos entregues<input type="number" min={0} max={10000} step={1} required value={count(item.allocated)} onChange={e => change({ allocated: e.target.valueAsNumber })} /></label>
+          <label>Observações<textarea rows={2} maxLength={1000} value={item.notes} onChange={e => change({ notes: e.target.value })} /></label>
+        </details>
+        <button className={`${styles.primary} ${styles.saveCard}`} type="submit">{pending ? "Salvando…" : "Salvar"}</button>
+        {draft && <button type="button" onClick={() => { setDraft(null); setMessage(""); }}>Descartar edição e usar dados atualizados</button>}
+        {onCancel && <button type="button" onClick={onCancel}>Cancelar</button>}
       </fieldset>
-      {error && <p className={styles.error} role="alert">{error}</p>}
+      {draft && !message && <p className={styles.cardHint}>Prévia no card. Clique em Salvar para atualizar o resumo geral.</p>}
+      <p className={error ? styles.error : styles.cardHint} role={error ? "alert" : "status"}>{message}</p>
     </form>
-  </section>;
+  </article>;
 }
