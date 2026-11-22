@@ -12,19 +12,19 @@ export async function saveGaleto(input: GaletoInput): Promise<GaletoResult> {
     let item: GaletoInput;
     try { item = validateGaleto(input); }
     catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Confira os dados." }; }
-    const { error } = await supabase.rpc("save_galeto_allocation", {
+    const { data, error } = await supabase.rpc("save_galeto_counts", {
       p_id: item.id, p_version: item.version, p_name: item.name,
-      p_allocated: item.allocated, p_settled: item.settled, p_picked_up: item.picked_up,
+      p_allocated: item.allocated, p_sold: item.sold, p_settled: item.settled, p_picked_up: item.picked_up,
       p_reviewed: item.settlement_reviewed, p_notes: item.notes,
     });
     if (error) {
-      if (error.code === "40001") return { ok: false, message: "Este registro mudou em outro acesso. Feche esta edição, atualize a lista e tente novamente." };
+      if (error.code === "40001") return { ok: false, message: "Este registro mudou em outro acesso. Clique em Atualizar lista, depois em Descartar edição e use os dados atualizados antes de editar novamente." };
       if (error.code === "23505") return { ok: false, message: "Já existe uma pessoa com esse nome. Procure na lista ou diferencie o nome." };
       console.error("galeto_save_failed", { code: error.code });
       return { ok: false, message: "Não foi possível salvar. Confira a conexão e atualize a lista antes de tentar novamente." };
     }
     revalidatePath("/admin/eventos/galeto");
-    return { ok: true, message: "Registro salvo." };
+    return { ok: true, message: "Registro salvo.", row: data };
   } catch {
     return { ok: false, message: "Falha na conexão. Seus campos continuam preenchidos. Atualize a lista para conferir antes de reenviar." };
   }

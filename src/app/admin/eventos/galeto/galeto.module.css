@@ -20,6 +20,17 @@
 .resultCount { margin: 18px 0; font-size: .85rem; }
 .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .card { min-width: 0; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-0); }
+.card[hidden] { display: none; }
+.balances { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.balances span { font-size: .8rem; color: var(--muted); }
+.balances strong { display: block; margin-top: 5px; font-size: 1.5rem; color: var(--foreground); }
+.cardFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
+.quantityFields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quantityFields input { font-size: 1.25rem; font-weight: 700; }
+.cardHint { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.saveCard { width: 100%; }
+.settings summary { cursor: pointer; padding: 8px 0; font-size: .8rem; }
+.settings label { margin-top: 12px; }
 .cardHeading { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; justify-content: space-between; }
 .cardHeading h2 { font-size: 1.4rem; margin: 0; overflow-wrap: anywhere; }
 .cardHeading > span { color: var(--muted); font-size: .85rem; }

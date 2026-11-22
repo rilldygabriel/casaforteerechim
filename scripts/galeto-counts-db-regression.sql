@@ -1,0 +1,36 @@
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','34944370-8853-4c1b-866b-8c80b4e59829',true);
+do $$
+declare r public.galeto_allocations; fixture uuid := gen_random_uuid(); caught boolean;
+begin
+  r := public.save_galeto_counts(fixture,0,'__TESTE_CONTAGENS_ROLLBACK__',10,6,4,2,true,'teste');
+  if r.version<>1 or r.sold<>6 or r.settled<>4 or r.picked_up<>2 then raise exception 'counts failed'; end if;
+  r := public.save_galeto_counts(fixture,0,r.name,10,6,4,2,true,'repetido');
+  if (select count(*) from public.galeto_changes where allocation_id=fixture)<>1 then raise exception 'duplicate creation'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,1,r.name,10,3,4,2,true,'invalid'); exception when check_violation then caught:=true; end;
+  if not caught then raise exception 'settled above sold'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,1,r.name,10,6,4,7,true,'invalid'); exception when check_violation then caught:=true; end;
+  if not caught then raise exception 'pickup above sold'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,1,r.name,10,11,4,2,true,'invalid'); exception when check_violation then caught:=true; end;
+  if not caught then raise exception 'sold above allocated'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,1,r.name,10,null,4,2,true,'invalid'); exception when check_violation then caught:=true; end;
+  if not caught then raise exception 'missing sales accepted'; end if;
+  perform set_config('request.jwt.claim.sub','4233f7fd-d931-445d-afab-d775d221a68e',true);
+  r := public.save_galeto_counts(fixture,1,r.name,10,7,4,5,true,'Lisi');
+  if r.sold<>7 or r.settled<>4 or r.picked_up<>5 or r.version<>2 then raise exception 'independent counts failed'; end if;
+  if not exists(select 1 from public.galeto_changes where allocation_id=fixture and (after_state->>'sold')::int=7) then raise exception 'audit missing sales'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,1,r.name,10,8,4,5,true,'stale'); exception when serialization_failure then caught:=true; end;
+  if not caught then raise exception 'stale accepted'; end if;
+  perform set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000099',true);
+  if exists(select 1 from public.galeto_allocations) then raise exception 'data leaked'; end if;
+  caught:=false;
+  begin perform public.save_galeto_counts(fixture,2,r.name,10,8,4,5,true,'forbidden'); exception when insufficient_privilege then caught:=true; end;
+  if not caught then raise exception 'unauthorized save'; end if;
+end $$;
+rollback;
