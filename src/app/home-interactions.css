@@ -96,6 +96,12 @@ html .home-page .home-nav .home-glass-link:focus-visible {
   outline-offset: -2px;
 }
 
+/* The store badges stay black, including inside the light themes. */
+html .home-page .home-nav .home-app-downloads > a,
+html .home-page .home-nav .home-app-downloads > a :is(span, small, svg) {
+  color: #fff;
+}
+
 /* Fit between the brand/tools and the download badges without squeezing labels. */
 @media (min-width: 761px) {
   html .home-page .home-header { flex-wrap: wrap; border-radius: 28px; gap: 12px; padding-block: 12px; }
