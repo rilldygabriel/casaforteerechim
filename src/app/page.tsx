@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "@/components/theme-toggle";
 import ThemedHomeCover from "@/components/themed-home-cover";
+import HomeQuickNav from "@/components/home-quick-nav";
+import HomeSectionMotion from "@/components/home-section-motion";
 import BirthdayCarousel from "@/components/birthday-carousel";
 import PixCopyButton from "@/components/pix-copy-button";
 import ProgramsSection from "@/components/programs-section";
@@ -230,6 +232,7 @@ function GooglePlayIcon() {
 export default function Home() {
   return (
     <main className="home-page">
+      <HomeSectionMotion />
       <header className="home-header">
         <div className="home-header-topline">
           <Link className="home-brand" href="/" aria-label="Casa Forte — início">
@@ -252,28 +255,7 @@ export default function Home() {
         </div>
 
         <nav className="home-nav" aria-label="Acesso rápido">
-          <span className="home-nav-links">
-            <Link className="home-nav-filled" href="/familia">
-              Área de membro
-            </Link>
-            <Link className="home-nav-light" href="/eventos">
-              Inscrições
-            </Link>
-            <a
-              className="home-nav-light"
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Fale conosco
-            </a>
-            <Link className="home-nav-filled" href="/generosidade">
-              Generosidade
-            </Link>
-            <Link className="home-nav-admin" href="/admin">
-              Painel
-            </Link>
-          </span>
+          <HomeQuickNav />
           <span className="home-app-downloads" aria-label="Baixar o aplicativo">
             <a
               href="/api/app-download/ios?source=home_header"
