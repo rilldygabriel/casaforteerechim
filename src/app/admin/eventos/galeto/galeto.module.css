@@ -4,7 +4,7 @@
 .header p { font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
 .header h1 { font-size: clamp(2rem, 6vw, 4rem); line-height: 1.05; margin: 10px 0 16px; }
 .header span, .hint, .resultCount { color: var(--muted); }
-.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .metrics article { background: var(--surface-0); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 10px; }
 .metrics strong { font-size: 2.8rem; line-height: 1; }
 .metrics small { color: var(--muted); }
@@ -25,7 +25,7 @@
 .balances span { font-size: .8rem; color: var(--muted); }
 .balances strong { display: block; margin-top: 5px; font-size: 1.5rem; color: var(--foreground); }
 .cardFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
-.quantityFields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quantityFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .quantityFields input { font-size: 1.25rem; font-weight: 700; }
 .cardHint { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
 .saveCard { width: 100%; }
@@ -48,7 +48,7 @@
 .editor p { font-size: .9rem; margin: 0; line-height: 1.5; }
 .editor .toolbar { margin: 0; }
 .page .checkbox { display: flex; align-items: center; }
-.page .checkbox input { width: 20px; height: 20px; }
+.page .checkbox input { width: 20px; height: 20px; flex: 0 0 20px; }
 .feedback { padding: 16px; border: 1px solid var(--line); border-radius: 12px; }
 .error { margin-top: 18px !important; padding: 12px; border: 1px solid #cb6a6a; border-radius: 10px; }
 .history { margin-top: 32px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-0); }
@@ -59,7 +59,7 @@
 .history small { color: var(--muted); }
 @media(max-width: 640px) {
   .page { padding: 100px 16px 40px; }
-  .metrics { gap: 8px; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .metrics article { padding: 14px 10px; border-radius: 14px; }
   .metrics span { font-size: .75rem; }
   .metrics strong { font-size: 2rem; }

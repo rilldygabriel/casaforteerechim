@@ -4,17 +4,19 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { canManageGaleto, validateGaleto, type GaletoInput, type GaletoResult } from "@/lib/galeto";
 
-export async function saveGaleto(input: GaletoInput): Promise<GaletoResult> {
+export async function saveGaleto(input: GaletoInput, confirmed: boolean): Promise<GaletoResult> {
   try {
     const supabase = await getSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !canManageGaleto(user.id)) return { ok: false, message: "Acesso restrito ao Pastor Rilldy e à Lisi. Entre novamente, se necessário." };
+    if (confirmed !== true) return { ok: false, message: "Confira os números e marque o aceite antes de salvar." };
     let item: GaletoInput;
     try { item = validateGaleto(input); }
     catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Confira os dados." }; }
-    const { data, error } = await supabase.rpc("save_galeto_counts", {
+    const { data, error } = await supabase.rpc("save_galeto_counts_v2", {
       p_id: item.id, p_version: item.version, p_name: item.name,
       p_allocated: item.allocated, p_sold: item.sold, p_settled: item.settled, p_picked_up: item.picked_up,
+      p_returned: item.returned,
       p_reviewed: item.settlement_reviewed, p_notes: item.notes,
     });
     if (error) {
