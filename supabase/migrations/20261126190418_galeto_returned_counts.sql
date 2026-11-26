@@ -1,4 +1,4 @@
--- Additive migration: existing sales, settlements and pickups stay unchanged.
+-- Additive migration (version matches production): existing counts stay unchanged.
 alter table public.galeto_allocations add column returned integer not null default 0;
 alter table public.galeto_allocations add constraint galeto_returned_bounds
 check (returned between 0 and allocated and returned + coalesce(sold, greatest(settled, picked_up)) <= allocated);
