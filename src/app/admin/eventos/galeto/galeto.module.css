@@ -4,7 +4,7 @@
 .header p { font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
 .header h1 { font-size: clamp(2rem, 6vw, 4rem); line-height: 1.05; margin: 10px 0 16px; }
 .header span, .hint, .resultCount { color: var(--muted); }
-.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .metrics article { background: var(--surface-0); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 10px; }
 .metrics strong { font-size: 2.8rem; line-height: 1; }
 .metrics small { color: var(--muted); }

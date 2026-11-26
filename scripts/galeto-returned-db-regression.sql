@@ -10,8 +10,8 @@ begin
   r := public.save_galeto_counts_v2(fixture,0,r.name,10,6,4,2,3,true,'retry');
   if (select count(*) from public.galeto_changes where allocation_id=fixture)<>1 then raise exception 'duplicate creation'; end if;
   caught:=false;
-  begin perform public.save_galeto_counts_v2(fixture,1,r.name,10,6,4,2,5,true,'invalid'); exception when check_violation then caught:=true; end;
-  if not caught then raise exception 'sold + returned exceeds allocated'; end if;
+  begin perform public.save_galeto_counts_v2(fixture,1,r.name,10,6,4,2,7,true,'invalid'); exception when check_violation then caught:=true; end;
+  if not caught then raise exception 'settled + returned exceeds allocated'; end if;
   caught:=false;
   begin perform public.save_galeto_counts_v2(fixture,1,r.name,10,6,4,2,-1,true,'invalid'); exception when check_violation then caught:=true; end;
   if not caught then raise exception 'negative returned accepted'; end if;
@@ -22,7 +22,7 @@ begin
   r := public.save_galeto_counts(fixture,1,r.name,10,7,4,2,true,'old UI');
   if r.returned<>3 then raise exception 'old RPC overwrote returned'; end if;
   caught:=false;
-  begin perform public.save_galeto_counts(fixture,2,r.name,10,8,4,2,true,'old UI invalid'); exception when check_violation then caught:=true; end;
+  begin perform public.save_galeto_counts(fixture,2,r.name,10,8,8,2,true,'old UI invalid'); exception when check_violation then caught:=true; end;
   if not caught then raise exception 'old RPC bypassed constraint'; end if;
   perform set_config('request.jwt.claim.sub','4233f7fd-d931-445d-afab-d775d221a68e',true);
   r := public.save_galeto_counts_v2(fixture,2,r.name,10,7,4,2,2,true,'Lisi correction');

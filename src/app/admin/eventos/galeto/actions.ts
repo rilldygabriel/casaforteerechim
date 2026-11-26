@@ -13,9 +13,9 @@ export async function saveGaleto(input: GaletoInput, confirmed: boolean): Promis
     let item: GaletoInput;
     try { item = validateGaleto(input); }
     catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Confira os dados." }; }
-    const { data, error } = await supabase.rpc("save_galeto_counts_v2", {
+    const { data, error } = await supabase.rpc("save_galeto_control_v3", {
       p_id: item.id, p_version: item.version, p_name: item.name,
-      p_allocated: item.allocated, p_sold: item.sold, p_settled: item.settled, p_picked_up: item.picked_up,
+      p_allocated: item.allocated, p_settled: item.settled, p_picked_up: item.picked_up,
       p_returned: item.returned,
       p_reviewed: item.settlement_reviewed, p_notes: item.notes,
     });
